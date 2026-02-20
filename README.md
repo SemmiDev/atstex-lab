@@ -1,5 +1,9 @@
 # ATSTEXLAB — Engineered ATS Resume Builder
 
+![ATSTEXLAB Home Screen Preview](assets/home.png)
+![ATSTEXLAB Biodata Input Preview](assets/biodata.png)
+![ATSTEXLAB PDF Editor Preview](assets/preview.png)
+
 A minimal, self-hosted LaTeX compiler and previewer tailored for building ATS-friendly resumes. Write LaTeX in the browser using curated professional CV templates, compile server-side with pdflatex/xelatex/lualatex, and preview the PDF instantly.
 
 ## Features
