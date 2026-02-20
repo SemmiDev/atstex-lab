@@ -729,14 +729,24 @@ pre#log-output .warn-line {
   margin: 0;
 }
 
-.donation-modal-card iframe {
+.donation-modal-card a {
+  display: inline-block;
+  margin-top: 8px;
+  transition: transform var(--transition);
+}
+
+.donation-modal-card a:hover {
+  transform: translate(-2px, -2px);
+}
+
+.donation-modal-card img {
   width: 350px;
   height: 350px;
   border: 4px solid var(--border);
   box-shadow: var(--shadow);
   border-radius: 8px;
   background: white;
-  margin-top: 8px;
+  display: block;
 }
 
 .close-modal-btn {
