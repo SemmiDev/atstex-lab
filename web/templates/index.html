@@ -778,6 +778,7 @@
     // We will use a generic stream-syntax for LaTeX since there isn't a robust official Lezer grammar in core yet
     import { StreamLanguage } from "https://esm.sh/@codemirror/language";
     import { stex } from "https://esm.sh/@codemirror/legacy-modes/mode/stex";
+    import { autocompletion, snippetCompletion } from "https://esm.sh/@codemirror/autocomplete";
 
     // ── State ─────────────────────────────────────────────────────
     let pdfBytes = null;
@@ -904,6 +905,39 @@ to your browser.
       "&.cm-focused .cm-selectionBackground, ::selection": { backgroundColor: "rgba(255, 71, 148, 0.2)" }
     }, { dark: false });
 
+    // ── Autocomplete dictionary ───────────────────────────────────
+    const latexCompletions = [
+      snippetCompletion('\\begin{${environment}}\n\t${}\n\\end{${environment}}', { label: 'begin', info: 'Begin environment' }),
+      snippetCompletion('\\section{${title}}', { label: 'section', info: 'Section' }),
+      snippetCompletion('\\subsection{${title}}', { label: 'subsection', info: 'Subsection' }),
+      snippetCompletion('\\textbf{${text}}', { label: 'textbf', info: 'Bold text' }),
+      snippetCompletion('\\textit{${text}}', { label: 'textit', info: 'Italic text' }),
+      snippetCompletion('\\frac{${num}}{${den}}', { label: 'frac', info: 'Fraction' }),
+      snippetCompletion('\\sum_{${lower}}^{${upper}}', { label: 'sum', info: 'Summation' }),
+      snippetCompletion('\\int_{${lower}}^{${upper}}', { label: 'int', info: 'Integral' }),
+      { label: '\\alpha', type: 'keyword' },
+      { label: '\\beta', type: 'keyword' },
+      { label: '\\gamma', type: 'keyword' },
+      { label: '\\Delta', type: 'keyword' },
+      { label: '\\theta', type: 'keyword' },
+      { label: '\\infty', type: 'keyword' },
+      { label: '\\rightarrow', type: 'keyword' },
+      { label: '\\maketitle', type: 'keyword' },
+      { label: '\\tableofcontents', type: 'keyword' },
+      { label: '\\newpage', type: 'keyword' },
+      { label: '\\usepackage{${package}}', type: 'keyword' },
+    ];
+
+    function latexCompletionSource(context) {
+      let word = context.matchBefore(/\\[a-zA-Z]*/)
+      if (!word) return null
+      if (word.from == word.to && !context.explicit) return null
+      return {
+        from: word.from,
+        options: latexCompletions
+      }
+    }
+
     const editorView = new EditorView({
       state: EditorState.create({
         doc: EXAMPLE,
@@ -911,6 +945,7 @@ to your browser.
           basicSetup,
           StreamLanguage.define(stex),
           cmTheme,
+          autocompletion({ override: [latexCompletionSource] }),
           keymap.of([
             indentWithTab,
             {
