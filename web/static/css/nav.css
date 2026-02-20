@@ -72,20 +72,38 @@
 
 @media (max-width: 768px) {
 
-    /* Hide the entire application on mobile */
-    .navbar,
-    main,
-    .hero-container,
-    .footer,
-    .container,
-    .page-header,
-    .workspace,
-    .statusbar {
+    /* Responsive navbar (for home page) */
+    .navbar {
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .nav-links {
+        width: 100%;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .nav-link {
+        font-size: 0.9rem;
+        padding: 6px 10px;
+    }
+
+    /* Hide the entire application on mobile for restricted pages */
+    body.require-desktop .navbar,
+    body.require-desktop main,
+    body.require-desktop .hero-container,
+    body.require-desktop .footer,
+    body.require-desktop .container,
+    body.require-desktop .page-header,
+    body.require-desktop .workspace,
+    body.require-desktop .statusbar {
         display: none !important;
     }
 
     /* Show the mobile warning instead */
-    .mobile-warning {
+    body.require-desktop .mobile-warning {
         display: flex !important;
     }
 }
