@@ -234,6 +234,8 @@ textarea {
     outline: none;
     box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.05);
     transition: background var(--transition), border-color var(--transition);
+    width: 100%;
+    min-width: 0;
 }
 
 input:focus,

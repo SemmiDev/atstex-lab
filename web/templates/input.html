@@ -13,6 +13,14 @@
 </head>
 
 <body>
+    <!-- ── MOBILE WARNING (Forces Desktop Use) ───────────────────── -->
+    <div class="mobile-warning">
+        <div class="mobile-warning-card">
+            <h1>⚠️ Desktop Required</h1>
+            <p>This LaTeX ATS resume builder is heavily optimized for desktop.</p>
+            <p>Please switch to a laptop or computer to continue building.</p>
+        </div>
+    </div>
     <!-- ── NAVIGATION BAR ────────────────────────────────────────── -->
     <nav class="navbar">
         <div class="logo">
@@ -57,15 +65,28 @@
                 </div>
                 <div class="form-group">
                     <label>LinkedIn</label>
-                    <input type="text" data-field="personal.linkedin" placeholder="linkedin.com/in/johndoe">
+                    <div class="grid-2">
+                        <input type="text" data-field="personal.linkedin.display"
+                            placeholder="Display: linkedin.com/in/johndoe">
+                        <input type="text" data-field="personal.linkedin.url"
+                            placeholder="URL: https://linkedin.com/in/johndoe">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>GitHub (Optional)</label>
-                    <input type="text" data-field="personal.github" placeholder="github.com/johndoe">
+                    <div class="grid-2">
+                        <input type="text" data-field="personal.github.display"
+                            placeholder="Display: github.com/johndoe">
+                        <input type="text" data-field="personal.github.url"
+                            placeholder="URL: https://github.com/johndoe">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Website (Optional)</label>
-                    <input type="text" data-field="personal.website" placeholder="johndoe.com">
+                    <div class="grid-2">
+                        <input type="text" data-field="personal.website.display" placeholder="Display: johndoe.com">
+                        <input type="text" data-field="personal.website.url" placeholder="URL: https://johndoe.com">
+                    </div>
                 </div>
             </div>
         </section>
@@ -75,7 +96,7 @@
             <h2>2. Professional Summary</h2>
             <div class="form-group">
                 <label>Summary</label>
-                <textarea data-field="summary" rows="4"
+                <textarea data-field="summary" rows="10"
                     placeholder="Dedicated software engineer with 5+ years of experience in..."></textarea>
             </div>
         </section>
@@ -143,6 +164,39 @@
                 <button class="btn btn-ghost btn-sm btn-add" data-target="certifications">+ ADD CERT</button>
             </div>
             <div class="list-container" id="list-certifications">
+                <!-- Dynamic items injected here -->
+            </div>
+        </section>
+
+        <!-- Volunteer -->
+        <section class="card" id="section-volunteer">
+            <div class="section-header">
+                <h2>8. Volunteer Experience (Optional)</h2>
+                <button class="btn btn-ghost btn-sm btn-add" data-target="volunteer">+ ADD VOLUNTEER</button>
+            </div>
+            <div class="list-container" id="list-volunteer">
+                <!-- Dynamic items injected here -->
+            </div>
+        </section>
+
+        <!-- Awards -->
+        <section class="card" id="section-awards">
+            <div class="section-header">
+                <h2>9. Honors & Awards (Optional)</h2>
+                <button class="btn btn-ghost btn-sm btn-add" data-target="awards">+ ADD AWARD</button>
+            </div>
+            <div class="list-container" id="list-awards">
+                <!-- Dynamic items injected here -->
+            </div>
+        </section>
+
+        <!-- Talks -->
+        <section class="card" id="section-talks">
+            <div class="section-header">
+                <h2>10. Talks & Conferences (Optional)</h2>
+                <button class="btn btn-ghost btn-sm btn-add" data-target="talks">+ ADD TALK</button>
+            </div>
+            <div class="list-container" id="list-talks">
                 <!-- Dynamic items injected here -->
             </div>
         </section>

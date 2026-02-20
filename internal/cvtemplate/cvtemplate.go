@@ -51,15 +51,20 @@ func Get(name string) (string, error) {
 	return string(b), nil
 }
 
+type Link struct {
+	Display string `json:"display"`
+	URL     string `json:"url"`
+}
+
 type Personal struct {
 	Name     string `json:"name"`
 	Title    string `json:"title"`
 	Email    string `json:"email"`
 	Phone    string `json:"phone"`
 	Location string `json:"location"`
-	Linkedin string `json:"linkedin"`
-	Github   string `json:"github"`
-	Website  string `json:"website"`
+	Linkedin Link   `json:"linkedin"`
+	Github   Link   `json:"github"`
+	Website  Link   `json:"website"`
 }
 
 type Experience struct {
@@ -73,8 +78,10 @@ type Experience struct {
 type Education struct {
 	Institution string `json:"institution"`
 	Degree      string `json:"degree"`
+	Location    string `json:"location"`
 	Dates       string `json:"dates"`
 	GPA         string `json:"gpa"`
+	Activities  string `json:"activities"`
 }
 
 type Project struct {
@@ -96,6 +103,29 @@ type Certification struct {
 	Issuer string `json:"issuer"`
 }
 
+type Volunteer struct {
+	Organization string `json:"organization"`
+	Role         string `json:"role"`
+	Location     string `json:"location"`
+	Dates        string `json:"dates"`
+	Bullets      string `json:"bullets"`
+}
+
+type Award struct {
+	Title       string `json:"title"`
+	Issuer      string `json:"issuer"`
+	Date        string `json:"date"`
+	Description string `json:"description"`
+}
+
+type Talk struct {
+	Title       string `json:"title"`
+	Event       string `json:"event"`
+	Location    string `json:"location"`
+	Date        string `json:"date"`
+	Description string `json:"description"`
+}
+
 type CVData struct {
 	Personal       Personal        `json:"personal"`
 	Summary        string          `json:"summary"`
@@ -104,6 +134,9 @@ type CVData struct {
 	Projects       []Project       `json:"projects"`
 	Skills         Skills          `json:"skills"`
 	Certifications []Certification `json:"certifications"`
+	Volunteer      []Volunteer     `json:"volunteer"`
+	Awards         []Award         `json:"awards"`
+	Talks          []Talk          `json:"talks"`
 }
 
 var texEscapes = strings.NewReplacer(

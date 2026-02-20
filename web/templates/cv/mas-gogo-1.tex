@@ -64,7 +64,7 @@
 \begin{tabular*}{\linewidth}{@{} l @{\extracolsep{\fill}} c @{\extracolsep{\fill}} r @{}}
   \begin{tabular}[t]{@{}l@{}}
     \small [[ .Personal.Location | texEscape ]] \\
-    \small [[ .Personal.Email | texEscape ]] [[ if .Personal.Phone ]]\\ \small [[ .Personal.Phone | texEscape ]][[ end ]]
+    [[ if .Personal.Email ]]\small \href{mailto:[[ .Personal.Email | texEscape ]]}{[[ .Personal.Email | texEscape ]]} [[ end ]][[ if .Personal.Phone ]]\\ \small \href{tel:[[ .Personal.Phone | texEscape ]]}{[[ .Personal.Phone | texEscape ]]} [[ end ]]
   \end{tabular}
   &
   \begin{tabular}[t]{@{}c@{}}
@@ -73,9 +73,9 @@
   \end{tabular}
   &
   \begin{tabular}[t]{@{}r@{}}
-[[ if .Personal.Linkedin ]]    \small\href{https://[[ .Personal.Linkedin | texEscape ]]}{[[ .Personal.Linkedin | texEscape ]]} \\[[ end ]]
-[[ if .Personal.Github ]]    \small\href{https://[[ .Personal.Github | texEscape ]]}{[[ .Personal.Github | texEscape ]]} \\[[ end ]]
-[[ if .Personal.Website ]]    \small\href{https://[[ .Personal.Website | texEscape ]]}{[[ .Personal.Website | texEscape ]]} \\[[ end ]]
+[[ if .Personal.Linkedin.URL ]]    \small\href{[[ .Personal.Linkedin.URL | texEscape ]]}{[[ if .Personal.Linkedin.Display ]][[ .Personal.Linkedin.Display | texEscape ]][[ else ]][[ .Personal.Linkedin.URL | texEscape ]][[ end ]]} \\[[ end ]]
+[[ if .Personal.Github.URL ]]    \small\href{[[ .Personal.Github.URL | texEscape ]]}{[[ if .Personal.Github.Display ]][[ .Personal.Github.Display | texEscape ]][[ else ]][[ .Personal.Github.URL | texEscape ]][[ end ]]} \\[[ end ]]
+[[ if .Personal.Website.URL ]]    \small\href{[[ .Personal.Website.URL | texEscape ]]}{[[ if .Personal.Website.Display ]][[ .Personal.Website.Display | texEscape ]][[ else ]][[ .Personal.Website.URL | texEscape ]][[ end ]]} \\[[ end ]]
   \end{tabular}
 \end{tabular*}
 
@@ -121,7 +121,8 @@
   topsep=3pt,
   parsep=0pt
 ]
-[[ range .Education ]]  \item \textbf{[[ .Degree | texEscape ]]} at [[ .Institution | texEscape ]][[ if .GPA ]] (GPA: [[ .GPA | texEscape ]])[[ end ]].\hfill\textbf{[[ .Dates | texEscape ]]}
+[[ range .Education ]]  \item \textbf{[[ .Degree | texEscape ]]} at [[ .Institution | texEscape ]][[ if .Location ]], [[ .Location | texEscape ]][[ end ]][[ if .GPA ]] (GPA: [[ .GPA | texEscape ]])[[ end ]].\hfill\textbf{[[ .Dates | texEscape ]]}
+[[ if .Activities ]]\vspace{1pt}\newline{\small \textit{Activities:} [[ .Activities | texEscape ]]}[[ end ]]
 [[ end ]][[ range .Certifications ]]  \item \textbf{[[ .Name | texEscape ]],} [[ .Issuer | texEscape ]].
 [[ end ]]\end{itemize}
 
@@ -175,6 +176,66 @@
 [[ if .Bullets ]]  \begin{itemize}[label=$\circ$, leftmargin=1em, topsep=1pt, itemsep=0pt, parsep=0pt]
 [[ range texLines .Bullets ]]    \item [[ . | texEscape ]]
 [[ end ]]  \end{itemize}[[ end ]]
+[[ end ]]\end{itemize}
+
+\vspace{10pt}
+[[ end ]]
+
+% ══════════════════════════════════════════════════════════════
+% VOLUNTEER EXPERIENCE
+% ══════════════════════════════════════════════════════════════
+[[ if .Volunteer ]]
+\ressection{Volunteer Experience}
+
+[[ range .Volunteer ]]
+\vspace{1pt}
+\begin{tabular*}{\linewidth}{@{}l @{\extracolsep{\fill}} c @{\extracolsep{\fill}} r@{}}
+  \textbf{[[ .Role | texEscape ]]} & \textbf{[[ .Organization | texEscape ]]} & \textbf{[[ .Dates | texEscape ]]}
+\end{tabular*}
+[[ if .Location ]]\begin{center}\vspace{-6pt}\small [[ .Location | texEscape ]]\end{center}[[ else ]]\vspace{-4pt}[[ end ]]
+\vspace{-4pt}
+
+[[ if .Bullets ]]\begin{cvlist}
+[[ range texLines .Bullets ]]  \item [[ . | texEscape ]]
+[[ end ]]\end{cvlist}[[ end ]]
+
+\vspace{3pt}
+[[ end ]]
+[[ end ]]
+
+% ══════════════════════════════════════════════════════════════
+% HONORS & AWARDS
+% ══════════════════════════════════════════════════════════════
+[[ if .Awards ]]
+\ressection{Honors \& Awards}
+
+\begin{itemize}[
+  label={\large$\bullet$},
+  leftmargin=1.5em,
+  itemsep=1pt,
+  topsep=3pt,
+  parsep=0pt
+]
+[[ range .Awards ]]  \item \textbf{[[ .Title | texEscape ]]} -- [[ .Issuer | texEscape ]][[ if .Description ]] (\textit{[[ .Description | texEscape ]]})[[ end ]]\hfill\textbf{[[ .Date | texEscape ]]}
+[[ end ]]\end{itemize}
+
+\vspace{3pt}
+[[ end ]]
+
+% ══════════════════════════════════════════════════════════════
+% TALKS & CONFERENCES
+% ══════════════════════════════════════════════════════════════
+[[ if .Talks ]]
+\ressection{Talks \& Conferences}
+
+\begin{itemize}[
+  label={\large$\bullet$},
+  leftmargin=1.5em,
+  itemsep=1pt,
+  topsep=3pt,
+  parsep=0pt
+]
+[[ range .Talks ]]  \item \textbf{[[ .Title | texEscape ]]} at [[ .Event | texEscape ]][[ if .Location ]], [[ .Location | texEscape ]][[ end ]][[ if .Description ]] (\textit{[[ .Description | texEscape ]]})[[ end ]]\hfill\textbf{[[ .Date | texEscape ]]}
 [[ end ]]\end{itemize}
 
 \vspace{10pt}

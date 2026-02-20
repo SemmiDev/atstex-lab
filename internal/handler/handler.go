@@ -104,7 +104,8 @@ func (h *Handler) RenderTemplate(w http.ResponseWriter, r *http.Request) {
 
 	var data cvtemplate.CVData
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		jsonError(w, "invalid request body", http.StatusBadRequest)
+		h.logger.Error("invalid request body", "err", err)
+		jsonError(w, "invalid request body: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
