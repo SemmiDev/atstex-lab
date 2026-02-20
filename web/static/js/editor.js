@@ -288,6 +288,10 @@ to your browser.
     });
 
     // ── Download PDF ──────────────────────────────────────────────
+    // ── Download PDF + Trigger Donation Modal ─────────────────────
+    const donationModal = document.getElementById('donation-modal');
+    const closeDonationModal = document.getElementById('close-donation-modal');
+
     btnDownload.addEventListener('click', () => {
       if (!pdfBytes) return;
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
@@ -300,6 +304,13 @@ to your browser.
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+      // Show the Saweria popup right after the file triggers
+      donationModal.classList.add('active');
+    });
+
+    closeDonationModal.addEventListener('click', () => {
+      donationModal.classList.remove('active');
     });
 
     // ── Log panel ─────────────────────────────────────────────────
