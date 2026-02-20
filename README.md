@@ -2,6 +2,8 @@
 
 A minimal, self-hosted LaTeX compiler and previewer. Write LaTeX in the browser, compile server-side with pdflatex/xelatex/lualatex, and preview the PDF instantly — no Overleaf needed.
 
+![LaTeXPad Screenshot](assets/Screenshot.png)
+
 ## Features
 
 - **Split-pane editor** with syntax-aware tab handling and `Ctrl+Enter` shortcut
