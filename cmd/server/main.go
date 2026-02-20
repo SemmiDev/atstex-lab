@@ -46,7 +46,7 @@ func main() {
 	// Serve static assets (JS/CSS) embedded in the binary.
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.FS(web.StaticFS))))
 
-	addr := envOr("ADDR", ":8080")
+	addr := envOr("PORT", ":8080")
 	logger.Info("starting latexpad", "addr", addr)
 
 	if err := http.ListenAndServe(addr, r); err != nil {
