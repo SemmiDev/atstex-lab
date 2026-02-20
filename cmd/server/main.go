@@ -41,6 +41,7 @@ func main() {
 
 	// Routes.
 	r.Get("/", h.Home)
+	r.Get("/input", h.Input)
 	r.Get("/editor", h.Editor)
 	r.Get("/api/templates", h.ListTemplates)
 	r.Get("/api/templates/{name}", h.GetTemplate)

@@ -57,6 +57,15 @@ func (h *Handler) Editor(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Input renders the data collection UI.
+func (h *Handler) Input(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := h.tmpl.ExecuteTemplate(w, "input", nil); err != nil {
+		h.logger.Error("template error", "err", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+	}
+}
+
 // ListTemplates returns a JSON list of available CV templates.
 func (h *Handler) ListTemplates(w http.ResponseWriter, r *http.Request) {
 	tpls, err := cvtemplate.List()

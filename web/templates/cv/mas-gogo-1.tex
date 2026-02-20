@@ -1,0 +1,216 @@
+\documentclass[10pt, a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[
+  top=0.60in,
+  bottom=0.55in,
+  left=0.70in,
+  right=0.70in
+]{geometry}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{helvet}
+\usepackage{microtype}
+\renewcommand{\familydefault}{\sfdefault}
+
+\pagestyle{empty}
+
+% ── Colors ────────────────────────────────────────────────────
+\definecolor{sectionblue}{RGB}{23, 80, 161}
+
+% ── Hyperlinks ────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=true,
+  urlcolor=sectionblue,
+  linkcolor=sectionblue,
+}
+
+% ── Section heading: blue bold + blue rule ────────────────────
+\newcommand{\ressection}[1]{%
+  \vspace{8pt}%
+  {\large\bfseries\color{sectionblue}#1}\\[-5pt]%
+  {\color{sectionblue}\rule{\linewidth}{0.8pt}}%
+  \vspace{2pt}%
+}
+
+% ── Bullet list matching original large filled circle ─────────
+\newenvironment{cvlist}{%
+  \begin{itemize}[
+    label={\large$\bullet$},
+    leftmargin=1.5em,
+    itemsep=1.5pt,
+    topsep=3pt,
+    parsep=0pt,
+    partopsep=0pt
+  ]
+}{%
+  \end{itemize}%
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+% ─────────────────────────────────────────────────────────────
+\begin{document}
+% ─────────────────────────────────────────────────────────────
+
+% ══════════════════════════════════════════════════════════════
+% HEADER  —  left: city+email | center: name | right: links
+% ══════════════════════════════════════════════════════════════
+\begin{tabular*}{\linewidth}{@{} l @{\extracolsep{\fill}} c @{\extracolsep{\fill}} r @{}}
+  \begin{tabular}[t]{@{}l@{}}
+    \small Jakarta, Indonesia \\
+    \small gogo@gogo.com
+  \end{tabular}
+  &
+  {\LARGE\textbf{Listiarso Wastuargo}}
+  &
+  \begin{tabular}[t]{@{}r@{}}
+    \small\href{https://www.linkedin.com/in/lwastuargo}{linkedin.com/in/lwastuargo} \\
+    \small\href{https://newsletter.lwastuargo.com}{newsletter.lwastuargo.com}
+  \end{tabular}
+\end{tabular*}
+
+\vspace{2pt}
+
+% ══════════════════════════════════════════════════════════════
+% WORK EXPERIENCE
+% ══════════════════════════════════════════════════════════════
+\ressection{Work Experience}
+
+% ── VP of Engineering ────────────────────────────────────────
+\vspace{1pt}
+\begin{tabular*}{\linewidth}{@{}l @{\extracolsep{\fill}} c @{\extracolsep{\fill}} r@{}}
+  \textbf{VP of Engineering} & \textbf{Pass3} & \textbf{Dec 2022--Present}
+\end{tabular*}
+\begin{center}\vspace{-6pt}\small Jakarta, Indonesia\end{center}
+\vspace{-4pt}
+
+\noindent You might need to explain what the company is about to make it relevant to recruiters/hiring manager who doesn't know about your company.
+
+\begin{cvlist}
+  \item Results, impact, and your contribution.
+  \item Add numbers to the impact, use powerful active languages (e.g. lead, drive, manage, grew), and mention specifics like the technologies/programming languages used.
+  \item The format should be: active verb, numerical business impact, activities or actions, and how did you achieve it
+  \item At most, 4 points per job
+\end{cvlist}
+
+\vspace{3pt}
+
+% ── SVP of Engineering ───────────────────────────────────────
+\begin{tabular*}{\linewidth}{@{}l @{\extracolsep{\fill}} c @{\extracolsep{\fill}} r@{}}
+  \textbf{SVP of Engineering} & \textbf{Sayurbox} & \textbf{Dec 2020-Dec 2022}
+\end{tabular*}
+\begin{center}\vspace{-6pt}\small Remote, Indonesia\end{center}
+\vspace{-4pt}
+
+\noindent Sayurbox is Indonesia's fastest-growing Series C-funded (\$139mio raised) tech-powered online grocery supply chain.
+
+\begin{cvlist}
+  \item Results, impact, and your contribution
+  \item Grew Sayurbox \textbf{revenue by 120\%} by increasing the application \textbf{conversion rate by 240\%} by \textbf{establishing} consumer \textbf{team} that build the entire Sayurbox mobile application and backend system.
+\end{cvlist}
+
+\vspace{3pt}
+
+% ── Staff Software Engineer ───────────────────────────────────
+\begin{tabular*}{\linewidth}{@{}l @{\extracolsep{\fill}} c @{\extracolsep{\fill}} r@{}}
+  \textbf{Staff Software Engineer} & \textbf{Facebook} & \textbf{Oct 2013--Dec 2020}
+\end{tabular*}
+\begin{center}\vspace{-6pt}\small Menlo Park, US\end{center}
+\vspace{-4pt}
+
+\begin{cvlist}
+  \item Grew Facebook \textbf{revenue} annually by \textbf{10\%} by launching multiple Ad Format improvements across Facebook family of apps (Facebook, Instagram, Messenger, WhatsApp).
+  \item Mentored over 30 engineers and product managers of varying levels (L3 to L6) across the organization. The mentees got promoted (up to L6), received Redefine Expectations (highest performance review rating at Facebook), and received ``Fix of The Week'' given by Mark Zuckerberg.
+  \item As the position is more in the past, you'll want to be mindful of how many details you add and what you call out. You want to ensure there's space on all the key details on the first page.
+\end{cvlist}
+
+\vspace{3pt}
+
+% ── Software Engineer Intern ──────────────────────────────────
+\begin{tabular*}{\linewidth}{@{}l @{\extracolsep{\fill}} c @{\extracolsep{\fill}} r@{}}
+  \textbf{Software Engineer Intern} & \textbf{Facebook} & \textbf{Summer 2012}
+\end{tabular*}
+\begin{center}\vspace{-6pt}\small Jakarta, Indonesia\end{center}
+\vspace{-4pt}
+
+\begin{cvlist}
+  \item Results, impact, and your contribution. The further a position is in the past, the less important its details are.
+\end{cvlist}
+
+\vspace{3pt}
+
+% ══════════════════════════════════════════════════════════════
+% EDUCATION AND CERTIFICATIONS
+% ══════════════════════════════════════════════════════════════
+\ressection{Education and Certifications}
+
+\begin{itemize}[
+  label={\large$\bullet$},
+  leftmargin=1.5em,
+  itemsep=1pt,
+  topsep=3pt,
+  parsep=0pt
+]
+  \item \textbf{B.Sc. Computer Software Engineering,} Institut~Teknologi Bandung, Indonesia.\hfill\textbf{2008--2013}
+\end{itemize}
+
+\vspace{3pt}
+
+% ══════════════════════════════════════════════════════════════
+% TECHNOLOGIES AND LANGUAGES
+% ══════════════════════════════════════════════════════════════
+\ressection{Technologies and Languages}
+
+\begin{itemize}[
+  label={\large$\bullet$},
+  leftmargin=1.5em,
+  itemsep=1pt,
+  topsep=3pt,
+  parsep=0pt
+]
+  \item \begin{tabular}[t]{@{}p{2.1cm}@{}l@{}}
+    Languages: & Java, Typescript, React, Go, Swift \{other languages, keep it one line\}
+  \end{tabular}
+  \item \begin{tabular}[t]{@{}p{2.1cm}@{}l@{}}
+    Technologies:  & MySQL, Postgres, AWS, Git, BigQuery, Apache Spark \{other technologies, keep it one line\}
+  \end{tabular}
+  \item \begin{tabular}[t]{@{}p{2.1cm}@{}l@{}}
+    Other: & Data structures and algorithms, \{other relevant skills, keep it one line\}
+  \end{tabular}
+\end{itemize}
+
+\vspace{3pt}
+
+% ══════════════════════════════════════════════════════════════
+% PROJECTS & ACHIEVEMENTS
+% ══════════════════════════════════════════════════════════════
+\ressection{Projects \& Achievements}
+
+\begin{itemize}[
+  label={\large$\bullet$},
+  leftmargin=1.5em,
+  itemsep=1pt,
+  topsep=3pt,
+  parsep=0pt
+]
+  \item \textbf{Projects} only important if you're intern or new grads.
+  \item \textbf{Volunteer work} only important if you're intern or new grads
+  \item \textbf{Awards} - only important if you're intern or new grads, or when the award is truly outstanding (international award).
+  \item \textbf{Certifications and Courses} - only important if you're intern or new grad. Or very relevant to the job (like AWS certification)
+  \item \textbf{Bronze Medal} in Asia Pacific Informatics Olympiad - Mar 2008
+  \item \textbf{Bronze Medal} in International Olympiad in Informatics - Aug 2008
+  \item \textbf{1st Place Winner} in ACM ICPC Asia Kanpur Regional Contest - 2010
+\end{itemize}
+
+\vspace{10pt}
+
+% ── Footer ────────────────────────────────────────────────────
+\noindent\small Credits to Gergely Orosz's template: \href{https://blog.pragmaticengineer.com/the-pragmatic-engineers-resume-template/}{https://blog.pragmaticengineer.com/the-pragmatic-engineers-resume-template/}. I make it more opinionated toward what I think is the right resume format.
+
+\end{document}

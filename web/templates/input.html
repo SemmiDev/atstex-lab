@@ -1,0 +1,156 @@
+{{define "input"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>atstex-lab — Input CV Data</title>
+    <link rel="stylesheet" href="/static/css/nav.css">
+    <link rel="stylesheet" href="/static/css/input.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- ── NAVIGATION BAR ────────────────────────────────────────── -->
+    <nav class="navbar">
+        <div class="logo">
+            ATSTEX<em>LAB</em>
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/input" class="nav-link active">BIODATA</a>
+            <a href="/editor" class="nav-link">LaTeX Editor</a>
+        </div>
+    </nav>
+
+
+
+    <main class="container">
+        <p class="intro-text">Fill out your professional details below. All data is saved automatically to your
+            browser's local storage.</p>
+
+        <!-- Personal Info -->
+        <section class="card" id="section-personal">
+            <h2>1. Personal Information <span class="badge">Required</span></h2>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" data-field="personal.name" placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Target Job Title</label>
+                    <input type="text" data-field="personal.title" placeholder="Software Engineer">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" data-field="personal.email" placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="text" data-field="personal.phone" placeholder="+1 234 567 8900">
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" data-field="personal.location" placeholder="City, Country">
+                </div>
+                <div class="form-group">
+                    <label>LinkedIn</label>
+                    <input type="text" data-field="personal.linkedin" placeholder="linkedin.com/in/johndoe">
+                </div>
+                <div class="form-group">
+                    <label>GitHub (Optional)</label>
+                    <input type="text" data-field="personal.github" placeholder="github.com/johndoe">
+                </div>
+                <div class="form-group">
+                    <label>Website (Optional)</label>
+                    <input type="text" data-field="personal.website" placeholder="johndoe.com">
+                </div>
+            </div>
+        </section>
+
+        <!-- Professional Summary -->
+        <section class="card" id="section-summary">
+            <h2>2. Professional Summary</h2>
+            <div class="form-group">
+                <label>Summary</label>
+                <textarea data-field="summary" rows="4"
+                    placeholder="Dedicated software engineer with 5+ years of experience in..."></textarea>
+            </div>
+        </section>
+
+        <!-- Work Experience -->
+        <section class="card" id="section-experience">
+            <div class="section-header">
+                <h2>3. Work Experience</h2>
+                <button class="btn btn-ghost btn-sm btn-add" data-target="experience">+ ADD JOB</button>
+            </div>
+            <div class="list-container" id="list-experience">
+                <!-- Dynamic items injected here -->
+            </div>
+        </section>
+
+        <!-- Education -->
+        <section class="card" id="section-education">
+            <div class="section-header">
+                <h2>4. Education</h2>
+                <button class="btn btn-ghost btn-sm btn-add" data-target="education">+ ADD EDUCATION</button>
+            </div>
+            <div class="list-container" id="list-education">
+                <!-- Dynamic items injected here -->
+            </div>
+        </section>
+
+        <!-- Projects -->
+        <section class="card" id="section-projects">
+            <div class="section-header">
+                <h2>5. Projects</h2>
+                <button class="btn btn-ghost btn-sm btn-add" data-target="projects">+ ADD PROJECT</button>
+            </div>
+            <div class="list-container" id="list-projects">
+                <!-- Dynamic items injected here -->
+            </div>
+        </section>
+
+        <!-- Skills -->
+        <section class="card" id="section-skills">
+            <h2>6. Skills</h2>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Languages (comma separated)</label>
+                    <input type="text" data-field="skills.languages" placeholder="Go, Python, TypeScript">
+                </div>
+                <div class="form-group">
+                    <label>Frameworks/Libraries</label>
+                    <input type="text" data-field="skills.frameworks" placeholder="React, Gin, Express">
+                </div>
+                <div class="form-group">
+                    <label>Developer Tools</label>
+                    <input type="text" data-field="skills.tools" placeholder="Docker, Git, AWS, Linux">
+                </div>
+                <div class="form-group">
+                    <label>Other / Soft Skills</label>
+                    <input type="text" data-field="skills.other" placeholder="Agile, Leadership">
+                </div>
+            </div>
+        </section>
+
+        <!-- Certifications -->
+        <section class="card" id="section-certifications">
+            <div class="section-header">
+                <h2>7. Certifications (Optional)</h2>
+                <button class="btn btn-ghost btn-sm btn-add" data-target="certifications">+ ADD CERT</button>
+            </div>
+            <div class="list-container" id="list-certifications">
+                <!-- Dynamic items injected here -->
+            </div>
+        </section>
+
+    </main>
+
+    <script type="module" src="/static/js/input.js"></script>
+</body>
+
+</html>
+{{end}}

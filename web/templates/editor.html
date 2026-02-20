@@ -12,17 +12,26 @@
     href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
     rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
+  <link rel="stylesheet" href="/static/css/nav.css" />
   <link rel="stylesheet" href="/static/css/editor.css" />
 </head>
 
 <body>
 
-  <!-- ── HEADER ──────────────────────────────────────────────── -->
-  <header>
-    <div class="logo">ATSTEX<em>LAB</em></div>
+  <!-- ── NAVIGATION BAR ────────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="logo">
+      ATSTEX<em>LAB</em>
+    </div>
+    <div class="nav-links">
+      <a href="/" class="nav-link">Home</a>
+      <a href="/input" class="nav-link">BIODATA</a>
+      <a href="/editor" class="nav-link active">LaTeX Editor</a>
+    </div>
+  </nav>
 
-    <div class="header-sep"></div>
-
+  <!-- ── SECONDARY HEADER & ACTIONS ────────────────────────────── -->
+  <header class="page-header">
     <div class="engine-select-wrap">
       <label for="engine">Engine</label>
       <select id="engine">

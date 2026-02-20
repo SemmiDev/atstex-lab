@@ -1,0 +1,90 @@
+/* Shared Navigation Bar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 32px;
+    background: var(--surface);
+    border-bottom: 4px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 0px var(--border);
+}
+
+.logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-shadow: 2px 2px 0px var(--accent);
+    color: var(--text);
+}
+
+.logo em {
+    font-style: italic;
+    color: var(--accent);
+}
+
+.nav-links {
+    display: flex;
+    gap: 24px;
+}
+
+.nav-link {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border: 2px solid transparent;
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.nav-link:hover {
+    background: var(--accent4, #ffdb33);
+    border-color: var(--border);
+    box-shadow: 3px 3px 0px var(--border);
+    transform: translate(-1px, -1px);
+}
+
+.nav-link.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--border);
+    box-shadow: 3px 3px 0px var(--border);
+}
+
+/* Secondary Header for Editor/Input specific actions */
+.page-header {
+    height: 56px;
+    background: var(--surface);
+    border-bottom: 3px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+    z-index: 100;
+    box-shadow: 0 2px 0px rgba(0, 0, 0, 1);
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .nav-links {
+        width: 100%;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .nav-link {
+        font-size: 0.9rem;
+        padding: 6px 10px;
+    }
+}

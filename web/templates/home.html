@@ -1,34 +1,97 @@
 {{define "home"}}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <title>atstex-lab — Professional ATS CVs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATSTEXLAB — Professional ATS Resumes</title>
+  <link rel="stylesheet" href="/static/css/nav.css">
   <link rel="stylesheet" href="/static/css/home.css">
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@700&family=DM+Sans:wght@500;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;800&family=DM+Sans:wght@500;700;800&display=swap"
+    rel="stylesheet">
 </head>
-<body>
-  <div class="hero">
-    <h1>atstex-lab</h1>
-    <p class="subtitle">Craft ATS-friendly resumes purely in LaTeX.</p>
 
-    <div class="features">
-      <div class="feature-card">
-        <h3>Modular.</h3>
-        <p>Multiple dynamic templates.</p>
+<body>
+
+  <!-- ── NAVIGATION BAR ────────────────────────────────────────── -->
+  <nav class="navbar">
+    <div class="logo">
+      ATSTEX<em>LAB</em>
+    </div>
+    <div class="nav-links">
+      <a href="/" class="nav-link active">Home</a>
+      <a href="/input" class="nav-link">BIODATA</a>
+      <a href="/editor" class="nav-link">LaTeX Editor</a>
+    </div>
+  </nav>
+
+  <!-- ── HERO SECTION ──────────────────────────────────────────── -->
+  <main class="hero-container">
+    <div class="hero-content">
+      <div class="badge-new">
+        <span class="pulse-dot"></span> ATS-OPTIMIZED ENGINE V2.0
       </div>
-      <div class="feature-card">
-        <h3>Semantic.</h3>
-        <p>Clean LaTeX generated PDFs.</p>
+
+      <h1>
+        Hack the <span class="highlight">ATS Algorithm.</span><br>
+        Land the Interview.
+      </h1>
+
+      <p class="subtitle">
+        A brutalist, privacy-first, server-side LaTeX compiler. Write powerful, clean, and mathematically perfectly
+        aligned resumes directly in your browser without ever sending your data to third parties.
+      </p>
+
+      <div class="cta-group">
+        <a href="/input" class="btn btn-primary btn-lg">BUILD RESUME NOW ➔</a>
+        <a href="https://github.com/SemmiDev/atstex-lab" target="_blank" class="btn btn-ghost btn-lg">VIEW ON GITHUB</a>
       </div>
-      <div class="feature-card">
-        <h3>Fast.</h3>
-        <p>In-browser PDF compilation.</p>
+
+      <!-- Social / Trust marks -->
+      <div class="trusted-by">
+        <p>USED BY ENGINEERS FROM</p>
+        <div class="company-logos">
+          <span>META</span>
+          <span>APPLE</span>
+          <span>AMAZON</span>
+          <span>NETFLIX</span>
+          <span>GOOGLE</span>
+        </div>
       </div>
     </div>
 
-    <a href="/editor" class="cta-btn">ENTER EDITOR ➔</a>
-  </div>
+    <!-- ── STATS / FEATURE CARDS ─────────────────────────────────── -->
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="icon">⚡</div>
+        <h3>Ultra Fast.</h3>
+        <p>In-browser UI with real-time server-side compilation using Go and TeX Live.</p>
+      </div>
+      <div class="feature-card alt">
+        <div class="icon">🔒</div>
+        <h3>100% Private.</h3>
+        <p>We store absolutely nothing. All PDF generation happens in ephemeral tmpfs.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">📄</div>
+        <h3>ATS Native.</h3>
+        <p>Curated templates designed to be parsed perfectly by applicant tracking systems.</p>
+      </div>
+      <div class="feature-card alt-2">
+        <div class="icon">⚙️</div>
+        <h3>Multi-Engine.</h3>
+        <p>Switch between pdflatex, lualatex, and xelatex with a single dropdown.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 ATSTEXLAB. Built with Go & TeX Live.</p>
+  </footer>
+
 </body>
+
 </html>
 {{end}}
