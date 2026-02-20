@@ -1,0 +1,23 @@
+services:
+  latexpad:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: latexpad:latest
+    container_name: latexpad
+    ports:
+      - "8080:8080"
+    environment:
+      ADDR: ":8080"
+    restart: unless-stopped
+
+    # Temp dir untuk compile — pakai tmpfs agar tidak nulis ke disk host
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+
+    # Batasi resource agar satu compile berat tidak meledak
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1g
