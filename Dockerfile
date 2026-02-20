@@ -10,7 +10,7 @@ RUN go mod download
 # Copy source and build a static binary
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-    go build -ldflags="-s -w" -o latexpad ./cmd/server/main.go
+    go build -ldflags="-s -w" -o atstex-lab ./cmd/server/main.go
 
 
 # ── Stage 2: Runtime — TeX Live full + our binary ────────────────────────────
@@ -20,17 +20,17 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
 FROM texlive/texlive:latest
 
 # Non-root user for safety
-RUN useradd -m -u 1001 latexpad
+RUN useradd -m -u 1001 atstex-lab
 
 # Copy compiled binary from builder stage
-COPY --from=builder /build/latexpad /usr/local/bin/latexpad
+COPY --from=builder /build/atstex-lab /usr/local/bin/atstex-lab
 
 # The binary embeds all web assets via go:embed, so nothing else to copy.
 
-USER latexpad
+USER atstex-lab
 
 EXPOSE 8080
 
 ENV ADDR=:8080
 
-ENTRYPOINT ["/usr/local/bin/latexpad"]
+ENTRYPOINT ["/usr/local/bin/atstex-lab"]

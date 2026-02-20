@@ -74,7 +74,7 @@ func Compile(ctx context.Context, source []byte, opts Options) (*Result, error) 
 	defer cancel()
 
 	// Work in a temp directory that is cleaned up automatically.
-	workDir, err := os.MkdirTemp("", "latexpad-*")
+	workDir, err := os.MkdirTemp("", "atstex-lab-*")
 	if err != nil {
 		return nil, fmt.Errorf("creating temp dir: %w", err)
 	}

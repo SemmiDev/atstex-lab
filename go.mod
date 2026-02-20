@@ -1,4 +1,4 @@
-module github.com/semmidev/latexpad
+module github.com/semmidev/atstex-lab
 
 go 1.24
 

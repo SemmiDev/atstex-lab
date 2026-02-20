@@ -8,7 +8,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/semmidev/latexpad/internal/compiler"
+	"github.com/go-chi/chi/v5"
+	"github.com/semmidev/atstex-lab/internal/compiler"
+	"github.com/semmidev/atstex-lab/internal/cvtemplate"
 )
 
 // compileRequest is the JSON body expected by POST /compile.
@@ -37,13 +39,50 @@ func New(tmpl *template.Template, logger *slog.Logger) *Handler {
 	return &Handler{tmpl: tmpl, logger: logger}
 }
 
-// Index renders the single-page editor UI.
-func (h *Handler) Index(w http.ResponseWriter, r *http.Request) {
+// Home renders the landing page.
+func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := h.tmpl.ExecuteTemplate(w, "index", nil); err != nil {
+	if err := h.tmpl.ExecuteTemplate(w, "home", nil); err != nil {
 		h.logger.Error("template error", "err", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 	}
+}
+
+// Editor renders the main application UI.
+func (h *Handler) Editor(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := h.tmpl.ExecuteTemplate(w, "editor", nil); err != nil {
+		h.logger.Error("template error", "err", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+	}
+}
+
+// ListTemplates returns a JSON list of available CV templates.
+func (h *Handler) ListTemplates(w http.ResponseWriter, r *http.Request) {
+	tpls, err := cvtemplate.List()
+	if err != nil {
+		h.logger.Error("listing templates error", "err", err)
+		jsonError(w, "failed to list templates", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(tpls)
+}
+
+// GetTemplate returns the raw LaTeX source for a template.
+func (h *Handler) GetTemplate(w http.ResponseWriter, r *http.Request) {
+	name := chi.URLParam(r, "name")
+	if name == "" {
+		jsonError(w, "name is required", http.StatusBadRequest)
+		return
+	}
+	content, err := cvtemplate.Get(name)
+	if err != nil {
+		jsonError(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Write([]byte(content))
 }
 
 // Compile handles POST /compile — accepts JSON, returns JSON + PDF via separate endpoint.

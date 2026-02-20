@@ -10,8 +10,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
-	"github.com/semmidev/latexpad/internal/handler"
-	"github.com/semmidev/latexpad/web"
+	"github.com/semmidev/atstex-lab/internal/handler"
+	"github.com/semmidev/atstex-lab/web"
 )
 
 func main() {
@@ -40,14 +40,17 @@ func main() {
 	r.Use(middleware.StripSlashes)
 
 	// Routes.
-	r.Get("/", h.Index)
+	r.Get("/", h.Home)
+	r.Get("/editor", h.Editor)
+	r.Get("/api/templates", h.ListTemplates)
+	r.Get("/api/templates/{name}", h.GetTemplate)
 	r.Post("/compile", h.Compile)
 
 	// Serve static assets (JS/CSS) embedded in the binary.
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.FS(web.StaticFS))))
 
 	addr := envOr("PORT", ":8080")
-	logger.Info("starting latexpad", "addr", addr)
+	logger.Info("starting atstex-lab", "addr", addr)
 
 	if err := http.ListenAndServe(addr, r); err != nil {
 		logger.Error("server stopped", "err", err)

@@ -1,0 +1,8 @@
+main
+server
+server.pid
+*.pdf
+*.log
+*.aux
+*.out
+.DS_Store

@@ -1,6 +1,6 @@
 .PHONY: run build tidy clean docker-build docker-up docker-down docker-logs docker-run
 
-BINARY := latexpad
+BINARY := atstex-lab
 CMD    := ./cmd/server
 
 # ── Local development ─────────────────────────────────────────
@@ -35,7 +35,7 @@ docker-down:
 
 # Tail logs
 docker-logs:
-	docker compose logs -f latexpad
+	docker compose logs -f atstex-lab
 
 # ── Install LaTeX locally (Ubuntu/Debian) ─────────────────────
 install-latex:

@@ -1,0 +1,115 @@
+{{define "editor"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATSTEXLAB — Engineered ATS Resume Builder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
+  <link rel="stylesheet" href="/static/css/editor.css" />
+</head>
+
+<body>
+
+  <!-- ── HEADER ──────────────────────────────────────────────── -->
+  <header>
+    <div class="logo">ATSTEX<em>LAB</em></div>
+
+    <div class="header-sep"></div>
+
+    <div class="engine-select-wrap">
+      <label for="engine">Engine</label>
+      <select id="engine">
+        <option value="pdflatex">pdflatex</option>
+        <option value="xelatex">xelatex</option>
+        <option value="lualatex">lualatex</option>
+      </select>
+    </div>
+
+    <div class="engine-select-wrap" style="margin-left: 10px;">
+      <label for="template">Template</label>
+      <select id="template">
+        <option value="">(Blank)</option>
+        <option value="example">Example</option>
+      </select>
+    </div>
+
+    <button class="btn btn-primary" id="btn-compile" title="Compile (Ctrl+Enter)">
+      <span class="spinner" aria-hidden="true"></span>
+      <span class="btn-label">▶ Compile</span>
+      <kbd>⌃↵</kbd>
+    </button>
+  </header>
+
+  <!-- ── WORKSPACE ───────────────────────────────────────────── -->
+  <div class="workspace">
+
+    <!-- Editor -->
+    <div class="editor-pane" id="editor-pane">
+      <div class="pane-header">
+        <span class="dot"></span>
+        document.tex
+      </div>
+      <div id="editor-container"></div>
+
+      <!-- Log panel inside editor pane -->
+      <div class="log-panel" id="log-panel">
+        <div class="log-header" id="log-toggle">
+          <span>Compiler Log</span>
+          <span class="badge" id="log-badge" style="display:none"></span>
+        </div>
+        <pre id="log-output"></pre>
+      </div>
+    </div>
+
+    <!-- Splitter -->
+    <div class="splitter" id="splitter"></div>
+
+    <!-- Preview -->
+    <div class="preview-pane" id="preview-pane">
+      <div class="preview-toolbar">
+        <span class="pane-label"><span class="dot"></span>Preview</span>
+
+        <button class="zoom-btn" id="zoom-out" title="Zoom out">−</button>
+        <span class="zoom-val" id="zoom-val">100%</span>
+        <button class="zoom-btn" id="zoom-in" title="Zoom in">+</button>
+        <button class="zoom-btn" id="zoom-fit" title="Fit to width"
+          style="width:auto;padding:0 8px;font-size:11px;">Fit</button>
+
+        <button class="btn-download" id="btn-download" disabled title="Download PDF">↓ PDF</button>
+      </div>
+
+      <div class="preview-scroll" id="preview-scroll">
+        <div class="preview-empty" id="preview-empty">
+          <div class="icon">∫</div>
+          <p>Write LaTeX in the editor and press <strong style="color:var(--text)">Compile</strong> to render the PDF
+            here.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── STATUS BAR ──────────────────────────────────────────── -->
+  <div class="statusbar">
+    <div class="status-item">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">Ready</span>
+    </div>
+    <span class="sep">|</span>
+    <span id="status-elapsed"></span>
+    <span class="sep" id="status-sep2" style="display:none">|</span>
+    <span id="status-pages"></span>
+  </div>
+
+  <script type="module" src="/static/js/editor.js"></script>
+</body>
+
+</html>
+{{end}}

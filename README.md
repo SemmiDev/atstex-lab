@@ -1,8 +1,8 @@
-# LaTeXPad
+# atstex-lab
 
 A minimal, self-hosted LaTeX compiler and previewer. Write LaTeX in the browser, compile server-side with pdflatex/xelatex/lualatex, and preview the PDF instantly — no Overleaf needed.
 
-![LaTeXPad Screenshot](assets/Screenshot.png)
+![atstex-lab Screenshot](assets/Screenshot.png)
 
 ## Features
 
@@ -68,7 +68,7 @@ ADDR=:3000 make run
 
 ```bash
 make build
-./latexpad
+./atstex-lab
 ```
 
 ---
@@ -78,7 +78,7 @@ make build
 | Target | Description |
 |---|---|
 | `make run` | Run dev server locally |
-| `make build` | Compile binary to `./latexpad` |
+| `make build` | Compile binary to `./atstex-lab` |
 | `make tidy` | Run `go mod tidy` |
 | `make clean` | Remove compiled binary |
 | `make docker-run` | Build image + start container (foreground) |
@@ -93,7 +93,7 @@ make build
 ## Project Layout
 
 ```
-latexpad/
+atstex-lab/
 ├── cmd/server/main.go          # Entry point — Chi router + middleware stack
 ├── internal/
 │   ├── compiler/compiler.go    # LaTeX engine abstraction (runs engine 2×, isolated temp dir)
@@ -122,7 +122,7 @@ The image uses a **multi-stage build**:
 The final container has pdflatex, xelatex, lualatex, latexmk, and virtually every CTAN package available out of the box.
 
 Security posture:
-- Runs as a non-root user (`latexpad`)
+- Runs as a non-root user (`atstex-lab`)
 - `/tmp` is a `tmpfs` RAM disk — compile artifacts never touch the host disk
 - CPU and memory capped via `deploy.resources` in `docker-compose.yml`
 
