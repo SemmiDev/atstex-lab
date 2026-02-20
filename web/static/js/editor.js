@@ -415,7 +415,12 @@ to your browser.
       }
 
       try {
-        const res = await fetch(`/api/templates/${name}`);
+        const cvDataStr = localStorage.getItem('cv_data') || '{}';
+        const res = await fetch(`/api/templates/${name}/render`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: cvDataStr
+        });
         if (!res.ok) throw new Error('Failed to load template');
         const content = await res.text();
         editorView.dispatch({

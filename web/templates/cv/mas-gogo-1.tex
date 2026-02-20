@@ -63,91 +63,55 @@
 % ══════════════════════════════════════════════════════════════
 \begin{tabular*}{\linewidth}{@{} l @{\extracolsep{\fill}} c @{\extracolsep{\fill}} r @{}}
   \begin{tabular}[t]{@{}l@{}}
-    \small Jakarta, Indonesia \\
-    \small gogo@gogo.com
+    \small [[ .Personal.Location | texEscape ]] \\
+    \small [[ .Personal.Email | texEscape ]] [[ if .Personal.Phone ]]\\ \small [[ .Personal.Phone | texEscape ]][[ end ]]
   \end{tabular}
   &
-  {\LARGE\textbf{Listiarso Wastuargo}}
+  \begin{tabular}[t]{@{}c@{}}
+    {\LARGE\textbf{[[ .Personal.Name | texEscape ]]}}[[ if .Personal.Title ]]\\
+    {\large [[ .Personal.Title | texEscape ]]}[[ end ]]
+  \end{tabular}
   &
   \begin{tabular}[t]{@{}r@{}}
-    \small\href{https://www.linkedin.com/in/lwastuargo}{linkedin.com/in/lwastuargo} \\
-    \small\href{https://newsletter.lwastuargo.com}{newsletter.lwastuargo.com}
+[[ if .Personal.Linkedin ]]    \small\href{https://[[ .Personal.Linkedin | texEscape ]]}{[[ .Personal.Linkedin | texEscape ]]} \\[[ end ]]
+[[ if .Personal.Github ]]    \small\href{https://[[ .Personal.Github | texEscape ]]}{[[ .Personal.Github | texEscape ]]} \\[[ end ]]
+[[ if .Personal.Website ]]    \small\href{https://[[ .Personal.Website | texEscape ]]}{[[ .Personal.Website | texEscape ]]} \\[[ end ]]
   \end{tabular}
 \end{tabular*}
 
-\vspace{2pt}
+\vspace{7pt}
+
+[[ if .Summary ]]
+\noindent [[ .Summary | texEscape ]]
+\vspace{4pt}
+[[ end ]]
 
 % ══════════════════════════════════════════════════════════════
 % WORK EXPERIENCE
 % ══════════════════════════════════════════════════════════════
+[[ if .Experience ]]
 \ressection{Work Experience}
 
-% ── VP of Engineering ────────────────────────────────────────
+[[ range .Experience ]]
 \vspace{1pt}
 \begin{tabular*}{\linewidth}{@{}l @{\extracolsep{\fill}} c @{\extracolsep{\fill}} r@{}}
-  \textbf{VP of Engineering} & \textbf{Pass3} & \textbf{Dec 2022--Present}
+  \textbf{[[ .Title | texEscape ]]} & \textbf{[[ .Company | texEscape ]]} & \textbf{[[ .Dates | texEscape ]]}
 \end{tabular*}
-\begin{center}\vspace{-6pt}\small Jakarta, Indonesia\end{center}
+[[ if .Location ]]\begin{center}\vspace{-6pt}\small [[ .Location | texEscape ]]\end{center}[[ else ]]\vspace{-4pt}[[ end ]]
 \vspace{-4pt}
 
-\noindent You might need to explain what the company is about to make it relevant to recruiters/hiring manager who doesn't know about your company.
-
-\begin{cvlist}
-  \item Results, impact, and your contribution.
-  \item Add numbers to the impact, use powerful active languages (e.g. lead, drive, manage, grew), and mention specifics like the technologies/programming languages used.
-  \item The format should be: active verb, numerical business impact, activities or actions, and how did you achieve it
-  \item At most, 4 points per job
-\end{cvlist}
+[[ if .Bullets ]]\begin{cvlist}
+[[ range texLines .Bullets ]]  \item [[ . | texEscape ]]
+[[ end ]]\end{cvlist}[[ end ]]
 
 \vspace{3pt}
-
-% ── SVP of Engineering ───────────────────────────────────────
-\begin{tabular*}{\linewidth}{@{}l @{\extracolsep{\fill}} c @{\extracolsep{\fill}} r@{}}
-  \textbf{SVP of Engineering} & \textbf{Sayurbox} & \textbf{Dec 2020-Dec 2022}
-\end{tabular*}
-\begin{center}\vspace{-6pt}\small Remote, Indonesia\end{center}
-\vspace{-4pt}
-
-\noindent Sayurbox is Indonesia's fastest-growing Series C-funded (\$139mio raised) tech-powered online grocery supply chain.
-
-\begin{cvlist}
-  \item Results, impact, and your contribution
-  \item Grew Sayurbox \textbf{revenue by 120\%} by increasing the application \textbf{conversion rate by 240\%} by \textbf{establishing} consumer \textbf{team} that build the entire Sayurbox mobile application and backend system.
-\end{cvlist}
-
-\vspace{3pt}
-
-% ── Staff Software Engineer ───────────────────────────────────
-\begin{tabular*}{\linewidth}{@{}l @{\extracolsep{\fill}} c @{\extracolsep{\fill}} r@{}}
-  \textbf{Staff Software Engineer} & \textbf{Facebook} & \textbf{Oct 2013--Dec 2020}
-\end{tabular*}
-\begin{center}\vspace{-6pt}\small Menlo Park, US\end{center}
-\vspace{-4pt}
-
-\begin{cvlist}
-  \item Grew Facebook \textbf{revenue} annually by \textbf{10\%} by launching multiple Ad Format improvements across Facebook family of apps (Facebook, Instagram, Messenger, WhatsApp).
-  \item Mentored over 30 engineers and product managers of varying levels (L3 to L6) across the organization. The mentees got promoted (up to L6), received Redefine Expectations (highest performance review rating at Facebook), and received ``Fix of The Week'' given by Mark Zuckerberg.
-  \item As the position is more in the past, you'll want to be mindful of how many details you add and what you call out. You want to ensure there's space on all the key details on the first page.
-\end{cvlist}
-
-\vspace{3pt}
-
-% ── Software Engineer Intern ──────────────────────────────────
-\begin{tabular*}{\linewidth}{@{}l @{\extracolsep{\fill}} c @{\extracolsep{\fill}} r@{}}
-  \textbf{Software Engineer Intern} & \textbf{Facebook} & \textbf{Summer 2012}
-\end{tabular*}
-\begin{center}\vspace{-6pt}\small Jakarta, Indonesia\end{center}
-\vspace{-4pt}
-
-\begin{cvlist}
-  \item Results, impact, and your contribution. The further a position is in the past, the less important its details are.
-\end{cvlist}
-
-\vspace{3pt}
+[[ end ]]
+[[ end ]]
 
 % ══════════════════════════════════════════════════════════════
 % EDUCATION AND CERTIFICATIONS
 % ══════════════════════════════════════════════════════════════
+[[ if or .Education .Certifications ]]
 \ressection{Education and Certifications}
 
 \begin{itemize}[
@@ -157,14 +121,17 @@
   topsep=3pt,
   parsep=0pt
 ]
-  \item \textbf{B.Sc. Computer Software Engineering,} Institut~Teknologi Bandung, Indonesia.\hfill\textbf{2008--2013}
-\end{itemize}
+[[ range .Education ]]  \item \textbf{[[ .Degree | texEscape ]]} at [[ .Institution | texEscape ]][[ if .GPA ]] (GPA: [[ .GPA | texEscape ]])[[ end ]].\hfill\textbf{[[ .Dates | texEscape ]]}
+[[ end ]][[ range .Certifications ]]  \item \textbf{[[ .Name | texEscape ]],} [[ .Issuer | texEscape ]].
+[[ end ]]\end{itemize}
 
 \vspace{3pt}
+[[ end ]]
 
 % ══════════════════════════════════════════════════════════════
 % TECHNOLOGIES AND LANGUAGES
 % ══════════════════════════════════════════════════════════════
+[[ if or .Skills.Languages .Skills.Frameworks .Skills.Tools .Skills.Other ]]
 \ressection{Technologies and Languages}
 
 \begin{itemize}[
@@ -174,22 +141,27 @@
   topsep=3pt,
   parsep=0pt
 ]
-  \item \begin{tabular}[t]{@{}p{2.1cm}@{}l@{}}
-    Languages: & Java, Typescript, React, Go, Swift \{other languages, keep it one line\}
-  \end{tabular}
-  \item \begin{tabular}[t]{@{}p{2.1cm}@{}l@{}}
-    Technologies:  & MySQL, Postgres, AWS, Git, BigQuery, Apache Spark \{other technologies, keep it one line\}
-  \end{tabular}
-  \item \begin{tabular}[t]{@{}p{2.1cm}@{}l@{}}
-    Other: & Data structures and algorithms, \{other relevant skills, keep it one line\}
-  \end{tabular}
+[[ if .Skills.Languages ]]  \item \begin{tabular}[t]{@{}p{2.1cm}@{}l@{}}
+    Languages: & [[ .Skills.Languages | texEscape ]]
+  \end{tabular}[[ end ]]
+[[ if .Skills.Frameworks ]]  \item \begin{tabular}[t]{@{}p{2.1cm}@{}l@{}}
+    Frameworks: & [[ .Skills.Frameworks | texEscape ]]
+  \end{tabular}[[ end ]]
+[[ if .Skills.Tools ]]  \item \begin{tabular}[t]{@{}p{2.1cm}@{}l@{}}
+    Tools: & [[ .Skills.Tools | texEscape ]]
+  \end{tabular}[[ end ]]
+[[ if .Skills.Other ]]  \item \begin{tabular}[t]{@{}p{2.1cm}@{}l@{}}
+    Other: & [[ .Skills.Other | texEscape ]]
+  \end{tabular}[[ end ]]
 \end{itemize}
 
 \vspace{3pt}
+[[ end ]]
 
 % ══════════════════════════════════════════════════════════════
 % PROJECTS & ACHIEVEMENTS
 % ══════════════════════════════════════════════════════════════
+[[ if .Projects ]]
 \ressection{Projects \& Achievements}
 
 \begin{itemize}[
@@ -199,18 +171,15 @@
   topsep=3pt,
   parsep=0pt
 ]
-  \item \textbf{Projects} only important if you're intern or new grads.
-  \item \textbf{Volunteer work} only important if you're intern or new grads
-  \item \textbf{Awards} - only important if you're intern or new grads, or when the award is truly outstanding (international award).
-  \item \textbf{Certifications and Courses} - only important if you're intern or new grad. Or very relevant to the job (like AWS certification)
-  \item \textbf{Bronze Medal} in Asia Pacific Informatics Olympiad - Mar 2008
-  \item \textbf{Bronze Medal} in International Olympiad in Informatics - Aug 2008
-  \item \textbf{1st Place Winner} in ACM ICPC Asia Kanpur Regional Contest - 2010
-\end{itemize}
+[[ range .Projects ]]  \item \textbf{[[ .Name | texEscape ]]} ([[ .Role | texEscape ]]) [[ if .Link ]]\hfill\href{https://[[ .Link | texEscape ]]}{[[ .Link | texEscape ]]}[[ end ]]
+[[ if .Bullets ]]  \begin{itemize}[label=$\circ$, leftmargin=1em, topsep=1pt, itemsep=0pt, parsep=0pt]
+[[ range texLines .Bullets ]]    \item [[ . | texEscape ]]
+[[ end ]]  \end{itemize}[[ end ]]
+[[ end ]]\end{itemize}
 
 \vspace{10pt}
+[[ end ]]
 
 % ── Footer ────────────────────────────────────────────────────
-\noindent\small Credits to Gergely Orosz's template: \href{https://blog.pragmaticengineer.com/the-pragmatic-engineers-resume-template/}{https://blog.pragmaticengineer.com/the-pragmatic-engineers-resume-template/}. I make it more opinionated toward what I think is the right resume format.
 
 \end{document}

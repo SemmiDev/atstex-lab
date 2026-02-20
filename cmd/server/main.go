@@ -15,9 +15,12 @@ import (
 )
 
 func main() {
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level:     slog.LevelInfo,
+		AddSource: true,
 	}))
+
+	slog.SetDefault(logger)
 
 	// Parse embedded templates.
 	tmpl, err := template.New("").ParseFS(web.TemplateFS, "templates/*.html")
@@ -35,7 +38,7 @@ func main() {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-	r.Use(middleware.Timeout(90 * time.Second))
+	r.Use(middleware.Timeout(120 * time.Second))
 	r.Use(middleware.CleanPath)
 	r.Use(middleware.StripSlashes)
 
@@ -45,6 +48,7 @@ func main() {
 	r.Get("/editor", h.Editor)
 	r.Get("/api/templates", h.ListTemplates)
 	r.Get("/api/templates/{name}", h.GetTemplate)
+	r.Post("/api/templates/{name}/render", h.RenderTemplate)
 	r.Post("/compile", h.Compile)
 
 	// Serve static assets (JS/CSS) embedded in the binary.

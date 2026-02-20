@@ -94,6 +94,31 @@ func (h *Handler) GetTemplate(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(content))
 }
 
+// RenderTemplate handles POST /api/templates/{name}/render.
+func (h *Handler) RenderTemplate(w http.ResponseWriter, r *http.Request) {
+	name := chi.URLParam(r, "name")
+	if name == "" {
+		jsonError(w, "name is required", http.StatusBadRequest)
+		return
+	}
+
+	var data cvtemplate.CVData
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		jsonError(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	content, err := cvtemplate.Render(name, data)
+	if err != nil {
+		h.logger.Error("template render error", "err", err)
+		jsonError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Write([]byte(content))
+}
+
 // Compile handles POST /compile — accepts JSON, returns JSON + PDF via separate endpoint.
 // To keep things simple and avoid base64 bloat, the PDF is returned as raw bytes
 // with Content-Type application/pdf when the compilation succeeds, and JSON on error.
