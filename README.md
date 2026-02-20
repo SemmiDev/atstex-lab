@@ -1,11 +1,10 @@
-# atstex-lab
+# ATSTEXLAB — Engineered ATS Resume Builder
 
-A minimal, self-hosted LaTeX compiler and previewer. Write LaTeX in the browser, compile server-side with pdflatex/xelatex/lualatex, and preview the PDF instantly — no Overleaf needed.
-
-![atstex-lab Screenshot](assets/Screenshot.png)
+A minimal, self-hosted LaTeX compiler and previewer tailored for building ATS-friendly resumes. Write LaTeX in the browser using curated professional CV templates, compile server-side with pdflatex/xelatex/lualatex, and preview the PDF instantly.
 
 ## Features
 
+- **ATS-Friendly CV Templates**: Dynamically load and select from professionally engineered LaTeX CV templates
 - **Split-pane editor** with syntax-aware tab handling and `Ctrl+Enter` shortcut
 - **Multi-engine**: pdflatex, xelatex, lualatex — switchable per document
 - **Live PDF preview** via PDF.js — multi-page, zoomable, draggable splitter
@@ -100,7 +99,7 @@ atstex-lab/
 │   └── handler/handler.go      # HTTP handlers (Index, Compile)
 ├── web/
 │   ├── embed.go                # go:embed — assets baked into the binary
-│   ├── templates/index.html    # Single-page editor + PDF preview UI
+│   ├── templates/              # HTML views and LaTeX CV templates
 │   └── static/                 # Static assets served at /static/
 ├── Dockerfile                  # Multi-stage: Go builder → texlive/texlive:latest
 ├── docker-compose.yml
