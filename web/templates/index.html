@@ -553,6 +553,61 @@
       background: var(--border2);
       border-radius: 3px;
     }
+
+    /* ── CODEMIRROR 6 GLOBAL ──────────────────────────────── */
+    #editor-container {
+      flex: 1;
+      width: 100%;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .cm-editor {
+      flex: 1;
+      height: 100%;
+      background: var(--bg) !important;
+      color: var(--text) !important;
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      line-height: 1.7;
+    }
+
+    .cm-editor.cm-focused {
+      outline: none !important;
+    }
+
+    .cm-scroller {
+      font-family: var(--font-mono);
+      scrollbar-width: thin;
+      scrollbar-color: var(--border2) transparent;
+    }
+
+    .cm-gutters {
+      background-color: var(--surface) !important;
+      color: var(--muted) !important;
+      border-right: 1px solid var(--border) !important;
+    }
+
+    .cm-activeLineGutter {
+      background-color: var(--surface2) !important;
+      color: var(--text) !important;
+    }
+
+    .cm-activeLine {
+      background-color: rgba(126, 232, 162, 0.04) !important;
+    }
+
+    .cm-selectionBackground,
+    .cm-editor.cm-focused>.cm-scroller>.cm-selectionLayer .cm-selectionBackground {
+      background-color: rgba(126, 232, 162, .18) !important;
+    }
+
+    .cm-cursor {
+      border-left-color: var(--accent) !important;
+      border-left-width: 2px !important;
+    }
   </style>
 </head>
 
@@ -593,8 +648,7 @@
         <span class="dot"></span>
         document.tex
       </div>
-      <textarea id="editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"
-        placeholder="% Write your LaTeX here..."></textarea>
+      <div id="editor-container"></div>
 
       <!-- Log panel inside editor pane -->
       <div class="log-panel" id="log-panel">
@@ -651,6 +705,16 @@
     import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs';
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
 
+    // ── CodeMirror 6 setup ───────────────────────────────────────
+    import { EditorView, basicSetup } from "https://esm.sh/codemirror@6.0.1";
+    import { EditorState } from "https://esm.sh/@codemirror/state@6.4.1";
+    import { keymap } from "https://esm.sh/@codemirror/view@6.26.3";
+    import { standardKeymap, defaultTabBinding } from "https://esm.sh/@codemirror/commands@6.5.0";
+
+    // We will use a generic stream-syntax for LaTeX since there isn't a robust official Lezer grammar in core yet
+    import { StreamLanguage } from "https://esm.sh/@codemirror/language@6.10.1";
+    import { stex } from "https://esm.sh/@codemirror/legacy-modes@6.3.3/mode/stex";
+
     // ── State ─────────────────────────────────────────────────────
     let pdfBytes = null;
     let pdfDoc = null;
@@ -658,7 +722,7 @@
     let currentEngine = 'pdflatex';
 
     // ── DOM refs ──────────────────────────────────────────────────
-    const editor = document.getElementById('editor');
+    const editorContainer = document.getElementById('editor-container');
     const btnCompile = document.getElementById('btn-compile');
     const btnExample = document.getElementById('btn-example');
     const btnDownload = document.getElementById('btn-download');
@@ -768,17 +832,46 @@ to your browser.
 
 \end{document}`;
 
-    btnExample.addEventListener('click', () => {
-      editor.value = EXAMPLE;
-      editor.focus();
+    // ── CodeMirror Initialization ─────────────────────────────────
+    const cmTheme = EditorView.theme({
+      "&": { backgroundColor: "var(--bg)", color: "var(--text)" },
+      ".cm-gutters": { backgroundColor: "var(--surface)", color: "var(--muted)", borderRight: "1px solid var(--border)" },
+      "&.cm-focused .cm-cursor": { borderLeftColor: "var(--accent)" },
+      "&.cm-focused .cm-selectionBackground, ::selection": { backgroundColor: "rgba(126,232,162,.18)" }
+    }, { dark: true });
+
+    const editorView = new EditorView({
+      state: EditorState.create({
+        doc: EXAMPLE,
+        extensions: [
+          basicSetup,
+          StreamLanguage.define(stex),
+          cmTheme,
+          keymap.of([
+            defaultTabBinding,
+            {
+              key: "Mod-Enter",
+              run: () => {
+                if (!btnCompile.disabled) compile();
+                return true;
+              }
+            }
+          ])
+        ]
+      }),
+      parent: editorContainer
     });
 
-    // Load example on first visit.
-    if (!editor.value.trim()) editor.value = EXAMPLE;
+    btnExample.addEventListener('click', () => {
+      editorView.dispatch({
+        changes: { from: 0, to: editorView.state.doc.length, insert: EXAMPLE }
+      });
+      editorView.focus();
+    });
 
     // ── Compile ───────────────────────────────────────────────────
     async function compile() {
-      const source = editor.value;
+      const source = editorView.state.doc.toString();
       if (!source.trim()) return;
 
       setStatus('compiling', 'Compiling…');
@@ -926,16 +1019,6 @@ to your browser.
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
         if (!btnCompile.disabled) compile();
-      }
-    });
-
-    // Tab key in editor inserts spaces ─────────────────────────────
-    editor.addEventListener('keydown', e => {
-      if (e.key === 'Tab') {
-        e.preventDefault();
-        const s = editor.selectionStart;
-        editor.value = editor.value.slice(0, s) + '  ' + editor.value.slice(editor.selectionEnd);
-        editor.selectionStart = editor.selectionEnd = s + 2;
       }
     });
 
