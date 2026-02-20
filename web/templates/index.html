@@ -706,14 +706,14 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs';
 
     // ── CodeMirror 6 setup ───────────────────────────────────────
-    import { EditorView, basicSetup } from "https://esm.sh/codemirror@6.0.1";
-    import { EditorState } from "https://esm.sh/@codemirror/state@6.4.1";
-    import { keymap } from "https://esm.sh/@codemirror/view@6.26.3";
-    import { standardKeymap, defaultTabBinding } from "https://esm.sh/@codemirror/commands@6.5.0";
+    import { EditorView, basicSetup } from "https://esm.sh/codemirror";
+    import { EditorState } from "https://esm.sh/@codemirror/state";
+    import { keymap } from "https://esm.sh/@codemirror/view";
+    import { standardKeymap, indentWithTab } from "https://esm.sh/@codemirror/commands";
 
     // We will use a generic stream-syntax for LaTeX since there isn't a robust official Lezer grammar in core yet
-    import { StreamLanguage } from "https://esm.sh/@codemirror/language@6.10.1";
-    import { stex } from "https://esm.sh/@codemirror/legacy-modes@6.3.3/mode/stex";
+    import { StreamLanguage } from "https://esm.sh/@codemirror/language";
+    import { stex } from "https://esm.sh/@codemirror/legacy-modes/mode/stex";
 
     // ── State ─────────────────────────────────────────────────────
     let pdfBytes = null;
@@ -848,7 +848,7 @@ to your browser.
           StreamLanguage.define(stex),
           cmTheme,
           keymap.of([
-            defaultTabBinding,
+            indentWithTab,
             {
               key: "Mod-Enter",
               run: () => {
