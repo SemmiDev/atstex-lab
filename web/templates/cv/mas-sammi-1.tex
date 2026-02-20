@@ -125,7 +125,10 @@
     [[ if .Personal.Location ]]\small [[ .Personal.Location | texEscape ]] \\[[ end ]]
     \small
     [[ if .Personal.Phone ]]\href{tel:[[ .Personal.Phone | texEscape ]]}{[[ .Personal.Phone | texEscape ]]} $|$[[ end ]]
-    [[ if .Personal.Email ]]\href{mailto:[[ .Personal.Email | texEscape ]]}{[[ .Personal.Email | texEscape ]]} $[[ end ]]$[ if .Personal.Linkedin.URL ]]| \href{[[ .Personal.Linkedin.URL | texEscape ]]}{[[ if .Personal.Linkedin.Display ]][[ .Personal.Linkedin.Display | texEscape ]][[ else ]][[ .Personal.Linkedin.URL | texEscape ]][[ end ]]} $[[ end ]]$[ if .Personal.Github.URL ]]| \href{[[ .Personal.Github.URL | texEscape ]]}{[[ if .Personal.Github.Display ]][[ .Personal.Github.Display | texEscape ]][[ else ]][[ .Personal.Github.URL | texEscape ]][[ end ]]} $[[ end ]]$[ if .Personal.Website.URL ]]| \href{[[ .Personal.Website.URL | texEscape ]]}{[[ if .Personal.Website.Display ]][[ .Personal.Website.Display | texEscape ]][[ else ]][[ .Personal.Website.URL | texEscape ]][[ end ]]} [[ end ]]
+    [[ if .Personal.Email ]]\href{mailto:[[ .Personal.Email | texEscape ]]}{[[ .Personal.Email | texEscape ]]} $|$[[ end ]]
+    [[ if .Personal.Linkedin.URL ]]\href{[[ .Personal.Linkedin.URL | texEscape ]]}{[[ if .Personal.Linkedin.Display ]][[ .Personal.Linkedin.Display | texEscape ]][[ else ]][[ .Personal.Linkedin.URL | texEscape ]][[ end ]]} $|$[[ end ]]
+    [[ if .Personal.Github.URL ]]\href{[[ .Personal.Github.URL | texEscape ]]}{[[ if .Personal.Github.Display ]][[ .Personal.Github.Display | texEscape ]][[ else ]][[ .Personal.Github.URL | texEscape ]][[ end ]]} $|$[[ end ]]
+    [[ if .Personal.Website.URL ]]\href{[[ .Personal.Website.URL | texEscape ]]}{[[ if .Personal.Website.Display ]][[ .Personal.Website.Display | texEscape ]][[ else ]][[ .Personal.Website.URL | texEscape ]][[ end ]]} [[ end ]]
 \end{center}
 
 

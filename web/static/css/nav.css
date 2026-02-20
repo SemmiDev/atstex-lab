@@ -41,6 +41,9 @@
     padding: 8px 16px;
     border: 2px solid transparent;
     transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .nav-link:hover {
