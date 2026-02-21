@@ -10,6 +10,8 @@
         href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&display=swap"
         rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
     <style>
         body { background: var(--bg); overflow-y: auto; padding: 0; margin: 0; }
     </style>
@@ -29,6 +31,10 @@
             </div>
             <div class="flex items-center gap-2 flex-wrap">
                 <button id="btn-fill-dummy" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-magic-wand"></i> Fill Example</button>
+                <!-- Hidden file input for PDF extraction -->
+                <input type="file" id="pdf-upload" accept="application/pdf" style="display: none;" />
+                <button id="btn-upload-pdf" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-file-pdf"></i> Extract PDF</button>
+
                 <button id="btn-save-db" class="btn btn-primary !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-floppy-disk"></i> Save</button>
                 <button id="btn-delete-profile" class="btn !px-3 !py-1.5 !text-xs !border-error !text-error" disabled><i class="ph-bold ph-trash"></i> Del</button>
             </div>

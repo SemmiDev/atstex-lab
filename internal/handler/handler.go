@@ -13,6 +13,7 @@ import (
 	"github.com/semmidev/atstex-lab/internal/compiler"
 	"github.com/semmidev/atstex-lab/internal/cvtemplate"
 	"github.com/semmidev/atstex-lab/internal/domain"
+	"github.com/semmidev/atstex-lab/internal/extractor"
 	mw "github.com/semmidev/atstex-lab/internal/middleware"
 	"github.com/semmidev/atstex-lab/internal/repository"
 )
@@ -38,11 +39,12 @@ type Handler struct {
 	logger     *slog.Logger
 	repo       repository.Repository
 	authConfig *auth.Config
+	openAIKey  string
 }
 
-// New constructs a Handler. The provided template must contain a "index" template.
-func New(tmpl *template.Template, logger *slog.Logger, r repository.Repository, ac *auth.Config) *Handler {
-	return &Handler{tmpl: tmpl, logger: logger, repo: r, authConfig: ac}
+// New constructs a Handler.
+func New(tmpl *template.Template, logger *slog.Logger, r repository.Repository, ac *auth.Config, openAIKey string) *Handler {
+	return &Handler{tmpl: tmpl, logger: logger, repo: r, authConfig: ac, openAIKey: openAIKey}
 }
 
 // reqLog returns the per-request logger from context (with request_id and trace_id),
@@ -266,4 +268,43 @@ func truncate(s string, n int) string {
 		return s
 	}
 	return s[:n] + "…"
+}
+
+// ExtractPDF handles POST /api/extract-pdf — receives PDF text and returns structured biodata JSON.
+func (h *Handler) ExtractPDF(w http.ResponseWriter, r *http.Request) {
+	log := h.reqLog(r)
+
+	if h.openAIKey == "" {
+		log.Error("OpenAI API key not configured")
+		jsonError(w, "AI extraction not configured", http.StatusServiceUnavailable)
+		return
+	}
+
+	var req struct {
+		Text string `json:"text"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Error("invalid request body", "err", err)
+		jsonError(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if len(req.Text) < 50 {
+		jsonError(w, "PDF text is too short to extract meaningful data", http.StatusBadRequest)
+		return
+	}
+
+	log.Info("extracting biodata from PDF text", "text_len", len(req.Text))
+
+	result, err := extractor.ExtractBiodata(r.Context(), req.Text, h.openAIKey)
+	if err != nil {
+		log.Error("extraction failed", "err", err)
+		jsonError(w, "AI extraction failed: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	log.Info("extraction succeeded")
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(result)
 }

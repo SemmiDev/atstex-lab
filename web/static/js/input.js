@@ -283,6 +283,8 @@ const btnNewProfile = document.getElementById('btn-new-profile');
 const btnSaveDB = document.getElementById('btn-save-db');
 const btnDeleteProfile = document.getElementById('btn-delete-profile');
 const btnFillDummy = document.getElementById('btn-fill-dummy');
+const btnUploadPdf = document.getElementById('btn-upload-pdf');
+const pdfUploadInput = document.getElementById('pdf-upload');
 const statusMsg = document.getElementById('cv-status-msg');
 
 // ── Dummy Data ─────────────────────────────────────────
@@ -660,6 +662,81 @@ if (btnFillDummy) {
     populateForm(JSON.parse(JSON.stringify(DUMMY_BIODATA)));
     saveToStorage();
     showStatus('Filled with example data — Sammi Aldhi Yanto 🚀');
+  });
+}
+
+// ── PDF Extraction ─────────────────────────────────────
+if (btnUploadPdf && pdfUploadInput) {
+  btnUploadPdf.addEventListener('click', () => {
+    if (!activeProfileId) {
+      showStatus('Select or create a profile first', true);
+      return;
+    }
+    pdfUploadInput.click();
+  });
+
+  pdfUploadInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      showStatus('Please upload a valid PDF file', true);
+      return;
+    }
+
+    const originalBtnHTML = btnUploadPdf.innerHTML;
+    btnUploadPdf.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Extracting...';
+    btnUploadPdf.disabled = true;
+
+    try {
+      showStatus('Reading PDF... 📄');
+      // 1. Read PDF with PDF.js
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => item.str).join(' ');
+        fullText += pageText + '\n';
+      }
+
+      const textLen = fullText.trim().length;
+      if (textLen < 50) {
+        throw new Error('Could not extract enough text from the PDF');
+      }
+
+      showStatus(`Processing ${textLen} characters with AI... 🤖`);
+
+      // 2. Send to backend AI extractor
+      const res = await fetch('/api/extract-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: fullText })
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Failed to extract data via API');
+      }
+
+      const extractedData = await res.json();
+
+      // 3. Populate form and save
+      populateForm(extractedData);
+      saveToStorage();
+      showStatus('✨ Successfully extracted and applied data from PDF!', false);
+
+    } catch (err) {
+      console.error('PDF extraction error:', err);
+      showStatus(err.message || 'Error occurred during PDF extraction', true);
+    } finally {
+      // Reset button
+      btnUploadPdf.innerHTML = originalBtnHTML;
+      btnUploadPdf.disabled = false;
+      pdfUploadInput.value = ''; // clear input so the same file can be selected again
+    }
   });
 }
 

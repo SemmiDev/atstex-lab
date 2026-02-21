@@ -14,6 +14,7 @@ type AppConfig struct {
 	GoogleClientID     string
 	GoogleClientSecret string
 	GoogleCallbackURL  string
+	OpenAIAPIKey       string
 }
 
 // Load reads .env and returns a populated AppConfig.
@@ -29,6 +30,7 @@ func Load() *AppConfig {
 		GoogleClientID:     getEnv("GOOGLE_CLIENT_ID", ""),
 		GoogleClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
 		GoogleCallbackURL:  getEnv("GOOGLE_CALLBACK_URL", "http://localhost:8080/auth/google/callback"),
+		OpenAIAPIKey:       getEnv("OPENAI_API_KEY", ""),
 	}
 }
 

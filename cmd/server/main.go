@@ -49,7 +49,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	h := handler.New(tmpl, logger, repo, authConfig)
+	h := handler.New(tmpl, logger, repo, authConfig, cfg.OpenAIAPIKey)
 
 	r := chi.NewRouter()
 
@@ -86,6 +86,7 @@ func main() {
 		r.Get("/api/templates/{name}", h.GetTemplate)
 		r.Post("/api/templates/{name}/render", h.RenderTemplate)
 		r.Post("/compile", h.Compile)
+		r.Post("/api/extract-pdf", h.ExtractPDF)
 		// CV Profile API
 		r.Get("/api/cv-profiles", h.ListCVProfiles)
 		r.Post("/api/cv-profiles", h.CreateCVProfile)
