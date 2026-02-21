@@ -1,5 +1,6 @@
 // ── Constants & Helpers ───────────────────────────────
 const STORAGE_KEY = 'cv_data';
+const ACTIVE_PROFILE_KEY = 'cv_active_profile_id';
 
 // Default initial state
 let data = {
@@ -18,6 +19,8 @@ let data = {
   awards: [],
   talks: []
 };
+
+let activeProfileId = null;
 
 // ── Item Templates ──────────────────────────────────────
 const itemTemplates = {
@@ -129,7 +132,7 @@ const itemTemplates = {
 };
 
 // ── Serialization & Deserialization ────────────────────
-function saveToStorage() {
+function collectFormData() {
   // Capture static fields
   document.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
     const parts = el.dataset.field.split('.');
@@ -157,16 +160,40 @@ function saveToStorage() {
     });
   });
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  console.log('Saved to standard localStorage:', data);
+  return data;
 }
 
-function loadFromStorage() {
-  const jsonStr = localStorage.getItem(STORAGE_KEY);
-  if (!jsonStr) return;
-  try {
-    data = JSON.parse(jsonStr);
-  } catch(e) { console.error(e); return; }
+function saveToStorage() {
+  collectFormData();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function clearForm() {
+  // Reset data model
+  data = {
+    personal: { linkedin: {}, github: {}, website: {} },
+    summary: "",
+    experience: [], education: [], projects: [],
+    skills: {},
+    certifications: [], volunteer: [], awards: [], talks: []
+  };
+
+  // Clear static fields
+  document.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
+    el.value = '';
+  });
+
+  // Clear dynamic lists
+  ['experience', 'education', 'projects', 'certifications', 'volunteer', 'awards', 'talks'].forEach(key => {
+    const container = document.getElementById(`list-${key}`);
+    if (container) container.innerHTML = '';
+  });
+}
+
+function populateForm(newData) {
+  clearForm();
+  if (!newData) return;
+  data = newData;
 
   // Populate static fields
   document.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
@@ -190,6 +217,15 @@ function loadFromStorage() {
     const items = data[key] || [];
     items.forEach(itemData => addItem(key, itemData));
   });
+}
+
+function loadFromStorage() {
+  const jsonStr = localStorage.getItem(STORAGE_KEY);
+  if (!jsonStr) return;
+  try {
+    const parsed = JSON.parse(jsonStr);
+    populateForm(parsed);
+  } catch(e) { console.error(e); }
 }
 
 // ── DOM Interactions ───────────────────────────────────
@@ -228,7 +264,7 @@ function addItem(type, initialData = null) {
   }
 }
 
-// Attach listenets to Add buttons
+// Attach listeners to Add buttons
 document.querySelectorAll('.btn-add').forEach(btn => {
   btn.addEventListener('click', () => {
     addItem(btn.dataset.target);
@@ -241,7 +277,207 @@ document.querySelectorAll('input[data-field], textarea[data-field]').forEach(el 
   el.addEventListener('input', saveToStorage);
 });
 
+// ── CV Profile Management ──────────────────────────────
+const profileSelect = document.getElementById('cv-profile-select');
+const btnNewProfile = document.getElementById('btn-new-profile');
+const btnSaveDB = document.getElementById('btn-save-db');
+const btnDeleteProfile = document.getElementById('btn-delete-profile');
+const statusMsg = document.getElementById('cv-status-msg');
+
+function showStatus(msg, isError = false) {
+  statusMsg.textContent = msg;
+  statusMsg.classList.remove('hidden', '!text-error', '!text-accent2');
+  statusMsg.classList.add(isError ? '!text-error' : '!text-accent2');
+  setTimeout(() => statusMsg.classList.add('hidden'), 3000);
+}
+
+function updateButtons() {
+  const hasProfile = !!activeProfileId;
+  btnSaveDB.disabled = !hasProfile;
+  btnDeleteProfile.disabled = !hasProfile;
+}
+
+async function fetchProfiles() {
+  try {
+    const res = await fetch('/api/cv-profiles');
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (e) {
+    console.error('Failed to fetch profiles', e);
+    return [];
+  }
+}
+
+async function loadProfileList() {
+  const profiles = await fetchProfiles();
+
+  // Rebuild select options
+  profileSelect.innerHTML = '<option value="">— Select or Create —</option>';
+  profiles.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.title;
+    profileSelect.appendChild(opt);
+  });
+
+  // Restore previously active profile
+  const savedId = localStorage.getItem(ACTIVE_PROFILE_KEY);
+  if (savedId && profiles.find(p => p.id === savedId)) {
+    profileSelect.value = savedId;
+    activeProfileId = savedId;
+    await loadProfileData(savedId);
+  } else {
+    // No saved profile — just load from localStorage
+    loadFromStorage();
+  }
+
+  updateButtons();
+}
+
+async function loadProfileData(profileId) {
+  try {
+    const res = await fetch(`/api/cv-profiles/${profileId}`);
+    if (!res.ok) throw new Error('Failed to load profile');
+    const profile = await res.json();
+
+    // Parse biodata and populate form
+    let biodata = profile.biodata;
+    if (typeof biodata === 'string') {
+      biodata = JSON.parse(biodata);
+    }
+
+    // Merge with default structure
+    const fullData = {
+      personal: { linkedin: {}, github: {}, website: {}, ...((biodata && biodata.personal) || {}) },
+      summary: (biodata && biodata.summary) || "",
+      experience: (biodata && biodata.experience) || [],
+      education: (biodata && biodata.education) || [],
+      projects: (biodata && biodata.projects) || [],
+      skills: (biodata && biodata.skills) || {},
+      certifications: (biodata && biodata.certifications) || [],
+      volunteer: (biodata && biodata.volunteer) || [],
+      awards: (biodata && biodata.awards) || [],
+      talks: (biodata && biodata.talks) || []
+    };
+
+    populateForm(fullData);
+    saveToStorage(); // sync to localStorage
+    showStatus(`Loaded "${profile.title}" from database`);
+  } catch (e) {
+    console.error(e);
+    showStatus('Failed to load profile', true);
+  }
+}
+
+// On dropdown change
+profileSelect.addEventListener('change', async () => {
+  const id = profileSelect.value;
+  if (!id) {
+    activeProfileId = null;
+    localStorage.removeItem(ACTIVE_PROFILE_KEY);
+    clearForm();
+    updateButtons();
+    return;
+  }
+
+  activeProfileId = id;
+  localStorage.setItem(ACTIVE_PROFILE_KEY, id);
+  await loadProfileData(id);
+  updateButtons();
+});
+
+// New Profile
+btnNewProfile.addEventListener('click', async () => {
+  const title = prompt('Enter a title for this CV profile (e.g., "Back End Developer"):');
+  if (!title || !title.trim()) return;
+
+  try {
+    const res = await fetch('/api/cv-profiles', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: title.trim() })
+    });
+
+    if (!res.ok) throw new Error('Failed to create profile');
+    const profile = await res.json();
+
+    // Add to dropdown and select it
+    const opt = document.createElement('option');
+    opt.value = profile.id;
+    opt.textContent = profile.title;
+    profileSelect.appendChild(opt);
+    profileSelect.value = profile.id;
+
+    activeProfileId = profile.id;
+    localStorage.setItem(ACTIVE_PROFILE_KEY, profile.id);
+
+    // Clear form for new profile
+    clearForm();
+    saveToStorage();
+    updateButtons();
+
+    showStatus(`Created "${profile.title}" — start filling in your data!`);
+  } catch (e) {
+    console.error(e);
+    showStatus('Failed to create profile', true);
+  }
+});
+
+// Save to DB
+btnSaveDB.addEventListener('click', async () => {
+  if (!activeProfileId) return;
+
+  collectFormData();
+
+  try {
+    const res = await fetch(`/api/cv-profiles/${activeProfileId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ biodata: data })
+    });
+
+    if (!res.ok) throw new Error('Failed to save');
+    showStatus('✅ Saved to database successfully!');
+  } catch (e) {
+    console.error(e);
+    showStatus('Failed to save to database', true);
+  }
+});
+
+// Delete Profile
+btnDeleteProfile.addEventListener('click', async () => {
+  if (!activeProfileId) return;
+
+  const selectedOpt = profileSelect.options[profileSelect.selectedIndex];
+  const title = selectedOpt ? selectedOpt.textContent : 'this profile';
+
+  if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+
+  try {
+    const res = await fetch(`/api/cv-profiles/${activeProfileId}`, {
+      method: 'DELETE'
+    });
+
+    if (!res.ok) throw new Error('Failed to delete');
+
+    // Remove from dropdown
+    if (selectedOpt) selectedOpt.remove();
+
+    activeProfileId = null;
+    localStorage.removeItem(ACTIVE_PROFILE_KEY);
+    profileSelect.value = '';
+    clearForm();
+    saveToStorage();
+    updateButtons();
+
+    showStatus(`Deleted "${title}"`);
+  } catch (e) {
+    console.error(e);
+    showStatus('Failed to delete profile', true);
+  }
+});
+
 // ── Init ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  loadFromStorage();
+  loadProfileList();
 });

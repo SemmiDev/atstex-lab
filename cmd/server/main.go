@@ -81,6 +81,12 @@ func main() {
 		r.Get("/api/templates/{name}", h.GetTemplate)
 		r.Post("/api/templates/{name}/render", h.RenderTemplate)
 		r.Post("/compile", h.Compile)
+		// CV Profile API
+		r.Get("/api/cv-profiles", h.ListCVProfiles)
+		r.Post("/api/cv-profiles", h.CreateCVProfile)
+		r.Get("/api/cv-profiles/{id}", h.GetCVProfile)
+		r.Put("/api/cv-profiles/{id}", h.SaveCVProfile)
+		r.Delete("/api/cv-profiles/{id}", h.DeleteCVProfile)
 	})
 
 	// Serve static assets (JS/CSS) embedded in the binary.

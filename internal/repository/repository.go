@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"time"
 
@@ -23,6 +24,12 @@ type Repository interface {
 	GetSession(ctx context.Context, token string) (*domain.Session, error)
 	GetSessionsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.Session, error)
 	DeleteSession(ctx context.Context, token string) error
+	// CV Profile methods
+	CreateCVProfile(ctx context.Context, userID uuid.UUID, title string) (*domain.CVProfile, error)
+	GetCVProfile(ctx context.Context, id uuid.UUID) (*domain.CVProfile, error)
+	GetCVProfilesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVProfile, error)
+	UpdateCVProfileBiodata(ctx context.Context, id uuid.UUID, biodata json.RawMessage) error
+	DeleteCVProfile(ctx context.Context, id uuid.UUID) error
 	Close() error
 }
 
@@ -110,5 +117,44 @@ func (r *postgresRepo) GetSessionsByUserID(ctx context.Context, userID uuid.UUID
 
 func (r *postgresRepo) DeleteSession(ctx context.Context, token string) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM sessions WHERE token = $1`, token)
+	return err
+}
+
+// ── CV Profile CRUD ────────────────────────────────────────────
+
+func (r *postgresRepo) CreateCVProfile(ctx context.Context, userID uuid.UUID, title string) (*domain.CVProfile, error) {
+	query := `INSERT INTO cv_profiles (user_id, title) VALUES ($1, $2) RETURNING id, user_id, title, biodata, created_at, updated_at`
+	var p domain.CVProfile
+	err := r.db.GetContext(ctx, &p, query, userID, title)
+	return &p, err
+}
+
+func (r *postgresRepo) GetCVProfile(ctx context.Context, id uuid.UUID) (*domain.CVProfile, error) {
+	query := `SELECT id, user_id, title, biodata, created_at, updated_at FROM cv_profiles WHERE id = $1`
+	var p domain.CVProfile
+	err := r.db.GetContext(ctx, &p, query, id)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
+	return &p, err
+}
+
+func (r *postgresRepo) GetCVProfilesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVProfile, error) {
+	query := `SELECT id, user_id, title, biodata, created_at, updated_at FROM cv_profiles WHERE user_id = $1 ORDER BY created_at ASC`
+	var profiles []domain.CVProfile
+	err := r.db.SelectContext(ctx, &profiles, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	return profiles, nil
+}
+
+func (r *postgresRepo) UpdateCVProfileBiodata(ctx context.Context, id uuid.UUID, biodata json.RawMessage) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE cv_profiles SET biodata = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, biodata, id)
+	return err
+}
+
+func (r *postgresRepo) DeleteCVProfile(ctx context.Context, id uuid.UUID) error {
+	_, err := r.db.ExecContext(ctx, `DELETE FROM cv_profiles WHERE id = $1`, id)
 	return err
 }

@@ -76,6 +76,25 @@
     <!-- Main Content Wrapper injected here -->
     <main class="flex-1 overflow-y-auto bg-bg relative flex flex-col">
         <div class="flex-1 w-full max-w-4xl mx-auto p-6 md:p-10 flex flex-col gap-8">
+
+            <!-- CV Profile Switcher -->
+            <div class="card !p-4 !gap-3">
+                <div class="flex items-center justify-between flex-wrap gap-3">
+                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                        <label class="font-mono font-bold text-xs uppercase tracking-wider whitespace-nowrap">CV Profile:</label>
+                        <select id="cv-profile-select" class="form-input !py-2 flex-1 min-w-[180px]">
+                            <option value="">— Select or Create —</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button id="btn-new-profile" class="btn btn-ghost !px-3 !py-1.5 !text-xs"><i class="ph-bold ph-plus"></i> New Profile</button>
+                        <button id="btn-save-db" class="btn btn-primary !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-floppy-disk"></i> Save</button>
+                        <button id="btn-delete-profile" class="btn !px-3 !py-1.5 !text-xs !border-error !text-error" disabled><i class="ph-bold ph-trash"></i> Delete</button>
+                    </div>
+                </div>
+                <p id="cv-status-msg" class="text-xs font-mono text-muted hidden"></p>
+            </div>
+
             <p class="text-lg font-medium border-l-[6px] border-accent pl-4">Fill out your professional details below.
                 All data is saved automatically to your browser's local storage.</p>
 

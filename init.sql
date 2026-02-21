@@ -20,3 +20,13 @@ CREATE TABLE IF NOT EXISTS sessions (
 
 CREATE INDEX idx_sessions_token ON sessions(token);
 CREATE INDEX idx_users_google_id ON users(google_id);
+
+CREATE TABLE IF NOT EXISTS cv_profiles (
+    id UUID PRIMARY KEY DEFAULT uuidv7(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    biodata JSONB NOT NULL DEFAULT '{}',
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX idx_cv_profiles_user_id ON cv_profiles(user_id);

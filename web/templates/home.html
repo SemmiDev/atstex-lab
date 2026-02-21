@@ -22,7 +22,6 @@
     <div class="flex items-center gap-4">
       <a href="/" class="flex items-center gap-2 px-4 py-2 font-mono font-bold uppercase text-sm bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000] no-underline"><i class="ph ph-house"></i> Home</a>
       <a href="/input" class="flex items-center gap-2 px-4 py-2 font-mono font-bold uppercase text-sm border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all no-underline"><i class="ph ph-magic-wand"></i> Build</a>
-      <a href="/editor" class="flex items-center gap-2 px-4 py-2 font-mono font-bold uppercase text-sm border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all no-underline"><i class="ph ph-code"></i> LaTeX Editor</a>
     </div>
   </nav>
 
@@ -31,7 +30,7 @@
     <div class="hero-content">
 
       <div class="badge-new">
-        <span class="pulse-dot"></span> ATS-Optimized LaTeX Engine
+        <span class="pulse-dot"></span> Resume Builder That Beats the Bots
       </div>
 
       <h1>
@@ -40,15 +39,14 @@
       </h1>
 
       <p class="subtitle">
-        ATSTEXLAB is a modular LaTeX resume builder focused on ATS compliance.
-        Build clean, machine-readable resumes directly in your browser — securely backed
-        by PostgreSQL and Google OAuth.
+        ATSTEXLAB helps you build professional, ATS-friendly resumes that actually
+        get read by recruiters. Fill in your details, pick a template, and download
+        a polished PDF — all from your browser.
       </p>
 
       <div class="cta-group">
         {{if .User}}
         <a href="/input" class="btn btn-primary btn-lg"><i class="ph-bold ph-magic-wand"></i> Builder</a>
-        <a href="/editor" class="btn btn-ghost btn-lg"><i class="ph-bold ph-code"></i> Editor</a>
         <form action="/auth/logout" method="POST" style="display:inline;">
           <button type="submit" class="btn btn-ghost btn-lg"><i class="ph-bold ph-sign-out"></i> Logout</button>
         </form>
@@ -60,7 +58,7 @@
 
       <!-- Positioning Line -->
       <div class="trusted-by">
-        <p>BUILT FOR ENGINEERS, RESEARCHERS, AND TECHNICAL PROFESSIONALS</p>
+        <p>TRUSTED BY JOB SEEKERS, FRESH GRADS, AND CAREER SWITCHERS</p>
       </div>
 
     </div>
@@ -70,37 +68,37 @@
 
       <div class="feature-card">
         <div class="icon">⚡</div>
-        <h3>Deterministic Builds</h3>
+        <h3>Instant PDF Export</h3>
         <p>
-          Server-side LaTeX compilation powered by Go and TeX Live.
-          Fast, consistent, and predictable output.
+          Hit compile and get a perfectly formatted PDF in seconds.
+          No software to install — everything runs in your browser.
         </p>
       </div>
 
       <div class="feature-card alt">
         <div class="icon">🔒</div>
-        <h3>Secure Sessions</h3>
+        <h3>Sign In & Save</h3>
         <p>
-          Authenticate effortlessly via Google OAuth. Session state is
-          reliably managed behind the scenes in PostgreSQL.
+          Log in with your Google account to save multiple CV profiles.
+          Switch between them anytime — your data is always safe.
         </p>
       </div>
 
       <div class="feature-card">
         <div class="icon">📄</div>
-        <h3>ATS-Native Templates</h3>
+        <h3>ATS-Friendly Templates</h3>
         <p>
-          Structured for Applicant Tracking Systems.
-          Clean hierarchy, semantic sections, zero decorative noise.
+          Every template is designed to pass Applicant Tracking Systems.
+          Clean layout, clear sections, no hidden formatting tricks.
         </p>
       </div>
 
       <div class="feature-card alt-2">
-        <div class="icon">⚙️</div>
-        <h3>Multi-Engine Support</h3>
+        <div class="icon">🎯</div>
+        <h3>Multiple CV Profiles</h3>
         <p>
-          Compile with pdflatex, lualatex, or xelatex.
-          Full control over your rendering pipeline.
+          Create different resumes for different roles.
+          One for "Back End Developer", another for "Data Engineer" — you decide.
         </p>
       </div>
 
@@ -121,7 +119,7 @@
   </main>
 
   <footer class="footer">
-    <p>© 2026 ATSTEXLAB · Built with Go and TeX Live</p>
+    <p>© 2026 ATSTEXLAB · Your Resume, Recruiter-Ready</p>
   </footer>
 
 </body>
