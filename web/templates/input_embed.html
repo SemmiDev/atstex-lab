@@ -20,18 +20,17 @@
 
         <!-- CV Profile Switcher -->
         <div class="card !p-4 !gap-3">
-            <div class="flex items-center justify-between flex-wrap gap-3">
-                <div class="flex items-center gap-3 flex-1 min-w-0">
-                    <label class="font-mono font-bold text-xs uppercase tracking-wider whitespace-nowrap">CV Profile:</label>
-                    <select id="cv-profile-select" class="form-input !py-2 flex-1 min-w-[140px]">
-                        <option value="">— Select or Create —</option>
-                    </select>
-                </div>
-                <div class="flex items-center gap-2 flex-wrap">
-                    <button id="btn-new-profile" class="btn btn-ghost !px-3 !py-1.5 !text-xs"><i class="ph-bold ph-plus"></i> New</button>
-                    <button id="btn-save-db" class="btn btn-primary !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-floppy-disk"></i> Save</button>
-                    <button id="btn-delete-profile" class="btn !px-3 !py-1.5 !text-xs !border-error !text-error" disabled><i class="ph-bold ph-trash"></i> Del</button>
-                </div>
+            <div class="flex items-center gap-3 flex-wrap">
+                <label class="font-mono font-bold text-xs uppercase tracking-wider whitespace-nowrap">CV Profile:</label>
+                <select id="cv-profile-select" class="form-input !py-2 flex-1 min-w-[140px]">
+                    <option value="">— Select or Create —</option>
+                </select>
+                <button id="btn-new-profile" class="btn btn-ghost !px-3 !py-1.5 !text-xs"><i class="ph-bold ph-plus"></i> New</button>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <button id="btn-fill-dummy" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-magic-wand"></i> Fill Example</button>
+                <button id="btn-save-db" class="btn btn-primary !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-floppy-disk"></i> Save</button>
+                <button id="btn-delete-profile" class="btn !px-3 !py-1.5 !text-xs !border-error !text-error" disabled><i class="ph-bold ph-trash"></i> Del</button>
             </div>
             <p id="cv-status-msg" class="text-xs font-mono text-muted hidden"></p>
         </div>

@@ -383,6 +383,7 @@ to your browser.
     // ── Splitter drag ─────────────────────────────────────────────
     const splitter = document.getElementById('splitter');
     const editorPane = document.getElementById('editor-pane');
+    const biodataFrameRef = document.getElementById('biodata-frame');
     let dragging = false;
 
     splitter.addEventListener('mousedown', e => {
@@ -390,6 +391,8 @@ to your browser.
       splitter.classList.add('dragging');
       document.body.style.cursor = 'col-resize';
       document.body.style.userSelect = 'none';
+      // Prevent iframe from stealing mouse events during drag
+      if (biodataFrameRef) biodataFrameRef.style.pointerEvents = 'none';
       e.preventDefault();
     });
 
@@ -402,10 +405,13 @@ to your browser.
     });
 
     document.addEventListener('mouseup', () => {
+      if (!dragging) return;
       dragging = false;
       splitter.classList.remove('dragging');
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
+      // Restore iframe pointer events
+      if (biodataFrameRef) biodataFrameRef.style.pointerEvents = '';
     });
 
     // ── Template Selector ─────────────────────────────────────────

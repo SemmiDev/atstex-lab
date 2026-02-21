@@ -33,7 +33,7 @@ const itemTemplates = {
       <div class="form-group"><label>Company/Org</label><input type="text" data-dyn="company" placeholder="Google"></div>
       <div class="form-group"><label>Job Title</label><input type="text" data-dyn="title" placeholder="Senior Engineer"></div>
       <div class="form-group"><label>Location</label><input type="text" data-dyn="location" placeholder="New York, NY"></div>
-      <div class="form-group"><label>Dates</label><input type="text" data-dyn="dates" placeholder="Jan 2020 - Present"></div>
+      <div class="form-group"><label>Dates</label><input type="text" data-dyn="dates" placeholder="Jan 2020 ˝˝Present"></div>
     </div>
     <div class="form-group">
       <label>Bullet Points (one per line)</label>
@@ -282,7 +282,179 @@ const profileSelect = document.getElementById('cv-profile-select');
 const btnNewProfile = document.getElementById('btn-new-profile');
 const btnSaveDB = document.getElementById('btn-save-db');
 const btnDeleteProfile = document.getElementById('btn-delete-profile');
+const btnFillDummy = document.getElementById('btn-fill-dummy');
 const statusMsg = document.getElementById('cv-status-msg');
+
+// ── Dummy Data ─────────────────────────────────────────
+const DUMMY_BIODATA = {
+  personal: {
+    name: "Sammi Aldhi Yanto",
+    title: "Senior Software Engineer",
+    email: "sammi.aldhi@gmail.com",
+    phone: "+62 812 3456 7890",
+    location: "Jakarta, Indonesia",
+    linkedin: {
+      display: "linkedin.com/in/sammidev",
+      url: "https://linkedin.com/in/sammidev"
+    },
+    github: {
+      display: "github.com/SemmiDev",
+      url: "https://github.com/SemmiDev"
+    },
+    website: {
+      display: "sammidev.com",
+      url: "https://sammidev.com"
+    }
+  },
+  summary: "Senior Software Engineer with 8+ years of experience building large-scale distributed systems at top technology companies. Proven track record of designing and shipping products used by billions of users worldwide. Deep expertise in backend engineering, cloud infrastructure, and system architecture. Passionate about open-source contributions and mentoring the next generation of engineers.",
+  experience: [
+    {
+      company: "Google",
+      title: "Senior Software Engineer — Cloud Infrastructure",
+      location: "Mountain View, CA (Remote)",
+      dates: "Jan 2022 — Present",
+      bullets: "Architected and led the migration of a monolithic API gateway serving 2B+ daily requests to a microservices-based architecture using Go and gRPC, reducing p99 latency by 40%\nDesigned a distributed caching layer with Redis Cluster and Memcached that reduced database load by 65% across 12 services\nBuilt a real-time anomaly detection pipeline using Apache Beam and BigQuery, processing 500K events/sec to identify SLA violations\nMentored 5 junior engineers through Google's Engineering Residency program and led weekly architecture review sessions\nContributed to internal Go standard library improvements adopted across 200+ teams"
+    },
+    {
+      company: "Meta (Facebook)",
+      title: "Software Engineer — News Feed Ranking",
+      location: "Menlo Park, CA",
+      dates: "Jun 2019 — Dec 2021",
+      bullets: "Developed and optimized the News Feed content ranking pipeline serving 3.5B monthly active users using C++ and Python\nImplemented an A/B testing framework that reduced experiment setup time from 2 weeks to 2 hours, enabling 300+ concurrent experiments\nBuilt a feature store using Apache Spark and Hive to serve ML models with sub-10ms latency at scale\nCollaborated with the Integrity team to develop automated content moderation systems reducing harmful content by 35%\nReceived the 'Impact Award' for shipping a personalization algorithm that increased user engagement by 12%"
+    },
+    {
+      company: "Amazon Web Services (AWS)",
+      title: "Software Development Engineer II — DynamoDB",
+      location: "Seattle, WA",
+      dates: "Aug 2017 — May 2019",
+      bullets: "Contributed to DynamoDB's core storage engine, implementing adaptive capacity allocation that improved throughput for bursty workloads by 50%\nDesigned and built an automated partition management system that handles 10+ trillion API calls per day\nDeveloped chaos engineering tools used by 50+ internal teams to validate service resilience\nLed the migration of monitoring infrastructure from legacy systems to CloudWatch, reducing operational overhead by 30%\nAuthored 3 internal technical papers on distributed consensus protocols adopted as reference material"
+    },
+    {
+      company: "Apple",
+      title: "Software Engineer — Siri Backend",
+      location: "Cupertino, CA",
+      dates: "Jul 2016 — Jul 2017",
+      bullets: "Built low-latency natural language processing microservices in Java and Swift handling 500M+ daily Siri queries\nOptimized the intent classification pipeline, reducing inference time by 25% while maintaining 98.5% accuracy\nDeveloped automated integration testing framework that cut release cycle regression testing from 3 days to 4 hours\nCollaborated with the ML team to deploy on-device models that reduced server-side query volume by 20%"
+    }
+  ],
+  education: [
+    {
+      institution: "Stanford University",
+      degree: "M.S. Computer Science — Distributed Systems",
+      location: "Stanford, CA",
+      dates: "Sep 2014 — Jun 2016",
+      gpa: "3.92 / 4.0",
+      activities: "Teaching Assistant for CS244b (Distributed Systems), Stanford ACM Chapter VP"
+    },
+    {
+      institution: "Institut Teknologi Bandung (ITB)",
+      degree: "B.S. Informatics Engineering",
+      location: "Bandung, Indonesia",
+      dates: "Aug 2010 — Jun 2014",
+      gpa: "3.85 / 4.0 — Cum Laude",
+      activities: "Competitive Programming Team Captain, Google Developer Student Club Lead"
+    }
+  ],
+  projects: [
+    {
+      name: "AtstexLab",
+      role: "Creator — Go, LaTeX, Tailwind CSS",
+      link: "github.com/SemmiDev/atstex-lab",
+      bullets: "Built a self-hosted ATS-friendly resume builder with live LaTeX compilation and PDF preview\nImplemented multi-CV profile management with PostgreSQL and Google OAuth integration\nDesigned a brutalist UI with responsive sidebar, tabbed editor, and embedded biodata form"
+    },
+    {
+      name: "DistKV",
+      role: "Creator — Go, Raft Consensus",
+      link: "github.com/SemmiDev/distkv",
+      bullets: "Engineered a distributed key-value store with Raft consensus supporting 100K+ ops/sec\nImplemented log compaction, snapshotting, and membership change protocols from scratch\nAchieved 99.99% availability in production workloads across 5-node clusters"
+    },
+    {
+      name: "GoQueue",
+      role: "Creator — Go, Protocol Buffers",
+      link: "github.com/SemmiDev/goqueue",
+      bullets: "Built a high-performance message queue with exactly-once delivery semantics\nSupports persistent storage with write-ahead log and configurable retention policies\nBenchmarked at 250K messages/sec with sub-millisecond p99 publish latency"
+    }
+  ],
+  skills: {
+    languages: "Go, Python, Java, C++, TypeScript, Rust, SQL",
+    frameworks: "gRPC, Gin, React, Next.js, Apache Beam, Apache Spark, Kubernetes",
+    tools: "Docker, Terraform, AWS (DynamoDB, Lambda, S3, ECS), GCP (BigQuery, Pub/Sub, GKE), PostgreSQL, Redis, Kafka",
+    other: "Distributed Systems Design, System Architecture, Technical Leadership, Mentoring, Agile, CI/CD"
+  },
+  certifications: [
+    {
+      name: "AWS Certified Solutions Architect — Professional",
+      issuer: "Amazon Web Services, 2023"
+    },
+    {
+      name: "Google Cloud Professional Cloud Architect",
+      issuer: "Google Cloud, 2022"
+    },
+    {
+      name: "Certified Kubernetes Administrator (CKA)",
+      issuer: "Cloud Native Computing Foundation, 2021"
+    }
+  ],
+  volunteer: [
+    {
+      organization: "Code.org Indonesia",
+      role: "Lead Instructor",
+      location: "Jakarta, Indonesia",
+      dates: "2020 — Present",
+      bullets: "Taught programming fundamentals to 500+ underprivileged high school students across 15 schools\nDeveloped a Go programming curriculum adapted for Bahasa Indonesia\nOrganized annual hackathons connecting students with industry mentors"
+    },
+    {
+      organization: "Google Summer of Code",
+      role: "Mentor — Go Project",
+      location: "Remote",
+      dates: "2021 — 2023",
+      bullets: "Mentored 6 open-source contributors on the Go compiler and standard library\nGuided students through code review, testing best practices, and community engagement\n4 of 6 mentees became regular Go contributors post-program"
+    }
+  ],
+  awards: [
+    {
+      title: "Meta Impact Award",
+      issuer: "Meta Platforms",
+      date: "Dec 2021",
+      description: "Awarded for shipping a personalization algorithm that increased News Feed engagement by 12% across 3.5B users"
+    },
+    {
+      title: "AWS Builder Award",
+      issuer: "Amazon Web Services",
+      date: "Mar 2019",
+      description: "Recognized for contributions to DynamoDB's adaptive capacity system handling 10+ trillion daily API calls"
+    },
+    {
+      title: "ICPC Asia Regional — Gold Medal",
+      issuer: "ACM International Collegiate Programming Contest",
+      date: "Nov 2013",
+      description: "1st place in the Indonesia National Contest and Gold Medal in the Asia Regional Finals representing ITB"
+    }
+  ],
+  talks: [
+    {
+      title: "Building Resilient Distributed Systems in Go",
+      event: "GopherCon 2023",
+      location: "San Diego, CA",
+      date: "Sep 2023",
+      description: "Keynote talk on designing fault-tolerant microservices using Go, presented to 2,000+ attendees. Covered circuit breakers, bulkheads, and chaos engineering patterns."
+    },
+    {
+      title: "Scaling DynamoDB to 10 Trillion Requests",
+      event: "AWS re:Invent 2018",
+      location: "Las Vegas, NV",
+      date: "Nov 2018",
+      description: "Technical deep-dive on DynamoDB's partition management and adaptive capacity allocation, co-presented with the DynamoDB principal engineer."
+    },
+    {
+      title: "Open Source in Southeast Asia: Building Communities",
+      event: "FOSSASIA Summit 2022",
+      location: "Singapore",
+      date: "Apr 2022",
+      description: "Panel discussion on growing open-source communities in emerging tech ecosystems, moderated a workshop on first contributions."
+    }
+  ]
+};
 
 function showStatus(msg, isError = false) {
   statusMsg.textContent = msg;
@@ -295,6 +467,7 @@ function updateButtons() {
   const hasProfile = !!activeProfileId;
   btnSaveDB.disabled = !hasProfile;
   btnDeleteProfile.disabled = !hasProfile;
+  if (btnFillDummy) btnFillDummy.disabled = !hasProfile;
 }
 
 async function fetchProfiles() {
@@ -476,6 +649,19 @@ btnDeleteProfile.addEventListener('click', async () => {
     showStatus('Failed to delete profile', true);
   }
 });
+
+// Fill Dummy Data
+if (btnFillDummy) {
+  btnFillDummy.addEventListener('click', () => {
+    if (!activeProfileId) {
+      showStatus('Select or create a profile first', true);
+      return;
+    }
+    populateForm(JSON.parse(JSON.stringify(DUMMY_BIODATA)));
+    saveToStorage();
+    showStatus('Filled with example data — Sammi Aldhi Yanto 🚀');
+  });
+}
 
 // ── Init ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
