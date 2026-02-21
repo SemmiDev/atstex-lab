@@ -44,6 +44,13 @@ DATABASE_URL=postgres://postgres:postgres@postgres:5432/atstex_lab?sslmode=disab
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 GOOGLE_CALLBACK_URL=http://localhost:8080/auth/google/callback
+
+# AI Extraction Config
+# Supported providers: openai (default), anthropic, googleai (gemini), mistral, ollama
+AI_PROVIDER=openai
+AI_MODEL=gpt-4o-mini
+AI_API_KEY=your-api-key
+# AI_BASE_URL=        # Optional: for OpenAI-compatible APIs (Groq, Together, etc.)
 ```
 
 > To get Google OAuth credentials, go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials) and create an OAuth 2.0 Client ID.
@@ -98,6 +105,11 @@ DATABASE_URL=postgres://postgres:postgres@localhost:5432/atstex_lab?sslmode=disa
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 GOOGLE_CALLBACK_URL=http://localhost:8080/auth/google/callback
+
+# AI Extraction Config
+AI_PROVIDER=openai
+AI_MODEL=gpt-4o-mini
+AI_API_KEY=your-api-key
 ```
 
 ### 4. Run
@@ -145,6 +157,7 @@ atstex-lab/
 │   ├── config/config.go            # Loads .env configuration
 │   ├── cvtemplate/                  # LaTeX CV template loader
 │   ├── domain/                     # Data models (User, Session, CVProfile)
+│   ├── extractor/extractor.go      # AI-powered PDF resume extraction (multi-provider)
 │   ├── handler/                    # HTTP handlers (pages + API)
 │   └── repository/repository.go    # PostgreSQL queries
 ├── web/
@@ -198,4 +211,5 @@ atstex-lab/
 | `GET /api/templates` | List available templates |
 | `GET /api/templates/{name}` | Get raw template source |
 | `POST /api/templates/{name}/render` | Render template with biodata JSON |
+| `POST /api/extract-pdf` | Extract biodata from PDF text via AI |
 | `POST /compile` | Compile LaTeX → PDF |
