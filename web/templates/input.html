@@ -33,16 +33,9 @@
     <!-- The Sidebar -->
     <aside id="sidebar"
         class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
-        <div class="p-4 border-b-[4px] border-border flex flex-col gap-3 sidebar-header-row">
-            <div class="flex items-center justify-between font-disp font-extrabold text-3xl tracking-tight">
-                <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
-                <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Toggle Sidebar"><i class="ph-bold ph-caret-left"></i></button>
-            </div>
-            <!-- Language Toggles -->
-            <div class="lang-switch">
-                <button class="lang-btn active" data-lang="en"><span class="flag">🇬🇧</span> EN</button>
-                <button class="lang-btn" data-lang="id"><span class="flag">🇮🇩</span> ID</button>
-            </div>
+        <div class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
+            <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
+            <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Toggle Sidebar"><i class="ph-bold ph-caret-left"></i></button>
         </div>
 
         <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4">
@@ -87,22 +80,26 @@
         <div class="flex-1 w-full max-w-4xl mx-auto p-6 md:p-10 flex flex-col gap-8">
 
             <!-- CV Profile Switcher -->
-            <div class="card !p-4 !gap-3">
+            <div class="card !p-4 !gap-4">
+                <!-- Row 1: Profile selector -->
                 <div class="flex items-center gap-3 flex-wrap">
                     <label class="font-mono font-bold text-xs uppercase tracking-wider whitespace-nowrap">CV Profile:</label>
                     <select id="cv-profile-select" class="form-input !py-2 flex-1 min-w-[180px]">
                         <option value="">— Select or Create —</option>
                     </select>
-                    <button id="btn-new-profile" class="btn btn-ghost !px-3 !py-1.5 !text-xs"><i class="ph-bold ph-plus"></i> New Profile</button>
+                    <button id="btn-new-profile" class="btn btn-ghost !px-3 !py-1.5 !text-xs"><i class="ph-bold ph-plus"></i> New</button>
                 </div>
-                <div class="flex items-center gap-2 flex-wrap">
-                    <button id="btn-fill-dummy" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-magic-wand"></i> Fill Example</button>
-                    <!-- Hidden file input for PDF extraction -->
-                    <input type="file" id="pdf-upload" accept="application/pdf" style="display: none;" />
-                    <button id="btn-upload-pdf" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-file-pdf"></i> Extract PDF</button>
-
-                    <button id="btn-save-db" class="btn btn-primary !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-floppy-disk"></i> Save</button>
-                    <button id="btn-delete-profile" class="btn !px-3 !py-1.5 !text-xs !border-error !text-error" disabled><i class="ph-bold ph-trash"></i> Delete</button>
+                <!-- Row 2: Actions -->
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <div class="flex items-center gap-2">
+                        <input type="file" id="pdf-upload" accept="application/pdf" style="display: none;" />
+                        <button id="btn-upload-pdf" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-file-pdf"></i> Extract PDF</button>
+                        <button id="btn-fill-dummy" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-magic-wand"></i> Fill Example</button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="btn-save-db" class="btn btn-primary !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-floppy-disk"></i> Save</button>
+                        <button id="btn-delete-profile" class="btn !px-3 !py-1.5 !text-xs !border-error !text-error" disabled><i class="ph-bold ph-trash"></i> Delete</button>
+                    </div>
                 </div>
                 <p id="cv-status-msg" class="text-xs font-mono text-muted hidden"></p>
             </div>

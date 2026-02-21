@@ -470,6 +470,7 @@ function updateButtons() {
   btnSaveDB.disabled = !hasProfile;
   btnDeleteProfile.disabled = !hasProfile;
   if (btnFillDummy) btnFillDummy.disabled = !hasProfile;
+  if (btnUploadPdf) btnUploadPdf.disabled = !hasProfile;
 }
 
 async function fetchProfiles() {

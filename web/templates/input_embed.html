@@ -21,27 +21,26 @@
     <div class="w-full p-4 flex flex-col gap-6">
 
         <!-- CV Profile Switcher -->
-        <div class="card !p-4 !gap-3">
+        <div class="card !p-4 !gap-4">
+            <!-- Row 1: Profile selector -->
             <div class="flex items-center gap-3 flex-wrap">
-                <!-- Language Toggles -->
-                <div class="lang-switch" style="margin-right: 8px;">
-                    <button class="lang-btn active" data-lang="en"><span class="flag">🇬🇧</span> EN</button>
-                    <button class="lang-btn" data-lang="id"><span class="flag">🇮🇩</span> ID</button>
-                </div>
                 <label class="font-mono font-bold text-xs uppercase tracking-wider whitespace-nowrap">CV Profile:</label>
                 <select id="cv-profile-select" class="form-input !py-2 flex-1 min-w-[140px]">
                     <option value="">— Select or Create —</option>
                 </select>
                 <button id="btn-new-profile" class="btn btn-ghost !px-3 !py-1.5 !text-xs"><i class="ph-bold ph-plus"></i> New</button>
             </div>
-            <div class="flex items-center gap-2 flex-wrap">
-                <button id="btn-fill-dummy" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-magic-wand"></i> Fill Example</button>
-                <!-- Hidden file input for PDF extraction -->
-                <input type="file" id="pdf-upload" accept="application/pdf" style="display: none;" />
-                <button id="btn-upload-pdf" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-file-pdf"></i> Extract PDF</button>
-
-                <button id="btn-save-db" class="btn btn-primary !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-floppy-disk"></i> Save</button>
-                <button id="btn-delete-profile" class="btn !px-3 !py-1.5 !text-xs !border-error !text-error" disabled><i class="ph-bold ph-trash"></i> Del</button>
+            <!-- Row 2: Actions -->
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                    <input type="file" id="pdf-upload" accept="application/pdf" style="display: none;" />
+                    <button id="btn-upload-pdf" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-file-pdf"></i> Extract PDF</button>
+                    <button id="btn-fill-dummy" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-magic-wand"></i> Fill Example</button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="btn-save-db" class="btn btn-primary !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-floppy-disk"></i> Save</button>
+                    <button id="btn-delete-profile" class="btn !px-3 !py-1.5 !text-xs !border-error !text-error" disabled><i class="ph-bold ph-trash"></i> Del</button>
+                </div>
             </div>
             <p id="cv-status-msg" class="text-xs font-mono text-muted hidden"></p>
         </div>
