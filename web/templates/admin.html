@@ -1,0 +1,149 @@
+{{define "admin"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATSTEXLAB — Admin Dashboard</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/admin.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;800&family=DM+Sans:wght@500;700;800&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body>
+  <div class="admin-layout">
+
+    <!-- ── SIDEBAR ──────────────────────────────────────────── -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand">
+        ATSTEX<em>LAB</em>
+        <span class="sidebar-badge">ADMIN</span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="sidebar-link active" data-panel="dashboard">
+          <i class="ph-bold ph-chart-pie-slice"></i>
+          <span>Dashboard</span>
+        </button>
+        <button class="sidebar-link" data-panel="users">
+          <i class="ph-bold ph-users-three"></i>
+          <span>Users</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          {{if .User}}
+          <img src="{{.User.Picture}}" alt="" class="sidebar-avatar">
+          <div>
+            <div class="sidebar-user-name">{{.User.Name}}</div>
+            <div class="sidebar-user-email">{{.User.Email}}</div>
+          </div>
+          {{end}}
+        </div>
+        <div class="sidebar-actions">
+          <a href="/" class="sidebar-action-btn"><i class="ph-bold ph-house"></i> Home</a>
+          <form action="/auth/logout" method="POST" style="display:inline;">
+            <button type="submit" class="sidebar-action-btn"><i class="ph-bold ph-sign-out"></i> Logout</button>
+          </form>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── MAIN CONTENT ────────────────────────────────────── -->
+    <main class="admin-main">
+
+      <!-- Dashboard Panel -->
+      <section class="admin-panel active" id="panel-dashboard">
+        <div class="panel-header">
+          <h1><i class="ph-bold ph-chart-pie-slice"></i> Dashboard Overview</h1>
+          <p>Platform-wide analytics and stats</p>
+        </div>
+
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--accent);">👥</div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-users">–</span>
+              <span class="stat-label">Total Users</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--accent2);">🛡️</div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-admins">–</span>
+              <span class="stat-label">Admins</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--accent3);">🤖</div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-ai-chars">–</span>
+              <span class="stat-label">AI Chars Processed</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--warning, #fbbf24);">📄</div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-biodata">–</span>
+              <span class="stat-label">Total Biodata</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--muted);">🔗</div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-sessions">–</span>
+              <span class="stat-label">Active Sessions</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Users Panel -->
+      <section class="admin-panel" id="panel-users">
+        <div class="panel-header">
+          <h1><i class="ph-bold ph-users-three"></i> User Management</h1>
+          <p>All registered users with biodata and AI usage</p>
+        </div>
+
+        <div class="users-toolbar">
+          <div class="search-box">
+            <i class="ph-bold ph-magnifying-glass"></i>
+            <input type="text" id="user-search" placeholder="Search by name or email…">
+          </div>
+          <div class="users-meta">
+            <span id="users-count">0 users</span>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="admin-table" id="users-table">
+            <thead>
+              <tr>
+                <th class="sortable" data-sort="name">Name <i class="ph ph-caret-up-down"></i></th>
+                <th class="sortable" data-sort="email">Email <i class="ph ph-caret-up-down"></i></th>
+                <th class="sortable" data-sort="role">Role <i class="ph ph-caret-up-down"></i></th>
+                <th class="sortable" data-sort="biodata_count">Biodata <i class="ph ph-caret-up-down"></i></th>
+                <th class="sortable" data-sort="ai_chars_used">AI Chars <i class="ph ph-caret-up-down"></i></th>
+                <th class="sortable" data-sort="created_at">Joined <i class="ph ph-caret-up-down"></i></th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="/static/js/admin.js"></script>
+</body>
+
+</html>
+{{end}}

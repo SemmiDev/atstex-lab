@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -30,6 +31,11 @@ type Repository interface {
 	GetCVProfilesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVProfile, error)
 	UpdateCVProfileBiodata(ctx context.Context, id uuid.UUID, biodata json.RawMessage) error
 	DeleteCVProfile(ctx context.Context, id uuid.UUID) error
+	// AI usage tracking
+	IncrementAICharsUsed(ctx context.Context, userID uuid.UUID, chars int64) error
+	// Admin methods
+	AdminGetStats(ctx context.Context) (*domain.AdminStats, error)
+	AdminListUsers(ctx context.Context, params domain.AdminListParams) ([]domain.AdminUserRow, int, error)
 	Close() error
 }
 
@@ -56,6 +62,8 @@ func (r *postgresRepo) Close() error {
 	return r.db.Close()
 }
 
+const userColumns = `id, google_id, email, name, picture, role, ai_chars_used, created_at, updated_at`
+
 func (r *postgresRepo) UpsertUser(ctx context.Context, googleID, email, name, picture string) (*domain.User, error) {
 	query := `
 		INSERT INTO users (google_id, email, name, picture)
@@ -65,7 +73,7 @@ func (r *postgresRepo) UpsertUser(ctx context.Context, googleID, email, name, pi
 			name = EXCLUDED.name,
 			picture = EXCLUDED.picture,
 			updated_at = CURRENT_TIMESTAMP
-		RETURNING id, google_id, email, name, picture, created_at, updated_at
+		RETURNING ` + userColumns + `
 	`
 	var u domain.User
 	err := r.db.GetContext(ctx, &u, query, googleID, email, name, picture)
@@ -73,7 +81,7 @@ func (r *postgresRepo) UpsertUser(ctx context.Context, googleID, email, name, pi
 }
 
 func (r *postgresRepo) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error) {
-	query := `SELECT id, google_id, email, name, picture, created_at, updated_at FROM users WHERE id = $1`
+	query := `SELECT ` + userColumns + ` FROM users WHERE id = $1`
 	var u domain.User
 	err := r.db.GetContext(ctx, &u, query, id)
 	if err == sql.ErrNoRows {
@@ -157,4 +165,81 @@ func (r *postgresRepo) UpdateCVProfileBiodata(ctx context.Context, id uuid.UUID,
 func (r *postgresRepo) DeleteCVProfile(ctx context.Context, id uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM cv_profiles WHERE id = $1`, id)
 	return err
+}
+
+// ── AI Usage Tracking ──────────────────────────────────────────
+
+func (r *postgresRepo) IncrementAICharsUsed(ctx context.Context, userID uuid.UUID, chars int64) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE users SET ai_chars_used = ai_chars_used + $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID, chars)
+	return err
+}
+
+// ── Admin Queries ──────────────────────────────────────────────
+
+func (r *postgresRepo) AdminGetStats(ctx context.Context) (*domain.AdminStats, error) {
+	var stats domain.AdminStats
+	err := r.db.GetContext(ctx, &stats, `
+		SELECT
+			(SELECT COUNT(*) FROM users) AS total_users,
+			(SELECT COUNT(*) FROM users WHERE role = 'admin') AS total_admins,
+			(SELECT COALESCE(SUM(ai_chars_used), 0) FROM users) AS total_ai_chars,
+			(SELECT COUNT(*) FROM cv_profiles) AS total_biodata,
+			(SELECT COUNT(*) FROM sessions WHERE expires_at > NOW()) AS total_sessions
+	`)
+	return &stats, err
+}
+
+var allowedSortColumns = map[string]string{
+	"name":          "u.name",
+	"email":         "u.email",
+	"role":          "u.role",
+	"ai_chars_used": "u.ai_chars_used",
+	"biodata_count": "biodata_count",
+	"created_at":    "u.created_at",
+}
+
+func (r *postgresRepo) AdminListUsers(ctx context.Context, params domain.AdminListParams) ([]domain.AdminUserRow, int, error) {
+	if params.Page < 1 {
+		params.Page = 1
+	}
+	if params.PerPage < 1 || params.PerPage > 100 {
+		params.PerPage = 20
+	}
+
+	sortCol, ok := allowedSortColumns[params.Sort]
+	if !ok {
+		sortCol = "u.created_at"
+	}
+	orderDir := "DESC"
+	if params.Order == "asc" {
+		orderDir = "ASC"
+	}
+
+	offset := (params.Page - 1) * params.PerPage
+
+	// Count total
+	countQuery := `SELECT COUNT(*) FROM users u WHERE ($1 = '' OR u.name ILIKE '%' || $1 || '%' OR u.email ILIKE '%' || $1 || '%')`
+	var total int
+	if err := r.db.GetContext(ctx, &total, countQuery, params.Search); err != nil {
+		return nil, 0, err
+	}
+
+	query := fmt.Sprintf(`
+		SELECT
+			u.id, u.email, u.name, COALESCE(u.picture, '') AS picture, u.role, u.ai_chars_used, u.created_at,
+			COUNT(cv.id) AS biodata_count
+		FROM users u
+		LEFT JOIN cv_profiles cv ON cv.user_id = u.id
+		WHERE ($1 = '' OR u.name ILIKE '%%' || $1 || '%%' OR u.email ILIKE '%%' || $1 || '%%')
+		GROUP BY u.id
+		ORDER BY %s %s
+		LIMIT $2 OFFSET $3
+	`, sortCol, orderDir)
+
+	var rows []domain.AdminUserRow
+	if err := r.db.SelectContext(ctx, &rows, query, params.Search, params.PerPage, offset); err != nil {
+		return nil, 0, err
+	}
+
+	return rows, total, nil
 }

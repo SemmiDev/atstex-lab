@@ -104,6 +104,15 @@ func main() {
 		r.Delete("/api/cv-profiles/{id}", h.DeleteCVProfile)
 	})
 
+	// Admin routes (requires login + admin role)
+	r.Group(func(r chi.Router) {
+		r.Use(auth.Middleware(repo))
+		r.Use(auth.AdminMiddleware())
+		r.Get("/admin", h.AdminDashboard)
+		r.Get("/api/admin/stats", h.AdminGetStats)
+		r.Get("/api/admin/users", h.AdminListUsers)
+	})
+
 	// Serve static assets (JS/CSS) embedded in the binary.
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.FS(web.StaticFS))))
 

@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -349,6 +350,75 @@ func (h *Handler) ExtractPDF(w http.ResponseWriter, r *http.Request) {
 
 	log.Info("extraction succeeded", "provider", h.aiConfig.Provider)
 
+	// Track AI character usage
+	u, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+	if u != nil {
+		go func() {
+			_ = h.repo.IncrementAICharsUsed(r.Context(), u.ID, int64(len(req.Text)))
+		}()
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result)
+}
+
+// ── Admin Handlers ─────────────────────────────────────────────
+
+// AdminDashboard renders the admin page.
+func (h *Handler) AdminDashboard(w http.ResponseWriter, r *http.Request) {
+	u, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+	if err := h.tmpl.ExecuteTemplate(w, "admin", map[string]interface{}{
+		"User": u,
+	}); err != nil {
+		h.reqLog(r).Error("admin template error", "err", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+// AdminGetStats returns JSON aggregate stats for the admin dashboard.
+func (h *Handler) AdminGetStats(w http.ResponseWriter, r *http.Request) {
+	stats, err := h.repo.AdminGetStats(r.Context())
+	if err != nil {
+		h.reqLog(r).Error("admin stats error", "err", err)
+		jsonError(w, "failed to load stats", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(stats)
+}
+
+// AdminListUsers returns paginated, searchable user list JSON.
+func (h *Handler) AdminListUsers(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+	page, _ := strconv.Atoi(q.Get("page"))
+	if page < 1 {
+		page = 1
+	}
+	perPage, _ := strconv.Atoi(q.Get("per_page"))
+	if perPage < 1 {
+		perPage = 20
+	}
+
+	params := domain.AdminListParams{
+		Page:    page,
+		PerPage: perPage,
+		Search:  q.Get("search"),
+		Sort:    q.Get("sort"),
+		Order:   q.Get("order"),
+	}
+
+	rows, total, err := h.repo.AdminListUsers(r.Context(), params)
+	if err != nil {
+		h.reqLog(r).Error("admin list users error", "err", err)
+		jsonError(w, "failed to list users", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"users":   rows,
+		"total":   total,
+		"page":    page,
+		"perPage": perPage,
+	})
 }

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/semmidev/atstex-lab/internal/domain"
 	"github.com/semmidev/atstex-lab/internal/repository"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -87,6 +88,21 @@ func Middleware(repo repository.Repository) func(http.Handler) http.Handler {
 
 			ctx := context.WithValue(r.Context(), UserContextKey, u)
 			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+// AdminMiddleware restricts access to users with the "admin" role.
+// Must be used after Middleware (which puts User in context).
+func AdminMiddleware() func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			u, ok := r.Context().Value(UserContextKey).(*domain.User)
+			if !ok || u == nil || !u.IsAdmin() {
+				http.Error(w, "Forbidden", http.StatusForbidden)
+				return
+			}
+			next.ServeHTTP(w, r)
 		})
 	}
 }

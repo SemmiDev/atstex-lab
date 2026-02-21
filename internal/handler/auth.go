@@ -101,7 +101,12 @@ func (h *Handler) GoogleCallback(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteLaxMode,
 	})
 
-	http.Redirect(w, r, "/input", http.StatusTemporaryRedirect)
+	// Redirect based on role
+	if u.IsAdmin() {
+		http.Redirect(w, r, "/admin", http.StatusTemporaryRedirect)
+	} else {
+		http.Redirect(w, r, "/input", http.StatusTemporaryRedirect)
+	}
 }
 
 func getClientIP(r *http.Request) string {
