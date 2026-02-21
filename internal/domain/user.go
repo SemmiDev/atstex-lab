@@ -8,15 +8,15 @@ import (
 
 // User represents the central domain entity for an authenticated user.
 type User struct {
-	ID          uuid.UUID `db:"id"`
-	GoogleID    string    `db:"google_id"`
-	Email       string    `db:"email"`
-	Name        string    `db:"name"`
-	Picture     string    `db:"picture"`
-	Role        string    `db:"role"`
-	AICharsUsed int64     `db:"ai_chars_used"`
-	CreatedAt   time.Time `db:"created_at"`
-	UpdatedAt   time.Time `db:"updated_at"`
+	ID           uuid.UUID `db:"id"`
+	GoogleID     string    `db:"google_id"`
+	Email        string    `db:"email"`
+	Name         string    `db:"name"`
+	Picture      string    `db:"picture"`
+	Role         string    `db:"role"`
+	AITokensUsed int64     `db:"ai_tokens_used"`
+	CreatedAt    time.Time `db:"created_at"`
+	UpdatedAt    time.Time `db:"updated_at"`
 }
 
 // IsAdmin returns true if the user has the admin role.
@@ -28,7 +28,7 @@ func (u *User) IsAdmin() bool {
 type AdminStats struct {
 	TotalUsers    int   `json:"totalUsers"      db:"total_users"`
 	TotalAdmins   int   `json:"totalAdmins"     db:"total_admins"`
-	TotalAIChars  int64 `json:"totalAIChars"    db:"total_ai_chars"`
+	TotalAITokens int64 `json:"totalAITokens"    db:"total_ai_tokens"`
 	TotalBiodata  int   `json:"totalBiodata"    db:"total_biodata"`
 	TotalSessions int   `json:"totalSessions"   db:"total_sessions"`
 }
@@ -40,7 +40,7 @@ type AdminUserRow struct {
 	Name         string    `json:"name"          db:"name"`
 	Picture      string    `json:"picture"       db:"picture"`
 	Role         string    `json:"role"          db:"role"`
-	AICharsUsed  int64     `json:"aiCharsUsed"   db:"ai_chars_used"`
+	AITokensUsed int64     `json:"aiTokensUsed"   db:"ai_tokens_used"`
 	BiodataCount int       `json:"biodataCount"  db:"biodata_count"`
 	CreatedAt    time.Time `json:"createdAt"     db:"created_at"`
 }

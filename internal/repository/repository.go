@@ -32,7 +32,7 @@ type Repository interface {
 	UpdateCVProfileBiodata(ctx context.Context, id uuid.UUID, biodata json.RawMessage) error
 	DeleteCVProfile(ctx context.Context, id uuid.UUID) error
 	// AI usage tracking
-	IncrementAICharsUsed(ctx context.Context, userID uuid.UUID, chars int64) error
+	IncrementAITokensUsed(ctx context.Context, userID uuid.UUID, chars int64) error
 	// Admin methods
 	AdminGetStats(ctx context.Context) (*domain.AdminStats, error)
 	AdminListUsers(ctx context.Context, params domain.AdminListParams) ([]domain.AdminUserRow, int, error)
@@ -62,7 +62,7 @@ func (r *postgresRepo) Close() error {
 	return r.db.Close()
 }
 
-const userColumns = `id, google_id, email, name, picture, role, ai_chars_used, created_at, updated_at`
+const userColumns = `id, google_id, email, name, picture, role, ai_tokens_used, created_at, updated_at`
 
 func (r *postgresRepo) UpsertUser(ctx context.Context, googleID, email, name, picture string) (*domain.User, error) {
 	query := `
@@ -169,8 +169,8 @@ func (r *postgresRepo) DeleteCVProfile(ctx context.Context, id uuid.UUID) error 
 
 // ── AI Usage Tracking ──────────────────────────────────────────
 
-func (r *postgresRepo) IncrementAICharsUsed(ctx context.Context, userID uuid.UUID, chars int64) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE users SET ai_chars_used = ai_chars_used + $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID, chars)
+func (r *postgresRepo) IncrementAITokensUsed(ctx context.Context, userID uuid.UUID, chars int64) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE users SET ai_tokens_used = ai_tokens_used + $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID, chars)
 	return err
 }
 
@@ -182,7 +182,7 @@ func (r *postgresRepo) AdminGetStats(ctx context.Context) (*domain.AdminStats, e
 		SELECT
 			(SELECT COUNT(*) FROM users) AS total_users,
 			(SELECT COUNT(*) FROM users WHERE role = 'admin') AS total_admins,
-			(SELECT COALESCE(SUM(ai_chars_used), 0) FROM users) AS total_ai_chars,
+			(SELECT COALESCE(SUM(ai_tokens_used), 0) FROM users) AS total_ai_tokens,
 			(SELECT COUNT(*) FROM cv_profiles) AS total_biodata,
 			(SELECT COUNT(*) FROM sessions WHERE expires_at > NOW()) AS total_sessions
 	`)
@@ -190,12 +190,12 @@ func (r *postgresRepo) AdminGetStats(ctx context.Context) (*domain.AdminStats, e
 }
 
 var allowedSortColumns = map[string]string{
-	"name":          "u.name",
-	"email":         "u.email",
-	"role":          "u.role",
-	"ai_chars_used": "u.ai_chars_used",
-	"biodata_count": "biodata_count",
-	"created_at":    "u.created_at",
+	"name":           "u.name",
+	"email":          "u.email",
+	"role":           "u.role",
+	"ai_tokens_used": "u.ai_tokens_used",
+	"biodata_count":  "biodata_count",
+	"created_at":     "u.created_at",
 }
 
 func (r *postgresRepo) AdminListUsers(ctx context.Context, params domain.AdminListParams) ([]domain.AdminUserRow, int, error) {

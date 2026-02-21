@@ -30,7 +30,7 @@
       const s = await res.json();
       document.getElementById('stat-users').textContent = fmtNum(s.totalUsers);
       document.getElementById('stat-admins').textContent = fmtNum(s.totalAdmins);
-      document.getElementById('stat-ai-chars').textContent = fmtNum(s.totalAIChars);
+      document.getElementById('stat-ai-tokens').textContent = fmtNum(s.totalAITokens);
       document.getElementById('stat-biodata').textContent = fmtNum(s.totalBiodata);
       document.getElementById('stat-sessions').textContent = fmtNum(s.totalSessions);
     } catch (e) {
@@ -117,7 +117,7 @@
         <td>${escHtml(u.email)}</td>
         <td><span class="role-badge ${u.role}">${u.role}</span></td>
         <td>${u.biodataCount}</td>
-        <td>${fmtNum(u.aiCharsUsed)}</td>
+        <td>${fmtNum(u.aiTokensUsed)}</td>
         <td>${fmtDate(u.createdAt)}</td>
       </tr>
     `).join('');

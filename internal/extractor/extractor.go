@@ -170,25 +170,51 @@ func newLLM(ctx context.Context, cfg AIConfig) (llms.LLM, error) {
 	}
 }
 
-// ExtractBiodata sends the raw PDF text to an LLM and returns structured biodata.
-func ExtractBiodata(ctx context.Context, text string, cfg AIConfig) (map[string]any, error) {
+// ExtractBiodata sends the raw PDF text to an LLM and returns structured biodata
+// along with total tokens consumed (0 if the provider doesn't report usage).
+func ExtractBiodata(ctx context.Context, text string, cfg AIConfig) (map[string]any, int64, error) {
 	llm, err := newLLM(ctx, cfg)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create LLM client (%s): %w", cfg.Provider, err)
+		return nil, 0, fmt.Errorf("failed to create LLM client (%s): %w", cfg.Provider, err)
 	}
 
-	fullPrompt := systemPrompt + "\n\n---\n\nResume Text:\n" + text
+	userPrompt := systemPrompt + "\n\n---\n\nResume Text:\n" + text
 
-	resp, err := llm.Call(ctx, fullPrompt,
+	resp, err := llm.GenerateContent(ctx,
+		[]llms.MessageContent{
+			{
+				Role:  llms.ChatMessageTypeHuman,
+				Parts: []llms.ContentPart{llms.TextContent{Text: userPrompt}},
+			},
+		},
 		llms.WithTemperature(0.1),
 		llms.WithMaxTokens(16384),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("LLM call failed (%s/%s): %w", cfg.Provider, cfg.Model, err)
+		return nil, 0, fmt.Errorf("LLM call failed (%s/%s): %w", cfg.Provider, cfg.Model, err)
+	}
+
+	if len(resp.Choices) == 0 {
+		return nil, 0, fmt.Errorf("LLM returned no choices (%s/%s)", cfg.Provider, cfg.Model)
+	}
+
+	// Extract token usage from GenerationInfo
+	var totalTokens int64
+	if info := resp.Choices[0].GenerationInfo; info != nil {
+		if v, ok := info["TotalTokens"]; ok {
+			switch t := v.(type) {
+			case int:
+				totalTokens = int64(t)
+			case int64:
+				totalTokens = t
+			case float64:
+				totalTokens = int64(t)
+			}
+		}
 	}
 
 	// Strip potential markdown fences from response
-	cleaned := strings.TrimSpace(resp)
+	cleaned := strings.TrimSpace(resp.Choices[0].Content)
 	if strings.HasPrefix(cleaned, "```json") {
 		cleaned = strings.TrimPrefix(cleaned, "```json")
 	} else if strings.HasPrefix(cleaned, "```") {
@@ -201,8 +227,8 @@ func ExtractBiodata(ctx context.Context, text string, cfg AIConfig) (map[string]
 
 	var result map[string]any
 	if err := json.Unmarshal([]byte(cleaned), &result); err != nil {
-		return nil, fmt.Errorf("failed to parse LLM response as JSON: %w\nraw response: %s", err, resp)
+		return nil, totalTokens, fmt.Errorf("failed to parse LLM response as JSON: %w\nraw response: %s", err, resp.Choices[0].Content)
 	}
 
-	return result, nil
+	return result, totalTokens, nil
 }

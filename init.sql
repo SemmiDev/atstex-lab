@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(255) NOT NULL,
     picture TEXT,
     role VARCHAR(20) NOT NULL DEFAULT 'user',
-    ai_chars_used BIGINT NOT NULL DEFAULT 0,
+    ai_tokens_used BIGINT NOT NULL DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -36,6 +36,6 @@ CREATE INDEX idx_cv_profiles_user_id ON cv_profiles(user_id);
 -- Migration helper: add columns if they don't exist (safe to re-run)
 DO $$ BEGIN
     ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) NOT NULL DEFAULT 'user';
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS ai_chars_used BIGINT NOT NULL DEFAULT 0;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS ai_tokens_used BIGINT NOT NULL DEFAULT 0;
 EXCEPTION WHEN OTHERS THEN NULL;
 END $$;
