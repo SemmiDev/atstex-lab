@@ -24,6 +24,7 @@ require (
 	cloud.google.com/go/vertexai v0.12.0 // indirect
 	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
+	github.com/gage-technologies/mistral-go v1.1.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/google/generative-ai-go v0.15.1 // indirect

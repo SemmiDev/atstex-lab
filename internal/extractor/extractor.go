@@ -10,6 +10,7 @@ import (
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/anthropic"
 	"github.com/tmc/langchaingo/llms/googleai"
+	"github.com/tmc/langchaingo/llms/mistral"
 	"github.com/tmc/langchaingo/llms/ollama"
 	"github.com/tmc/langchaingo/llms/openai"
 )
@@ -151,8 +152,21 @@ func newLLM(ctx context.Context, cfg AIConfig) (llms.LLM, error) {
 			opts = append(opts, ollama.WithServerURL(cfg.BaseURL))
 		}
 		return ollama.New(opts...)
+
+	case "mistral":
+		opts := []mistral.Option{
+			mistral.WithAPIKey(cfg.APIKey),
+		}
+		if cfg.Model != "" {
+			opts = append(opts, mistral.WithModel(cfg.Model))
+		}
+		if cfg.BaseURL != "" {
+			opts = append(opts, mistral.WithEndpoint(cfg.BaseURL))
+		}
+		return mistral.New(opts...)
+
 	default:
-		return nil, fmt.Errorf("unsupported AI provider: %q (supported: openai, anthropic, googleai, ollama)", provider)
+		return nil, fmt.Errorf("unsupported AI provider: %q (supported: openai, anthropic, googleai, mistral, ollama)", provider)
 	}
 }
 
