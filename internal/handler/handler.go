@@ -39,12 +39,12 @@ type Handler struct {
 	logger     *slog.Logger
 	repo       repository.Repository
 	authConfig *auth.Config
-	openAIKey  string
+	aiConfig   extractor.AIConfig
 }
 
 // New constructs a Handler.
-func New(tmpl *template.Template, logger *slog.Logger, r repository.Repository, ac *auth.Config, openAIKey string) *Handler {
-	return &Handler{tmpl: tmpl, logger: logger, repo: r, authConfig: ac, openAIKey: openAIKey}
+func New(tmpl *template.Template, logger *slog.Logger, r repository.Repository, ac *auth.Config, ai extractor.AIConfig) *Handler {
+	return &Handler{tmpl: tmpl, logger: logger, repo: r, authConfig: ac, aiConfig: ai}
 }
 
 // reqLog returns the per-request logger from context (with request_id and trace_id),
@@ -274,8 +274,8 @@ func truncate(s string, n int) string {
 func (h *Handler) ExtractPDF(w http.ResponseWriter, r *http.Request) {
 	log := h.reqLog(r)
 
-	if h.openAIKey == "" {
-		log.Error("OpenAI API key not configured")
+	if h.aiConfig.APIKey == "" && h.aiConfig.Provider != "ollama" {
+		log.Error("AI API key not configured")
 		jsonError(w, "AI extraction not configured", http.StatusServiceUnavailable)
 		return
 	}
@@ -294,16 +294,16 @@ func (h *Handler) ExtractPDF(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Info("extracting biodata from PDF text", "text_len", len(req.Text))
+	log.Info("extracting biodata from PDF text", "text_len", len(req.Text), "provider", h.aiConfig.Provider, "model", h.aiConfig.Model)
 
-	result, err := extractor.ExtractBiodata(r.Context(), req.Text, h.openAIKey)
+	result, err := extractor.ExtractBiodata(r.Context(), req.Text, h.aiConfig)
 	if err != nil {
 		log.Error("extraction failed", "err", err)
 		jsonError(w, "AI extraction failed: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	log.Info("extraction succeeded")
+	log.Info("extraction succeeded", "provider", h.aiConfig.Provider)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(result)

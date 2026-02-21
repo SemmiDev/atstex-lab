@@ -14,7 +14,11 @@ type AppConfig struct {
 	GoogleClientID     string
 	GoogleClientSecret string
 	GoogleCallbackURL  string
-	OpenAIAPIKey       string
+	// AI extraction settings
+	AIProvider string // "openai" (default), "anthropic", "ollama"
+	AIModel    string // e.g. "gpt-4o-mini", "claude-3-haiku-20240307", "llama3"
+	AIAPIKey   string
+	AIBaseURL  string // optional: custom base URL for OpenAI-compatible APIs (Groq, Together, etc.)
 }
 
 // Load reads .env and returns a populated AppConfig.
@@ -30,7 +34,10 @@ func Load() *AppConfig {
 		GoogleClientID:     getEnv("GOOGLE_CLIENT_ID", ""),
 		GoogleClientSecret: getEnv("GOOGLE_CLIENT_SECRET", ""),
 		GoogleCallbackURL:  getEnv("GOOGLE_CALLBACK_URL", "http://localhost:8080/auth/google/callback"),
-		OpenAIAPIKey:       getEnv("OPENAI_API_KEY", ""),
+		AIProvider:         getEnv("AI_PROVIDER", "openai"),
+		AIModel:            getEnv("AI_MODEL", "gpt-4o-mini"),
+		AIAPIKey:           getEnv("AI_API_KEY", getEnv("OPENAI_API_KEY", "")),
+		AIBaseURL:          getEnv("AI_BASE_URL", ""),
 	}
 }
 

@@ -15,6 +15,7 @@ import (
 
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/config"
+	"github.com/semmidev/atstex-lab/internal/extractor"
 	"github.com/semmidev/atstex-lab/internal/handler"
 	mw "github.com/semmidev/atstex-lab/internal/middleware"
 	"github.com/semmidev/atstex-lab/internal/repository"
@@ -49,7 +50,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	h := handler.New(tmpl, logger, repo, authConfig, cfg.OpenAIAPIKey)
+	aiCfg := extractor.AIConfig{
+		Provider: cfg.AIProvider,
+		Model:    cfg.AIModel,
+		APIKey:   cfg.AIAPIKey,
+		BaseURL:  cfg.AIBaseURL,
+	}
+
+	h := handler.New(tmpl, logger, repo, authConfig, aiCfg)
 
 	r := chi.NewRouter()
 
