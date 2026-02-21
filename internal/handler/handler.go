@@ -13,6 +13,7 @@ import (
 	"github.com/semmidev/atstex-lab/internal/compiler"
 	"github.com/semmidev/atstex-lab/internal/cvtemplate"
 	"github.com/semmidev/atstex-lab/internal/domain"
+	mw "github.com/semmidev/atstex-lab/internal/middleware"
 	"github.com/semmidev/atstex-lab/internal/repository"
 )
 
@@ -44,12 +45,18 @@ func New(tmpl *template.Template, logger *slog.Logger, r repository.Repository, 
 	return &Handler{tmpl: tmpl, logger: logger, repo: r, authConfig: ac}
 }
 
+// reqLog returns the per-request logger from context (with request_id and trace_id),
+// falling back to the handler's base logger.
+func (h *Handler) reqLog(r *http.Request) *slog.Logger {
+	return mw.GetLogger(r.Context())
+}
+
 // Home renders the landing page.
 func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 	if err := h.tmpl.ExecuteTemplate(w, "home", map[string]interface{}{"User": user}); err != nil {
-		h.logger.Error("template error", "err", err)
+		h.reqLog(r).Error("template error", "err", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 	}
 }
@@ -59,7 +66,7 @@ func (h *Handler) Editor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 	if err := h.tmpl.ExecuteTemplate(w, "editor", map[string]interface{}{"User": user}); err != nil {
-		h.logger.Error("template error", "err", err)
+		h.reqLog(r).Error("template error", "err", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 	}
 }
@@ -69,7 +76,7 @@ func (h *Handler) Input(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 	if err := h.tmpl.ExecuteTemplate(w, "input", map[string]interface{}{"User": user}); err != nil {
-		h.logger.Error("template error", "err", err)
+		h.reqLog(r).Error("template error", "err", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 	}
 }
@@ -79,7 +86,7 @@ func (h *Handler) InputEmbed(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 	if err := h.tmpl.ExecuteTemplate(w, "input_embed", map[string]interface{}{"User": user}); err != nil {
-		h.logger.Error("template error", "err", err)
+		h.reqLog(r).Error("template error", "err", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 	}
 }
@@ -91,7 +98,7 @@ func (h *Handler) Profile(w http.ResponseWriter, r *http.Request) {
 
 	sessions, err := h.repo.GetSessionsByUserID(r.Context(), user.ID)
 	if err != nil {
-		h.logger.Error("failed to get active sessions", "err", err)
+		h.reqLog(r).Error("failed to get active sessions", "err", err)
 	}
 
 	data := map[string]interface{}{
@@ -100,7 +107,7 @@ func (h *Handler) Profile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.tmpl.ExecuteTemplate(w, "profile", data); err != nil {
-		h.logger.Error("template error", "err", err)
+		h.reqLog(r).Error("template error", "err", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 	}
 }
@@ -118,13 +125,13 @@ func (h *Handler) DeleteSession(w http.ResponseWriter, r *http.Request) {
 	// Make sure the session actually belongs to this user before deleting it
 	sess, err := h.repo.GetSession(r.Context(), tokenToDelete)
 	if err != nil || sess.UserID != user.ID {
-		h.logger.Warn("unauthorized session deletion attempt", "user", user.ID, "token", tokenToDelete)
+		h.reqLog(r).Warn("unauthorized session deletion attempt", "user", user.ID, "token", tokenToDelete)
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
 
 	if err := h.repo.DeleteSession(r.Context(), tokenToDelete); err != nil {
-		h.logger.Error("failed to delete remote session", "err", err)
+		h.reqLog(r).Error("failed to delete remote session", "err", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -136,7 +143,7 @@ func (h *Handler) DeleteSession(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) ListTemplates(w http.ResponseWriter, r *http.Request) {
 	tpls, err := cvtemplate.List()
 	if err != nil {
-		h.logger.Error("listing templates error", "err", err)
+		h.reqLog(r).Error("listing templates error", "err", err)
 		jsonError(w, "failed to list templates", http.StatusInternalServerError)
 		return
 	}
@@ -170,14 +177,14 @@ func (h *Handler) RenderTemplate(w http.ResponseWriter, r *http.Request) {
 
 	var data cvtemplate.CVData
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		h.logger.Error("invalid request body", "err", err)
+		h.reqLog(r).Error("invalid request body", "err", err)
 		jsonError(w, "invalid request body: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	content, err := cvtemplate.Render(name, data)
 	if err != nil {
-		h.logger.Error("template render error", "err", err)
+		h.reqLog(r).Error("template render error", "err", err)
 		jsonError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -214,11 +221,11 @@ func (h *Handler) Compile(w http.ResponseWriter, r *http.Request) {
 		Timeout: 60 * time.Second,
 	}
 
-	h.logger.Info("compiling", "engine", engine, "source_len", len(req.Source))
+	h.reqLog(r).Info("compiling", "engine", engine, "source_len", len(req.Source))
 
 	result, err := compiler.Compile(r.Context(), []byte(req.Source), opts)
 	if err != nil {
-		h.logger.Warn("compilation error", "err", err)
+		h.reqLog(r).Warn("compilation error", "err", err)
 		resp := compileResponse{
 			OK:     false,
 			Error:  err.Error(),
@@ -234,7 +241,7 @@ func (h *Handler) Compile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.logger.Info("compilation succeeded", "engine", engine, "elapsed", result.Elapsed, "pdf_bytes", len(result.PDF))
+	h.reqLog(r).Info("compilation succeeded", "engine", engine, "elapsed", result.Elapsed, "pdf_bytes", len(result.PDF))
 
 	// Return metadata as response headers so the browser JS can read them,
 	// while the body is the raw PDF binary.

@@ -26,13 +26,13 @@ func (h *Handler) GoogleLogin(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GoogleCallback(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("oauthstate")
 	if err != nil {
-		h.logger.Error("oauth cookie missing", "err", err)
+		h.reqLog(r).Error("oauth cookie missing", "err", err)
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
 	if r.FormValue("state") != cookie.Value {
-		h.logger.Error("invalid oauth state")
+		h.reqLog(r).Error("invalid oauth state")
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
@@ -40,14 +40,14 @@ func (h *Handler) GoogleCallback(w http.ResponseWriter, r *http.Request) {
 	code := r.FormValue("code")
 	token, err := h.authConfig.OAuthConfig.Exchange(context.Background(), code)
 	if err != nil {
-		h.logger.Error("oauth exchange failed", "err", err)
+		h.reqLog(r).Error("oauth exchange failed", "err", err)
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
 	resp, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
 	if err != nil {
-		h.logger.Error("failed to get user info", "err", err)
+		h.reqLog(r).Error("failed to get user info", "err", err)
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
@@ -55,28 +55,28 @@ func (h *Handler) GoogleCallback(w http.ResponseWriter, r *http.Request) {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		h.logger.Error("failed to read body", "err", err)
+		h.reqLog(r).Error("failed to read body", "err", err)
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
 	var gUser googleUser
 	if err := json.Unmarshal(body, &gUser); err != nil {
-		h.logger.Error("failed to parse user info", "err", err)
+		h.reqLog(r).Error("failed to parse user info", "err", err)
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
 	u, err := h.repo.UpsertUser(r.Context(), gUser.ID, gUser.Email, gUser.Name, gUser.Picture)
 	if err != nil {
-		h.logger.Error("failed to upsert user", "err", err)
+		h.reqLog(r).Error("failed to upsert user", "err", err)
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
 	sessionToken, err := auth.GenerateSessionToken()
 	if err != nil {
-		h.logger.Error("failed to generate session", "err", err)
+		h.reqLog(r).Error("failed to generate session", "err", err)
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
@@ -87,7 +87,7 @@ func (h *Handler) GoogleCallback(w http.ResponseWriter, r *http.Request) {
 	// 30 days session
 	expiresAt := time.Now().Add(30 * 24 * time.Hour)
 	if err := h.repo.CreateSession(r.Context(), u.ID, sessionToken, ipAddress, userAgent, expiresAt); err != nil {
-		h.logger.Error("failed to store session", "err", err)
+		h.reqLog(r).Error("failed to store session", "err", err)
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
@@ -133,9 +133,9 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
-	h.logger.Info("Delete account requested")
+	h.reqLog(r).Info("Delete account requested")
 	if err := r.ParseForm(); err != nil {
-		h.logger.Error("delete account form parse failed", "err", err)
+		h.reqLog(r).Error("delete account form parse failed", "err", err)
 		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}

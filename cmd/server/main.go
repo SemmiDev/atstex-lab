@@ -1,18 +1,22 @@
 package main
 
 import (
+	"context"
 	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chimw "github.com/go-chi/chi/v5/middleware"
 
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/config"
 	"github.com/semmidev/atstex-lab/internal/handler"
+	mw "github.com/semmidev/atstex-lab/internal/middleware"
 	"github.com/semmidev/atstex-lab/internal/repository"
 	"github.com/semmidev/atstex-lab/web"
 )
@@ -50,13 +54,13 @@ func main() {
 	r := chi.NewRouter()
 
 	// Middleware stack.
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.Timeout(120 * time.Second))
-	r.Use(middleware.CleanPath)
-	r.Use(middleware.StripSlashes)
+	r.Use(chimw.RequestID)
+	r.Use(chimw.RealIP)
+	r.Use(mw.RequestLogger(logger))
+	r.Use(chimw.Recoverer)
+	r.Use(chimw.Timeout(120 * time.Second))
+	r.Use(chimw.CleanPath)
+	r.Use(chimw.StripSlashes)
 
 	// Public routes
 	r.Group(func(r chi.Router) {
@@ -94,12 +98,41 @@ func main() {
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.FS(web.StaticFS))))
 
 	addr := envOr("PORT", ":8080")
-	logger.Info("starting atstex-lab", "addr", addr)
 
-	if err := http.ListenAndServe(addr, r); err != nil {
-		logger.Error("server stopped", "err", err)
+	srv := &http.Server{
+		Addr:         addr,
+		Handler:      r,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 120 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	}
+
+	// Start server in a goroutine
+	go func() {
+		logger.Info("starting atstex-lab", "addr", addr)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Error("server error", "err", err)
+			os.Exit(1)
+		}
+	}()
+
+	// Wait for interrupt signal
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	sig := <-quit
+
+	logger.Info("shutting down", "signal", sig.String())
+
+	// Give in-flight requests up to 15 seconds to finish
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.Error("forced shutdown", "err", err)
 		os.Exit(1)
 	}
+
+	logger.Info("server stopped cleanly")
 }
 
 func envOr(key, fallback string) string {
