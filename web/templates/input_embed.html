@@ -23,6 +23,11 @@
         <!-- CV Profile Switcher -->
         <div class="card !p-4 !gap-3">
             <div class="flex items-center gap-3 flex-wrap">
+                <!-- Language Toggles -->
+                <div class="lang-toggles flex gap-1 px-2 py-1 rounded-sm bg-surface border border-border mr-2">
+                    <button id="lang-en" class="lang-toggle px-1 hover:scale-110 transition-transform cursor-pointer" title="English">🇬🇧</button>
+                    <button id="lang-id" class="lang-toggle px-1 hover:scale-110 transition-transform cursor-pointer opacity-50" title="Bahasa Indonesia">🇮🇩</button>
+                </div>
                 <label class="font-mono font-bold text-xs uppercase tracking-wider whitespace-nowrap">CV Profile:</label>
                 <select id="cv-profile-select" class="form-input !py-2 flex-1 min-w-[140px]">
                     <option value="">— Select or Create —</option>
@@ -182,6 +187,7 @@
     </div>
 
     <script type="module" src="/static/js/input.js"></script>
+    <script src="/static/js/i18n.js"></script>
 </body>
 
 </html>

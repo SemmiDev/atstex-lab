@@ -36,9 +36,16 @@
   <!-- The Sidebar -->
   <aside id="sidebar"
     class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
-    <div class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
-      <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
-      <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Toggle Sidebar"><i class="ph-bold ph-caret-left"></i></button>
+    <div class="p-4 border-b-[4px] border-border flex flex-col gap-3 sidebar-header-row">
+      <div class="flex items-center justify-between font-disp font-extrabold text-3xl tracking-tight">
+          <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
+          <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Toggle Sidebar"><i class="ph-bold ph-caret-left"></i></button>
+      </div>
+      <!-- Language Toggles -->
+      <div class="lang-toggles flex gap-1 px-2 py-1 rounded-sm bg-bg border border-border self-start">
+          <button id="lang-en" class="lang-toggle px-1 hover:scale-110 transition-transform cursor-pointer" title="English">🇬🇧</button>
+          <button id="lang-id" class="lang-toggle px-1 hover:scale-110 transition-transform cursor-pointer opacity-50" title="Bahasa Indonesia">🇮🇩</button>
+      </div>
     </div>
 
     <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4">
@@ -188,6 +195,8 @@
   </main> <!-- end #main-content -->
 
   <script type="module" src="/static/js/editor.js"></script>
+  <script src="/static/js/sidebar.js"></script>
+  <script src="/static/js/i18n.js"></script>
   <script>
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');

@@ -90,8 +90,16 @@
   <nav class="flex items-center justify-between px-8 py-4 bg-surface border-b-[4px] border-border">
     <div class="font-disp font-extrabold text-2xl tracking-tight">ATSTEX<em class="text-accent italic">LAB</em></div>
     <div class="flex items-center gap-4">
-      <a href="/" class="flex items-center gap-2 px-4 py-2 font-mono font-bold uppercase text-sm bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000] no-underline"><i class="ph ph-house"></i> Home</a>
-      <a href="/input" class="flex items-center gap-2 px-4 py-2 font-mono font-bold uppercase text-sm border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all no-underline"><i class="ph ph-magic-wand"></i> Build</a>
+      <div class="lang-toggles flex gap-1 mr-2 px-2 py-1 rounded-sm bg-bg border border-border">
+          <button id="lang-en" class="lang-toggle px-1 hover:scale-110 transition-transform cursor-pointer" title="English">🇬🇧</button>
+          <button id="lang-id" class="lang-toggle px-1 hover:scale-110 transition-transform cursor-pointer opacity-50" title="Bahasa Indonesia">🇮🇩</button>
+      </div>
+      <a href="/" class="flex items-center gap-2 px-4 py-2 font-mono font-bold uppercase text-sm bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000] no-underline">
+        <i class="ph ph-house"></i> <span data-i18n="nav.home">Home</span>
+      </a>
+      <a href="/input" class="flex items-center gap-2 px-4 py-2 font-mono font-bold uppercase text-sm border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all no-underline">
+        <i class="ph ph-magic-wand"></i> <span data-i18n="nav.build">Build</span>
+      </a>
     </div>
   </nav>
 
@@ -108,15 +116,15 @@
     <div class="hero-content">
 
       <div class="badge-new" data-aos="fade-down" data-aos-delay="100">
-        <span class="pulse-dot"></span> Resume Builder That Beats the Bots
+        <span class="pulse-dot"></span> <span data-i18n="hero.badge">Resume Builder That Beats the Bots</span>
       </div>
 
       <h1 data-aos="fade-up" data-aos-delay="200" data-aos-duration="800">
-        Structured for <span class="highlight">Machines.</span><br>
-        Designed for Humans.
+        <span data-i18n-hero="1">Structured for</span> <span class="highlight" data-i18n-hero="2">Machines.</span><br>
+        <span data-i18n-hero="3">Designed for Humans.</span>
       </h1>
 
-      <p class="subtitle" data-aos="fade-up" data-aos-delay="400">
+      <p class="subtitle" data-aos="fade-up" data-aos-delay="400" data-i18n="hero.subtitle">
         ATSTEXLAB helps you build professional, ATS-friendly resumes that actually
         get read by recruiters. Fill in your details, pick a template, and download
         a polished PDF — all from your browser.
@@ -124,19 +132,18 @@
 
       <div class="cta-group" data-aos="zoom-in" data-aos-delay="600">
         {{if .User}}
-        <a href="/input" class="btn btn-primary btn-lg"><i class="ph-bold ph-magic-wand"></i> Builder</a>
+        <a href="/input" class="btn btn-primary btn-lg"><i class="ph-bold ph-magic-wand"></i> <span data-i18n="hero.btn.builder">Builder</span></a>
         <form action="/auth/logout" method="POST" style="display:inline;">
-          <button type="submit" class="btn btn-ghost btn-lg"><i class="ph-bold ph-sign-out"></i> Logout</button>
+          <button type="submit" class="btn btn-ghost btn-lg"><i class="ph-bold ph-sign-out"></i> <span data-i18n="hero.btn.logout">Logout</span></button>
         </form>
         {{else}}
-        <a href="/auth/google/login" class="btn btn-primary btn-lg"><i class="ph-bold ph-google-logo"></i> Sign in with
-          Google</a>
+        <a href="/auth/google/login" class="btn btn-primary btn-lg"><i class="ph-bold ph-google-logo"></i> <span data-i18n="hero.btn.signin">Sign in with Google</span></a>
         {{end}}
       </div>
 
       <!-- Positioning Line -->
       <div class="trusted-by" data-aos="fade-up" data-aos-delay="800">
-        <p>TRUSTED BY JOB SEEKERS, FRESH GRADS, AND CAREER SWITCHERS</p>
+        <p data-i18n="hero.trusted">TRUSTED BY JOB SEEKERS, FRESH GRADS, AND CAREER SWITCHERS</p>
       </div>
 
     </div>
@@ -146,8 +153,8 @@
 
       <div class="feature-card" data-aos="fade-right" data-aos-delay="100">
         <div class="icon">⚡</div>
-        <h3>Instant PDF Export</h3>
-        <p>
+        <h3 data-i18n="feature.1.title">Instant PDF Export</h3>
+        <p data-i18n="feature.1.desc">
           Hit compile and get a perfectly formatted PDF in seconds.
           No software to install — everything runs in your browser.
         </p>
@@ -155,8 +162,8 @@
 
       <div class="feature-card alt" data-aos="fade-left" data-aos-delay="200">
         <div class="icon">🆓</div>
-        <h3>100% Free, Forever</h3>
-        <p>
+        <h3 data-i18n="feature.2.title">100% Free, Forever</h3>
+        <p data-i18n="feature.2.desc">
           No paywalls, no subscriptions, no hidden fees.
           Sign in with Google to save your CV profiles — completely free.
         </p>
@@ -164,8 +171,8 @@
 
       <div class="feature-card" data-aos="fade-right" data-aos-delay="300">
         <div class="icon">📄</div>
-        <h3>ATS-Friendly Templates</h3>
-        <p>
+        <h3 data-i18n="feature.3.title">ATS-Friendly Templates</h3>
+        <p data-i18n="feature.3.desc">
           Every template is designed to pass Applicant Tracking Systems.
           Clean layout, clear sections, no hidden formatting tricks.
         </p>
@@ -173,17 +180,25 @@
 
       <div class="feature-card alt-2" data-aos="fade-left" data-aos-delay="400">
         <div class="icon">🎯</div>
-        <h3>Multiple CV Profiles</h3>
-        <p>
+        <h3 data-i18n="feature.4.title">Multiple CV Profiles</h3>
+        <p data-i18n="feature.4.desc">
           Create different resumes for different roles.
           One for "Back End Developer", another for "Data Engineer" — you decide.
         </p>
       </div>
 
+      <div class="feature-card alt-3" data-aos="zoom-in" data-aos-delay="450" style="grid-column: 1 / -1; max-width: 600px; margin: 0 auto; width: 100%;">
+        <div class="icon">🤖</div>
+        <h3 data-i18n="feature.5.title">AI-Powered PDF Extraction</h3>
+        <p data-i18n="feature.5.desc">
+          Upload your existing PDF resume and let our local AI parse it directly into your biodata profile. No manual copy-pasting required.
+        </p>
+      </div>
+
       <div class="feature-card saweria-card" data-aos="zoom-in" data-aos-delay="500"
         style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 16px;">
-        <h3 style="margin-bottom: 0;">☕ Support the Project</h3>
-        <p style="margin-bottom: 12px;">If you found this tool helpful, consider leaving a tip to keep the servers
+        <h3 style="margin-bottom: 0;" data-i18n="support.title">☕ Support the Project</h3>
+        <p style="margin-bottom: 12px;" data-i18n="support.desc">If you found this tool helpful, consider leaving a tip to keep the servers
           running!</p>
         <a href="https://saweria.co/sammidev" target="_blank"
           style="display: inline-block; transition: transform var(--transition);"
@@ -197,7 +212,7 @@
   </main>
 
   <footer class="footer" data-aos="fade-up" data-aos-delay="200">
-    <p>© 2026 ATSTEXLAB · Your Resume, Recruiter-Ready</p>
+    <p data-i18n="footer.copyright">© 2026 ATSTEXLAB · Your Resume, Recruiter-Ready</p>
   </footer>
 
   <!-- AOS init -->
@@ -210,6 +225,8 @@
       offset: 50
     });
   </script>
+  <!-- i18n -->
+  <script src="/static/js/i18n.js"></script>
 
 </body>
 
