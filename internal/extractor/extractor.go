@@ -9,6 +9,7 @@ import (
 
 	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/anthropic"
+	"github.com/tmc/langchaingo/llms/googleai"
 	"github.com/tmc/langchaingo/llms/ollama"
 	"github.com/tmc/langchaingo/llms/openai"
 )
@@ -107,7 +108,7 @@ var systemPrompt = "You are a resume parser. Given raw text extracted from a PDF
 	"- Return ONLY the JSON object, nothing else."
 
 // newLLM creates an LLM client based on the provider configuration.
-func newLLM(cfg AIConfig) (llms.LLM, error) {
+func newLLM(ctx context.Context, cfg AIConfig) (llms.LLM, error) {
 	provider := strings.ToLower(cfg.Provider)
 
 	switch provider {
@@ -132,6 +133,15 @@ func newLLM(cfg AIConfig) (llms.LLM, error) {
 		}
 		return anthropic.New(opts...)
 
+	case "googleai", "gemini", "google":
+		opts := []googleai.Option{
+			googleai.WithAPIKey(cfg.APIKey),
+		}
+		if cfg.Model != "" {
+			opts = append(opts, googleai.WithDefaultModel(cfg.Model))
+		}
+		return googleai.New(ctx, opts...)
+
 	case "ollama":
 		opts := []ollama.Option{}
 		if cfg.Model != "" {
@@ -141,15 +151,14 @@ func newLLM(cfg AIConfig) (llms.LLM, error) {
 			opts = append(opts, ollama.WithServerURL(cfg.BaseURL))
 		}
 		return ollama.New(opts...)
-
 	default:
-		return nil, fmt.Errorf("unsupported AI provider: %q (supported: openai, anthropic, ollama)", provider)
+		return nil, fmt.Errorf("unsupported AI provider: %q (supported: openai, anthropic, googleai, ollama)", provider)
 	}
 }
 
 // ExtractBiodata sends the raw PDF text to an LLM and returns structured biodata.
 func ExtractBiodata(ctx context.Context, text string, cfg AIConfig) (map[string]any, error) {
-	llm, err := newLLM(cfg)
+	llm, err := newLLM(ctx, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create LLM client (%s): %w", cfg.Provider, err)
 	}
