@@ -196,14 +196,34 @@ to your browser.
 
     // ── Compile ───────────────────────────────────────────────────
     async function compile() {
-      const source = editorView.state.doc.toString();
-      if (!source.trim()) return;
-
       setStatus('compiling', 'Compiling…');
       btnCompile.disabled = true;
       btnCompile.classList.add('loading');
 
       try {
+        // If a real template is selected, re-render it with fresh biodata first
+        const selectedTemplate = templateSel.value;
+        if (selectedTemplate && selectedTemplate !== 'example') {
+          const cvDataStr = localStorage.getItem('cv_data') || '{}';
+          const renderRes = await fetch(`/api/templates/${selectedTemplate}/render`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: cvDataStr
+          });
+          if (renderRes.ok) {
+            const content = await renderRes.text();
+            editorView.dispatch({
+              changes: { from: 0, to: editorView.state.doc.length, insert: content }
+            });
+          }
+        }
+
+        const source = editorView.state.doc.toString();
+        if (!source.trim()) {
+          setStatus('error', 'Editor is empty');
+          return;
+        }
+
         const res = await fetch('/compile', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

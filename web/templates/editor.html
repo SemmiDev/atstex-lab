@@ -110,11 +110,18 @@
 
       <!-- Editor -->
       <div class="editor-pane" id="editor-pane">
-        <div class="pane-header">
-          <span class="dot"></span>
-          document.tex
+        <div class="pane-header" style="gap:0; padding:0;">
+          <button class="editor-tab active" id="tab-biodata" style="display:flex; align-items:center; gap:8px; height:100%; padding:0 16px; border:none; background:transparent; font:inherit; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; cursor:pointer; border-bottom:3px solid var(--accent); color:var(--text);">
+            <span class="dot" style="width:12px;height:12px;background:var(--accent);border:2px solid var(--border);"></span>
+            Biodata
+          </button>
+          <button class="editor-tab" id="tab-editor" style="display:flex; align-items:center; gap:8px; height:100%; padding:0 16px; border:none; background:transparent; font:inherit; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; cursor:pointer; border-bottom:3px solid transparent; color:var(--muted);">
+            <span class="dot" style="width:12px;height:12px;background:var(--accent3);border:2px solid var(--border);"></span>
+            biodata.tex
+          </button>
         </div>
-        <div id="editor-container"></div>
+        <div id="editor-container" style="display:none;"></div>
+        <iframe id="biodata-frame" src="/input/embed" style="width:100%; flex:1; border:none;"></iframe>
 
         <!-- Log panel inside editor pane -->
         <div class="log-panel" id="log-panel">
@@ -206,6 +213,30 @@
         sidebar.classList.toggle('collapsed');
       });
     }
+
+    // ── Editor / Biodata tab switching ──
+    const tabEditor = document.getElementById('tab-editor');
+    const tabBiodata = document.getElementById('tab-biodata');
+    const editorContainer = document.getElementById('editor-container');
+    const biodataFrame = document.getElementById('biodata-frame');
+
+    tabEditor.addEventListener('click', () => {
+      tabEditor.style.borderBottom = '3px solid var(--accent)';
+      tabEditor.style.color = 'var(--text)';
+      tabBiodata.style.borderBottom = '3px solid transparent';
+      tabBiodata.style.color = 'var(--muted)';
+      editorContainer.style.display = '';
+      biodataFrame.style.display = 'none';
+    });
+
+    tabBiodata.addEventListener('click', () => {
+      tabBiodata.style.borderBottom = '3px solid var(--accent)';
+      tabBiodata.style.color = 'var(--text)';
+      tabEditor.style.borderBottom = '3px solid transparent';
+      tabEditor.style.color = 'var(--muted)';
+      editorContainer.style.display = 'none';
+      biodataFrame.style.display = '';
+    });
   </script>
 </body>
 

@@ -1,0 +1,183 @@
+{{define "input_embed"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Biodata — Embedded</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body { background: var(--bg); overflow-y: auto; padding: 0; margin: 0; }
+    </style>
+</head>
+
+<body class="font-ui text-text">
+    <div class="w-full p-4 flex flex-col gap-6">
+
+        <!-- CV Profile Switcher -->
+        <div class="card !p-4 !gap-3">
+            <div class="flex items-center justify-between flex-wrap gap-3">
+                <div class="flex items-center gap-3 flex-1 min-w-0">
+                    <label class="font-mono font-bold text-xs uppercase tracking-wider whitespace-nowrap">CV Profile:</label>
+                    <select id="cv-profile-select" class="form-input !py-2 flex-1 min-w-[140px]">
+                        <option value="">— Select or Create —</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button id="btn-new-profile" class="btn btn-ghost !px-3 !py-1.5 !text-xs"><i class="ph-bold ph-plus"></i> New</button>
+                    <button id="btn-save-db" class="btn btn-primary !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-floppy-disk"></i> Save</button>
+                    <button id="btn-delete-profile" class="btn !px-3 !py-1.5 !text-xs !border-error !text-error" disabled><i class="ph-bold ph-trash"></i> Del</button>
+                </div>
+            </div>
+            <p id="cv-status-msg" class="text-xs font-mono text-muted hidden"></p>
+        </div>
+
+        <!-- Personal Info -->
+        <section class="card" id="section-personal">
+            <h2 class="text-xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
+                1. Personal Information <span class="badge">Required</span></h2>
+            <div class="grid grid-cols-1 gap-4">
+                <div class="flex flex-col gap-2">
+                    <label class="font-bold text-sm uppercase tracking-wide">Full Name</label>
+                    <input type="text" data-field="personal.name" class="form-input" placeholder="John Doe">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="font-bold text-sm uppercase tracking-wide">Target Job Title</label>
+                    <input type="text" data-field="personal.title" class="form-input" placeholder="Software Engineer">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="font-bold text-sm uppercase tracking-wide">Email</label>
+                    <input type="email" data-field="personal.email" class="form-input" placeholder="john@example.com">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="font-bold text-sm uppercase tracking-wide">Phone</label>
+                    <input type="text" data-field="personal.phone" class="form-input" placeholder="+1 234 567 8900">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="font-bold text-sm uppercase tracking-wide">Location</label>
+                    <input type="text" data-field="personal.location" class="form-input" placeholder="City, Country">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="font-bold text-sm uppercase tracking-wide">LinkedIn</label>
+                    <input type="text" data-field="personal.linkedin.display" class="form-input" placeholder="Display: linkedin.com/in/johndoe">
+                    <input type="text" data-field="personal.linkedin.url" class="form-input" placeholder="URL: https://linkedin.com/in/johndoe">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="font-bold text-sm uppercase tracking-wide">GitHub (Optional)</label>
+                    <input type="text" data-field="personal.github.display" class="form-input" placeholder="Display: github.com/johndoe">
+                    <input type="text" data-field="personal.github.url" class="form-input" placeholder="URL: https://github.com/johndoe">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="font-bold text-sm uppercase tracking-wide">Website (Optional)</label>
+                    <input type="text" data-field="personal.website.display" class="form-input" placeholder="Display: johndoe.com">
+                    <input type="text" data-field="personal.website.url" class="form-input" placeholder="URL: https://johndoe.com">
+                </div>
+            </div>
+        </section>
+
+        <!-- Professional Summary -->
+        <section class="card" id="section-summary">
+            <h2 class="text-xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2">2. Professional Summary</h2>
+            <div class="flex flex-col gap-2">
+                <label class="font-bold text-sm uppercase tracking-wide">Summary</label>
+                <textarea data-field="summary" rows="6" class="form-input" placeholder="Dedicated software engineer with 5+ years of experience in..."></textarea>
+            </div>
+        </section>
+
+        <!-- Work Experience -->
+        <section class="card" id="section-experience">
+            <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
+                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">3. Work Experience</h2>
+                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="experience">+ ADD</button>
+            </div>
+            <div class="flex flex-col gap-6" id="list-experience"></div>
+        </section>
+
+        <!-- Education -->
+        <section class="card" id="section-education">
+            <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
+                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">4. Education</h2>
+                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="education">+ ADD</button>
+            </div>
+            <div class="flex flex-col gap-6" id="list-education"></div>
+        </section>
+
+        <!-- Projects -->
+        <section class="card" id="section-projects">
+            <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
+                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">5. Projects</h2>
+                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="projects">+ ADD</button>
+            </div>
+            <div class="flex flex-col gap-6" id="list-projects"></div>
+        </section>
+
+        <!-- Skills -->
+        <section class="card" id="section-skills">
+            <h2 class="text-xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2">6. Skills</h2>
+            <div class="grid grid-cols-1 gap-4">
+                <div class="flex flex-col gap-2">
+                    <label class="font-bold text-sm uppercase tracking-wide">Languages</label>
+                    <input type="text" data-field="skills.languages" class="form-input" placeholder="Go, Python, TypeScript">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="font-bold text-sm uppercase tracking-wide">Frameworks</label>
+                    <input type="text" data-field="skills.frameworks" class="form-input" placeholder="React, Gin, Express">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="font-bold text-sm uppercase tracking-wide">Tools</label>
+                    <input type="text" data-field="skills.tools" class="form-input" placeholder="Docker, Git, AWS">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="font-bold text-sm uppercase tracking-wide">Other</label>
+                    <input type="text" data-field="skills.other" class="form-input" placeholder="Agile, Leadership">
+                </div>
+            </div>
+        </section>
+
+        <!-- Certifications -->
+        <section class="card" id="section-certifications">
+            <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
+                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">7. Certifications</h2>
+                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="certifications">+ ADD</button>
+            </div>
+            <div class="flex flex-col gap-6" id="list-certifications"></div>
+        </section>
+
+        <!-- Volunteer -->
+        <section class="card" id="section-volunteer">
+            <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
+                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">8. Volunteer</h2>
+                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="volunteer">+ ADD</button>
+            </div>
+            <div class="flex flex-col gap-6" id="list-volunteer"></div>
+        </section>
+
+        <!-- Awards -->
+        <section class="card" id="section-awards">
+            <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
+                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">9. Awards</h2>
+                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="awards">+ ADD</button>
+            </div>
+            <div class="flex flex-col gap-6" id="list-awards"></div>
+        </section>
+
+        <!-- Talks -->
+        <section class="card" id="section-talks">
+            <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
+                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">10. Talks</h2>
+                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="talks">+ ADD</button>
+            </div>
+            <div class="flex flex-col gap-6" id="list-talks"></div>
+        </section>
+
+    </div>
+
+    <script type="module" src="/static/js/input.js"></script>
+</body>
+
+</html>
+{{end}}

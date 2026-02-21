@@ -76,6 +76,7 @@ func main() {
 		r.Get("/profile", h.Profile)
 		r.Post("/auth/sessions/{token}/delete", h.DeleteSession)
 		r.Get("/input", h.Input)
+		r.Get("/input/embed", h.InputEmbed)
 		r.Get("/editor", h.Editor)
 		r.Get("/api/templates", h.ListTemplates)
 		r.Get("/api/templates/{name}", h.GetTemplate)

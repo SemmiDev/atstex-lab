@@ -74,6 +74,16 @@ func (h *Handler) Input(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// InputEmbed renders a stripped-down biodata form for embedding in the editor.
+func (h *Handler) InputEmbed(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+	if err := h.tmpl.ExecuteTemplate(w, "input_embed", map[string]interface{}{"User": user}); err != nil {
+		h.logger.Error("template error", "err", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+	}
+}
+
 // Profile renders the user profile and session management UI.
 func (h *Handler) Profile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
