@@ -667,6 +667,26 @@ if (btnFillDummy) {
 }
 
 // ── PDF Extraction ─────────────────────────────────────
+const extractOverlay = document.getElementById('extract-overlay');
+const extractStepEl = document.getElementById('extract-step');
+
+function showExtractOverlay(stepText) {
+  if (extractOverlay) {
+    if (extractStepEl) extractStepEl.textContent = stepText || 'Reading PDF...';
+    extractOverlay.style.display = 'flex';
+  }
+  document.body.classList.add('extracting-pdf');
+}
+
+function updateExtractStep(text) {
+  if (extractStepEl) extractStepEl.textContent = text;
+}
+
+function hideExtractOverlay() {
+  if (extractOverlay) extractOverlay.style.display = 'none';
+  document.body.classList.remove('extracting-pdf');
+}
+
 if (btnUploadPdf && pdfUploadInput) {
   btnUploadPdf.addEventListener('click', () => {
     if (!activeProfileId) {
@@ -687,32 +707,35 @@ if (btnUploadPdf && pdfUploadInput) {
 
     const originalBtnHTML = btnUploadPdf.innerHTML;
 
-    // UI Locking State
-    const toggleUI = (isExtracting) => {
-      const els = [btnSaveDB, btnDeleteProfile, cvProfileSelect, btnNewProfile, btnUploadPdf];
-      if (btnFillDummy) els.push(btnFillDummy);
-      els.forEach(el => { if (el) el.disabled = isExtracting; });
+    // Lock all interactive controls
+    const lockableEls = [btnSaveDB, btnDeleteProfile, profileSelect, btnNewProfile, btnUploadPdf];
+    if (btnFillDummy) lockableEls.push(btnFillDummy);
 
-      if (isExtracting) {
-        btnUploadPdf.innerHTML = '<span class="inline-block animate-spin mr-1">🪄</span> <span class="animate-pulse">Extracting AI Magic...</span>';
-        btnUploadPdf.classList.add('opacity-75', 'cursor-not-allowed');
-      } else {
-        btnUploadPdf.innerHTML = originalBtnHTML;
-        btnUploadPdf.classList.remove('opacity-75', 'cursor-not-allowed');
-        updateButtons(); // Restore normal state based on profile selection
-      }
+    const lockUI = () => {
+      lockableEls.forEach(el => { if (el) el.disabled = true; });
+      btnUploadPdf.innerHTML = '<span class="inline-block animate-spin mr-1">🪄</span> <span class="animate-pulse">Extracting...</span>';
+      btnUploadPdf.classList.add('opacity-75', 'cursor-not-allowed');
+      showExtractOverlay('📄 Reading your PDF...');
     };
 
-    toggleUI(true);
+    const unlockUI = () => {
+      lockableEls.forEach(el => { if (el) el.disabled = false; });
+      btnUploadPdf.innerHTML = originalBtnHTML;
+      btnUploadPdf.classList.remove('opacity-75', 'cursor-not-allowed');
+      hideExtractOverlay();
+      updateButtons(); // Restore correct disabled state based on profile
+    };
+
+    lockUI();
 
     try {
-      showStatus('Reading PDF... 📄');
       // 1. Read PDF with PDF.js
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       let fullText = '';
 
       for (let i = 1; i <= pdf.numPages; i++) {
+        updateExtractStep(`📖 Reading page ${i} of ${pdf.numPages}...`);
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
         const pageText = textContent.items.map(item => item.str).join(' ');
@@ -721,10 +744,10 @@ if (btnUploadPdf && pdfUploadInput) {
 
       const textLen = fullText.trim().length;
       if (textLen < 50) {
-        throw new Error('Could not extract enough text from the PDF');
+        throw new Error('Could not extract enough text from the PDF. Is the PDF text-based?');
       }
 
-      showStatus(`Processing ${textLen} characters with AI... 🤖 Please wait, this may take a few seconds!`);
+      updateExtractStep(`🤖 Sending ${textLen.toLocaleString()} chars to AI... this may take ~10s`);
 
       // 2. Send to backend AI extractor
       const res = await fetch('/api/extract-pdf', {
@@ -734,10 +757,11 @@ if (btnUploadPdf && pdfUploadInput) {
       });
 
       if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || 'Failed to extract data via API');
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'AI extraction failed — please try again');
       }
 
+      updateExtractStep('✅ Applying extracted data to form...');
       const extractedData = await res.json();
 
       // 3. Populate form and save
@@ -749,7 +773,7 @@ if (btnUploadPdf && pdfUploadInput) {
       console.error('PDF extraction error:', err);
       showStatus(err.message || 'Error occurred during PDF extraction', true);
     } finally {
-      toggleUI(false);
+      unlockUI();
       pdfUploadInput.value = ''; // clear input so the same file can be selected again
     }
   });

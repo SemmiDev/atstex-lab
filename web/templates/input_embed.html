@@ -185,6 +185,56 @@
 
     </div>
 
+    <!-- Fullscreen Loading Overlay for PDF Extraction -->
+    <div id="extract-overlay" class="extract-overlay" style="display:none;">
+        <div class="extract-overlay-card">
+            <div class="extract-bounce">📄</div>
+            <h3 class="extract-title">Extracting Your Resume</h3>
+            <p id="extract-step" class="extract-step">Reading PDF...</p>
+            <div class="extract-dots">
+                <span class="extract-dot"></span>
+                <span class="extract-dot"></span>
+                <span class="extract-dot"></span>
+            </div>
+            <p class="extract-hint">AI is parsing your resume — hang tight! ✨</p>
+        </div>
+    </div>
+
+    <style>
+        .extract-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            animation: overlayFadeIn 0.25s ease-out;
+        }
+        @keyframes overlayFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .extract-overlay-card {
+            background: var(--surface, #fff); border: 4px solid var(--border, #000);
+            box-shadow: 10px 10px 0px #000; padding: 40px 48px;
+            text-align: center; max-width: 420px; width: 90%;
+            animation: cardPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes cardPop {
+            from { transform: scale(0.85) translateY(20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .extract-bounce { font-size: 3.5rem; animation: bounceUp 1s ease-in-out infinite; margin-bottom: 12px; }
+        @keyframes bounceUp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
+        .extract-title { font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 1.35rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+        .extract-step { font-family: 'Fira Code', monospace; font-size: 0.85rem; font-weight: 600; color: var(--accent2, #475eff); margin-bottom: 16px; min-height: 1.4em; }
+        .extract-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
+        .extract-dot { width: 12px; height: 12px; border: 2px solid var(--border, #000); background: var(--accent, #ff4794); animation: dotPulse 1.4s ease-in-out infinite; }
+        .extract-dot:nth-child(2) { animation-delay: 0.2s; background: var(--accent2, #475eff); }
+        .extract-dot:nth-child(3) { animation-delay: 0.4s; background: var(--accent3, #5eeb8f); }
+        @keyframes dotPulse { 0%, 80%, 100% { transform: scale(1); opacity: 1; } 40% { transform: scale(1.6); opacity: 0.6; } }
+        .extract-hint { font-size: 0.8rem; color: var(--muted, #3a3a3a); font-weight: 500; }
+        body.extracting-pdf button, body.extracting-pdf input,
+        body.extracting-pdf textarea, body.extracting-pdf select {
+            pointer-events: none !important; opacity: 0.5 !important;
+        }
+    </style>
+
     <script type="module" src="/static/js/input.js"></script>
     <script src="/static/js/i18n.js"></script>
 </body>
