@@ -2,6 +2,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"html/template"
 	"log/slog"
@@ -357,11 +358,16 @@ func (h *Handler) ExtractPDF(w http.ResponseWriter, r *http.Request) {
 		"generation_info", string(genInfoJSON),
 	)
 
-	// Track AI token usage
+	// Track AI token usage (use Background context since the request context
+	// will be cancelled after the HTTP response is sent)
 	u, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 	if u != nil && totalTokens > 0 {
+		uid := u.ID
+		tokens := totalTokens
 		go func() {
-			_ = h.repo.IncrementAITokensUsed(r.Context(), u.ID, totalTokens)
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+			_ = h.repo.IncrementAITokensUsed(ctx, uid, tokens)
 		}()
 	}
 
