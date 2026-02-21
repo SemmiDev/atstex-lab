@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/tmc/langchaingo/llms"
@@ -14,6 +15,63 @@ import (
 	"github.com/tmc/langchaingo/llms/ollama"
 	"github.com/tmc/langchaingo/llms/openai"
 )
+
+// toInt64 converts various numeric types to int64.
+func toInt64(v interface{}) (int64, bool) {
+	switch t := v.(type) {
+	case int:
+		return int64(t), true
+	case int64:
+		return t, true
+	case float64:
+		return int64(t), true
+	case int32:
+		return int64(t), true
+	}
+	return 0, false
+}
+
+// extractTotalTokens tries to get TotalTokens from GenerationInfo.
+// Supports:
+//   - Flat map keys: "TotalTokens" (OpenAI, Google)
+//   - Nested struct: info["usage"].TotalTokens (Mistral: UsageInfo struct)
+func extractTotalTokens(info map[string]any) int64 {
+	// 1. Try flat key (OpenAI, Google, etc.)
+	if v, ok := info["TotalTokens"]; ok {
+		if n, ok := toInt64(v); ok {
+			return n
+		}
+	}
+
+	// 2. Try nested "usage" (Mistral SDK stores UsageInfo struct)
+	if usage, ok := info["usage"]; ok && usage != nil {
+		// If it's a map (JSON-like)
+		if m, ok := usage.(map[string]any); ok {
+			if v, ok := m["total_tokens"]; ok {
+				if n, ok := toInt64(v); ok {
+					return n
+				}
+			}
+			if v, ok := m["TotalTokens"]; ok {
+				if n, ok := toInt64(v); ok {
+					return n
+				}
+			}
+		}
+		// If it's a struct (e.g. sdk.UsageInfo), use reflection
+		rv := reflect.ValueOf(usage)
+		if rv.Kind() == reflect.Struct {
+			f := rv.FieldByName("TotalTokens")
+			if f.IsValid() && f.CanInterface() {
+				if n, ok := toInt64(f.Interface()); ok {
+					return n
+				}
+			}
+		}
+	}
+
+	return 0
+}
 
 // AIConfig holds the provider-agnostic AI settings.
 type AIConfig struct {
@@ -171,11 +229,12 @@ func newLLM(ctx context.Context, cfg AIConfig) (llms.LLM, error) {
 }
 
 // ExtractBiodata sends the raw PDF text to an LLM and returns structured biodata
-// along with total tokens consumed (0 if the provider doesn't report usage).
-func ExtractBiodata(ctx context.Context, text string, cfg AIConfig) (map[string]any, int64, error) {
+// along with total tokens consumed (0 if the provider doesn't report usage)
+// and the raw GenerationInfo map for logging.
+func ExtractBiodata(ctx context.Context, text string, cfg AIConfig) (map[string]any, int64, map[string]any, error) {
 	llm, err := newLLM(ctx, cfg)
 	if err != nil {
-		return nil, 0, fmt.Errorf("failed to create LLM client (%s): %w", cfg.Provider, err)
+		return nil, 0, nil, fmt.Errorf("failed to create LLM client (%s): %w", cfg.Provider, err)
 	}
 
 	userPrompt := systemPrompt + "\n\n---\n\nResume Text:\n" + text
@@ -191,26 +250,22 @@ func ExtractBiodata(ctx context.Context, text string, cfg AIConfig) (map[string]
 		llms.WithMaxTokens(16384),
 	)
 	if err != nil {
-		return nil, 0, fmt.Errorf("LLM call failed (%s/%s): %w", cfg.Provider, cfg.Model, err)
+		return nil, 0, nil, fmt.Errorf("LLM call failed (%s/%s): %w", cfg.Provider, cfg.Model, err)
 	}
 
 	if len(resp.Choices) == 0 {
-		return nil, 0, fmt.Errorf("LLM returned no choices (%s/%s)", cfg.Provider, cfg.Model)
+		return nil, 0, nil, fmt.Errorf("LLM returned no choices (%s/%s)", cfg.Provider, cfg.Model)
 	}
 
-	// Extract token usage from GenerationInfo
+	// Extract token usage from GenerationInfo.
+	// Different providers store tokens differently:
+	//   - OpenAI/Google: flat keys like "TotalTokens", "PromptTokens", "CompletionTokens"
+	//   - Mistral: nested struct under "usage" with fields TotalTokens, PromptTokens, CompletionTokens
 	var totalTokens int64
+	var genInfo map[string]any
 	if info := resp.Choices[0].GenerationInfo; info != nil {
-		if v, ok := info["TotalTokens"]; ok {
-			switch t := v.(type) {
-			case int:
-				totalTokens = int64(t)
-			case int64:
-				totalTokens = t
-			case float64:
-				totalTokens = int64(t)
-			}
-		}
+		totalTokens = extractTotalTokens(info)
+		genInfo = info
 	}
 
 	// Strip potential markdown fences from response
@@ -227,8 +282,8 @@ func ExtractBiodata(ctx context.Context, text string, cfg AIConfig) (map[string]
 
 	var result map[string]any
 	if err := json.Unmarshal([]byte(cleaned), &result); err != nil {
-		return nil, totalTokens, fmt.Errorf("failed to parse LLM response as JSON: %w\nraw response: %s", err, resp.Choices[0].Content)
+		return nil, totalTokens, genInfo, fmt.Errorf("failed to parse LLM response as JSON: %w\nraw response: %s", err, resp.Choices[0].Content)
 	}
 
-	return result, totalTokens, nil
+	return result, totalTokens, genInfo, nil
 }

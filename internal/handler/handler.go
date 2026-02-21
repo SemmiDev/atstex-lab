@@ -341,14 +341,21 @@ func (h *Handler) ExtractPDF(w http.ResponseWriter, r *http.Request) {
 
 	log.Info("extracting biodata from PDF text", "text_len", len(req.Text), "provider", h.aiConfig.Provider, "model", h.aiConfig.Model)
 
-	result, totalTokens, err := extractor.ExtractBiodata(r.Context(), req.Text, h.aiConfig)
+	result, totalTokens, genInfo, err := extractor.ExtractBiodata(r.Context(), req.Text, h.aiConfig)
 	if err != nil {
 		log.Error("extraction failed", "err", err)
 		jsonError(w, "AI extraction failed: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	log.Info("extraction succeeded", "provider", h.aiConfig.Provider, "tokens", totalTokens)
+	// Log full AI output for easy tracking
+	genInfoJSON, _ := json.Marshal(genInfo)
+	log.Info("extraction succeeded",
+		"provider", h.aiConfig.Provider,
+		"model", h.aiConfig.Model,
+		"tokens", totalTokens,
+		"generation_info", string(genInfoJSON),
+	)
 
 	// Track AI token usage
 	u, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
