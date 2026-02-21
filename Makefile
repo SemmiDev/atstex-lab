@@ -1,15 +1,25 @@
-.PHONY: run build tidy clean docker-build docker-up docker-down docker-logs docker-run docker-remove-rebuild
+.PHONY: run build tidy clean css docker-build docker-up docker-down docker-logs docker-run docker-remove-rebuild install-latex
 
 BINARY := atstex-lab
 CMD    := ./cmd/server
 
-# ── Local development ─────────────────────────────────────────
+## ── Prerequisites ────────────────────────────────────────────
+## Go 1.22+           → https://go.dev/dl/
+## Node.js + npm      → needed for Tailwind CSS compilation
+## Docker + Compose   → for running with PostgreSQL and TeX Live
+## TeX Live           → only if running locally without Docker
+
+# ── CSS ───────────────────────────────────────────────────────
+# Compile Tailwind CSS into a single minified stylesheet.
 css:
 	npx tailwindcss -i ./web/static/css/tailwind.css -o ./web/static/css/style.css --minify
 
+# ── Local Development ─────────────────────────────────────────
+# Run the dev server. Compiles CSS first, then starts on :8080.
 run: css
 	go run $(CMD)/main.go
 
+# Build a production binary. Output: ./atstex-lab
 build: css
 	go build -o $(BINARY) $(CMD)/main.go
 
@@ -19,33 +29,33 @@ tidy:
 clean:
 	rm -f $(BINARY)
 
-# ── Docker ────────────────────────────────────────────────────
-# Build image (first time: ~4 GB pull for texlive/texlive:latest)
-docker-build:
+# ── Docker (recommended) ─────────────────────────────────────
+# Build the Docker image. Compiles CSS first since it gets embedded in the binary.
+docker-build: css
 	docker compose build
 
-# Start container in background
-docker-up:
+# Start containers in background (app + PostgreSQL).
+docker-up: css
 	docker compose up -d
 
-# Build + start in one step
-docker-run:
+# Build + start in one step.
+docker-run: css
 	docker compose up -d --build
 
-# Remove and rebuild
-docker-remove-rebuild:
+# Tear down containers and delete the database volume.
+docker-remove-rebuild: css
 	docker compose down --volumes
 	docker compose up -d --build
 
-# Stop container
+# Stop containers.
 docker-down:
 	docker compose down
 
-# Tail logs
+# Tail app logs.
 docker-logs:
 	docker compose logs -f atstex-lab
 
-# ── Install LaTeX locally (Ubuntu/Debian) ─────────────────────
+# ── Install TeX Live locally (Ubuntu/Debian) ─────────────────
 install-latex:
 	sudo apt-get update
 	sudo apt-get install -y \

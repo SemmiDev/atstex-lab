@@ -1,162 +1,201 @@
-# ATSTEXLAB — Engineered ATS Resume Builder
+# ATSTEX-LAB
 
-![ATSTEXLAB Home Screen Preview](assets/home.png)
-![ATSTEXLAB Biodata Input Preview](assets/biodata.png)
-![ATSTEXLAB PDF Editor Preview](assets/preview.png)
-
-A minimal, self-hosted LaTeX compiler and previewer tailored for building ATS-friendly resumes. Write LaTeX in the browser using curated professional CV templates, compile server-side with pdflatex/xelatex/lualatex, and preview the PDF instantly.
-
-## Features
-
-- **ATS-Friendly CV Templates**: Dynamically load and select from professionally engineered LaTeX CV templates
-- **Split-pane editor** with syntax-aware tab handling and `Ctrl+Enter` shortcut
-- **Multi-engine**: pdflatex, xelatex, lualatex — switchable per document
-- **Live PDF preview** via PDF.js — multi-page, zoomable, draggable splitter
-- **Compiler log** with error/warning line highlighting
-- **Download PDF** directly from the browser
-- **Secure Sessions**: Your data is synchronized via Google Auth backed by a PostgreSQL database
+Write your biodata, pick a LaTeX template, compile to PDF.
 
 ---
 
-## Quickstart (Docker — recommended)
+## What It Does
 
-No need to install TeX Live locally. The container ships with a full TeX Live installation.
+- Fill in your resume data through a guided form (personal info, experience, education, skills, etc.)
+- Save multiple CV profiles — one for "Back End Developer", another for "Data Science", etc.
+- Pick from a library of ATS-friendly LaTeX templates
+- Compile to PDF instantly (pdflatex, xelatex, or lualatex)
+- Preview the PDF side-by-side with your biodata form
+- Sign in with Google to save your data across devices
+
+---
+
+## Prerequisites
+
+| Tool | Why | Install |
+|------|-----|---------|
+| **Docker + Docker Compose** | Runs the app, PostgreSQL, and TeX Live in containers | [docker.com](https://docs.docker.com/get-docker/) |
+| **Go 1.22+** | Only for local dev (not needed with Docker) | [go.dev](https://go.dev/dl/) |
+| **Node.js + npm** | Compiles Tailwind CSS | [nodejs.org](https://nodejs.org/) |
+
+---
+
+## Running with Docker (recommended)
+
+This is the easiest way. The container ships with a full TeX Live installation so you don't need to install anything else.
+
+### 1. Set up environment variables
+
+Copy and edit the `.env` file:
 
 ```bash
-# Build image and start (first run pulls ~4 GB texlive/texlive:latest)
-make docker-run
-
-# Or in background
-make docker-up
+cp .env.example .env
 ```
+
+Fill in:
+
+```env
+DATABASE_URL=postgres://postgres:postgres@postgres:5432/atstex_lab?sslmode=disable
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_CALLBACK_URL=http://localhost:8080/auth/google/callback
+```
+
+> To get Google OAuth credentials, go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials) and create an OAuth 2.0 Client ID.
+
+### 2. Start the app
+
+```bash
+make docker-run
+```
+
+This builds the image and starts both tthe app and PostgreSQL. First run pulls ~4 GB for the TeX Live image.
 
 Open **http://localhost:8080**.
 
+### Other commands
+
+```bash
+make docker-logs            # tail app logs
+make docker-down            # stop containers
+make docker-remove-rebuild  # nuke DB volume and rebuild from scratch
+```
+
 ---
 
-## Local Development (without Docker)
+## Running Locally (without Docker)
 
-### Requirements
-
-- Go 1.22+
-- TeX Live with the engines you want to use
+You'll need Go, Node.js, a running PostgreSQL instance, and TeX Live installed on your machine.
 
 ### 1. Install TeX Live
 
 ```bash
-# Ubuntu / Debian — installs all required engines and packages
+# Ubuntu / Debian
 make install-latex
+
+# macOS
+brew install --cask mactex
 ```
 
-Or manually:
+### 2. Set up the database
+
+Create a PostgreSQL database and run the schema:
 
 ```bash
-sudo apt-get install -y \
-  texlive-latex-extra texlive-fonts-recommended \
-  texlive-xetex texlive-luatex latexmk
+psql -U postgres -c "CREATE DATABASE atstex_lab;"
+psql -U postgres -d atstex_lab -f init.sql
 ```
 
-### 2. Run
+### 3. Configure `.env`
+
+```env
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/atstex_lab?sslmode=disable
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_CALLBACK_URL=http://localhost:8080/auth/google/callback
+```
+
+### 4. Run
 
 ```bash
-go mod tidy
-make run
-# open http://localhost:8080
-
-# Custom port
-ADDR=:3000 make run
+npm install        # install Tailwind CSS (first time only)
+make run           # compiles CSS + starts dev server on :8080
 ```
 
-### 3. Build binary
+### 5. Build a standalone binary
 
 ```bash
 make build
-./atstex-lab
+./atstex-lab       # run the compiled binary
 ```
 
 ---
 
 ## Makefile Reference
 
-| Target | Description |
-|---|---|
-| `make run` | Run dev server locally |
-| `make build` | Compile binary to `./atstex-lab` |
+| Command | What it does |
+|---------|-------------|
+| `make run` | Compile CSS + start dev server |
+| `make build` | Compile CSS + build Go binary (`./atstex-lab`) |
+| `make css` | Compile Tailwind CSS only |
 | `make tidy` | Run `go mod tidy` |
-| `make clean` | Remove compiled binary |
-| `make docker-run` | Build image + start container (foreground) |
-| `make docker-up` | Build image + start container (background) |
-| `make docker-down` | Stop and remove container |
-| `make docker-build` | Build Docker image only |
-| `make docker-logs` | Tail container logs |
+| `make clean` | Delete the compiled binary |
+| `make docker-run` | Build image + start app and PostgreSQL |
+| `make docker-up` | Start containers (assumes image is built) |
+| `make docker-down` | Stop containers |
+| `make docker-remove-rebuild` | Delete everything and rebuild fresh |
+| `make docker-logs` | Tail live logs |
 | `make install-latex` | Install TeX Live on Ubuntu/Debian |
 
 ---
 
-## Project Layout
+## Project Structure
 
 ```
 atstex-lab/
-├── cmd/server/main.go          # Entry point — Chi router + middleware stack
+├── cmd/server/main.go              # App entry point, routes, middleware
 ├── internal/
-│   ├── compiler/compiler.go    # LaTeX engine abstraction (runs engine 2×, isolated temp dir)
-│   └── handler/handler.go      # HTTP handlers (Index, Compile)
+│   ├── auth/auth.go                # Google OAuth login/logout/callback
+│   ├── compiler/compiler.go        # Runs LaTeX engine in a temp directory
+│   ├── config/config.go            # Loads .env configuration
+│   ├── cvtemplate/                  # LaTeX CV template loader
+│   ├── domain/                     # Data models (User, Session, CVProfile)
+│   ├── handler/                    # HTTP handlers (pages + API)
+│   └── repository/repository.go    # PostgreSQL queries
 ├── web/
-│   ├── embed.go                # go:embed — assets baked into the binary
-│   ├── templates/              # HTML views and LaTeX CV templates
-│   └── static/                 # Static assets served at /static/
-├── Dockerfile                  # Multi-stage: Go builder → texlive/texlive:latest
-├── docker-compose.yml
-├── .dockerignore
-├── go.mod
-├── Makefile
-└── README.md
+│   ├── embed.go                    # Embeds templates + static files into binary
+│   ├── templates/                  # HTML pages + LaTeX templates
+│   └── static/                     # CSS, JS, images
+├── init.sql                        # Database schema
+├── Dockerfile                      # Multi-stage: Go build → TeX Live runtime
+├── compose.yml                     # Docker Compose (app + PostgreSQL)
+├── tailwind.config.js              # Tailwind CSS config
+└── Makefile
 ```
 
 ---
 
-## Docker Details
+## API Endpoints
 
-The image uses a **multi-stage build**:
+### Pages
 
-1. **Stage 1** (`golang:1.22-alpine`) — compiles a static Go binary (~10 MB)
-2. **Stage 2** (`texlive/texlive:latest`) — official full TeX Live image; the binary is copied in
+| Route | Description |
+|-------|-------------|
+| `GET /` | Home page |
+| `GET /input` | Biodata form (full page) |
+| `GET /input/embed` | Biodata form (embedded, no sidebar) |
+| `GET /editor` | LaTeX editor + PDF preview |
+| `GET /profile` | User profile + session management |
 
-The final container has pdflatex, xelatex, lualatex, latexmk, and virtually every CTAN package available out of the box.
+### Auth
 
-Security posture:
-- Runs as a non-root user (`atstex-lab`)
-- `/tmp` is a `tmpfs` RAM disk — compile artifacts never touch the host disk
-- CPU and memory capped via `deploy.resources` in `docker-compose.yml`
+| Route | Description |
+|-------|-------------|
+| `GET /auth/google/login` | Start Google login |
+| `GET /auth/google/callback` | OAuth callback |
+| `POST /auth/logout` | Logout |
+| `POST /auth/sessions/{token}/delete` | Delete a session |
 
----
+### CV Profiles
 
-## API
+| Route | Description |
+|-------|-------------|
+| `GET /api/cv-profiles` | List all profiles |
+| `POST /api/cv-profiles` | Create a profile (`{"title": "..."}`) |
+| `GET /api/cv-profiles/{id}` | Get a profile + biodata |
+| `PUT /api/cv-profiles/{id}` | Save biodata (`{"biodata": {...}}`) |
+| `DELETE /api/cv-profiles/{id}` | Delete a profile |
 
-### `POST /compile`
+### Templates & Compile
 
-**Request** (JSON):
-```json
-{
-  "source": "\\documentclass{article}\\begin{document}Hello\\end{document}",
-  "engine": "pdflatex"
-}
-```
-
-`engine` accepts `pdflatex`, `xelatex`, or `lualatex`. Defaults to `pdflatex` if omitted.
-
-**Success** — `200 OK`, `Content-Type: application/pdf`
-
-Response body is the raw PDF binary. Metadata is returned in headers:
-
-| Header | Example | Description |
-|---|---|---|
-| `X-Latex-Elapsed` | `1.23s` | Total compile time |
-| `X-Latex-Log` | `...` | Compiler log (truncated to 8 KB) |
-| `X-Latex-Engine` | `pdflatex` | Engine used |
-
-**Error** — `422 Unprocessable Entity`, `Content-Type: application/json`
-
-```json
-{ "ok": false, "error": "compilation failed", "log": "..." }
-```
+| Route | Description |
+|-------|-------------|
+| `GET /api/templates` | List available templates |
+| `GET /api/templates/{name}` | Get raw template source |
+| `POST /api/templates/{name}/render` | Render template with biodata JSON |
+| `POST /compile` | Compile LaTeX → PDF |
