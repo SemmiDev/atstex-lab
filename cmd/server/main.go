@@ -95,6 +95,7 @@ func main() {
 		r.Post("/api/templates/{name}/render", h.RenderTemplate)
 		r.Post("/compile", h.Compile)
 		r.Post("/api/extract-pdf", h.ExtractPDF)
+		r.Post("/api/page-settings/apply", h.ApplyPageSettings)
 		// CV Profile API
 		r.Get("/api/cv-profiles", h.ListCVProfiles)
 		r.Post("/api/cv-profiles", h.CreateCVProfile)

@@ -657,6 +657,254 @@ pre#log-output .warn-line {
   border-left-width: 2px !important;
 }
 
+/* ── PAGE SETTINGS PANEL ─────────────────────────────── */
+.settings-panel {
+  flex: 1;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+
+.settings-section {
+  border: 3px solid var(--border);
+  background: var(--bg);
+  box-shadow: 3px 3px 0 #000;
+}
+
+.settings-section-title {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text);
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 3px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.settings-section-title i {
+  font-size: 18px;
+  color: var(--accent2);
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+}
+
+.settings-grid-wide {
+  grid-template-columns: 1fr;
+}
+
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.settings-field label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.settings-field select,
+.settings-field input[type="text"] {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 0;
+  outline: none;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px var(--border);
+  transition: box-shadow var(--transition), transform var(--transition);
+  width: 100%;
+}
+
+.settings-field select:hover,
+.settings-field input[type="text"]:hover {
+  background: #fff;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #000;
+}
+
+.settings-field select:focus,
+.settings-field input[type="text"]:focus {
+  border-color: var(--accent);
+  box-shadow: 3px 3px 0 var(--accent);
+}
+
+.settings-field input[type="text"]::placeholder {
+  color: #bbb;
+  font-weight: 400;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 12px;
+  padding: 4px 0 8px;
+}
+
+.settings-actions .btn {
+  flex: 1;
+  justify-content: center;
+}
+
+/* ── COMPILE LOADING OVERLAY ─────────────────────────── */
+.compile-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: compileOverlayIn 0.25s ease-out;
+}
+
+@keyframes compileOverlayIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.compile-overlay-card {
+  background: var(--surface, #fff);
+  border: 4px solid var(--border, #000);
+  box-shadow: 10px 10px 0px #000;
+  padding: 40px 48px;
+  text-align: center;
+  max-width: 420px;
+  width: 90%;
+  animation: compileCardPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes compileCardPop {
+  from {
+    transform: scale(0.85) translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.compile-bounce {
+  font-size: 3.5rem;
+  animation: compileBounce 1s ease-in-out infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes compileBounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-16px);
+  }
+}
+
+.compile-title {
+  font-family: var(--font-ui);
+  font-weight: 800;
+  font-size: 1.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.compile-step {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent2);
+  margin-bottom: 16px;
+  min-height: 1.4em;
+}
+
+.compile-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.compile-dot {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--border);
+  background: var(--accent);
+  animation: compileDotPulse 1.4s ease-in-out infinite;
+}
+
+.compile-dot:nth-child(2) {
+  animation-delay: 0.2s;
+  background: var(--accent2);
+}
+
+.compile-dot:nth-child(3) {
+  animation-delay: 0.4s;
+  background: var(--accent3);
+}
+
+@keyframes compileDotPulse {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  40% {
+    transform: scale(1.6);
+    opacity: 0.6;
+  }
+}
+
+.compile-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
 /* ── SAWERIA DONATION MODAL ───────────────────────────── */
 .donation-modal {
   display: none;

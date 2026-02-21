@@ -169,6 +169,12 @@ func (h *Handler) GetTemplate(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(content))
 }
 
+// renderTemplateRequest is the request body for both RenderTemplate and ApplyPageSettings.
+type renderTemplateRequest struct {
+	cvtemplate.CVData
+	Settings *cvtemplate.PageSettings `json:"settings,omitempty"`
+}
+
 // RenderTemplate handles POST /api/templates/{name}/render.
 func (h *Handler) RenderTemplate(w http.ResponseWriter, r *http.Request) {
 	name := chi.URLParam(r, "name")
@@ -177,14 +183,19 @@ func (h *Handler) RenderTemplate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data cvtemplate.CVData
-	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+	var req renderTemplateRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		h.reqLog(r).Error("invalid request body", "err", err)
 		jsonError(w, "invalid request body: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	content, err := cvtemplate.Render(name, data)
+	ps := cvtemplate.DefaultPageSettings()
+	if req.Settings != nil {
+		ps = *req.Settings
+	}
+
+	content, err := cvtemplate.Render(name, req.CVData, ps)
 	if err != nil {
 		h.reqLog(r).Error("template render error", "err", err)
 		jsonError(w, err.Error(), http.StatusInternalServerError)
@@ -268,6 +279,39 @@ func truncate(s string, n int) string {
 		return s
 	}
 	return s[:n] + "…"
+}
+
+// pageSettingsRequest is the JSON body expected by POST /api/page-settings/apply.
+type pageSettingsRequest struct {
+	Template string                  `json:"template"`
+	CVData   cvtemplate.CVData       `json:"cvData"`
+	Settings cvtemplate.PageSettings `json:"settings"`
+}
+
+// ApplyPageSettings handles POST /api/page-settings/apply.
+// It re-renders the template from the .tex file with the provided settings and biodata.
+func (h *Handler) ApplyPageSettings(w http.ResponseWriter, r *http.Request) {
+	var req pageSettingsRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		h.reqLog(r).Error("invalid request body", "err", err)
+		jsonError(w, "invalid request body: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if req.Template == "" {
+		jsonError(w, "template name is required", http.StatusBadRequest)
+		return
+	}
+
+	content, err := cvtemplate.Render(req.Template, req.CVData, req.Settings)
+	if err != nil {
+		h.reqLog(r).Error("page settings render error", "err", err)
+		jsonError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Write([]byte(content))
 }
 
 // ExtractPDF handles POST /api/extract-pdf — receives PDF text and returns structured biodata JSON.

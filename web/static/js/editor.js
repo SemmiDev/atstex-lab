@@ -194,21 +194,33 @@ to your browser.
       parent: editorContainer
     });
 
+    const compileOverlay = document.getElementById('compile-overlay');
+    const compileStep = document.getElementById('compile-step');
+
     // ── Compile ───────────────────────────────────────────────────
     async function compile() {
       setStatus('compiling', 'Compiling…');
       btnCompile.disabled = true;
       btnCompile.classList.add('loading');
+      compileOverlay.style.display = '';
+      compileStep.textContent = 'Rendering template…';
 
       try {
-        // If a real template is selected, re-render it with fresh biodata first
+        // If a real template is selected, re-render it with fresh biodata + page settings
         const selectedTemplate = templateSel.value;
         if (selectedTemplate && selectedTemplate !== 'example') {
           const cvDataStr = localStorage.getItem('cv_data') || '{}';
+          let reqBody = {};
+          try { reqBody = JSON.parse(cvDataStr); } catch (_) {}
+          // Include page settings if any are saved
+          try {
+            const savedSettings = JSON.parse(localStorage.getItem('page_settings') || 'null');
+            if (savedSettings) reqBody.settings = savedSettings;
+          } catch (_) {}
           const renderRes = await fetch(`/api/templates/${selectedTemplate}/render`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: cvDataStr
+            body: JSON.stringify(reqBody)
           });
           if (renderRes.ok) {
             const content = await renderRes.text();
@@ -224,6 +236,7 @@ to your browser.
           return;
         }
 
+        compileStep.textContent = 'Running LaTeX compiler…';
         const res = await fetch('/compile', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -253,6 +266,7 @@ to your browser.
       } finally {
         btnCompile.disabled = false;
         btnCompile.classList.remove('loading');
+        compileOverlay.style.display = 'none';
       }
     }
 
@@ -327,6 +341,23 @@ to your browser.
 
       // Show the Saweria popup right after the file triggers
       donationModal.classList.add('active');
+    });
+
+    // ── Download LaTeX source ─────────────────────────────────────
+    const btnDownloadTex = document.getElementById('btn-download-tex');
+    btnDownloadTex.addEventListener('click', () => {
+      const source = editorView.state.doc.toString();
+      if (!source.trim()) return;
+      const blob = new Blob([source], { type: 'application/x-latex' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = 'document.tex';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     });
 
     closeDonationModal.addEventListener('click', () => {
@@ -453,10 +484,17 @@ to your browser.
 
       try {
         const cvDataStr = localStorage.getItem('cv_data') || '{}';
+        let reqBody = {};
+        try { reqBody = JSON.parse(cvDataStr); } catch (_) {}
+        // Include page settings if any are saved
+        try {
+          const savedSettings = JSON.parse(localStorage.getItem('page_settings') || 'null');
+          if (savedSettings) reqBody.settings = savedSettings;
+        } catch (_) {}
         const res = await fetch(`/api/templates/${name}/render`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: cvDataStr
+          body: JSON.stringify(reqBody)
         });
         if (!res.ok) throw new Error('Failed to load template');
         const content = await res.text();
@@ -472,3 +510,117 @@ to your browser.
         setStatus('error', 'Failed to load template');
       }
     });
+
+    // ── Page Settings: Apply & Reset ─────────────────────────────
+    const btnApplySettings = document.getElementById('btn-apply-settings');
+    const btnResetSettings = document.getElementById('btn-reset-settings');
+
+    function getPageSettings() {
+      return {
+        documentClass: document.getElementById('ps-doc-class').value,
+        paperSize: document.getElementById('ps-paper-size').value,
+        fontSize: document.getElementById('ps-font-size').value,
+        fontFamily: document.getElementById('ps-font-family').value,
+        marginTop: document.getElementById('ps-margin-top').value,
+        marginBottom: document.getElementById('ps-margin-bottom').value,
+        marginLeft: document.getElementById('ps-margin-left').value,
+        marginRight: document.getElementById('ps-margin-right').value,
+        lineSpacing: parseFloat(document.getElementById('ps-line-spacing').value) || 1.0,
+        alignment: document.getElementById('ps-alignment').value,
+        headerText: document.getElementById('ps-header-text').value,
+        footerText: document.getElementById('ps-footer-text').value,
+      };
+    }
+
+    function setPageSettings(s) {
+      if (!s) return;
+      if (s.documentClass) document.getElementById('ps-doc-class').value = s.documentClass;
+      if (s.paperSize) document.getElementById('ps-paper-size').value = s.paperSize;
+      if (s.fontSize) document.getElementById('ps-font-size').value = s.fontSize;
+      if (s.fontFamily) document.getElementById('ps-font-family').value = s.fontFamily;
+      if (s.marginTop) document.getElementById('ps-margin-top').value = s.marginTop;
+      if (s.marginBottom) document.getElementById('ps-margin-bottom').value = s.marginBottom;
+      if (s.marginLeft) document.getElementById('ps-margin-left').value = s.marginLeft;
+      if (s.marginRight) document.getElementById('ps-margin-right').value = s.marginRight;
+      if (s.lineSpacing) document.getElementById('ps-line-spacing').value = String(s.lineSpacing);
+      if (s.alignment) document.getElementById('ps-alignment').value = s.alignment;
+      if (s.headerText !== undefined) document.getElementById('ps-header-text').value = s.headerText;
+      if (s.footerText !== undefined) document.getElementById('ps-footer-text').value = s.footerText;
+    }
+
+    // Restore saved settings from localStorage
+    try {
+      const saved = JSON.parse(localStorage.getItem('page_settings') || 'null');
+      if (saved) setPageSettings(saved);
+    } catch (_) { /* ignore parse errors */ }
+
+    if (btnApplySettings) {
+      btnApplySettings.addEventListener('click', async () => {
+        const selectedTemplate = templateSel.value;
+        if (!selectedTemplate || selectedTemplate === 'example') {
+          setStatus('error', 'Select a CV template first (not Blank or Example)');
+          return;
+        }
+
+        const settings = getPageSettings();
+        const cvDataStr = localStorage.getItem('cv_data') || '{}';
+        let cvData = {};
+        try { cvData = JSON.parse(cvDataStr); } catch (_) {}
+
+        // Persist settings to localStorage
+        localStorage.setItem('page_settings', JSON.stringify(settings));
+
+        setStatus('compiling', 'Applying page settings…');
+        btnApplySettings.disabled = true;
+
+        try {
+          const res = await fetch('/api/page-settings/apply', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ template: selectedTemplate, cvData, settings }),
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            setStatus('error', err.error || 'Failed to apply settings');
+            return;
+          }
+
+          const modifiedSource = await res.text();
+          editorView.dispatch({
+            changes: { from: 0, to: editorView.state.doc.length, insert: modifiedSource }
+          });
+
+          setStatus('success', 'Page settings applied');
+
+          // Auto compile after applying settings
+          if (!btnCompile.disabled) compile();
+        } catch (err) {
+          console.error(err);
+          setStatus('error', 'Failed to apply page settings');
+        } finally {
+          btnApplySettings.disabled = false;
+        }
+      });
+    }
+
+    if (btnResetSettings) {
+      btnResetSettings.addEventListener('click', () => {
+        const defaults = {
+          documentClass: 'article',
+          paperSize: 'a4paper',
+          fontSize: '10pt',
+          fontFamily: 'default',
+          marginTop: '0.5in',
+          marginBottom: '0.5in',
+          marginLeft: '0.7in',
+          marginRight: '0.7in',
+          lineSpacing: 1,
+          alignment: 'justify',
+          headerText: '',
+          footerText: '',
+        };
+        setPageSettings(defaults);
+        localStorage.removeItem('page_settings');
+      });
+    }

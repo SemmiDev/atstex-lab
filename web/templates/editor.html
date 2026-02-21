@@ -115,13 +115,133 @@
             <span class="dot" style="width:12px;height:12px;background:var(--accent);border:2px solid var(--border);"></span>
             Biodata
           </button>
-          <button class="editor-tab" id="tab-editor" style="display:flex; align-items:center; gap:8px; height:100%; padding:0 16px; border:none; background:transparent; font:inherit; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; cursor:pointer; border-bottom:3px solid transparent; color:var(--muted);">
+          <button class="editor-tab" id="tab-editor" style="display:none; align-items:center; gap:8px; height:100%; padding:0 16px; border:none; background:transparent; font:inherit; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; cursor:pointer; border-bottom:3px solid transparent; color:var(--muted);">
             <span class="dot" style="width:12px;height:12px;background:var(--accent3);border:2px solid var(--border);"></span>
             biodata.tex
+          </button>
+          <button class="editor-tab" id="tab-settings" style="display:flex; align-items:center; gap:8px; height:100%; padding:0 16px; border:none; background:transparent; font:inherit; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; cursor:pointer; border-bottom:3px solid transparent; color:var(--muted);">
+            <span class="dot" style="width:12px;height:12px;background:var(--accent2);border:2px solid var(--border);"></span>
+            Page Settings
           </button>
         </div>
         <div id="editor-container" style="display:none;"></div>
         <iframe id="biodata-frame" src="/input/embed" style="width:100%; flex:1; border:none;"></iframe>
+
+        <!-- Page Settings Panel -->
+        <div id="settings-panel" class="settings-panel" style="display:none;">
+          <div class="settings-scroll">
+            <div class="settings-section">
+              <h3 class="settings-section-title"><i class="ph ph-file-text"></i> Document</h3>
+              <div class="settings-grid">
+                <div class="settings-field">
+                  <label for="ps-doc-class">Document Class</label>
+                  <select id="ps-doc-class">
+                    <option value="article">Article</option>
+                    <option value="report">Report</option>
+                    <option value="letter">Letter</option>
+                    <option value="book">Book</option>
+                  </select>
+                </div>
+                <div class="settings-field">
+                  <label for="ps-paper-size">Paper Size</label>
+                  <select id="ps-paper-size">
+                    <option value="a4paper">A4</option>
+                    <option value="letterpaper">US Letter</option>
+                    <option value="legalpaper">Legal</option>
+                  </select>
+                </div>
+                <div class="settings-field">
+                  <label for="ps-font-size">Font Size</label>
+                  <select id="ps-font-size">
+                    <option value="10pt">10pt</option>
+                    <option value="11pt">11pt</option>
+                    <option value="12pt">12pt</option>
+                  </select>
+                </div>
+                <div class="settings-field">
+                  <label for="ps-font-family">Font Family</label>
+                  <select id="ps-font-family">
+                    <option value="default">Default (CM)</option>
+                    <option value="helvet">Helvetica (Sans)</option>
+                    <option value="times">Times (Serif)</option>
+                    <option value="palatino">Palatino (Serif)</option>
+                    <option value="courier">Courier (Mono)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h3 class="settings-section-title"><i class="ph ph-frame-corners"></i> Margins</h3>
+              <div class="settings-grid">
+                <div class="settings-field">
+                  <label for="ps-margin-top">Top</label>
+                  <input type="text" id="ps-margin-top" value="0.5in" placeholder="e.g. 0.5in">
+                </div>
+                <div class="settings-field">
+                  <label for="ps-margin-bottom">Bottom</label>
+                  <input type="text" id="ps-margin-bottom" value="0.5in" placeholder="e.g. 0.5in">
+                </div>
+                <div class="settings-field">
+                  <label for="ps-margin-left">Left</label>
+                  <input type="text" id="ps-margin-left" value="0.7in" placeholder="e.g. 0.7in">
+                </div>
+                <div class="settings-field">
+                  <label for="ps-margin-right">Right</label>
+                  <input type="text" id="ps-margin-right" value="0.7in" placeholder="e.g. 0.7in">
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h3 class="settings-section-title"><i class="ph ph-text-aa"></i> Typography</h3>
+              <div class="settings-grid">
+                <div class="settings-field">
+                  <label for="ps-line-spacing">Line Spacing</label>
+                  <select id="ps-line-spacing">
+                    <option value="1">Single (1.0)</option>
+                    <option value="1.15">1.15</option>
+                    <option value="1.5">1.5</option>
+                    <option value="2">Double (2.0)</option>
+                  </select>
+                </div>
+                <div class="settings-field">
+                  <label for="ps-alignment">Alignment</label>
+                  <select id="ps-alignment">
+                    <option value="justify">Justify</option>
+                    <option value="left">Left (Ragged Right)</option>
+                    <option value="center">Center</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h3 class="settings-section-title"><i class="ph ph-rows"></i> Header &amp; Footer</h3>
+              <div class="settings-grid settings-grid-wide">
+                <div class="settings-field">
+                  <label for="ps-header-text">Header Text</label>
+                  <input type="text" id="ps-header-text" placeholder="e.g. My Resume">
+                </div>
+                <div class="settings-field">
+                  <label for="ps-footer-text">Footer Text</label>
+                  <input type="text" id="ps-footer-text" placeholder="Leave empty for page number">
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-actions">
+              <button class="btn btn-primary" id="btn-apply-settings">
+                <i class="ph-bold ph-check-circle"></i>
+                <span class="btn-label">Apply &amp; Compile</span>
+              </button>
+              <button class="btn btn-ghost" id="btn-reset-settings">
+                <i class="ph-bold ph-arrow-counter-clockwise"></i>
+                <span class="btn-label">Reset</span>
+              </button>
+            </div>
+          </div>
+        </div>
 
         <!-- Log panel inside editor pane -->
         <div class="log-panel" id="log-panel">
@@ -148,6 +268,7 @@
             style="width:auto;padding:0 8px;font-size:11px;">Fit</button>
 
           <button class="btn-download" id="btn-download" disabled title="Download PDF">↓ PDF</button>
+          <button class="btn-download" id="btn-download-tex" title="Download LaTeX source" style="margin-left:4px;">↓ .tex</button>
         </div>
 
         <div class="preview-scroll" id="preview-scroll">
@@ -174,6 +295,21 @@
     </div>
 
     <!-- ── SAWERIA DONATION MODAL ──────────────────────────────── -->
+    <!-- Compile Loading Overlay -->
+    <div id="compile-overlay" class="compile-overlay" style="display:none;">
+      <div class="compile-overlay-card">
+        <div class="compile-bounce">⚙️</div>
+        <h3 class="compile-title">Compiling LaTeX</h3>
+        <p id="compile-step" class="compile-step">Rendering template…</p>
+        <div class="compile-dots">
+          <span class="compile-dot"></span>
+          <span class="compile-dot"></span>
+          <span class="compile-dot"></span>
+        </div>
+        <p class="compile-hint">Building your PDF — hang tight! 📄</p>
+      </div>
+    </div>
+
     <div class="donation-modal" id="donation-modal">
       <div class="donation-modal-card">
         <button class="close-modal-btn" id="close-donation-modal"><i class="ph-bold ph-x"></i></button>
@@ -216,29 +352,31 @@
       });
     }
 
-    // ── Editor / Biodata tab switching ──
+    // ── Editor / Biodata / Settings tab switching ──
     const tabEditor = document.getElementById('tab-editor');
     const tabBiodata = document.getElementById('tab-biodata');
+    const tabSettings = document.getElementById('tab-settings');
     const editorContainer = document.getElementById('editor-container');
     const biodataFrame = document.getElementById('biodata-frame');
+    const settingsPanel = document.getElementById('settings-panel');
 
-    tabEditor.addEventListener('click', () => {
-      tabEditor.style.borderBottom = '3px solid var(--accent)';
-      tabEditor.style.color = 'var(--text)';
-      tabBiodata.style.borderBottom = '3px solid transparent';
-      tabBiodata.style.color = 'var(--muted)';
-      editorContainer.style.display = '';
-      biodataFrame.style.display = 'none';
-    });
+    const allTabs = [tabBiodata, tabEditor, tabSettings];
+    const allPanels = [biodataFrame, editorContainer, settingsPanel];
 
-    tabBiodata.addEventListener('click', () => {
-      tabBiodata.style.borderBottom = '3px solid var(--accent)';
-      tabBiodata.style.color = 'var(--text)';
-      tabEditor.style.borderBottom = '3px solid transparent';
-      tabEditor.style.color = 'var(--muted)';
-      editorContainer.style.display = 'none';
-      biodataFrame.style.display = '';
-    });
+    function activateTab(activeTab, activePanel) {
+      allTabs.forEach(t => {
+        t.style.borderBottom = '3px solid transparent';
+        t.style.color = 'var(--muted)';
+      });
+      allPanels.forEach(p => { if(p) p.style.display = 'none'; });
+      activeTab.style.borderBottom = '3px solid var(--accent)';
+      activeTab.style.color = 'var(--text)';
+      if(activePanel) activePanel.style.display = '';
+    }
+
+    tabBiodata.addEventListener('click', () => activateTab(tabBiodata, biodataFrame));
+    tabEditor.addEventListener('click', () => activateTab(tabEditor, editorContainer));
+    tabSettings.addEventListener('click', () => activateTab(tabSettings, settingsPanel));
   </script>
 </body>
 

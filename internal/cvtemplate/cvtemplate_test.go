@@ -14,7 +14,7 @@ func TestRender(t *testing.T) {
 		Summary: "A great engineer.",
 	}
 
-	result, err := Render("mas-gogo-1", data)
+	result, err := Render("mas-gogo-1", data, DefaultPageSettings())
 	if err != nil {
 		t.Fatalf("Render error: %v", err)
 	}
