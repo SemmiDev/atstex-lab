@@ -90,9 +90,9 @@
   <nav class="flex items-center justify-between px-8 py-4 bg-surface border-b-[4px] border-border">
     <div class="font-disp font-extrabold text-2xl tracking-tight">ATSTEX<em class="text-accent italic">LAB</em></div>
     <div class="flex items-center gap-4">
-      <div class="lang-toggles flex gap-1 mr-2 px-2 py-1 rounded-sm bg-bg border border-border">
-          <button id="lang-en" class="lang-toggle px-1 hover:scale-110 transition-transform cursor-pointer" title="English">🇬🇧</button>
-          <button id="lang-id" class="lang-toggle px-1 hover:scale-110 transition-transform cursor-pointer opacity-50" title="Bahasa Indonesia">🇮🇩</button>
+      <div class="lang-switch">
+          <button class="lang-btn active" data-lang="en"><span class="flag">🇬🇧</span> EN</button>
+          <button class="lang-btn" data-lang="id"><span class="flag">🇮🇩</span> ID</button>
       </div>
       <a href="/" class="flex items-center gap-2 px-4 py-2 font-mono font-bold uppercase text-sm bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000] no-underline">
         <i class="ph ph-house"></i> <span data-i18n="nav.home">Home</span>

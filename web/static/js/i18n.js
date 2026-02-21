@@ -55,6 +55,58 @@ const dictionary = {
   }
 };
 
+// Inject toggle styles once
+(function injectI18nStyles() {
+  if (document.getElementById('i18n-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'i18n-styles';
+  style.textContent = `
+    .lang-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      background: var(--bg, #f5f0e8);
+      border: 3px solid var(--border, #1a1a1a);
+      border-radius: 0;
+      padding: 0;
+      box-shadow: 2px 2px 0 var(--border, #1a1a1a);
+      overflow: hidden;
+    }
+    .lang-switch .lang-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-family: var(--font-mono, 'Fira Code', monospace);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--text, #1a1a1a);
+      transition: background 0.15s ease, color 0.15s ease;
+      letter-spacing: 0.03em;
+      line-height: 1;
+    }
+    .lang-switch .lang-btn:not(:last-child) {
+      border-right: 3px solid var(--border, #1a1a1a);
+    }
+    .lang-switch .lang-btn:hover {
+      background: var(--accent4, #f0e6d3);
+    }
+    .lang-switch .lang-btn.active {
+      background: var(--accent, #e74d3c);
+      color: #fff;
+    }
+    .lang-switch .lang-btn .flag {
+      font-size: 16px;
+      line-height: 1;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
 function setLanguage(lang) {
   if (!dictionary[lang]) return;
 
@@ -63,41 +115,37 @@ function setLanguage(lang) {
   document.querySelectorAll("[data-i18n]").forEach(el => {
     const key = el.getAttribute("data-i18n");
     if (dictionary[lang][key]) {
-      // Small hack: if the text had HTML originally, innerHTML is fine.
-      // But we mostly just have text. Check if it contains <br> or <span> logic.
-      if (key.includes("hero.title")) {
-          // handled specially since it has span
-      } else {
-        el.textContent = dictionary[lang][key];
-      }
+      el.textContent = dictionary[lang][key];
     }
   });
 
-  // Special hero title handling
+  // Special hero title handling (spans inside h1)
   const hero1 = document.querySelector('[data-i18n-hero="1"]');
   const hero2 = document.querySelector('[data-i18n-hero="2"]');
   const hero3 = document.querySelector('[data-i18n-hero="3"]');
   if (hero1 && hero2 && hero3) {
-      hero1.textContent = dictionary[lang]["hero.title.1"];
-      hero2.textContent = dictionary[lang]["hero.title.2"];
-      hero3.textContent = dictionary[lang]["hero.title.3"];
+    hero1.textContent = dictionary[lang]["hero.title.1"];
+    hero2.textContent = dictionary[lang]["hero.title.2"];
+    hero3.textContent = dictionary[lang]["hero.title.3"];
   }
 
   // Update active toggle styling
-  document.querySelectorAll('.lang-toggle').forEach(btn => btn.classList.remove('active-lang'));
-  const activeBtn = document.getElementById(`lang-${lang}`);
-  if (activeBtn) activeBtn.classList.add('active-lang');
+  document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll(`[data-lang="${lang}"]`).forEach(btn => btn.classList.add('active'));
 }
 
 function initI18n() {
   const savedLang = localStorage.getItem("atstex_lang") || "en";
+
+  // Bind click handlers
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const lang = btn.getAttribute('data-lang');
+      if (lang) setLanguage(lang);
+    });
+  });
+
   setLanguage(savedLang);
-
-  const btnEn = document.getElementById("lang-en");
-  const btnId = document.getElementById("lang-id");
-
-  if (btnEn) btnEn.addEventListener("click", () => setLanguage("en"));
-  if (btnId) btnId.addEventListener("click", () => setLanguage("id"));
 }
 
 document.addEventListener("DOMContentLoaded", initI18n);
