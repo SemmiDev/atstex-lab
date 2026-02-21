@@ -226,7 +226,7 @@ func (r *postgresRepo) AdminListUsers(ctx context.Context, params domain.AdminLi
 
 	query := fmt.Sprintf(`
 		SELECT
-			u.id, u.email, u.name, COALESCE(u.picture, '') AS picture, u.role, u.ai_chars_used, u.created_at,
+			u.id, u.email, u.name, COALESCE(u.picture, '') AS picture, u.role, u.ai_tokens_used, u.created_at,
 			COUNT(cv.id) AS biodata_count
 		FROM users u
 		LEFT JOIN cv_profiles cv ON cv.user_id = u.id

@@ -94,12 +94,6 @@
           <button class="lang-btn active" data-lang="en"><span class="flag">🇬🇧</span> EN</button>
           <button class="lang-btn" data-lang="id"><span class="flag">🇮🇩</span> ID</button>
       </div>
-      <a href="/" class="flex items-center gap-2 px-4 py-2 font-mono font-bold uppercase text-sm bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000] no-underline">
-        <i class="ph ph-house"></i> <span data-i18n="nav.home">Home</span>
-      </a>
-      <a href="/input" class="flex items-center gap-2 px-4 py-2 font-mono font-bold uppercase text-sm border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all no-underline">
-        <i class="ph ph-magic-wand"></i> <span data-i18n="nav.build">Build</span>
-      </a>
     </div>
   </nav>
 
@@ -132,7 +126,11 @@
 
       <div class="cta-group" data-aos="zoom-in" data-aos-delay="600">
         {{if .User}}
+        {{if .User.IsAdmin}}
+        <a href="/admin" class="btn btn-primary btn-lg"><i class="ph-bold ph-chart-pie-slice"></i> <span>Dashboard</span></a>
+        {{else}}
         <a href="/input" class="btn btn-primary btn-lg"><i class="ph-bold ph-magic-wand"></i> <span data-i18n="hero.btn.builder">Builder</span></a>
+        {{end}}
         <form action="/auth/logout" method="POST" style="display:inline;">
           <button type="submit" class="btn btn-ghost btn-lg"><i class="ph-bold ph-sign-out"></i> <span data-i18n="hero.btn.logout">Logout</span></button>
         </form>
