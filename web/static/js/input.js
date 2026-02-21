@@ -686,8 +686,24 @@ if (btnUploadPdf && pdfUploadInput) {
     }
 
     const originalBtnHTML = btnUploadPdf.innerHTML;
-    btnUploadPdf.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Extracting...';
-    btnUploadPdf.disabled = true;
+
+    // UI Locking State
+    const toggleUI = (isExtracting) => {
+      const els = [btnSaveDB, btnDeleteProfile, cvProfileSelect, btnNewProfile, btnUploadPdf];
+      if (btnFillDummy) els.push(btnFillDummy);
+      els.forEach(el => { if (el) el.disabled = isExtracting; });
+
+      if (isExtracting) {
+        btnUploadPdf.innerHTML = '<span class="inline-block animate-spin mr-1">🪄</span> <span class="animate-pulse">Extracting AI Magic...</span>';
+        btnUploadPdf.classList.add('opacity-75', 'cursor-not-allowed');
+      } else {
+        btnUploadPdf.innerHTML = originalBtnHTML;
+        btnUploadPdf.classList.remove('opacity-75', 'cursor-not-allowed');
+        updateButtons(); // Restore normal state based on profile selection
+      }
+    };
+
+    toggleUI(true);
 
     try {
       showStatus('Reading PDF... 📄');
@@ -708,7 +724,7 @@ if (btnUploadPdf && pdfUploadInput) {
         throw new Error('Could not extract enough text from the PDF');
       }
 
-      showStatus(`Processing ${textLen} characters with AI... 🤖`);
+      showStatus(`Processing ${textLen} characters with AI... 🤖 Please wait, this may take a few seconds!`);
 
       // 2. Send to backend AI extractor
       const res = await fetch('/api/extract-pdf', {
@@ -733,9 +749,7 @@ if (btnUploadPdf && pdfUploadInput) {
       console.error('PDF extraction error:', err);
       showStatus(err.message || 'Error occurred during PDF extraction', true);
     } finally {
-      // Reset button
-      btnUploadPdf.innerHTML = originalBtnHTML;
-      btnUploadPdf.disabled = false;
+      toggleUI(false);
       pdfUploadInput.value = ''; // clear input so the same file can be selected again
     }
   });
