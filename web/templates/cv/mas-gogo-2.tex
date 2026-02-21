@@ -1,0 +1,181 @@
+%% ATSTEXLAB — Unified Preamble (mas-gogo-2)
+[[ sprintf "\\documentclass[%s,%s]{%s}" .Settings.FontSize .Settings.PaperSize .Settings.DocumentClass ]]
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[
+  top=[[ .Settings.MarginTop ]],
+  bottom=[[ .Settings.MarginBottom ]],
+  left=[[ .Settings.MarginLeft ]],
+  right=[[ .Settings.MarginRight ]]
+]{geometry}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{microtype}
+[[ fontPkg .Settings.FontFamily ]]
+[[ if ne .Settings.LineSpacing 1.0 ]]\usepackage{setspace}
+[[ fmtSpacing .Settings.LineSpacing ]][[ end ]]
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+\definecolor{linkblue}{RGB}{17, 85, 204}
+\definecolor{hintgreen}{RGB}{56, 118, 29}
+
+\hypersetup{colorlinks=true, urlcolor=linkblue, linkcolor=linkblue, hidelinks}
+
+% Section: bold + full-width rule beneath
+\newcommand{\ressection}[1]{%
+  \vspace{6pt}%
+  \noindent{\textbf{#1}}\\[-6pt]%
+  \noindent\rule{\linewidth}{0.6pt}%
+  \vspace{1pt}%
+}
+
+% Job row: bold company - role (normal)    date right
+\newcommand{\jobrow}[3]{%
+  \noindent
+  \begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}r@{}}
+    \textbf{#1} - #2 & #3
+  \end{tabular*}%
+}
+
+% Bullet list — small bullet, tight
+\newenvironment{cvlist}{%
+  \begin{itemize}[
+    label={\textbullet},
+    leftmargin=1.1em,
+    itemsep=0pt,
+    topsep=1pt,
+    parsep=0pt,
+    partopsep=0pt
+  ]
+}{%
+  \end{itemize}%
+}
+
+\begin{document}
+
+% ── NAME ─────────────────────────────────────────────────────
+{\fontsize{20}{24}\selectfont\textbf{[[ .Personal.Name | texEscape ]]}}\\[2pt]
+{\small [[ .Personal.Location | texEscape ]][[ if .Personal.Email ]] | \href{mailto:[[ .Personal.Email | texEscape ]]}{[[ .Personal.Email | texEscape ]]} [[ end ]][[ if .Personal.Phone ]] | \href{tel:[[ .Personal.Phone | texEscape ]]}{[[ .Personal.Phone | texEscape ]]} [[ end ]][[ if .Personal.Linkedin.URL ]] | \href{[[ .Personal.Linkedin.URL | texEscape ]]}{[[ if .Personal.Linkedin.Display ]][[ .Personal.Linkedin.Display | texEscape ]][[ else ]]LinkedIn[[ end ]]} [[ end ]][[ if .Personal.Github.URL ]] | \href{[[ .Personal.Github.URL | texEscape ]]}{[[ if .Personal.Github.Display ]][[ .Personal.Github.Display | texEscape ]][[ else ]]GitHub[[ end ]]} [[ end ]][[ if .Personal.Website.URL ]] | \href{[[ .Personal.Website.URL | texEscape ]]}{[[ if .Personal.Website.Display ]][[ .Personal.Website.Display | texEscape ]][[ else ]]Portfolio[[ end ]]} [[ end ]]}
+
+\vspace{4pt}
+
+[[ if .Summary ]]
+\noindent [[ .Summary | texEscape ]]
+\vspace{4pt}
+[[ end ]]
+
+% ── PROFESSIONAL EXPERIENCE ───────────────────────────────────
+[[ if .Experience ]]
+\ressection{Professional Experience}
+
+[[ range .Experience ]]
+\jobrow{[[ .Company | texEscape ]]}{[[ .Title | texEscape ]]}{[[ .Dates | texEscape ]]}
+
+[[ if .Location ]]\noindent\small [[ .Location | texEscape ]][[ end ]]
+[[ if .Bullets ]]
+\begin{cvlist}
+[[ range texLines .Bullets ]]  \item [[ . | texEscape ]]
+[[ end ]]
+\end{cvlist}
+[[ end ]]
+
+\vspace{4pt}
+[[ end ]]
+[[ end ]]
+
+% ── EDUCATION ─────────────────────────────────────────────────
+[[ if or .Education .Certifications ]]
+\ressection{Education \& Certifications}
+
+[[ range .Education ]]
+\noindent
+\begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}r@{}}
+  \textbf{[[ .Institution | texEscape ]] - [[ .Degree | texEscape ]]} & [[ .Dates | texEscape ]]
+\end{tabular*}
+[[ if or .GPA .Location .Activities ]]
+\begin{cvlist}
+[[ if .GPA ]]  \item \textbf{CGPA}: \textbf{[[ .GPA | texEscape ]]} [[ end ]]
+[[ if .Location ]]  \item \textbf{Location}: [[ .Location | texEscape ]] [[ end ]]
+[[ if .Activities ]]  \item \textbf{Activities}: [[ .Activities | texEscape ]] [[ end ]]
+\end{cvlist}
+[[ end ]]
+\vspace{4pt}
+[[ end ]]
+
+[[ range .Certifications ]]
+\noindent\textbf{[[ .Name | texEscape ]]} -- [[ .Issuer | texEscape ]]
+\vspace{4pt}
+[[ end ]]
+[[ end ]]
+
+% ── PROJECTS & ACHIEVEMENTS ───────────────────────────────────
+[[ if or .Projects .Awards .Talks ]]
+\ressection{Projects \& Achievements}
+
+[[ range .Projects ]]
+\vspace{2pt}
+\noindent\textbf{[[ .Name | texEscape ]][[ if .Role ]] -- [[ .Role | texEscape ]][[ end ]]}\\
+[[ if .Bullets ]][[ range texLines .Bullets ]][[ . | texEscape ]] [[ end ]][[ end ]]
+[[ if .Link ]]\href{https://[[ .Link | texEscape ]]}{[[ .Link | texEscape ]]}[[ end ]]
+\vspace{2pt}
+
+[[ end ]]
+
+[[ range .Awards ]]
+\vspace{2pt}
+\noindent\textbf{[[ .Title | texEscape ]][[ if .Date ]] {\normalfont [[ .Date | texEscape ]]} [[ end ]][[ if .Issuer ]], [[ .Issuer | texEscape ]][[ end ]]}\\
+[[ if .Description ]][[ .Description | texEscape ]][[ end ]]
+\vspace{2pt}
+
+[[ end ]]
+
+[[ range .Talks ]]
+\vspace{2pt}
+\noindent\textbf{[[ .Title | texEscape ]][[ if .Date ]] {\normalfont [[ .Date | texEscape ]]} [[ end ]][[ if .Event ]], [[ .Event | texEscape ]][[ end ]]}\\
+[[ if .Description ]][[ .Description | texEscape ]][[ end ]]
+\vspace{2pt}
+
+[[ end ]]
+[[ end ]]
+
+% ── VOLUNTEER ─────────────────────────────────────────────────
+[[ if .Volunteer ]]
+\ressection{Volunteer Experience}
+
+[[ range .Volunteer ]]
+\vspace{2pt}
+\jobrow{[[ .Organization | texEscape ]]}{[[ .Role | texEscape ]]}{[[ .Dates | texEscape ]]}
+
+[[ if .Bullets ]]
+\begin{cvlist}
+[[ range texLines .Bullets ]]  \item [[ . | texEscape ]]
+[[ end ]]
+\end{cvlist}
+[[ end ]]
+\vspace{2pt}
+[[ end ]]
+[[ end ]]
+
+% ── SKILLS ────────────────────────────────────────────────────
+[[ if or .Skills.Languages .Skills.Frameworks .Skills.Tools .Skills.Other ]]
+\ressection{Skills}
+
+\vspace{3pt}
+\noindent
+\begin{tabular}{@{}p{2.3cm}@{}p{\dimexpr\linewidth-2.5cm\relax}@{}}
+[[ if .Skills.Languages ]]  Languages:    & [[ .Skills.Languages | texEscape ]] \\[2pt][[ end ]]
+[[ if .Skills.Frameworks ]]  Technologies: & [[ .Skills.Frameworks | texEscape ]] \\[2pt][[ end ]]
+[[ if .Skills.Tools ]]  Tools: & [[ .Skills.Tools | texEscape ]] \\[2pt][[ end ]]
+[[ if .Skills.Other ]]  Other:       & [[ .Skills.Other | texEscape ]] \\[2pt][[ end ]]
+\end{tabular}
+[[ end ]]
+
+\end{document}

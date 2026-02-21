@@ -1,0 +1,169 @@
+%% ATSTEXLAB — Unified Preamble (mas-gogo-3)
+[[ sprintf "\\documentclass[%s,%s]{%s}" .Settings.FontSize .Settings.PaperSize .Settings.DocumentClass ]]
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[
+  top=[[ .Settings.MarginTop ]],
+  bottom=[[ .Settings.MarginBottom ]],
+  left=[[ .Settings.MarginLeft ]],
+  right=[[ .Settings.MarginRight ]]
+]{geometry}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{microtype}
+[[ fontPkg .Settings.FontFamily ]]
+[[ if ne .Settings.LineSpacing 1.0 ]]\usepackage{setspace}
+[[ fmtSpacing .Settings.LineSpacing ]][[ end ]]
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+
+% Specific to mas-gogo-3 style: set base font size dynamically or use custom size
+% Set base font size to 9.3pt with 11pt leading
+\renewcommand{\normalsize}{\fontsize{9.3}{11}\selectfont}
+\normalsize
+
+\definecolor{linkblue}{RGB}{17, 85, 204}
+\hypersetup{colorlinks=true, urlcolor=linkblue, linkcolor=linkblue, hidelinks=true}
+
+\newcommand{\ressection}[1]{%
+  \vspace{5pt}%
+  \noindent{\textbf{#1}}\\[-6pt]%
+  \noindent\rule{\linewidth}{0.6pt}%
+  \vspace{1pt}%
+}
+
+\newenvironment{cvlist}{%
+  \begin{itemize}[
+    label={\textbullet},
+    leftmargin=1.1em,
+    itemsep=0pt,
+    topsep=0pt,
+    parsep=0pt,
+    partopsep=0pt
+  ]
+}{%
+  \end{itemize}%
+}
+
+\begin{document}
+
+{\fontsize{20}{24}\selectfont\textbf{[[ .Personal.Name | texEscape ]]}}\\[1pt]
+{\small [[ .Personal.Location | texEscape ]][[ if .Personal.Email ]] | \href{mailto:[[ .Personal.Email | texEscape ]]}{[[ .Personal.Email | texEscape ]]} [[ end ]][[ if .Personal.Phone ]] | \href{tel:[[ .Personal.Phone | texEscape ]]}{[[ .Personal.Phone | texEscape ]]} [[ end ]][[ if .Personal.Linkedin.URL ]] | \href{[[ .Personal.Linkedin.URL | texEscape ]]}{[[ if .Personal.Linkedin.Display ]][[ .Personal.Linkedin.Display | texEscape ]][[ else ]]LinkedIn[[ end ]]} [[ end ]][[ if .Personal.Github.URL ]] | \href{[[ .Personal.Github.URL | texEscape ]]}{[[ if .Personal.Github.Display ]][[ .Personal.Github.Display | texEscape ]][[ else ]]GitHub[[ end ]]} [[ end ]][[ if .Personal.Website.URL ]] | \href{[[ .Personal.Website.URL | texEscape ]]}{[[ if .Personal.Website.Display ]][[ .Personal.Website.Display | texEscape ]][[ else ]]Portfolio[[ end ]]} [[ end ]]}
+
+\vspace{3pt}
+
+[[ if .Summary ]]
+\noindent [[ .Summary | texEscape ]]
+\vspace{3pt}
+[[ end ]]
+
+% ── PROFESSIONAL EXPERIENCE ───────────────────────────────────
+[[ if .Experience ]]
+\ressection{Professional Experience}
+
+[[ range .Experience ]]
+\noindent
+\begin{tabular*}{\linewidth}{@{}p{0.78\linewidth}@{\extracolsep{\fill}}r@{}}
+  \textbf{[[ .Company | texEscape ]]} & [[ .Location | texEscape ]]
+\end{tabular*}\\[-2pt]
+\textbf{[[ .Title | texEscape ]]}\hfill [[ .Dates | texEscape ]]
+[[ if .Bullets ]]
+\begin{cvlist}
+[[ range texLines .Bullets ]]  \item [[ . | texEscape ]]
+[[ end ]]
+\end{cvlist}
+[[ end ]]
+\vspace{3pt}
+[[ end ]]
+[[ end ]]
+
+% ── EDUCATION ─────────────────────────────────────────────────
+[[ if or .Education .Certifications ]]
+\ressection{Education \& Certifications}
+
+[[ range .Education ]]
+\vspace{1pt}
+\noindent\textbf{[[ .Institution | texEscape ]]}\\
+[[ .Degree | texEscape ]]\hfill [[ .Dates | texEscape ]]
+[[ if or .GPA .Activities ]]
+\begin{cvlist}
+[[ if .GPA ]]  \item \textbf{CGPA}: \textbf{[[ .GPA | texEscape ]]} [[ end ]]
+[[ if .Activities ]]  \item \textbf{Activities}: [[ .Activities | texEscape ]] [[ end ]]
+\end{cvlist}
+[[ end ]]
+\vspace{3pt}
+[[ end ]]
+
+[[ range .Certifications ]]
+\vspace{1pt}
+\noindent\textbf{[[ .Name | texEscape ]]} -- [[ .Issuer | texEscape ]]
+\vspace{2pt}
+[[ end ]]
+[[ end ]]
+
+% ── PROJECTS & ACHIEVEMENTS ───────────────────────────────────
+[[ if or .Projects .Awards .Talks ]]
+\ressection{Projects \& Achievements}
+
+[[ range .Projects ]]
+\vspace{1pt}
+\noindent[[ if .Link ]]\href{https://[[ .Link | texEscape ]]}{[[ end ]]\textbf{[[ .Name | texEscape ]][[ if .Role ]] -- [[ .Role | texEscape ]][[ end ]]}[[ if .Link ]]} [[ end ]]
+[[ if .Bullets ]][[ range texLines .Bullets ]][[ . | texEscape ]] [[ end ]][[ end ]]
+\vspace{3pt}
+[[ end ]]
+
+[[ range .Awards ]]
+\vspace{1pt}
+\noindent\textbf{[[ .Title | texEscape ]]} [[ if .Issuer ]]-- [[ .Issuer | texEscape ]][[ end ]][[ if .Date ]], [[ .Date | texEscape ]][[ end ]]\\
+[[ if .Description ]][[ .Description | texEscape ]][[ end ]]
+\vspace{1pt}
+[[ end ]]
+
+[[ range .Talks ]]
+\vspace{1pt}
+\noindent\textbf{[[ .Title | texEscape ]]} [[ if .Event ]]at [[ .Event | texEscape ]][[ end ]][[ if .Date ]], [[ .Date | texEscape ]][[ end ]]\\
+[[ if .Description ]][[ .Description | texEscape ]][[ end ]]
+\vspace{1pt}
+[[ end ]]
+
+[[ end ]]
+
+% ── VOLUNTEER ─────────────────────────────────────────────────
+[[ if .Volunteer ]]
+\ressection{Volunteer Experience}
+
+[[ range .Volunteer ]]
+\vspace{1pt}
+\noindent
+\begin{tabular*}{\linewidth}{@{}p{0.78\linewidth}@{\extracolsep{\fill}}r@{}}
+  \textbf{[[ .Organization | texEscape ]]} & [[ .Location | texEscape ]]
+\end{tabular*}\\[-2pt]
+\textbf{[[ .Role | texEscape ]]}\hfill [[ .Dates | texEscape ]]
+[[ if .Bullets ]]
+\begin{cvlist}
+[[ range texLines .Bullets ]]  \item [[ . | texEscape ]]
+[[ end ]]
+\end{cvlist}
+[[ end ]]
+\vspace{3pt}
+[[ end ]]
+[[ end ]]
+
+% ── SKILLS ────────────────────────────────────────────────────
+[[ if or .Skills.Languages .Skills.Frameworks .Skills.Tools .Skills.Other ]]
+\vspace{4pt}
+\noindent\textbf{Skills}:
+[[ if .Skills.Languages ]] [[ .Skills.Languages | texEscape ]], [[ end ]]
+[[ if .Skills.Frameworks ]] [[ .Skills.Frameworks | texEscape ]], [[ end ]]
+[[ if .Skills.Tools ]] [[ .Skills.Tools | texEscape ]], [[ end ]]
+[[ if .Skills.Other ]] [[ .Skills.Other | texEscape ]] [[ end ]]
+[[ end ]]
+
+\end{document}
