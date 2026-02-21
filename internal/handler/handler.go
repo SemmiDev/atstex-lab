@@ -9,8 +9,11 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/compiler"
 	"github.com/semmidev/atstex-lab/internal/cvtemplate"
+	"github.com/semmidev/atstex-lab/internal/domain"
+	"github.com/semmidev/atstex-lab/internal/repository"
 )
 
 // compileRequest is the JSON body expected by POST /compile.
@@ -30,19 +33,22 @@ type compileResponse struct {
 
 // Handler holds shared dependencies for HTTP handlers.
 type Handler struct {
-	tmpl   *template.Template
-	logger *slog.Logger
+	tmpl       *template.Template
+	logger     *slog.Logger
+	repo       repository.Repository
+	authConfig *auth.Config
 }
 
 // New constructs a Handler. The provided template must contain a "index" template.
-func New(tmpl *template.Template, logger *slog.Logger) *Handler {
-	return &Handler{tmpl: tmpl, logger: logger}
+func New(tmpl *template.Template, logger *slog.Logger, r repository.Repository, ac *auth.Config) *Handler {
+	return &Handler{tmpl: tmpl, logger: logger, repo: r, authConfig: ac}
 }
 
 // Home renders the landing page.
 func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := h.tmpl.ExecuteTemplate(w, "home", nil); err != nil {
+	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+	if err := h.tmpl.ExecuteTemplate(w, "home", map[string]interface{}{"User": user}); err != nil {
 		h.logger.Error("template error", "err", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 	}
@@ -51,7 +57,8 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 // Editor renders the main application UI.
 func (h *Handler) Editor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := h.tmpl.ExecuteTemplate(w, "editor", nil); err != nil {
+	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+	if err := h.tmpl.ExecuteTemplate(w, "editor", map[string]interface{}{"User": user}); err != nil {
 		h.logger.Error("template error", "err", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 	}
@@ -60,10 +67,59 @@ func (h *Handler) Editor(w http.ResponseWriter, r *http.Request) {
 // Input renders the data collection UI.
 func (h *Handler) Input(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := h.tmpl.ExecuteTemplate(w, "input", nil); err != nil {
+	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+	if err := h.tmpl.ExecuteTemplate(w, "input", map[string]interface{}{"User": user}); err != nil {
 		h.logger.Error("template error", "err", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 	}
+}
+
+// Profile renders the user profile and session management UI.
+func (h *Handler) Profile(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+	sessions, err := h.repo.GetSessionsByUserID(r.Context(), user.ID)
+	if err != nil {
+		h.logger.Error("failed to get active sessions", "err", err)
+	}
+
+	data := map[string]interface{}{
+		"User":     user,
+		"Sessions": sessions,
+	}
+
+	if err := h.tmpl.ExecuteTemplate(w, "profile", data); err != nil {
+		h.logger.Error("template error", "err", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+	}
+}
+
+// DeleteSession handles deleting a specific session (remote logout).
+func (h *Handler) DeleteSession(w http.ResponseWriter, r *http.Request) {
+	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+	tokenToDelete := chi.URLParam(r, "token")
+
+	if tokenToDelete == "" {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	// Make sure the session actually belongs to this user before deleting it
+	sess, err := h.repo.GetSession(r.Context(), tokenToDelete)
+	if err != nil || sess.UserID != user.ID {
+		h.logger.Warn("unauthorized session deletion attempt", "user", user.ID, "token", tokenToDelete)
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	if err := h.repo.DeleteSession(r.Context(), tokenToDelete); err != nil {
+		h.logger.Error("failed to delete remote session", "err", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/profile", http.StatusSeeOther)
 }
 
 // ListTemplates returns a JSON list of available CV templates.

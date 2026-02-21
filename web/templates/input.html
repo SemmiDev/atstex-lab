@@ -5,206 +5,291 @@
 <head>
     <meta charset="UTF-8">
     <title>atstex-lab — Input CV Data</title>
-    <link rel="stylesheet" href="/static/css/nav.css">
-    <link rel="stylesheet" href="/static/css/input.css">
+    <link rel="stylesheet" href="/static/css/style.css">
     <link
-        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&display=swap"
         rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 
-<body class="require-desktop">
+<body class="flex flex-col md:flex-row h-screen w-full bg-bg font-ui text-text overflow-hidden">
     <!-- ── MOBILE WARNING (Forces Desktop Use) ───────────────────── -->
-    <div class="mobile-warning">
-        <div class="mobile-warning-card">
-            <h1>⚠️ Desktop Required</h1>
-            <p>This LaTeX ATS resume builder is heavily optimized for desktop.</p>
-            <p>Please switch to a laptop or computer to continue building.</p>
+    <div class="md:hidden fixed inset-0 z-50 bg-bg flex items-center justify-center p-6">
+        <div class="card max-w-sm text-center">
+            <h1 class="font-disp text-3xl text-error font-extrabold mb-4">⚠️ Desktop Required</h1>
+            <p class="font-semibold mb-3">This LaTeX ATS resume builder is heavily optimized for desktop.</p>
+            <p class="text-sm">Please switch to a laptop or computer to continue building.</p>
         </div>
     </div>
-    <!-- ── NAVIGATION BAR ────────────────────────────────────────── -->
-    <nav class="navbar">
-        <div class="logo">
-            ATSTEX<em>LAB</em>
+
+    <!-- Mobile Header overlay toggle -->
+    <div class="md:hidden flex items-center justify-between p-4 bg-surface border-b-[4px] border-border z-40">
+        <div class="font-disp font-extrabold text-2xl">ATSTEX<em class="text-accent italic">LAB</em></div>
+        <button id="sidebar-toggle" class="text-3xl"><i class="ph ph-list"></i></button>
+    </div>
+
+    <!-- The Sidebar -->
+    <aside id="sidebar"
+        class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
+        <div class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
+            <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
+            <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Toggle Sidebar"><i class="ph-bold ph-caret-left"></i></button>
         </div>
-        <div class="nav-links">
-            <a href="/" class="nav-link"><i class="ph ph-house"></i> Home</a>
-            <a href="/input" class="nav-link active"><i class="ph ph-file-text"></i> BIODATA</a>
-            <a href="/editor" class="nav-link"><i class="ph ph-code"></i> LaTeX Editor</a>
+
+        <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4">
+            <a href="/"
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+                    class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Home</span></a>
+            <a href="/input"
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i
+                    class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a>
+            <a href="/editor"
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+                    class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
+            <a href="/profile"
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+                    class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profile</span></a>
+        </nav>
+
+        {{if .User}}
+        <div class="p-4 border-t-[4px] border-border bg-bg sidebar-profile-block">
+            <a href="/profile"
+                class="flex items-center gap-3 p-2 bg-surface border-[3px] border-border shadow-[4px_4px_0_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#000] transition-all">
+                <img src="{{.User.Picture}}" alt="Profile" class="w-10 h-10 border-2 border-border object-cover">
+                <div class="flex flex-col overflow-hidden">
+                    <span class="font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{.User.Name}}</span>
+                    <form action="/auth/logout" method="POST" class="m-0">
+                        <button type="submit"
+                            class="text-error text-xs font-bold uppercase tracking-wider outline-none">Logout <i
+                                class="ph-bold ph-sign-out"></i></button>
+                    </form>
+                </div>
+            </a>
         </div>
-    </nav>
+        {{end}}
+    </aside>
 
+    <!-- Overlay for mobile clicking -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
 
+    <!-- Main Content Wrapper injected here -->
+    <!-- Main Content Wrapper injected here -->
+    <main class="flex-1 overflow-y-auto bg-bg relative flex flex-col">
+        <div class="flex-1 w-full max-w-4xl mx-auto p-6 md:p-10 flex flex-col gap-8">
+            <p class="text-lg font-medium border-l-[6px] border-accent pl-4">Fill out your professional details below.
+                All data is saved automatically to your browser's local storage.</p>
 
-    <main class="container">
-        <p class="intro-text">Fill out your professional details below. All data is saved automatically to your
-            browser's local storage.</p>
-
-        <!-- Personal Info -->
-        <section class="card" id="section-personal">
-            <h2>1. Personal Information <span class="badge">Required</span></h2>
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" data-field="personal.name" placeholder="John Doe">
-                </div>
-                <div class="form-group">
-                    <label>Target Job Title</label>
-                    <input type="text" data-field="personal.title" placeholder="Software Engineer">
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" data-field="personal.email" placeholder="john@example.com">
-                </div>
-                <div class="form-group">
-                    <label>Phone</label>
-                    <input type="text" data-field="personal.phone" placeholder="+1 234 567 8900">
-                </div>
-                <div class="form-group">
-                    <label>Location</label>
-                    <input type="text" data-field="personal.location" placeholder="City, Country">
-                </div>
-                <div class="form-group">
-                    <label>LinkedIn</label>
-                    <div class="grid-2">
-                        <input type="text" data-field="personal.linkedin.display"
-                            placeholder="Display: linkedin.com/in/johndoe">
-                        <input type="text" data-field="personal.linkedin.url"
-                            placeholder="URL: https://linkedin.com/in/johndoe">
+            <!-- Personal Info -->
+            <section class="card" id="section-personal">
+                <h2
+                    class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
+                    1. Personal Information <span class="badge">Required</span></h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="flex flex-col gap-2">
+                        <label class="font-bold text-sm uppercase tracking-wide">Full Name</label>
+                        <input type="text" data-field="personal.name" class="form-input" placeholder="John Doe">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="font-bold text-sm uppercase tracking-wide">Target Job Title</label>
+                        <input type="text" data-field="personal.title" class="form-input"
+                            placeholder="Software Engineer">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="font-bold text-sm uppercase tracking-wide">Email</label>
+                        <input type="email" data-field="personal.email" class="form-input"
+                            placeholder="john@example.com">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="font-bold text-sm uppercase tracking-wide">Phone</label>
+                        <input type="text" data-field="personal.phone" class="form-input" placeholder="+1 234 567 8900">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="font-bold text-sm uppercase tracking-wide">Location</label>
+                        <input type="text" data-field="personal.location" class="form-input"
+                            placeholder="City, Country">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="font-bold text-sm uppercase tracking-wide">LinkedIn</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <input type="text" data-field="personal.linkedin.display" class="form-input"
+                                placeholder="Display: linkedin.com/in/johndoe">
+                            <input type="text" data-field="personal.linkedin.url" class="form-input"
+                                placeholder="URL: https://linkedin.com/in/johndoe">
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="font-bold text-sm uppercase tracking-wide">GitHub (Optional)</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <input type="text" data-field="personal.github.display" class="form-input"
+                                placeholder="Display: github.com/johndoe">
+                            <input type="text" data-field="personal.github.url" class="form-input"
+                                placeholder="URL: https://github.com/johndoe">
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="font-bold text-sm uppercase tracking-wide">Website (Optional)</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <input type="text" data-field="personal.website.display" class="form-input"
+                                placeholder="Display: johndoe.com">
+                            <input type="text" data-field="personal.website.url" class="form-input"
+                                placeholder="URL: https://johndoe.com">
+                        </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>GitHub (Optional)</label>
-                    <div class="grid-2">
-                        <input type="text" data-field="personal.github.display"
-                            placeholder="Display: github.com/johndoe">
-                        <input type="text" data-field="personal.github.url"
-                            placeholder="URL: https://github.com/johndoe">
+            </section>
+
+            <!-- Professional Summary -->
+            <section class="card" id="section-summary">
+                <h2 class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2">2.
+                    Professional Summary</h2>
+                <div class="flex flex-col gap-2">
+                    <label class="font-bold text-sm uppercase tracking-wide">Summary</label>
+                    <textarea data-field="summary" rows="20" class="form-input"
+                        placeholder="Dedicated software engineer with 5+ years of experience in..."></textarea>
+                </div>
+            </section>
+
+            <!-- Work Experience -->
+            <section class="card" id="section-experience">
+                <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
+                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">3. Work Experience</h2>
+                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="experience">+ ADD
+                        JOB</button>
+                </div>
+                <div class="flex flex-col gap-6" id="list-experience">
+                    <!-- Dynamic items injected here -->
+                </div>
+            </section>
+
+            <!-- Education -->
+            <section class="card" id="section-education">
+                <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
+                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">4. Education</h2>
+                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="education">+ ADD
+                        EDUCATION</button>
+                </div>
+                <div class="flex flex-col gap-6" id="list-education">
+                    <!-- Dynamic items injected here -->
+                </div>
+            </section>
+
+            <!-- Projects -->
+            <section class="card" id="section-projects">
+                <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
+                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">5. Projects</h2>
+                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="projects">+ ADD
+                        PROJECT</button>
+                </div>
+                <div class="flex flex-col gap-6" id="list-projects">
+                    <!-- Dynamic items injected here -->
+                </div>
+            </section>
+
+            <!-- Skills -->
+            <section class="card" id="section-skills">
+                <h2 class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2">6. Skills
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="flex flex-col gap-2">
+                        <label class="font-bold text-sm uppercase tracking-wide">Languages (comma separated)</label>
+                        <input type="text" data-field="skills.languages" class="form-input"
+                            placeholder="Go, Python, TypeScript">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="font-bold text-sm uppercase tracking-wide">Frameworks/Libraries</label>
+                        <input type="text" data-field="skills.frameworks" class="form-input"
+                            placeholder="React, Gin, Express">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="font-bold text-sm uppercase tracking-wide">Developer Tools</label>
+                        <input type="text" data-field="skills.tools" class="form-input"
+                            placeholder="Docker, Git, AWS, Linux">
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="font-bold text-sm uppercase tracking-wide">Other / Soft Skills</label>
+                        <input type="text" data-field="skills.other" class="form-input" placeholder="Agile, Leadership">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>Website (Optional)</label>
-                    <div class="grid-2">
-                        <input type="text" data-field="personal.website.display" placeholder="Display: johndoe.com">
-                        <input type="text" data-field="personal.website.url" placeholder="URL: https://johndoe.com">
-                    </div>
+            </section>
+
+            <!-- Certifications -->
+            <section class="card" id="section-certifications">
+                <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
+                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">7. Certifications (Optional)</h2>
+                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="certifications">+ ADD
+                        CERT</button>
                 </div>
-            </div>
-        </section>
-
-        <!-- Professional Summary -->
-        <section class="card" id="section-summary">
-            <h2>2. Professional Summary</h2>
-            <div class="form-group">
-                <label>Summary</label>
-                <textarea data-field="summary" rows="10"
-                    placeholder="Dedicated software engineer with 5+ years of experience in..."></textarea>
-            </div>
-        </section>
-
-        <!-- Work Experience -->
-        <section class="card" id="section-experience">
-            <div class="section-header">
-                <h2>3. Work Experience</h2>
-                <button class="btn btn-ghost btn-sm btn-add" data-target="experience">+ ADD JOB</button>
-            </div>
-            <div class="list-container" id="list-experience">
-                <!-- Dynamic items injected here -->
-            </div>
-        </section>
-
-        <!-- Education -->
-        <section class="card" id="section-education">
-            <div class="section-header">
-                <h2>4. Education</h2>
-                <button class="btn btn-ghost btn-sm btn-add" data-target="education">+ ADD EDUCATION</button>
-            </div>
-            <div class="list-container" id="list-education">
-                <!-- Dynamic items injected here -->
-            </div>
-        </section>
-
-        <!-- Projects -->
-        <section class="card" id="section-projects">
-            <div class="section-header">
-                <h2>5. Projects</h2>
-                <button class="btn btn-ghost btn-sm btn-add" data-target="projects">+ ADD PROJECT</button>
-            </div>
-            <div class="list-container" id="list-projects">
-                <!-- Dynamic items injected here -->
-            </div>
-        </section>
-
-        <!-- Skills -->
-        <section class="card" id="section-skills">
-            <h2>6. Skills</h2>
-            <div class="grid-2">
-                <div class="form-group">
-                    <label>Languages (comma separated)</label>
-                    <input type="text" data-field="skills.languages" placeholder="Go, Python, TypeScript">
+                <div class="flex flex-col gap-6" id="list-certifications">
+                    <!-- Dynamic items injected here -->
                 </div>
-                <div class="form-group">
-                    <label>Frameworks/Libraries</label>
-                    <input type="text" data-field="skills.frameworks" placeholder="React, Gin, Express">
+            </section>
+
+            <!-- Volunteer -->
+            <section class="card" id="section-volunteer">
+                <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
+                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">8. Volunteer Experience (Optional)
+                    </h2>
+                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="volunteer">+ ADD
+                        VOLUNTEER</button>
                 </div>
-                <div class="form-group">
-                    <label>Developer Tools</label>
-                    <input type="text" data-field="skills.tools" placeholder="Docker, Git, AWS, Linux">
+                <div class="flex flex-col gap-6" id="list-volunteer">
+                    <!-- Dynamic items injected here -->
                 </div>
-                <div class="form-group">
-                    <label>Other / Soft Skills</label>
-                    <input type="text" data-field="skills.other" placeholder="Agile, Leadership">
+            </section>
+
+            <!-- Awards -->
+            <section class="card" id="section-awards">
+                <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
+                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">9. Honors & Awards (Optional)</h2>
+                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="awards">+ ADD AWARD</button>
                 </div>
-            </div>
-        </section>
+                <div class="flex flex-col gap-6" id="list-awards">
+                    <!-- Dynamic items injected here -->
+                </div>
+            </section>
 
-        <!-- Certifications -->
-        <section class="card" id="section-certifications">
-            <div class="section-header">
-                <h2>7. Certifications (Optional)</h2>
-                <button class="btn btn-ghost btn-sm btn-add" data-target="certifications">+ ADD CERT</button>
-            </div>
-            <div class="list-container" id="list-certifications">
-                <!-- Dynamic items injected here -->
-            </div>
-        </section>
+            <!-- Talks -->
+            <section class="card" id="section-talks">
+                <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
+                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">10. Talks & Conferences (Optional)
+                    </h2>
+                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="talks">+ ADD TALK</button>
+                </div>
+                <div class="flex flex-col gap-6" id="list-talks">
+                    <!-- Dynamic items injected here -->
+                </div>
+            </section>
 
-        <!-- Volunteer -->
-        <section class="card" id="section-volunteer">
-            <div class="section-header">
-                <h2>8. Volunteer Experience (Optional)</h2>
-                <button class="btn btn-ghost btn-sm btn-add" data-target="volunteer">+ ADD VOLUNTEER</button>
-            </div>
-            <div class="list-container" id="list-volunteer">
-                <!-- Dynamic items injected here -->
-            </div>
-        </section>
-
-        <!-- Awards -->
-        <section class="card" id="section-awards">
-            <div class="section-header">
-                <h2>9. Honors & Awards (Optional)</h2>
-                <button class="btn btn-ghost btn-sm btn-add" data-target="awards">+ ADD AWARD</button>
-            </div>
-            <div class="list-container" id="list-awards">
-                <!-- Dynamic items injected here -->
-            </div>
-        </section>
-
-        <!-- Talks -->
-        <section class="card" id="section-talks">
-            <div class="section-header">
-                <h2>10. Talks & Conferences (Optional)</h2>
-                <button class="btn btn-ghost btn-sm btn-add" data-target="talks">+ ADD TALK</button>
-            </div>
-            <div class="list-container" id="list-talks">
-                <!-- Dynamic items injected here -->
-            </div>
-        </section>
-
+        </div>
     </main>
 
     <script type="module" src="/static/js/input.js"></script>
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const toggleBtn = document.getElementById('sidebar-toggle');
+        const collapseBtn = document.getElementById('sidebar-collapse');
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.add('open');
+                overlay.classList.add('open');
+            });
+        }
+
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('open');
+            });
+        }
+
+        if (collapseBtn) {
+            collapseBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
+        }
+    </script>
 </body>
 
 </html>

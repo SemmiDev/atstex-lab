@@ -14,7 +14,7 @@ A minimal, self-hosted LaTeX compiler and previewer tailored for building ATS-fr
 - **Live PDF preview** via PDF.js — multi-page, zoomable, draggable splitter
 - **Compiler log** with error/warning line highlighting
 - **Download PDF** directly from the browser
-- **No data stored** — every compile runs in an isolated temp dir, wiped immediately after
+- **Secure Sessions**: Your data is synchronized via Google Auth backed by a PostgreSQL database
 
 ---
 

@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ATSTEXLAB — ATS-Optimized LaTeX Resumes</title>
-  <link rel="stylesheet" href="/static/css/nav.css">
+  <link rel="stylesheet" href="/static/css/style.css">
   <link rel="stylesheet" href="/static/css/home.css">
   <link
     href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;800&family=DM+Sans:wght@500;700;800&display=swap"
@@ -17,14 +17,12 @@
 <body>
 
   <!-- ── NAVIGATION BAR ────────────────────────────────────────── -->
-  <nav class="navbar">
-    <div class="logo">
-      ATSTEX<em>LAB</em>
-    </div>
-    <div class="nav-links">
-      <a href="/" class="nav-link active"><i class="ph ph-house"></i> Home</a>
-      <a href="/input" class="nav-link"><i class="ph ph-magic-wand"></i> Build</a>
-      <a href="/editor" class="nav-link"><i class="ph ph-code"></i> LaTeX Editor</a>
+  <nav class="flex items-center justify-between px-8 py-4 bg-surface border-b-[4px] border-border">
+    <div class="font-disp font-extrabold text-2xl tracking-tight">ATSTEX<em class="text-accent italic">LAB</em></div>
+    <div class="flex items-center gap-4">
+      <a href="/" class="flex items-center gap-2 px-4 py-2 font-mono font-bold uppercase text-sm bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000] no-underline"><i class="ph ph-house"></i> Home</a>
+      <a href="/input" class="flex items-center gap-2 px-4 py-2 font-mono font-bold uppercase text-sm border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all no-underline"><i class="ph ph-magic-wand"></i> Build</a>
+      <a href="/editor" class="flex items-center gap-2 px-4 py-2 font-mono font-bold uppercase text-sm border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all no-underline"><i class="ph ph-code"></i> LaTeX Editor</a>
     </div>
   </nav>
 
@@ -42,16 +40,22 @@
       </h1>
 
       <p class="subtitle">
-        ATSTEXLAB is a modular, privacy-first LaTeX resume builder focused on ATS compliance.
-        Build clean, machine-readable resumes directly in your browser — compiled server-side
-        with zero data retention.
+        ATSTEXLAB is a modular LaTeX resume builder focused on ATS compliance.
+        Build clean, machine-readable resumes directly in your browser — securely backed
+        by PostgreSQL and Google OAuth.
       </p>
 
       <div class="cta-group">
-        <a href="/input" class="btn btn-primary btn-lg"><i class="ph-bold ph-rocket-launch"></i> Start Building →</a>
-        <a href="https://github.com/SemmiDev/atstex-lab" target="_blank" class="btn btn-ghost btn-lg">
-          <i class="ph-bold ph-github-logo"></i> View on GitHub
-        </a>
+        {{if .User}}
+        <a href="/input" class="btn btn-primary btn-lg"><i class="ph-bold ph-magic-wand"></i> Builder</a>
+        <a href="/editor" class="btn btn-ghost btn-lg"><i class="ph-bold ph-code"></i> Editor</a>
+        <form action="/auth/logout" method="POST" style="display:inline;">
+          <button type="submit" class="btn btn-ghost btn-lg"><i class="ph-bold ph-sign-out"></i> Logout</button>
+        </form>
+        {{else}}
+        <a href="/auth/google/login" class="btn btn-primary btn-lg"><i class="ph-bold ph-google-logo"></i> Sign in with
+          Google</a>
+        {{end}}
       </div>
 
       <!-- Positioning Line -->
@@ -75,10 +79,10 @@
 
       <div class="feature-card alt">
         <div class="icon">🔒</div>
-        <h3>Privacy by Design</h3>
+        <h3>Secure Sessions</h3>
         <p>
-          No accounts. No tracking. No storage.
-          PDFs are generated in ephemeral memory and discarded immediately.
+          Authenticate effortlessly via Google OAuth. Session state is
+          reliably managed behind the scenes in PostgreSQL.
         </p>
       </div>
 

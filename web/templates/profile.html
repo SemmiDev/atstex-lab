@@ -1,0 +1,159 @@
+{{define "profile"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>atstex-lab — Profile & Sessions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body class="flex flex-col md:flex-row h-screen w-full bg-bg font-ui text-text overflow-hidden">
+    <!-- Mobile Header overlay toggle -->
+    <div class="md:hidden flex items-center justify-between p-4 bg-surface border-b-[4px] border-border z-40">
+        <div class="font-disp font-extrabold text-2xl">ATSTEX<em class="text-accent italic">LAB</em></div>
+        <button id="sidebar-toggle" class="text-3xl"><i class="ph ph-list"></i></button>
+    </div>
+
+    <!-- The Sidebar -->
+    <aside id="sidebar"
+        class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
+        <div class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
+            <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
+            <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Toggle Sidebar"><i class="ph-bold ph-caret-left"></i></button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4">
+            <a href="/"
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+                    class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Home</span></a>
+            <a href="/input"
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+                    class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a>
+            <a href="/editor"
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+                    class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
+            <a href="/profile"
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i
+                    class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profile</span></a>
+        </nav>
+
+        {{if .User}}
+        <div class="p-4 border-t-[4px] border-border bg-bg sidebar-profile-block">
+            <a href="/profile"
+                class="flex items-center gap-3 p-2 bg-surface border-[3px] border-border shadow-[4px_4px_0_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#000] transition-all">
+                <img src="{{.User.Picture}}" alt="Profile" class="w-10 h-10 border-2 border-border object-cover">
+                <div class="flex flex-col overflow-hidden">
+                    <span class="font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{.User.Name}}</span>
+                    <form action="/auth/logout" method="POST" class="m-0">
+                        <button type="submit"
+                            class="text-error text-xs font-bold uppercase tracking-wider outline-none">Logout <i
+                                class="ph-bold ph-sign-out"></i></button>
+                    </form>
+                </div>
+            </a>
+        </div>
+        {{end}}
+    </aside>
+
+    <!-- Overlay for mobile clicking -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+    <main class="flex-1 overflow-y-auto bg-bg relative p-6 md:p-10 flex justify-center">
+        <div class="w-full max-w-3xl flex flex-col gap-8">
+            <div class="card flex flex-col md:flex-row items-center md:items-start gap-6 pt-10">
+                <img src="{{.User.Picture}}" alt="Profile Image"
+                    class="w-24 h-24 rounded-full border-[4px] border-border shadow-[4px_4px_0px_#000]">
+                <div class="text-center md:text-left">
+                    <h1 class="font-disp font-extrabold text-3xl m-0">{{.User.Name}}</h1>
+                    <p
+                        class="font-mono mt-2 text-muted font-bold flex items-center justify-center md:justify-start gap-2">
+                        <i class="ph-bold ph-envelope"></i> {{.User.Email}}
+                    </p>
+                    <p class="text-sm font-semibold mt-1">Member since {{.User.CreatedAt.Format "02 Jan 2006"}}</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <h2
+                    class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
+                    <i class="ph-bold ph-devices text-3xl"></i> Active Sessions
+                </h2>
+                <p class="font-semibold text-muted">Review the devices currently logged into your account. You can
+                    revoke any unrecognized sessions.</p>
+            </div>
+
+            <div class="flex flex-col gap-4">
+                {{range .Sessions}}
+                <div
+                    class="bg-surface border-[3px] border-border p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-[4px_4px_0_#000]">
+                    <div class="flex flex-col gap-1">
+                        <div class="font-bold uppercase tracking-wider text-xs mb-1">Log In Device</div>
+                        <span class="font-mono text-sm font-bold flex items-center gap-2"><i
+                                class="ph-bold ph-globe"></i> {{if .IPAddress}}{{.IPAddress}}{{else}}Unknown
+                            IP{{end}}</span>
+                        <span class="text-sm font-medium text-muted flex items-center gap-2"><i
+                                class="ph-bold ph-monitor"></i> {{if .UserAgent}}{{.UserAgent}}{{else}}Unknown Browser /
+                            OS{{end}}</span>
+                        <span class="text-xs font-semibold text-gray-500 mt-1">Expires: {{.ExpiresAt.Format "02 Jan 2006, 15:04 MST"}}</span>
+                    </div>
+                    <div class="w-full md:w-auto">
+                        <form action="/auth/sessions/{{.Token}}/delete" method="POST"
+                            onsubmit="return confirm('Are you sure you want to revoke this session? The device will be logged out immediately.');">
+                            <button type="submit"
+                                class="btn btn-ghost w-full !border-error !text-error hover:!bg-error hover:!text-white">Revoke
+                                Access</button>
+                        </form>
+                    </div>
+                </div>
+                {{end}}
+            </div>
+
+            <div class="bg-[#fff5f5] border-[3px] border-error p-6 mt-4 flex flex-col gap-4 shadow-[4px_4px_0_#ff3333]">
+                <h3 class="text-xl font-extrabold uppercase text-error flex items-center gap-2 m-0"><i
+                        class="ph-bold ph-warning"></i> Danger Zone</h3>
+                <p class="font-medium text-error">Once you delete an account, there is no going back. All biodata,
+                    settings, and sessions will be destroyed forever.</p>
+                <form action="/auth/delete-account" method="POST"
+                    onsubmit="return confirm('Delete account and all data forever? This cannot be undone.');">
+                    <button type="submit" class="btn !bg-error !text-white !border-error">Delete Account</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const toggleBtn = document.getElementById('sidebar-toggle');
+        const collapseBtn = document.getElementById('sidebar-collapse');
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.add('open');
+                overlay.classList.add('open');
+            });
+        }
+
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('open');
+            });
+        }
+
+        if (collapseBtn) {
+            collapseBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
+        }
+    </script>
+</body>
+
+</html>
+{{end}}

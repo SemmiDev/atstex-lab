@@ -34,7 +34,7 @@ const itemTemplates = {
     </div>
     <div class="form-group">
       <label>Bullet Points (one per line)</label>
-      <textarea data-dyn="bullets" rows="4" placeholder="- Developed highly scalable microservices..."></textarea>
+      <textarea data-dyn="bullets" rows="10" placeholder="- Developed highly scalable microservices..."></textarea>
     </div>
   `,
   education: `
@@ -66,7 +66,7 @@ const itemTemplates = {
     </div>
     <div class="form-group">
       <label>Bullet Points (one per line)</label>
-      <textarea data-dyn="bullets" rows="3" placeholder="- Engineered a specialized storage engine..."></textarea>
+      <textarea data-dyn="bullets" rows="10" placeholder="- Engineered a specialized storage engine..."></textarea>
     </div>
   `,
   certifications: `
@@ -92,7 +92,7 @@ const itemTemplates = {
     </div>
     <div class="form-group">
       <label>Bullet Points (one per line)</label>
-      <textarea data-dyn="bullets" rows="3" placeholder="- Assisted local community..."></textarea>
+      <textarea data-dyn="bullets" rows="10" placeholder="- Assisted local community..."></textarea>
     </div>
   `,
   awards: `

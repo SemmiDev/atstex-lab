@@ -22,8 +22,13 @@ FROM texlive/texlive:latest
 # Non-root user for safety
 RUN useradd -m -u 1001 atstex-lab
 
+WORKDIR /home/atstex-lab
+
 # Copy compiled binary from builder stage
 COPY --from=builder /build/atstex-lab /usr/local/bin/atstex-lab
+
+# Copy .env file from host
+COPY .env /home/atstex-lab/.env
 
 # The binary embeds all web assets via go:embed, so nothing else to copy.
 

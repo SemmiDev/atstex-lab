@@ -1,4 +1,18 @@
 services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: atstex-postgres
+    environment:
+      POSTGRES_USER: atstex
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: atstex
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
   atstex-lab:
     build:
       context: .
@@ -7,8 +21,10 @@ services:
     container_name: atstex-lab
     ports:
       - "8080:8080"
-    environment:
-      ADDR: ":8080"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
     restart: unless-stopped
 
     # Temp dir untuk compile — pakai tmpfs agar tidak nulis ke disk host
@@ -21,3 +37,6 @@ services:
         limits:
           cpus: "2"
           memory: 1g
+
+volumes:
+  pgdata:

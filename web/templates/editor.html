@@ -12,133 +12,201 @@
     href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
     rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
-  <link rel="stylesheet" href="/static/css/nav.css" />
+  <link rel="stylesheet" href="/static/css/style.css" />
   <link rel="stylesheet" href="/static/css/editor.css" />
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 
-<body class="require-desktop">
+<body class="flex flex-col md:flex-row h-screen w-full bg-bg font-ui text-text overflow-hidden">
   <!-- ── MOBILE WARNING (Forces Desktop Use) ───────────────────── -->
-  <div class="mobile-warning">
-    <div class="mobile-warning-card">
-      <h1>⚠️ Desktop Required</h1>
-      <p>This LaTeX ATS resume builder is heavily optimized for desktop.</p>
-      <p>Please switch to a laptop or computer to continue building.</p>
+  <div class="md:hidden fixed inset-0 z-50 bg-bg flex items-center justify-center p-6">
+    <div class="card max-w-sm text-center">
+      <h1 class="font-disp text-3xl text-error font-extrabold mb-4">⚠️ Desktop Required</h1>
+      <p class="font-semibold mb-3">This LaTeX ATS resume builder is heavily optimized for desktop.</p>
+      <p class="text-sm">Please switch to a laptop or computer to continue building.</p>
     </div>
   </div>
 
-  <!-- ── NAVIGATION BAR ────────────────────────────────────────── -->
-  <nav class="navbar">
-    <div class="logo">
-      ATSTEX<em>LAB</em>
-    </div>
-    <div class="nav-links">
-      <a href="/" class="nav-link"><i class="ph ph-house"></i> Home</a>
-      <a href="/input" class="nav-link"><i class="ph ph-file-text"></i> BIODATA</a>
-      <a href="/editor" class="nav-link active"><i class="ph ph-code"></i> LaTeX Editor</a>
-    </div>
-  </nav>
+  <!-- Mobile Header overlay toggle -->
+  <div class="md:hidden flex items-center justify-between p-4 bg-surface border-b-[4px] border-border z-40">
+    <div class="font-disp font-extrabold text-2xl">ATSTEX<em class="text-accent italic">LAB</em></div>
+    <button id="sidebar-toggle" class="text-3xl"><i class="ph ph-list"></i></button>
+  </div>
 
-  <!-- ── SECONDARY HEADER & ACTIONS ────────────────────────────── -->
-  <header class="page-header">
-    <div class="engine-select-wrap">
-      <label for="engine">Engine</label>
-      <select id="engine">
-        <option value="pdflatex">pdflatex</option>
-        <option value="xelatex">xelatex</option>
-        <option value="lualatex">lualatex</option>
-      </select>
+  <!-- The Sidebar -->
+  <aside id="sidebar"
+    class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
+    <div class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
+      <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
+      <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Toggle Sidebar"><i class="ph-bold ph-caret-left"></i></button>
     </div>
 
-    <div class="engine-select-wrap" style="margin-left: 10px;">
-      <label for="template">Template</label>
-      <select id="template">
-        <option value="">(Blank)</option>
-        <option value="example">Example</option>
-      </select>
-    </div>
+    <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4">
+      <a href="/"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Home</span></a>
+      <a href="/input"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a>
+      <a href="/editor"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i
+          class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
+      <a href="/profile"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profile</span></a>
+    </nav>
 
-    <button class="btn btn-primary" id="btn-compile" title="Compile (Ctrl+Enter)">
-      <span class="spinner" aria-hidden="true"></span>
-      <span class="btn-label">▶ Compile</span>
-      <kbd>⌃↵</kbd>
-    </button>
-  </header>
-
-  <!-- ── WORKSPACE ───────────────────────────────────────────── -->
-  <div class="workspace">
-
-    <!-- Editor -->
-    <div class="editor-pane" id="editor-pane">
-      <div class="pane-header">
-        <span class="dot"></span>
-        document.tex
-      </div>
-      <div id="editor-container"></div>
-
-      <!-- Log panel inside editor pane -->
-      <div class="log-panel" id="log-panel">
-        <div class="log-header" id="log-toggle">
-          <span>Compiler Log</span>
-          <span class="badge" id="log-badge" style="display:none"></span>
+    {{if .User}}
+    <div class="p-4 border-t-[4px] border-border bg-bg sidebar-profile-block">
+      <a href="/profile"
+        class="flex items-center gap-3 p-2 bg-surface border-[3px] border-border shadow-[4px_4px_0_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#000] transition-all">
+        <img src="{{.User.Picture}}" alt="Profile" class="w-10 h-10 border-2 border-border object-cover">
+        <div class="flex flex-col overflow-hidden">
+          <span class="font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{.User.Name}}</span>
+          <form action="/auth/logout" method="POST" class="m-0">
+            <button type="submit" class="text-error text-xs font-bold uppercase tracking-wider outline-none">Logout <i
+                class="ph-bold ph-sign-out"></i></button>
+          </form>
         </div>
-        <pre id="log-output"></pre>
-      </div>
-    </div>
-
-    <!-- Splitter -->
-    <div class="splitter" id="splitter"></div>
-
-    <!-- Preview -->
-    <div class="preview-pane" id="preview-pane">
-      <div class="preview-toolbar">
-        <span class="pane-label"><span class="dot"></span>Preview</span>
-
-        <button class="zoom-btn" id="zoom-out" title="Zoom out">−</button>
-        <span class="zoom-val" id="zoom-val">100%</span>
-        <button class="zoom-btn" id="zoom-in" title="Zoom in">+</button>
-        <button class="zoom-btn" id="zoom-fit" title="Fit to width"
-          style="width:auto;padding:0 8px;font-size:11px;">Fit</button>
-
-        <button class="btn-download" id="btn-download" disabled title="Download PDF">↓ PDF</button>
-      </div>
-
-      <div class="preview-scroll" id="preview-scroll">
-        <div class="preview-empty" id="preview-empty">
-          <div class="icon">∫</div>
-          <p>Write LaTeX in the editor and press <strong style="color:var(--text)">Compile</strong> to render the PDF
-            here.</p>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ── STATUS BAR ──────────────────────────────────────────── -->
-  <div class="statusbar">
-    <div class="status-item">
-      <span class="status-dot" id="status-dot"></span>
-      <span id="status-text">Ready</span>
-    </div>
-    <span class="sep">|</span>
-    <span id="status-elapsed"></span>
-    <span class="sep" id="status-sep2" style="display:none">|</span>
-    <span id="status-pages"></span>
-  </div>
-
-  <!-- ── SAWERIA DONATION MODAL ──────────────────────────────── -->
-  <div class="donation-modal" id="donation-modal">
-    <div class="donation-modal-card">
-      <button class="close-modal-btn" id="close-donation-modal"><i class="ph-bold ph-x"></i></button>
-      <h2>🎉 Your PDF is Downloading!</h2>
-      <p>If ATSTEXLAB helped you secure that interview, consider leaving a tip to support the servers!</p>
-      <a href="https://saweria.co/sammidev" target="_blank">
-        <img src="/static/saweria.png" alt="Saweria QR Code" />
       </a>
     </div>
-  </div>
+    {{end}}
+  </aside>
+
+  <!-- Overlay for mobile clicking -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+  <!-- Main Content Wrapper injected here -->
+  <main class="flex-1 overflow-y-auto bg-bg flex flex-col h-full relative">
+
+    <!-- ── SECONDARY HEADER & ACTIONS ────────────────────────────── -->
+    <header class="page-header">
+      <div class="engine-select-wrap">
+        <label for="engine">Engine</label>
+        <select id="engine">
+          <option value="pdflatex">pdflatex</option>
+          <option value="xelatex">xelatex</option>
+          <option value="lualatex">lualatex</option>
+        </select>
+      </div>
+
+      <div class="engine-select-wrap" style="margin-left: 10px;">
+        <label for="template">Template</label>
+        <select id="template">
+          <option value="">(Blank)</option>
+          <option value="example">Example</option>
+        </select>
+      </div>
+
+      <button class="btn btn-primary" id="btn-compile" title="Compile (Ctrl+Enter)">
+        <span class="spinner" aria-hidden="true"></span>
+        <span class="btn-label">▶ Compile</span>
+        <kbd>⌃↵</kbd>
+      </button>
+    </header>
+
+    <!-- ── WORKSPACE ───────────────────────────────────────────── -->
+    <div class="workspace">
+
+      <!-- Editor -->
+      <div class="editor-pane" id="editor-pane">
+        <div class="pane-header">
+          <span class="dot"></span>
+          document.tex
+        </div>
+        <div id="editor-container"></div>
+
+        <!-- Log panel inside editor pane -->
+        <div class="log-panel" id="log-panel">
+          <div class="log-header" id="log-toggle">
+            <span>Compiler Log</span>
+            <span class="badge" id="log-badge" style="display:none"></span>
+          </div>
+          <pre id="log-output"></pre>
+        </div>
+      </div>
+
+      <!-- Splitter -->
+      <div class="splitter" id="splitter"></div>
+
+      <!-- Preview -->
+      <div class="preview-pane" id="preview-pane">
+        <div class="preview-toolbar">
+          <span class="pane-label"><span class="dot"></span>Preview</span>
+
+          <button class="zoom-btn" id="zoom-out" title="Zoom out">−</button>
+          <span class="zoom-val" id="zoom-val">100%</span>
+          <button class="zoom-btn" id="zoom-in" title="Zoom in">+</button>
+          <button class="zoom-btn" id="zoom-fit" title="Fit to width"
+            style="width:auto;padding:0 8px;font-size:11px;">Fit</button>
+
+          <button class="btn-download" id="btn-download" disabled title="Download PDF">↓ PDF</button>
+        </div>
+
+        <div class="preview-scroll" id="preview-scroll">
+          <div class="preview-empty" id="preview-empty">
+            <div class="icon">∫</div>
+            <p>Write LaTeX in the editor and press <strong style="color:var(--text)">Compile</strong> to render the PDF
+              here.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── STATUS BAR ──────────────────────────────────────────── -->
+    <div class="statusbar">
+      <div class="status-item">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">Ready</span>
+      </div>
+      <span class="sep">|</span>
+      <span id="status-elapsed"></span>
+      <span class="sep" id="status-sep2" style="display:none">|</span>
+      <span id="status-pages"></span>
+    </div>
+
+    <!-- ── SAWERIA DONATION MODAL ──────────────────────────────── -->
+    <div class="donation-modal" id="donation-modal">
+      <div class="donation-modal-card">
+        <button class="close-modal-btn" id="close-donation-modal"><i class="ph-bold ph-x"></i></button>
+        <h2>🎉 Your PDF is Downloading!</h2>
+        <p>If ATSTEXLAB helped you secure that interview, consider leaving a tip to support the servers!</p>
+        <a href="https://saweria.co/sammidev" target="_blank">
+          <img src="/static/saweria.png" alt="Saweria QR Code" />
+        </a>
+      </div>
+    </div>
+
+  </main> <!-- end #main-content -->
 
   <script type="module" src="/static/js/editor.js"></script>
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const collapseBtn = document.getElementById('sidebar-collapse');
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        sidebar.classList.add('open');
+        overlay.classList.add('open');
+      });
+    }
+
+    if (overlay) {
+      overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+      });
+    }
+
+    if (collapseBtn) {
+      collapseBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+      });
+    }
+  </script>
 </body>
 
 </html>

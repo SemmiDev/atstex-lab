@@ -1,13 +1,16 @@
-.PHONY: run build tidy clean docker-build docker-up docker-down docker-logs docker-run
+.PHONY: run build tidy clean docker-build docker-up docker-down docker-logs docker-run docker-remove-rebuild
 
 BINARY := atstex-lab
 CMD    := ./cmd/server
 
 # ── Local development ─────────────────────────────────────────
-run:
+css:
+	npx tailwindcss -i ./web/static/css/tailwind.css -o ./web/static/css/style.css --minify
+
+run: css
 	go run $(CMD)/main.go
 
-build:
+build: css
 	go build -o $(BINARY) $(CMD)/main.go
 
 tidy:
@@ -27,6 +30,11 @@ docker-up:
 
 # Build + start in one step
 docker-run:
+	docker compose up -d --build
+
+# Remove and rebuild
+docker-remove-rebuild:
+	docker compose down --volumes
 	docker compose up -d --build
 
 # Stop container

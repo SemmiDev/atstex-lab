@@ -1,0 +1,182 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --bg: #fff0d4;
+        --surface: #ffffff;
+        --surface2: #f0c8e0;
+        --border: #000000;
+        --text: #000000;
+        --muted: #3a3a3a;
+        --accent: #ff4794;
+        /* Hot pink */
+        --accent2: #475eff;
+        /* Electric blue */
+        --accent3: #5eeb8f;
+        /* Mint green */
+        --accent4: #ffdb33;
+        /* Yellow */
+        --error: #ff3333;
+        --warn: #ffdb33;
+        --radius: 0px;
+    }
+}
+
+@layer components {
+
+    /* Common UI Elements */
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-surface border-[3px] border-border font-ui text-sm font-extrabold uppercase tracking-wide cursor-pointer transition-all duration-100 ease-linear;
+        box-shadow: 4px 4px 0px #000;
+    }
+
+    .btn:hover {
+        @apply -translate-x-0.5 -translate-y-0.5;
+        box-shadow: 6px 6px 0px #000;
+    }
+
+    .btn:active {
+        @apply translate-x-0.5 translate-y-0.5;
+        box-shadow: 0px 0px 0px #000;
+    }
+
+    .btn-primary {
+        @apply bg-accent text-white border-border;
+    }
+
+    .btn-primary:hover {
+        @apply bg-[#ff66a3];
+    }
+
+    /* Structural Classes */
+    .card {
+        @apply bg-surface border-[3px] border-border p-8 flex flex-col gap-6;
+        box-shadow: 8px 8px 0px #000;
+    }
+
+    .badge {
+        @apply bg-accent text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase;
+    }
+
+    /* Form Elements */
+    .form-input {
+        @apply font-mono text-sm p-3 border-2 border-border bg-bg text-text outline-none transition-colors w-full min-w-0 placeholder-gray-500;
+        box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-input:focus {
+        @apply bg-white border-accent2;
+    }
+
+    .btn-ghost {
+        @apply bg-surface text-text border-border;
+    }
+
+    .btn-ghost:hover {
+        @apply bg-accent4;
+    }
+
+    /* Sidebar toggle mechanics — mobile */
+    #sidebar.open {
+        @apply translate-x-0;
+    }
+
+    #sidebar-overlay.open {
+        @apply block;
+    }
+
+    /* Sidebar toggle mechanics — desktop collapse */
+    #sidebar.collapsed {
+        @apply w-[72px];
+    }
+
+    #sidebar.collapsed .sidebar-nav-text,
+    #sidebar.collapsed .sidebar-header-text,
+    #sidebar.collapsed .sidebar-profile-block {
+        @apply hidden;
+    }
+
+    #sidebar.collapsed nav a {
+        @apply justify-center px-0;
+    }
+
+    #sidebar.collapsed .sidebar-header-row {
+        @apply justify-center;
+    }
+
+    .sidebar-toggle-desktop {
+        @apply hidden md:flex items-center justify-center w-8 h-8 border-[2px] border-border bg-bg cursor-pointer text-sm font-bold transition-all;
+        box-shadow: 2px 2px 0px #000;
+    }
+
+    .sidebar-toggle-desktop:hover {
+        @apply bg-accent4 -translate-y-0.5;
+        box-shadow: 3px 3px 0px #000;
+    }
+
+    .sidebar-toggle-desktop:active {
+        @apply translate-y-0;
+        box-shadow: 0px 0px 0px #000;
+    }
+
+    #sidebar.collapsed .sidebar-toggle-desktop {
+        @apply rotate-180;
+    }
+
+    /* ── Dynamic Form Items (input.js) ───────────────────── */
+    .dynamic-item {
+        @apply bg-bg border-[3px] border-border p-5 flex flex-col gap-4;
+        box-shadow: 4px 4px 0px #000;
+    }
+
+    .dynamic-item-header {
+        @apply flex items-center justify-between border-b-[2px] border-border pb-3;
+    }
+
+    .dynamic-item-header span {
+        @apply font-mono font-extrabold uppercase tracking-wider text-sm;
+    }
+
+    .grid-2 {
+        @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+    }
+
+    .form-group {
+        @apply flex flex-col gap-1;
+    }
+
+    .form-group label {
+        @apply font-bold text-xs uppercase tracking-wider;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        @apply font-mono text-sm p-3 border-2 border-border bg-bg text-text outline-none transition-colors w-full min-w-0 placeholder-gray-500;
+        box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        @apply bg-white border-accent2;
+    }
+
+    .btn-danger,
+    .btn-remove {
+        @apply inline-flex items-center justify-center gap-1 px-3 py-1.5 bg-surface border-[2px] border-error text-error font-mono text-xs font-bold uppercase tracking-wide cursor-pointer transition-all duration-100 ease-linear;
+        box-shadow: 2px 2px 0px var(--error);
+    }
+
+    .btn-danger:hover,
+    .btn-remove:hover {
+        @apply bg-error text-white -translate-y-0.5;
+        box-shadow: 3px 3px 0px #000;
+    }
+
+    .btn-danger:active,
+    .btn-remove:active {
+        @apply translate-y-0;
+        box-shadow: 0px 0px 0px #000;
+    }
+}
