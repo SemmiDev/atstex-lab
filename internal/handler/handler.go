@@ -65,6 +65,16 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Support renders the Support/Donate page.
+func (h *Handler) Support(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+	if err := h.tmpl.ExecuteTemplate(w, "support", map[string]interface{}{"User": user}); err != nil {
+		h.reqLog(r).Error("template error", "err", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+	}
+}
+
 // Editor renders the main application UI.
 func (h *Handler) Editor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

@@ -86,6 +86,7 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(auth.Middleware(repo))
 		r.Get("/profile", h.Profile)
+		r.Get("/support", h.Support)
 		r.Post("/auth/sessions/{token}/delete", h.DeleteSession)
 		r.Get("/input", h.Input)
 		r.Get("/input/embed", h.InputEmbed)

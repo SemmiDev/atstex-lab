@@ -1,10 +1,10 @@
-{{define "profile"}}
+{{define "support"}}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title>atstex-lab — Profile & Sessions</title>
+    <title>atstex-lab — Support</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/css/style.css">
     <link
@@ -39,10 +39,10 @@
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
             <a href="/profile"
-                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profile</span></a>
             <a href="/support"
-                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i
                     class="ph ph-coffee text-2xl"></i> <span class="sidebar-nav-text">Support</span></a>
         </nav>
 
@@ -67,74 +67,18 @@
     <!-- Overlay for mobile clicking -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
 
-    <main class="flex-1 overflow-y-auto bg-bg relative p-6 md:p-10 flex justify-center">
-        <div class="w-full max-w-3xl flex flex-col gap-8">
-            <div class="card flex flex-col md:flex-row items-center md:items-start gap-6 pt-10">
-                <img src="{{.User.Picture}}" alt="Profile Image"
-                    class="w-24 h-24 rounded-full border-[4px] border-border shadow-[4px_4px_0px_#000]">
-                <div class="text-center md:text-left">
-                    <h1 class="font-disp font-extrabold text-3xl m-0">{{.User.Name}}</h1>
-                    <p
-                        class="font-mono mt-2 text-muted font-bold flex items-center justify-center md:justify-start gap-2">
-                        <i class="ph-bold ph-envelope"></i> {{.User.Email}}
-                    </p>
-                    <p class="text-sm font-semibold mt-1">Member since {{.User.CreatedAt.Format "02 Jan 2006"}}</p>
-                </div>
-            </div>
-
-            <div class="bg-surface border-[3px] border-border p-5 flex items-center gap-4 shadow-[4px_4px_0_#000]">
-                <div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;border:2px solid var(--border);background:var(--accent3);flex-shrink:0;">🤖</div>
-                <div class="flex flex-col">
-                    <span class="font-mono font-extrabold text-2xl">{{.User.AITokensUsed}}</span>
-                    <span class="text-xs font-bold uppercase tracking-wider text-muted">AI Tokens Used</span>
-                </div>
-            </div>
-
-            <div class="flex flex-col gap-2">
-                <h2
-                    class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
-                    <i class="ph-bold ph-devices text-3xl"></i> Active Sessions
-                </h2>
-                <p class="font-semibold text-muted">Review the devices currently logged into your account. You can
-                    revoke any unrecognized sessions.</p>
-            </div>
-
-            <div class="flex flex-col gap-4">
-                {{range .Sessions}}
-                <div
-                    class="bg-surface border-[3px] border-border p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-[4px_4px_0_#000]">
-                    <div class="flex flex-col gap-1">
-                        <div class="font-bold uppercase tracking-wider text-xs mb-1">Log In Device</div>
-                        <span class="font-mono text-sm font-bold flex items-center gap-2"><i
-                                class="ph-bold ph-globe"></i> {{if .IPAddress}}{{.IPAddress}}{{else}}Unknown
-                            IP{{end}}</span>
-                        <span class="text-sm font-medium text-muted flex items-center gap-2"><i
-                                class="ph-bold ph-monitor"></i> {{if .UserAgent}}{{.UserAgent}}{{else}}Unknown Browser /
-                            OS{{end}}</span>
-                        <span class="text-xs font-semibold text-gray-500 mt-1">Expires: {{.ExpiresAt.Format "02 Jan 2006, 15:04 MST"}}</span>
-                    </div>
-                    <div class="w-full md:w-auto">
-                        <form action="/auth/sessions/{{.Token}}/delete" method="POST"
-                            onsubmit="return confirm('Are you sure you want to revoke this session? The device will be logged out immediately.');">
-                            <button type="submit"
-                                class="btn btn-ghost w-full !border-error !text-error hover:!bg-error hover:!text-white">Revoke
-                                Access</button>
-                        </form>
-                    </div>
-                </div>
-                {{end}}
-            </div>
-
-            <div class="bg-[#fff5f5] border-[3px] border-error p-6 mt-4 flex flex-col gap-4 shadow-[4px_4px_0_#ff3333]">
-                <h3 class="text-xl font-extrabold uppercase text-error flex items-center gap-2 m-0"><i
-                        class="ph-bold ph-warning"></i> Danger Zone</h3>
-                <p class="font-medium text-error">Once you delete an account, there is no going back. All biodata,
-                    settings, and sessions will be destroyed forever.</p>
-                <form action="/auth/delete-account" method="POST"
-                    onsubmit="return confirm('Delete account and all data forever? This cannot be undone.');">
-                    <button type="submit" class="btn !bg-error !text-white !border-error">Delete Account</button>
-                </form>
-            </div>
+    <main class="flex-1 overflow-y-auto bg-bg relative p-6 md:p-10 flex flex-col items-center justify-center">
+        <div class="card p-10 flex flex-col items-center justify-center text-center gap-6 max-w-lg w-full mt-10 mb-auto mx-auto border-[4px] border-border shadow-[8px_8px_0px_#000]">
+            <h1 class="font-disp font-extrabold text-4xl m-0 flex items-center gap-3">
+                <i class="ph-bold ph-coffee text-accent"></i> Support
+            </h1>
+            <p class="font-medium text-lg text-muted">If you found this tool helpful, consider leaving a tip to keep the servers running!</p>
+            <a href="https://saweria.co/sammidev" target="_blank"
+                class="inline-block transition-transform hover:-translate-x-1 hover:-translate-y-1">
+                <img src="/static/saweria.png" alt="Saweria QR Code"
+                    class="w-64 h-64 border-[4px] border-border shadow-[4px_4px_0_#000] bg-white block rounded-xl mx-auto" />
+            </a>
+            <a href="https://saweria.co/sammidev" target="_blank" class="btn btn-primary mt-4 text-lg py-3 px-8 w-full"><i class="ph-bold ph-coffee"></i> Buy me a coffee</a>
         </div>
     </main>
 
