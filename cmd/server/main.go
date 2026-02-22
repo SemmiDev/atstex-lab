@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"html/template"
 	"log/slog"
 	"net/http"
@@ -44,7 +45,21 @@ func main() {
 	authConfig := auth.NewConfig(cfg.GoogleClientID, cfg.GoogleClientSecret, cfg.GoogleCallbackURL, repo)
 
 	// Parse embedded templates.
-	tmpl, err := template.New("").ParseFS(web.TemplateFS, "templates/*.html")
+	funcMap := template.FuncMap{
+		"deref": func(s *string) string {
+			if s == nil {
+				return ""
+			}
+			return *s
+		},
+		"safeJSON": func(b json.RawMessage) template.JS {
+			if len(b) == 0 {
+				return template.JS("{}")
+			}
+			return template.JS(b)
+		},
+	}
+	tmpl, err := template.New("").Funcs(funcMap).ParseFS(web.TemplateFS, "templates/*.html")
 	if err != nil {
 		logger.Error("parsing templates", "err", err)
 		os.Exit(1)
@@ -74,6 +89,8 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(auth.OptionalUserMiddleware(repo))
 		r.Get("/", h.Home)
+		r.Get("/u/{username}", h.PublicProfile)
+		r.Get("/u/{username}/{profileID}/pdf", h.PublicProfileDownloadPDF)
 	})
 
 	// Auth routes
@@ -91,6 +108,7 @@ func main() {
 		r.Get("/input", h.Input)
 		r.Get("/input/embed", h.InputEmbed)
 		r.Get("/editor", h.Editor)
+		r.Get("/publish", h.PublishSettings)
 		r.Get("/api/templates", h.ListTemplates)
 		r.Get("/api/templates/{name}", h.GetTemplate)
 		r.Post("/api/templates/{name}/render", h.RenderTemplate)
@@ -103,6 +121,10 @@ func main() {
 		r.Get("/api/cv-profiles/{id}", h.GetCVProfile)
 		r.Put("/api/cv-profiles/{id}", h.SaveCVProfile)
 		r.Delete("/api/cv-profiles/{id}", h.DeleteCVProfile)
+		r.Put("/api/cv-profiles/{id}/visibility", h.ToggleProfileVisibility)
+		// Public profile API
+		r.Put("/api/username", h.SetUsername)
+		r.Get("/api/username/check", h.CheckUsername)
 	})
 
 	// Admin routes (requires login + admin role)

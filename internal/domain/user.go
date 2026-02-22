@@ -15,6 +15,7 @@ type User struct {
 	Picture      string    `db:"picture"`
 	Role         string    `db:"role"`
 	AITokensUsed int64     `db:"ai_tokens_used"`
+	Username     *string   `db:"username"`
 	CreatedAt    time.Time `db:"created_at"`
 	UpdatedAt    time.Time `db:"updated_at"`
 }

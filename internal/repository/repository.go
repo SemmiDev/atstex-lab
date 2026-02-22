@@ -31,6 +31,12 @@ type Repository interface {
 	GetCVProfilesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVProfile, error)
 	UpdateCVProfileBiodata(ctx context.Context, id uuid.UUID, biodata json.RawMessage) error
 	DeleteCVProfile(ctx context.Context, id uuid.UUID) error
+	// Public profile methods
+	SetUsername(ctx context.Context, userID uuid.UUID, username string) error
+	GetUserByUsername(ctx context.Context, username string) (*domain.User, error)
+	CheckUsernameAvailable(ctx context.Context, username string) (bool, error)
+	UpdateCVProfileVisibility(ctx context.Context, profileID uuid.UUID, isPublic bool) error
+	GetPublicCVProfilesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVProfile, error)
 	// AI usage tracking
 	IncrementAITokensUsed(ctx context.Context, userID uuid.UUID, chars int64) error
 	// Admin methods
@@ -62,7 +68,7 @@ func (r *postgresRepo) Close() error {
 	return r.db.Close()
 }
 
-const userColumns = `id, google_id, email, name, picture, role, ai_tokens_used, created_at, updated_at`
+const userColumns = `id, google_id, email, name, picture, role, ai_tokens_used, username, created_at, updated_at`
 
 func (r *postgresRepo) UpsertUser(ctx context.Context, googleID, email, name, picture string) (*domain.User, error) {
 	query := `
@@ -130,15 +136,17 @@ func (r *postgresRepo) DeleteSession(ctx context.Context, token string) error {
 
 // ── CV Profile CRUD ────────────────────────────────────────────
 
+const cvProfileColumns = `id, user_id, title, biodata, is_public, created_at, updated_at`
+
 func (r *postgresRepo) CreateCVProfile(ctx context.Context, userID uuid.UUID, title string) (*domain.CVProfile, error) {
-	query := `INSERT INTO cv_profiles (user_id, title) VALUES ($1, $2) RETURNING id, user_id, title, biodata, created_at, updated_at`
+	query := `INSERT INTO cv_profiles (user_id, title) VALUES ($1, $2) RETURNING ` + cvProfileColumns
 	var p domain.CVProfile
 	err := r.db.GetContext(ctx, &p, query, userID, title)
 	return &p, err
 }
 
 func (r *postgresRepo) GetCVProfile(ctx context.Context, id uuid.UUID) (*domain.CVProfile, error) {
-	query := `SELECT id, user_id, title, biodata, created_at, updated_at FROM cv_profiles WHERE id = $1`
+	query := `SELECT ` + cvProfileColumns + ` FROM cv_profiles WHERE id = $1`
 	var p domain.CVProfile
 	err := r.db.GetContext(ctx, &p, query, id)
 	if err == sql.ErrNoRows {
@@ -148,7 +156,7 @@ func (r *postgresRepo) GetCVProfile(ctx context.Context, id uuid.UUID) (*domain.
 }
 
 func (r *postgresRepo) GetCVProfilesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVProfile, error) {
-	query := `SELECT id, user_id, title, biodata, created_at, updated_at FROM cv_profiles WHERE user_id = $1 ORDER BY created_at ASC`
+	query := `SELECT ` + cvProfileColumns + ` FROM cv_profiles WHERE user_id = $1 ORDER BY created_at ASC`
 	var profiles []domain.CVProfile
 	err := r.db.SelectContext(ctx, &profiles, query, userID)
 	if err != nil {
@@ -165,6 +173,47 @@ func (r *postgresRepo) UpdateCVProfileBiodata(ctx context.Context, id uuid.UUID,
 func (r *postgresRepo) DeleteCVProfile(ctx context.Context, id uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM cv_profiles WHERE id = $1`, id)
 	return err
+}
+
+// ── Public Profile Methods ─────────────────────────────────────
+
+func (r *postgresRepo) SetUsername(ctx context.Context, userID uuid.UUID, username string) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE users SET username = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, username, userID)
+	return err
+}
+
+func (r *postgresRepo) GetUserByUsername(ctx context.Context, username string) (*domain.User, error) {
+	query := `SELECT ` + userColumns + ` FROM users WHERE LOWER(username) = LOWER($1)`
+	var u domain.User
+	err := r.db.GetContext(ctx, &u, query, username)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
+	return &u, err
+}
+
+func (r *postgresRepo) CheckUsernameAvailable(ctx context.Context, username string) (bool, error) {
+	var count int
+	err := r.db.GetContext(ctx, &count, `SELECT COUNT(*) FROM users WHERE LOWER(username) = LOWER($1)`, username)
+	if err != nil {
+		return false, err
+	}
+	return count == 0, nil
+}
+
+func (r *postgresRepo) UpdateCVProfileVisibility(ctx context.Context, profileID uuid.UUID, isPublic bool) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE cv_profiles SET is_public = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, isPublic, profileID)
+	return err
+}
+
+func (r *postgresRepo) GetPublicCVProfilesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVProfile, error) {
+	query := `SELECT ` + cvProfileColumns + ` FROM cv_profiles WHERE user_id = $1 AND is_public = true ORDER BY created_at ASC`
+	var profiles []domain.CVProfile
+	err := r.db.SelectContext(ctx, &profiles, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	return profiles, nil
 }
 
 // ── AI Usage Tracking ──────────────────────────────────────────

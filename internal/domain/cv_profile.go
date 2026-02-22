@@ -13,6 +13,7 @@ type CVProfile struct {
 	UserID    uuid.UUID       `db:"user_id"    json:"user_id"`
 	Title     string          `db:"title"      json:"title"`
 	Biodata   json.RawMessage `db:"biodata"    json:"biodata"`
+	IsPublic  bool            `db:"is_public"  json:"is_public"`
 	CreatedAt time.Time       `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time       `db:"updated_at" json:"updated_at"`
 }
