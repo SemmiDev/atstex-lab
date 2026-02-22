@@ -86,6 +86,13 @@ func Middleware(repo repository.Repository) func(http.Handler) http.Handler {
 				return
 			}
 
+			// Block check: if user is blocked, clear session and redirect
+			if u.IsBlocked {
+				clearCookie(w)
+				http.Redirect(w, r, "/forbidden", http.StatusSeeOther)
+				return
+			}
+
 			ctx := context.WithValue(r.Context(), UserContextKey, u)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
@@ -99,7 +106,7 @@ func AdminMiddleware() func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			u, ok := r.Context().Value(UserContextKey).(*domain.User)
 			if !ok || u == nil || !u.IsAdmin() {
-				http.Error(w, "Forbidden", http.StatusForbidden)
+				http.Redirect(w, r, "/forbidden", http.StatusSeeOther)
 				return
 			}
 			next.ServeHTTP(w, r)

@@ -44,6 +44,11 @@ type Repository interface {
 	GetFeedbacksByUserID(ctx context.Context, userID uuid.UUID) ([]domain.Feedback, error)
 	AdminListFeedbacks(ctx context.Context, params domain.FeedbackListParams) ([]domain.Feedback, int, error)
 	AdminReplyFeedback(ctx context.Context, feedbackID uuid.UUID, reply string) error
+	AdminDeleteFeedback(ctx context.Context, feedbackID uuid.UUID) error
+	// Admin user management
+	AdminBlockUser(ctx context.Context, userID uuid.UUID) error
+	AdminUnblockUser(ctx context.Context, userID uuid.UUID) error
+	AdminDeleteUser(ctx context.Context, userID uuid.UUID) error
 	// Admin methods
 	AdminGetStats(ctx context.Context) (*domain.AdminStats, error)
 	AdminListUsers(ctx context.Context, params domain.AdminListParams) ([]domain.AdminUserRow, int, error)
@@ -73,7 +78,7 @@ func (r *postgresRepo) Close() error {
 	return r.db.Close()
 }
 
-const userColumns = `id, google_id, email, name, picture, role, ai_tokens_used, username, created_at, updated_at`
+const userColumns = `id, google_id, email, name, picture, role, ai_tokens_used, username, is_blocked, created_at, updated_at`
 
 func (r *postgresRepo) UpsertUser(ctx context.Context, googleID, email, name, picture string) (*domain.User, error) {
 	query := `
@@ -280,7 +285,7 @@ func (r *postgresRepo) AdminListUsers(ctx context.Context, params domain.AdminLi
 
 	query := fmt.Sprintf(`
 		SELECT
-			u.id, u.email, u.name, COALESCE(u.picture, '') AS picture, u.role, u.username, u.ai_tokens_used, u.created_at,
+			u.id, u.email, u.name, COALESCE(u.picture, '') AS picture, u.role, u.username, u.is_blocked, u.ai_tokens_used, u.created_at,
 			COUNT(cv.id) AS biodata_count
 		FROM users u
 		LEFT JOIN cv_profiles cv ON cv.user_id = u.id
@@ -358,5 +363,27 @@ func (r *postgresRepo) AdminListFeedbacks(ctx context.Context, params domain.Fee
 
 func (r *postgresRepo) AdminReplyFeedback(ctx context.Context, feedbackID uuid.UUID, reply string) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE feedbacks SET admin_reply = $1, replied_at = CURRENT_TIMESTAMP WHERE id = $2`, reply, feedbackID)
+	return err
+}
+
+func (r *postgresRepo) AdminDeleteFeedback(ctx context.Context, feedbackID uuid.UUID) error {
+	_, err := r.db.ExecContext(ctx, `DELETE FROM feedbacks WHERE id = $1`, feedbackID)
+	return err
+}
+
+// ── Admin User Management ──────────────────────────────────────
+
+func (r *postgresRepo) AdminBlockUser(ctx context.Context, userID uuid.UUID) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE users SET is_blocked = true, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
+	return err
+}
+
+func (r *postgresRepo) AdminUnblockUser(ctx context.Context, userID uuid.UUID) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE users SET is_blocked = false, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
+	return err
+}
+
+func (r *postgresRepo) AdminDeleteUser(ctx context.Context, userID uuid.UUID) error {
+	_, err := r.db.ExecContext(ctx, `DELETE FROM users WHERE id = $1`, userID)
 	return err
 }

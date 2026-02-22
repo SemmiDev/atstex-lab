@@ -567,3 +567,76 @@ func (h *Handler) AdminReplyFeedback(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{"ok": true})
 }
+
+// ForbiddenPage renders a styled 403 page.
+func (h *Handler) ForbiddenPage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(http.StatusForbidden)
+	if err := h.tmpl.ExecuteTemplate(w, "forbidden", nil); err != nil {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+	}
+}
+
+// AdminBlockUser blocks a user.
+func (h *Handler) AdminBlockUser(w http.ResponseWriter, r *http.Request) {
+	userID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		jsonError(w, "invalid user ID", http.StatusBadRequest)
+		return
+	}
+	if err := h.repo.AdminBlockUser(r.Context(), userID); err != nil {
+		h.reqLog(r).Error("admin block user error", "err", err)
+		jsonError(w, "failed to block user", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{"ok": true})
+}
+
+// AdminUnblockUser unblocks a user.
+func (h *Handler) AdminUnblockUser(w http.ResponseWriter, r *http.Request) {
+	userID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		jsonError(w, "invalid user ID", http.StatusBadRequest)
+		return
+	}
+	if err := h.repo.AdminUnblockUser(r.Context(), userID); err != nil {
+		h.reqLog(r).Error("admin unblock user error", "err", err)
+		jsonError(w, "failed to unblock user", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{"ok": true})
+}
+
+// AdminDeleteUser deletes a user and all their data.
+func (h *Handler) AdminDeleteUser(w http.ResponseWriter, r *http.Request) {
+	userID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		jsonError(w, "invalid user ID", http.StatusBadRequest)
+		return
+	}
+	if err := h.repo.AdminDeleteUser(r.Context(), userID); err != nil {
+		h.reqLog(r).Error("admin delete user error", "err", err)
+		jsonError(w, "failed to delete user", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{"ok": true})
+}
+
+// AdminDeleteFeedback deletes a feedback entry.
+func (h *Handler) AdminDeleteFeedback(w http.ResponseWriter, r *http.Request) {
+	feedbackID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		jsonError(w, "invalid feedback ID", http.StatusBadRequest)
+		return
+	}
+	if err := h.repo.AdminDeleteFeedback(r.Context(), feedbackID); err != nil {
+		h.reqLog(r).Error("admin delete feedback error", "err", err)
+		jsonError(w, "failed to delete feedback", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{"ok": true})
+}

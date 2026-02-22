@@ -103,7 +103,7 @@
 
   function renderUsersTable(users) {
     if (!users.length) {
-      usersTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);">No users found</td></tr>';
+      usersTbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--muted);">No users found</td></tr>';
       return;
     }
 
@@ -118,9 +118,17 @@
         <td>${escHtml(u.email)}</td>
         <td>${u.username ? `<a href="/u/${escHtml(u.username)}" target="_blank" style="color:var(--accent);font-weight:700;font-family:var(--font-mono);font-size:0.8rem;text-decoration:none;">/u/${escHtml(u.username)}</a>` : '<span style="color:var(--muted);">–</span>'}</td>
         <td><span class="role-badge ${u.role}">${u.role}</span></td>
+        <td>${u.isBlocked ? '<span class="role-badge" style="background:var(--error, #ef4444);color:#fff;">Blocked</span>' : '<span class="role-badge" style="background:var(--accent2);color:#fff;">Active</span>'}</td>
         <td>${u.biodataCount}</td>
         <td>${fmtNum(u.aiTokensUsed)}</td>
         <td>${fmtDate(u.createdAt)}</td>
+        <td style="white-space:nowrap;">
+          ${u.role !== 'admin' ? (u.isBlocked
+            ? `<button class="btn-reply" onclick="adminUnblockUser('${u.id}')"><i class="ph-bold ph-lock-key-open"></i> Unblock</button>`
+            : `<button class="btn-reply" onclick="adminBlockUser('${u.id}')"><i class="ph-bold ph-prohibit"></i> Block</button>`
+          ) : ''}
+          ${u.role !== 'admin' ? `<button class="btn-reply" style="border-color:var(--error);color:var(--error);" onclick="adminDeleteUser('${u.id}', '${escHtml(u.name)}')"><i class="ph-bold ph-trash"></i></button>` : ''}
+        </td>
       </tr>
     `).join('');
   }
@@ -280,6 +288,7 @@
       const actionBtn = hasReply
         ? `<button class="btn-reply" onclick="openReplyModal('${fb.id}', this)" data-subject="${escHtml(fb.subject)}" data-reply="${escHtml(fb.adminReply || '')}">Edit Reply</button>`
         : `<button class="btn-reply primary" onclick="openReplyModal('${fb.id}', this)" data-subject="${escHtml(fb.subject)}" data-reply="">Reply</button>`;
+      const deleteBtn = `<button class="btn-reply" style="border-color:var(--error);color:var(--error);margin-left:4px;" onclick="adminDeleteFeedback('${fb.id}')"><i class="ph-bold ph-trash"></i></button>`;
       const msgPreview = (fb.message || '').length > 80 ? fb.message.substring(0, 80) + '…' : fb.message;
 
       return `
@@ -297,7 +306,7 @@
           <td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(fb.message)}">${escHtml(msgPreview)}</td>
           <td>${statusBadge}</td>
           <td>${fmtDate(fb.createdAt)}</td>
-          <td>${actionBtn}</td>
+          <td style="white-space:nowrap;">${actionBtn} ${deleteBtn}</td>
         </tr>`;
     }).join('');
   }
@@ -345,5 +354,52 @@
     replyStatus.textContent = '';
     replyModal.style.display = 'flex';
     replyText.focus();
+  };
+
+  // ── Admin Action Helpers ────────────────────────────────────
+
+  window.adminBlockUser = async function(id) {
+    if (!confirm('Are you sure you want to block this user? They will be logged out and unable to access the platform.')) return;
+    try {
+      const res = await fetch(`/api/admin/users/${id}/block`, { method: 'POST' });
+      if (!res.ok) throw new Error('Failed');
+      loadUsers();
+    } catch (e) {
+      alert('Failed to block user.');
+    }
+  };
+
+  window.adminUnblockUser = async function(id) {
+    if (!confirm('Unblock this user? They will be able to log in again.')) return;
+    try {
+      const res = await fetch(`/api/admin/users/${id}/unblock`, { method: 'POST' });
+      if (!res.ok) throw new Error('Failed');
+      loadUsers();
+    } catch (e) {
+      alert('Failed to unblock user.');
+    }
+  };
+
+  window.adminDeleteUser = async function(id, name) {
+    if (!confirm(`⚠️ PERMANENTLY DELETE user "${name}" and ALL their data? This cannot be undone.`)) return;
+    if (!confirm('Are you ABSOLUTELY sure? This action is irreversible.')) return;
+    try {
+      const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed');
+      loadUsers();
+    } catch (e) {
+      alert('Failed to delete user.');
+    }
+  };
+
+  window.adminDeleteFeedback = async function(id) {
+    if (!confirm('Delete this feedback entry? This cannot be undone.')) return;
+    try {
+      const res = await fetch(`/api/admin/feedbacks/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed');
+      loadFeedbacks();
+    } catch (e) {
+      alert('Failed to delete feedback.');
+    }
   };
 })();

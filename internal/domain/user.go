@@ -16,6 +16,7 @@ type User struct {
 	Role         string    `db:"role"`
 	AITokensUsed int64     `db:"ai_tokens_used"`
 	Username     *string   `db:"username"`
+	IsBlocked    bool      `db:"is_blocked"`
 	CreatedAt    time.Time `db:"created_at"`
 	UpdatedAt    time.Time `db:"updated_at"`
 }
@@ -42,6 +43,7 @@ type AdminUserRow struct {
 	Picture      string    `json:"picture"       db:"picture"`
 	Role         string    `json:"role"          db:"role"`
 	Username     *string   `json:"username"      db:"username"`
+	IsBlocked    bool      `json:"isBlocked"     db:"is_blocked"`
 	AITokensUsed int64     `json:"aiTokensUsed"   db:"ai_tokens_used"`
 	BiodataCount int       `json:"biodataCount"  db:"biodata_count"`
 	CreatedAt    time.Time `json:"createdAt"     db:"created_at"`

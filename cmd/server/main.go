@@ -140,7 +140,14 @@ func main() {
 		r.Get("/api/admin/users", h.AdminListUsers)
 		r.Get("/api/admin/feedbacks", h.AdminListFeedbacks)
 		r.Post("/api/admin/feedbacks/{id}/reply", h.AdminReplyFeedback)
+		r.Delete("/api/admin/feedbacks/{id}", h.AdminDeleteFeedback)
+		r.Post("/api/admin/users/{id}/block", h.AdminBlockUser)
+		r.Post("/api/admin/users/{id}/unblock", h.AdminUnblockUser)
+		r.Delete("/api/admin/users/{id}", h.AdminDeleteUser)
 	})
+
+	// Forbidden page (accessible without login)
+	r.Get("/forbidden", h.ForbiddenPage)
 
 	// Serve static assets (JS/CSS) embedded in the binary.
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.FS(web.StaticFS))))
