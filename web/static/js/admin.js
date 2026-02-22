@@ -19,6 +19,7 @@
       });
       // Lazy load
       if (target === 'users' && !usersLoaded) loadUsers();
+      if (target === 'feedback' && !fbLoaded) loadFeedbacks();
     });
   });
 
@@ -102,7 +103,7 @@
 
   function renderUsersTable(users) {
     if (!users.length) {
-      usersTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted);">No users found</td></tr>';
+      usersTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted);">No users found</td></tr>';
       return;
     }
 
@@ -115,6 +116,7 @@
           </div>
         </td>
         <td>${escHtml(u.email)}</td>
+        <td>${u.username ? `<a href="/u/${escHtml(u.username)}" target="_blank" style="color:var(--accent);font-weight:700;font-family:var(--font-mono);font-size:0.8rem;text-decoration:none;">/u/${escHtml(u.username)}</a>` : '<span style="color:var(--muted);">–</span>'}</td>
         <td><span class="role-badge ${u.role}">${u.role}</span></td>
         <td>${u.biodataCount}</td>
         <td>${fmtNum(u.aiTokensUsed)}</td>
@@ -173,4 +175,175 @@
     el.textContent = str || '';
     return el.innerHTML;
   }
+
+  // ── Feedback Panel ──────────────────────────────────────────
+  let fbLoaded = false;
+  let fbPage = 1;
+  let fbSearchTimeout = null;
+  let currentReplyId = null;
+
+  const fbSearch = document.getElementById('fb-search');
+  const fbTbody = document.getElementById('fb-tbody');
+  const fbCount = document.getElementById('fb-count');
+  const fbPagination = document.getElementById('fb-pagination');
+  const replyModal = document.getElementById('reply-modal');
+  const closeReplyModal = document.getElementById('close-reply-modal');
+  const replyText = document.getElementById('reply-text');
+  const replyFbInfo = document.getElementById('reply-fb-info');
+  const replyStatus = document.getElementById('reply-status');
+  const btnSendReply = document.getElementById('btn-send-reply');
+
+  if (fbSearch) {
+    fbSearch.addEventListener('input', () => {
+      clearTimeout(fbSearchTimeout);
+      fbSearchTimeout = setTimeout(() => {
+        fbPage = 1;
+        loadFeedbacks();
+      }, 300);
+    });
+  }
+
+  if (closeReplyModal) {
+    closeReplyModal.addEventListener('click', () => {
+      replyModal.style.display = 'none';
+    });
+    replyModal.addEventListener('click', (e) => {
+      if (e.target === replyModal) replyModal.style.display = 'none';
+    });
+  }
+
+  if (btnSendReply) {
+    btnSendReply.addEventListener('click', async () => {
+      const reply = replyText.value.trim();
+      if (!reply || !currentReplyId) return;
+
+      btnSendReply.disabled = true;
+      replyStatus.textContent = 'Sending…';
+      replyStatus.style.color = 'var(--muted)';
+
+      try {
+        const res = await fetch(`/api/admin/feedbacks/${currentReplyId}/reply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reply }),
+        });
+        if (!res.ok) throw new Error('Failed');
+        replyStatus.textContent = '✓ Reply sent!';
+        replyStatus.style.color = 'var(--accent2)';
+        setTimeout(() => {
+          replyModal.style.display = 'none';
+          replyText.value = '';
+          replyStatus.textContent = '';
+          currentReplyId = null;
+          loadFeedbacks();
+        }, 800);
+      } catch (e) {
+        replyStatus.textContent = '✗ Failed to send';
+        replyStatus.style.color = 'var(--error, #ff3333)';
+      } finally {
+        btnSendReply.disabled = false;
+      }
+    });
+  }
+
+  async function loadFeedbacks() {
+    fbLoaded = true;
+    const search = fbSearch ? fbSearch.value.trim() : '';
+    const params = new URLSearchParams({ page: fbPage, per_page: 20 });
+    if (search) params.set('search', search);
+
+    try {
+      const res = await fetch(`/api/admin/feedbacks?${params}`);
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+
+      fbCount.textContent = `${data.total} feedback${data.total !== 1 ? 's' : ''}`;
+      renderFbTable(data.feedbacks || []);
+      renderFbPagination(data.total, data.page, data.perPage);
+    } catch (e) {
+      console.error('Failed to load feedbacks:', e);
+      fbTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted);">Failed to load feedback</td></tr>';
+    }
+  }
+
+  function renderFbTable(feedbacks) {
+    if (!feedbacks.length) {
+      fbTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted);">No feedback found</td></tr>';
+      return;
+    }
+
+    fbTbody.innerHTML = feedbacks.map(fb => {
+      const hasReply = fb.adminReply && fb.adminReply.length > 0;
+      const statusBadge = hasReply
+        ? '<span class="role-badge admin">Answered</span>'
+        : '<span class="role-badge user">Pending</span>';
+      const actionBtn = hasReply
+        ? `<button class="btn-reply" onclick="openReplyModal('${fb.id}', this)" data-subject="${escHtml(fb.subject)}" data-reply="${escHtml(fb.adminReply || '')}">Edit Reply</button>`
+        : `<button class="btn-reply primary" onclick="openReplyModal('${fb.id}', this)" data-subject="${escHtml(fb.subject)}" data-reply="">Reply</button>`;
+      const msgPreview = (fb.message || '').length > 80 ? fb.message.substring(0, 80) + '…' : fb.message;
+
+      return `
+        <tr>
+          <td>
+            <div class="user-cell">
+              <img src="${escHtml(fb.userPicture || '')}" alt="" onerror="this.style.display='none'">
+              <div>
+                <div style="font-weight:700;">${escHtml(fb.userName)}</div>
+                <div style="font-size:0.7rem;color:var(--muted);">${escHtml(fb.userEmail)}</div>
+              </div>
+            </div>
+          </td>
+          <td style="font-weight:700;">${escHtml(fb.subject)}</td>
+          <td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(fb.message)}">${escHtml(msgPreview)}</td>
+          <td>${statusBadge}</td>
+          <td>${fmtDate(fb.createdAt)}</td>
+          <td>${actionBtn}</td>
+        </tr>`;
+    }).join('');
+  }
+
+  function renderFbPagination(total, page, perPage) {
+    const totalPages = Math.ceil(total / perPage);
+    if (totalPages <= 1) {
+      fbPagination.innerHTML = '';
+      return;
+    }
+
+    let html = '';
+    html += `<button ${page <= 1 ? 'disabled' : ''} data-page="${page - 1}">← Prev</button>`;
+
+    const maxButtons = 7;
+    let start = Math.max(1, page - Math.floor(maxButtons / 2));
+    let end = Math.min(totalPages, start + maxButtons - 1);
+    if (end - start < maxButtons - 1) start = Math.max(1, end - maxButtons + 1);
+
+    for (let i = start; i <= end; i++) {
+      html += `<button class="${i === page ? 'active' : ''}" data-page="${i}">${i}</button>`;
+    }
+
+    html += `<button ${page >= totalPages ? 'disabled' : ''} data-page="${page + 1}">Next →</button>`;
+    fbPagination.innerHTML = html;
+
+    fbPagination.querySelectorAll('button[data-page]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const p = parseInt(btn.dataset.page);
+        if (p >= 1 && p <= totalPages) {
+          fbPage = p;
+          loadFeedbacks();
+        }
+      });
+    });
+  }
+
+  // Make openReplyModal available globally
+  window.openReplyModal = function(id, btn) {
+    currentReplyId = id;
+    const subject = btn.dataset.subject || '';
+    const existingReply = btn.dataset.reply || '';
+    replyFbInfo.innerHTML = `<div style="font-weight:800;text-transform:uppercase;font-size:0.85rem;margin-bottom:4px;">Re: ${subject}</div>`;
+    replyText.value = existingReply;
+    replyStatus.textContent = '';
+    replyModal.style.display = 'flex';
+    replyText.focus();
+  };
 })();

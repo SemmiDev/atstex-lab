@@ -125,6 +125,10 @@ func main() {
 		// Public profile API
 		r.Put("/api/username", h.SetUsername)
 		r.Get("/api/username/check", h.CheckUsername)
+		// Feedback
+		r.Get("/feedback", h.FeedbackPage)
+		r.Get("/api/feedback", h.ListMyFeedbacks)
+		r.Post("/api/feedback", h.CreateFeedback)
 	})
 
 	// Admin routes (requires login + admin role)
@@ -134,6 +138,8 @@ func main() {
 		r.Get("/admin", h.AdminDashboard)
 		r.Get("/api/admin/stats", h.AdminGetStats)
 		r.Get("/api/admin/users", h.AdminListUsers)
+		r.Get("/api/admin/feedbacks", h.AdminListFeedbacks)
+		r.Post("/api/admin/feedbacks/{id}/reply", h.AdminReplyFeedback)
 	})
 
 	// Serve static assets (JS/CSS) embedded in the binary.

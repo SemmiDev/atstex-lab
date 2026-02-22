@@ -39,6 +39,11 @@ type Repository interface {
 	GetPublicCVProfilesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVProfile, error)
 	// AI usage tracking
 	IncrementAITokensUsed(ctx context.Context, userID uuid.UUID, chars int64) error
+	// Feedback methods
+	CreateFeedback(ctx context.Context, userID uuid.UUID, subject, message string) (*domain.Feedback, error)
+	GetFeedbacksByUserID(ctx context.Context, userID uuid.UUID) ([]domain.Feedback, error)
+	AdminListFeedbacks(ctx context.Context, params domain.FeedbackListParams) ([]domain.Feedback, int, error)
+	AdminReplyFeedback(ctx context.Context, feedbackID uuid.UUID, reply string) error
 	// Admin methods
 	AdminGetStats(ctx context.Context) (*domain.AdminStats, error)
 	AdminListUsers(ctx context.Context, params domain.AdminListParams) ([]domain.AdminUserRow, int, error)
@@ -275,7 +280,7 @@ func (r *postgresRepo) AdminListUsers(ctx context.Context, params domain.AdminLi
 
 	query := fmt.Sprintf(`
 		SELECT
-			u.id, u.email, u.name, COALESCE(u.picture, '') AS picture, u.role, u.ai_tokens_used, u.created_at,
+			u.id, u.email, u.name, COALESCE(u.picture, '') AS picture, u.role, u.username, u.ai_tokens_used, u.created_at,
 			COUNT(cv.id) AS biodata_count
 		FROM users u
 		LEFT JOIN cv_profiles cv ON cv.user_id = u.id
@@ -291,4 +296,67 @@ func (r *postgresRepo) AdminListUsers(ctx context.Context, params domain.AdminLi
 	}
 
 	return rows, total, nil
+}
+
+// ── Feedback CRUD ──────────────────────────────────────────────
+
+func (r *postgresRepo) CreateFeedback(ctx context.Context, userID uuid.UUID, subject, message string) (*domain.Feedback, error) {
+	query := `INSERT INTO feedbacks (user_id, subject, message) VALUES ($1, $2, $3) RETURNING id, user_id, subject, message, admin_reply, replied_at, created_at`
+	var f domain.Feedback
+	err := r.db.GetContext(ctx, &f, query, userID, subject, message)
+	return &f, err
+}
+
+func (r *postgresRepo) GetFeedbacksByUserID(ctx context.Context, userID uuid.UUID) ([]domain.Feedback, error) {
+	query := `SELECT id, user_id, subject, message, admin_reply, replied_at, created_at FROM feedbacks WHERE user_id = $1 ORDER BY created_at DESC`
+	var feedbacks []domain.Feedback
+	err := r.db.SelectContext(ctx, &feedbacks, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	return feedbacks, nil
+}
+
+func (r *postgresRepo) AdminListFeedbacks(ctx context.Context, params domain.FeedbackListParams) ([]domain.Feedback, int, error) {
+	if params.Page < 1 {
+		params.Page = 1
+	}
+	if params.PerPage < 1 || params.PerPage > 100 {
+		params.PerPage = 20
+	}
+
+	offset := (params.Page - 1) * params.PerPage
+
+	countQuery := `
+		SELECT COUNT(*) FROM feedbacks f
+		JOIN users u ON u.id = f.user_id
+		WHERE ($1 = '' OR f.subject ILIKE '%' || $1 || '%' OR f.message ILIKE '%' || $1 || '%' OR u.name ILIKE '%' || $1 || '%' OR u.email ILIKE '%' || $1 || '%')
+	`
+	var total int
+	if err := r.db.GetContext(ctx, &total, countQuery, params.Search); err != nil {
+		return nil, 0, err
+	}
+
+	query := `
+		SELECT
+			f.id, f.user_id, f.subject, f.message, f.admin_reply, f.replied_at, f.created_at,
+			u.name AS user_name, u.email AS user_email, COALESCE(u.picture, '') AS user_picture
+		FROM feedbacks f
+		JOIN users u ON u.id = f.user_id
+		WHERE ($1 = '' OR f.subject ILIKE '%' || $1 || '%' OR f.message ILIKE '%' || $1 || '%' OR u.name ILIKE '%' || $1 || '%' OR u.email ILIKE '%' || $1 || '%')
+		ORDER BY f.created_at DESC
+		LIMIT $2 OFFSET $3
+	`
+
+	var rows []domain.Feedback
+	if err := r.db.SelectContext(ctx, &rows, query, params.Search, params.PerPage, offset); err != nil {
+		return nil, 0, err
+	}
+
+	return rows, total, nil
+}
+
+func (r *postgresRepo) AdminReplyFeedback(ctx context.Context, feedbackID uuid.UUID, reply string) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE feedbacks SET admin_reply = $1, replied_at = CURRENT_TIMESTAMP WHERE id = $2`, reply, feedbackID)
+	return err
 }

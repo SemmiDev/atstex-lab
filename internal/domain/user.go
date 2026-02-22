@@ -41,6 +41,7 @@ type AdminUserRow struct {
 	Name         string    `json:"name"          db:"name"`
 	Picture      string    `json:"picture"       db:"picture"`
 	Role         string    `json:"role"          db:"role"`
+	Username     *string   `json:"username"      db:"username"`
 	AITokensUsed int64     `json:"aiTokensUsed"   db:"ai_tokens_used"`
 	BiodataCount int       `json:"biodataCount"  db:"biodata_count"`
 	CreatedAt    time.Time `json:"createdAt"     db:"created_at"`

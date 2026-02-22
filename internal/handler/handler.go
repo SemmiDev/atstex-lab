@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/compiler"
 	"github.com/semmidev/atstex-lab/internal/cvtemplate"
@@ -444,4 +445,125 @@ func (h *Handler) AdminListUsers(w http.ResponseWriter, r *http.Request) {
 		"page":    page,
 		"perPage": perPage,
 	})
+}
+
+// ── Feedback Handlers ──────────────────────────────────────────
+
+// FeedbackPage renders the user feedback page.
+func (h *Handler) FeedbackPage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+	if err := h.tmpl.ExecuteTemplate(w, "feedback", map[string]interface{}{"User": user}); err != nil {
+		h.reqLog(r).Error("template error", "err", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+	}
+}
+
+// CreateFeedback handles POST /api/feedback — user submits new feedback.
+func (h *Handler) CreateFeedback(w http.ResponseWriter, r *http.Request) {
+	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+	var req struct {
+		Subject string `json:"subject"`
+		Message string `json:"message"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		jsonError(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+	if req.Subject == "" || req.Message == "" {
+		jsonError(w, "subject and message are required", http.StatusBadRequest)
+		return
+	}
+
+	fb, err := h.repo.CreateFeedback(r.Context(), user.ID, req.Subject, req.Message)
+	if err != nil {
+		h.reqLog(r).Error("create feedback error", "err", err)
+		jsonError(w, "failed to create feedback", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(fb)
+}
+
+// ListMyFeedbacks handles GET /api/feedback — returns the current user's feedbacks.
+func (h *Handler) ListMyFeedbacks(w http.ResponseWriter, r *http.Request) {
+	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+	feedbacks, err := h.repo.GetFeedbacksByUserID(r.Context(), user.ID)
+	if err != nil {
+		h.reqLog(r).Error("list feedbacks error", "err", err)
+		jsonError(w, "failed to list feedbacks", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(feedbacks)
+}
+
+// AdminListFeedbacks handles GET /api/admin/feedbacks — paginated feedback list.
+func (h *Handler) AdminListFeedbacks(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+	page, _ := strconv.Atoi(q.Get("page"))
+	if page < 1 {
+		page = 1
+	}
+	perPage, _ := strconv.Atoi(q.Get("per_page"))
+	if perPage < 1 {
+		perPage = 20
+	}
+
+	params := domain.FeedbackListParams{
+		Page:    page,
+		PerPage: perPage,
+		Search:  q.Get("search"),
+	}
+
+	rows, total, err := h.repo.AdminListFeedbacks(r.Context(), params)
+	if err != nil {
+		h.reqLog(r).Error("admin list feedbacks error", "err", err)
+		jsonError(w, "failed to list feedbacks", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"feedbacks": rows,
+		"total":     total,
+		"page":      page,
+		"perPage":   perPage,
+	})
+}
+
+// AdminReplyFeedback handles POST /api/admin/feedbacks/{id}/reply — admin answers feedback.
+func (h *Handler) AdminReplyFeedback(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	feedbackID, err := uuid.Parse(idStr)
+	if err != nil {
+		jsonError(w, "invalid feedback ID", http.StatusBadRequest)
+		return
+	}
+
+	var req struct {
+		Reply string `json:"reply"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		jsonError(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+	if req.Reply == "" {
+		jsonError(w, "reply is required", http.StatusBadRequest)
+		return
+	}
+
+	if err := h.repo.AdminReplyFeedback(r.Context(), feedbackID, req.Reply); err != nil {
+		h.reqLog(r).Error("admin reply feedback error", "err", err)
+		jsonError(w, "failed to reply to feedback", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{"ok": true})
 }

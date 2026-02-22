@@ -33,6 +33,10 @@
           <i class="ph-bold ph-users-three"></i>
           <span>Users</span>
         </button>
+        <button class="sidebar-link" data-panel="feedback">
+          <i class="ph-bold ph-chat-circle-text"></i>
+          <span>Feedback</span>
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -125,6 +129,7 @@
               <tr>
                 <th class="sortable" data-sort="name">Name <i class="ph ph-caret-up-down"></i></th>
                 <th class="sortable" data-sort="email">Email <i class="ph ph-caret-up-down"></i></th>
+                <th>Public URL</th>
                 <th class="sortable" data-sort="role">Role <i class="ph ph-caret-up-down"></i></th>
                 <th class="sortable" data-sort="biodata_count">Biodata <i class="ph ph-caret-up-down"></i></th>
                 <th class="sortable" data-sort="ai_tokens_used">AI Tokens <i class="ph ph-caret-up-down"></i></th>
@@ -137,6 +142,61 @@
 
         <div class="pagination" id="pagination"></div>
       </section>
+
+      <!-- Feedback Panel -->
+      <section class="admin-panel" id="panel-feedback">
+        <div class="panel-header">
+          <h1><i class="ph-bold ph-chat-circle-text"></i> Feedback Management</h1>
+          <p>User feedback and recommendations with admin replies</p>
+        </div>
+
+        <div class="users-toolbar">
+          <div class="search-box">
+            <i class="ph-bold ph-magnifying-glass"></i>
+            <input type="text" id="fb-search" placeholder="Search feedback by subject, message, or user…">
+          </div>
+          <div class="users-meta">
+            <span id="fb-count">0 feedback</span>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="admin-table" id="fb-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Subject</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="fb-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="pagination" id="fb-pagination"></div>
+      </section>
+
+      <!-- Reply Modal -->
+      <div class="modal-overlay" id="reply-modal" style="display:none;">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h2><i class="ph-bold ph-chat-circle-text"></i> Reply to Feedback</h2>
+            <button class="modal-close" id="close-reply-modal"><i class="ph-bold ph-x"></i></button>
+          </div>
+          <div class="modal-body">
+            <div id="reply-fb-info" style="margin-bottom:16px;"></div>
+            <label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);display:block;margin-bottom:6px;">Admin Reply</label>
+            <textarea id="reply-text" rows="5" style="width:100%;padding:12px;border:3px solid var(--border);background:var(--bg);font:inherit;font-size:0.85rem;resize:vertical;outline:none;" placeholder="Type your reply…"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button class="btn" id="btn-send-reply"><i class="ph-bold ph-paper-plane-tilt"></i> Send Reply</button>
+            <span id="reply-status" style="font-size:0.8rem;font-weight:700;"></span>
+          </div>
+        </div>
+      </div>
 
     </main>
   </div>

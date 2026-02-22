@@ -1,0 +1,241 @@
+{{define "feedback"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>atstex-lab — Feedback</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body class="flex flex-col md:flex-row h-screen w-full bg-bg font-ui text-text overflow-hidden">
+    <!-- Mobile Header overlay toggle -->
+    <div class="md:hidden flex items-center justify-between p-4 bg-surface border-b-[4px] border-border z-40">
+        <div class="font-disp font-extrabold text-2xl">ATSTEX<em class="text-accent italic">LAB</em></div>
+        <button id="sidebar-toggle" class="text-3xl"><i class="ph ph-list"></i></button>
+    </div>
+
+    <!-- The Sidebar -->
+    <aside id="sidebar"
+        class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
+        <div class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
+            <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
+            <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Toggle Sidebar"><i class="ph-bold ph-caret-left"></i></button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4">
+            <a href="/"
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+                    class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Home</span></a>
+            <a href="/input"
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+                    class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a>
+            <a href="/editor"
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+                    class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
+            <a href="/profile"
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+                    class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profile</span></a>
+            <a href="/publish"
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+                    class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publish</span></a>
+            <a href="/feedback"
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i
+                    class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Feedback</span></a>
+            <a href="/support"
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+                    class="ph ph-coffee text-2xl"></i> <span class="sidebar-nav-text">Support</span></a>
+        </nav>
+
+        {{if .User}}
+        <div class="p-4 border-t-[4px] border-border bg-bg sidebar-profile-block">
+            <a href="/profile"
+                class="flex items-center gap-3 p-2 bg-surface border-[3px] border-border shadow-[4px_4px_0_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#000] transition-all">
+                <img src="{{.User.Picture}}" alt="Profile" class="w-10 h-10 border-2 border-border object-cover">
+                <div class="flex flex-col overflow-hidden">
+                    <span class="font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{.User.Name}}</span>
+                    <form action="/auth/logout" method="POST" class="m-0">
+                        <button type="submit"
+                            class="text-error text-xs font-bold uppercase tracking-wider outline-none">Logout <i
+                                class="ph-bold ph-sign-out"></i></button>
+                    </form>
+                </div>
+            </a>
+        </div>
+        {{end}}
+    </aside>
+
+    <!-- Overlay for mobile clicking -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+    <main class="flex-1 overflow-y-auto bg-bg relative p-6 md:p-10 flex justify-center">
+        <div class="w-full max-w-3xl flex flex-col gap-8">
+
+            <!-- Header -->
+            <div class="flex flex-col gap-2">
+                <h1 class="text-3xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
+                    <i class="ph-bold ph-chat-circle-text text-3xl"></i> Feedback & Recommendations
+                </h1>
+                <p class="font-semibold text-muted">Share your ideas, bug reports, or suggestions to help us improve ATSTEXLAB.</p>
+            </div>
+
+            <!-- Submit Form -->
+            <div class="bg-surface border-[3px] border-border p-6 shadow-[4px_4px_0_#000]">
+                <h2 class="text-lg font-extrabold uppercase tracking-wide mb-4 flex items-center gap-2">
+                    <i class="ph-bold ph-pencil-simple-line"></i> New Feedback
+                </h2>
+                <form id="feedback-form" class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs font-bold uppercase tracking-wider text-muted">Subject</label>
+                        <input type="text" id="fb-subject" placeholder="e.g. Feature request, Bug report…"
+                            class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]"
+                            required>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label class="text-xs font-bold uppercase tracking-wider text-muted">Message</label>
+                        <textarea id="fb-message" rows="4" placeholder="Describe your feedback in detail…"
+                            class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm resize-y focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]"
+                            required></textarea>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button type="submit" class="btn" id="fb-submit-btn">
+                            <i class="ph-bold ph-paper-plane-tilt"></i> Submit Feedback
+                        </button>
+                        <span id="fb-status" class="text-sm font-bold"></span>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Feedback list -->
+            <div class="flex flex-col gap-2">
+                <h2 class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
+                    <i class="ph-bold ph-list-checks text-3xl"></i> My Feedback
+                </h2>
+            </div>
+
+            <div id="fb-list" class="flex flex-col gap-4">
+                <div class="text-center text-muted font-semibold py-8">Loading…</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Sidebar
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const toggleBtn = document.getElementById('sidebar-toggle');
+        const collapseBtn = document.getElementById('sidebar-collapse');
+        if (toggleBtn) toggleBtn.addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('open'); });
+        if (overlay) overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); });
+        if (collapseBtn) collapseBtn.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
+
+        // Feedback
+        const fbForm = document.getElementById('feedback-form');
+        const fbSubject = document.getElementById('fb-subject');
+        const fbMessage = document.getElementById('fb-message');
+        const fbStatus = document.getElementById('fb-status');
+        const fbSubmitBtn = document.getElementById('fb-submit-btn');
+        const fbList = document.getElementById('fb-list');
+
+        fbForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const subject = fbSubject.value.trim();
+            const message = fbMessage.value.trim();
+            if (!subject || !message) return;
+
+            fbSubmitBtn.disabled = true;
+            fbStatus.textContent = 'Submitting…';
+            fbStatus.style.color = 'var(--muted)';
+
+            try {
+                const res = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subject, message }),
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Failed');
+                }
+                fbSubject.value = '';
+                fbMessage.value = '';
+                fbStatus.textContent = '✓ Submitted!';
+                fbStatus.style.color = 'var(--accent2)';
+                loadFeedbacks();
+            } catch (err) {
+                fbStatus.textContent = '✗ ' + err.message;
+                fbStatus.style.color = 'var(--error)';
+            } finally {
+                fbSubmitBtn.disabled = false;
+                setTimeout(() => { fbStatus.textContent = ''; }, 3000);
+            }
+        });
+
+        async function loadFeedbacks() {
+            try {
+                const res = await fetch('/api/feedback');
+                if (!res.ok) throw new Error('Failed');
+                const feedbacks = await res.json();
+                renderFeedbacks(feedbacks || []);
+            } catch (e) {
+                fbList.innerHTML = '<div class="text-center text-error font-semibold py-8">Failed to load feedback</div>';
+            }
+        }
+
+        function renderFeedbacks(feedbacks) {
+            if (!feedbacks.length) {
+                fbList.innerHTML = '<div class="text-center text-muted font-semibold py-8">No feedback submitted yet. Be the first! 🚀</div>';
+                return;
+            }
+
+            fbList.innerHTML = feedbacks.map(fb => {
+                const date = new Date(fb.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const hasReply = fb.adminReply && fb.adminReply.length > 0;
+                const statusBadge = hasReply
+                    ? '<span style="display:inline-block;padding:2px 8px;font-size:0.7rem;font-weight:700;text-transform:uppercase;border:2px solid var(--border);background:var(--accent2);color:#fff;">Answered</span>'
+                    : '<span style="display:inline-block;padding:2px 8px;font-size:0.7rem;font-weight:700;text-transform:uppercase;border:2px solid var(--border);background:var(--bg);color:var(--muted);">Pending</span>';
+
+                let replyBlock = '';
+                if (hasReply) {
+                    const replyDate = fb.repliedAt ? new Date(fb.repliedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+                    replyBlock = `
+                        <div style="margin-top:12px;padding:12px 16px;border:2px solid var(--accent2);background:rgba(139,92,246,0.05);">
+                            <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent2);margin-bottom:4px;">
+                                <i class="ph-bold ph-shield-check"></i> Admin Reply ${replyDate ? '· ' + replyDate : ''}
+                            </div>
+                            <div style="font-size:0.9rem;white-space:pre-wrap;">${escHtml(fb.adminReply)}</div>
+                        </div>`;
+                }
+
+                return `
+                    <div class="bg-surface border-[3px] border-border p-5 shadow-[4px_4px_0_#000]">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+                            <div style="flex:1;">
+                                <h3 style="font-size:1rem;font-weight:800;margin:0 0 4px 0;text-transform:uppercase;">${escHtml(fb.subject)}</h3>
+                                <span style="font-size:0.75rem;color:var(--muted);font-family:var(--font-mono);">${date}</span>
+                            </div>
+                            ${statusBadge}
+                        </div>
+                        <div style="margin-top:12px;font-size:0.9rem;white-space:pre-wrap;line-height:1.6;">${escHtml(fb.message)}</div>
+                        ${replyBlock}
+                    </div>`;
+            }).join('');
+        }
+
+        function escHtml(str) {
+            const el = document.createElement('span');
+            el.textContent = str || '';
+            return el.innerHTML;
+        }
+
+        loadFeedbacks();
+    </script>
+</body>
+
+</html>
+{{end}}
