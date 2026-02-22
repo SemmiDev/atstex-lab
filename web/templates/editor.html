@@ -373,8 +373,8 @@
     const biodataFrame = document.getElementById('biodata-frame');
     const settingsPanel = document.getElementById('settings-panel');
 
-    const allTabs = [tabBiodata, tabEditor, tabSettings];
-    const allPanels = [biodataFrame, editorContainer, settingsPanel];
+    const allTabs = [tabBiodata, tabEditor, tabSettings].filter(Boolean);
+    const allPanels = [biodataFrame, editorContainer, settingsPanel].filter(Boolean);
 
     function activateTab(activeTab, activePanel) {
       allTabs.forEach(t => {
@@ -388,7 +388,7 @@
     }
 
     tabBiodata.addEventListener('click', () => activateTab(tabBiodata, biodataFrame));
-    tabEditor.addEventListener('click', () => activateTab(tabEditor, editorContainer));
+    if (tabEditor) tabEditor.addEventListener('click', () => activateTab(tabEditor, editorContainer));
     tabSettings.addEventListener('click', () => activateTab(tabSettings, settingsPanel));
   </script>
 </body>
