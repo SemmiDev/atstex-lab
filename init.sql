@@ -55,3 +55,19 @@ CREATE TABLE IF NOT EXISTS feedbacks (
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_feedbacks_user_id ON feedbacks(user_id);
+
+CREATE TABLE IF NOT EXISTS cv_reviews (
+    id UUID PRIMARY KEY DEFAULT uuidv7(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    profile_id UUID NOT NULL REFERENCES cv_profiles(id) ON DELETE CASCADE,
+    profile_title VARCHAR(255) NOT NULL DEFAULT '',
+    language VARCHAR(10) NOT NULL DEFAULT 'en',
+    score INTEGER NOT NULL DEFAULT 0,
+    strengths TEXT NOT NULL DEFAULT '',
+    improvements TEXT NOT NULL DEFAULT '',
+    recommendations TEXT NOT NULL DEFAULT '',
+    tokens_used BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_cv_reviews_user_id ON cv_reviews(user_id);
+CREATE INDEX IF NOT EXISTS idx_cv_reviews_profile_id ON cv_reviews(profile_id);

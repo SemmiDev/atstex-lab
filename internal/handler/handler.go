@@ -640,3 +640,107 @@ func (h *Handler) AdminDeleteFeedback(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{"ok": true})
 }
+
+// ── CV Review ─────────────────────────────────────────────────
+
+// CVReviewPage renders the AI CV critique page.
+func (h *Handler) CVReviewPage(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+	profiles, _ := h.repo.GetCVProfilesByUserID(r.Context(), user.ID)
+
+	if err := h.tmpl.ExecuteTemplate(w, "cv-review", map[string]interface{}{
+		"User":     user,
+		"Profiles": profiles,
+	}); err != nil {
+		h.reqLog(r).Error("template error", "err", err)
+		http.Error(w, "internal error", http.StatusInternalServerError)
+	}
+}
+
+// CreateCVReview generates an AI critique for a selected CV profile.
+func (h *Handler) CreateCVReview(w http.ResponseWriter, r *http.Request) {
+	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+	var req struct {
+		ProfileID string `json:"profileId"`
+		Language  string `json:"language"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		jsonError(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	profileID, err := uuid.Parse(req.ProfileID)
+	if err != nil {
+		jsonError(w, "invalid profile ID", http.StatusBadRequest)
+		return
+	}
+
+	lang := req.Language
+	if lang == "" {
+		lang = "en"
+	}
+
+	profile, err := h.repo.GetCVProfile(r.Context(), profileID)
+	if err != nil {
+		jsonError(w, "profile not found", http.StatusNotFound)
+		return
+	}
+	if profile.UserID != user.ID {
+		jsonError(w, "forbidden", http.StatusForbidden)
+		return
+	}
+	if len(profile.Biodata) == 0 || string(profile.Biodata) == "null" || string(profile.Biodata) == "{}" {
+		jsonError(w, "this CV profile has no biodata — please fill in your biodata first", http.StatusBadRequest)
+		return
+	}
+
+	critiqueResult, tokensUsed, err := extractor.CritiqueCVProfile(r.Context(), string(profile.Biodata), lang, h.aiConfig)
+	if err != nil {
+		h.reqLog(r).Error("AI critique error", "err", err)
+		jsonError(w, "AI critique failed: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if tokensUsed > 0 {
+		_ = h.repo.IncrementAITokensUsed(r.Context(), user.ID, tokensUsed)
+	}
+
+	review := &domain.CVReview{
+		UserID:          user.ID,
+		ProfileID:       profileID,
+		ProfileTitle:    profile.Title,
+		Language:        lang,
+		Score:           critiqueResult.Score,
+		Strengths:       critiqueResult.Strengths,
+		Improvements:    critiqueResult.Improvements,
+		Recommendations: critiqueResult.Recommendations,
+		TokensUsed:      tokensUsed,
+	}
+	if err := h.repo.CreateCVReview(r.Context(), review); err != nil {
+		h.reqLog(r).Error("save cv review error", "err", err)
+		jsonError(w, "failed to save review", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(review)
+}
+
+// ListMyCVReviews returns the current user's CV review history.
+func (h *Handler) ListMyCVReviews(w http.ResponseWriter, r *http.Request) {
+	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+	reviews, err := h.repo.GetCVReviewsByUserID(r.Context(), user.ID)
+	if err != nil {
+		h.reqLog(r).Error("list cv reviews error", "err", err)
+		jsonError(w, "failed to list reviews", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(reviews)
+}

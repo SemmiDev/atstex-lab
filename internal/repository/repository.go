@@ -52,6 +52,9 @@ type Repository interface {
 	// Admin methods
 	AdminGetStats(ctx context.Context) (*domain.AdminStats, error)
 	AdminListUsers(ctx context.Context, params domain.AdminListParams) ([]domain.AdminUserRow, int, error)
+	// CV Review
+	CreateCVReview(ctx context.Context, review *domain.CVReview) error
+	GetCVReviewsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVReview, error)
 	Close() error
 }
 
@@ -386,4 +389,30 @@ func (r *postgresRepo) AdminUnblockUser(ctx context.Context, userID uuid.UUID) e
 func (r *postgresRepo) AdminDeleteUser(ctx context.Context, userID uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM users WHERE id = $1`, userID)
 	return err
+}
+
+// ── CV Reviews ────────────────────────────────────────────────
+
+func (r *postgresRepo) CreateCVReview(ctx context.Context, review *domain.CVReview) error {
+	query := `INSERT INTO cv_reviews (user_id, profile_id, profile_title, language, score, strengths, improvements, recommendations, tokens_used)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+		RETURNING id, created_at`
+	return r.db.QueryRowxContext(ctx, query,
+		review.UserID, review.ProfileID, review.ProfileTitle, review.Language,
+		review.Score, review.Strengths, review.Improvements, review.Recommendations, review.TokensUsed,
+	).Scan(&review.ID, &review.CreatedAt)
+}
+
+func (r *postgresRepo) GetCVReviewsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVReview, error) {
+	var reviews []domain.CVReview
+	err := r.db.SelectContext(ctx, &reviews,
+		`SELECT id, user_id, profile_id, profile_title, language, score, strengths, improvements, recommendations, tokens_used, created_at
+		 FROM cv_reviews WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`, userID)
+	if err != nil {
+		return nil, err
+	}
+	if reviews == nil {
+		reviews = []domain.CVReview{}
+	}
+	return reviews, nil
 }

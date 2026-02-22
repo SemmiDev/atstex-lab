@@ -129,6 +129,10 @@ func main() {
 		r.Get("/feedback", h.FeedbackPage)
 		r.Get("/api/feedback", h.ListMyFeedbacks)
 		r.Post("/api/feedback", h.CreateFeedback)
+		// CV Review
+		r.Get("/cv-review", h.CVReviewPage)
+		r.Post("/api/cv-review", h.CreateCVReview)
+		r.Get("/api/cv-reviews", h.ListMyCVReviews)
 	})
 
 	// Admin routes (requires login + admin role)
