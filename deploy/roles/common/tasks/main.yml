@@ -44,11 +44,9 @@
     create_home: yes
 
 - name: Allow deploy user passwordless sudo
-  blockinfile:
+  lineinfile:
     path: /etc/sudoers.d/{{ deploy_user }}
-    block: |
-      {{ deploy_user }} ALL=(ALL) NOPASSWD: ALL
-      Defaults:{{ deploy_user }} env_keep += "SSH_AUTH_SOCK"
+    line: "{{ deploy_user }} ALL=(ALL) NOPASSWD: ALL"
     create: yes
     validate: "visudo -cf %s"
 
@@ -68,6 +66,12 @@
     group: "{{ deploy_user }}"
     mode: "0600"
   ignore_errors: true
+
+- name: Create SSH keypair for deploy user (for GitHub Deploy Keys)
+  command: ssh-keygen -t ed25519 -N '' -f /home/{{ deploy_user }}/.ssh/id_ed25519 -C "deploy@atstex-lab"
+  args:
+    creates: "/home/{{ deploy_user }}/.ssh/id_ed25519"
+  become_user: "{{ deploy_user }}"
 
 # ── Application User ────────────────────────────────────────
 - name: Create application user
@@ -170,3 +174,21 @@
     - "{{ app_dir }}/backups"
     - "{{ app_dir }}/logs"
     - "{{ app_dir }}/scripts"
+
+# ── Extract Deploy User Public SSH Key ──────────────────────
+- name: Read deploy user SSH public key
+  command: cat /home/{{ deploy_user }}/.ssh/id_ed25519.pub
+  register: deploy_public_key
+  changed_when: false
+
+- name: Display deploy user SSH public key
+  debug:
+    msg: |
+
+      ========================================================================
+      Add the following public key as a Deploy Key in your GitHub repository:
+      ========================================================================
+
+      {{ deploy_public_key.stdout }}
+
+      ========================================================================
