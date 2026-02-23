@@ -31,19 +31,6 @@
     group: "{{ deploy_user }}"
     mode: "0644"
 
-# ── Tag Previous Image for Rollback ─────────────────────────
-- name: Check if current image exists
-  command: docker images -q {{ app_name }}:latest
-  register: current_image
-  changed_when: false
-  ignore_errors: yes
-  become_user: "{{ deploy_user }}"
-
-- name: Tag current image as rollback
-  command: docker tag {{ app_name }}:latest {{ app_name }}:rollback
-  when: current_image.stdout | length > 0
-  become_user: "{{ deploy_user }}"
-
 # ── Build Application Image ─────────────────────────────────
 - name: Build Docker image
   command: docker compose -f docker-compose-app.yml build --no-cache
@@ -63,7 +50,7 @@
   args:
     chdir: "{{ app_dir }}"
   become_user: "{{ deploy_user }}"
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Start application container
   command: docker compose -f docker-compose-app.yml up -d
@@ -103,5 +90,4 @@
   loop:
     - backup-db.sh
     - restore-db.sh
-    - rollback.sh
     - health-check.sh

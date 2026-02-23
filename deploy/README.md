@@ -124,26 +124,20 @@ ssh deploy@<IP_SERVER_ANDA>
 cd /opt/atstex-lab/scripts/
 ```
 
-### 1. Rollback Instan
-Jika *deployment* baru merusak aplikasi, Anda dapat mengembalikannya ke *image container* Docker sebelumnya secara instan:
-```bash
-sudo ./rollback.sh
-```
-
-### 2. Backup Database
+### 1. Backup Database
 *Backup* PostgreSQL dijalankan secara otomatis setiap hari via `cron`. Namun, Anda dapat memicu eksekusi *backup* manual kapan saja:
 ```bash
 sudo ./backup-db.sh
 ```
 *Backup akan disimpan sebagai file `.sql.gz` di dalam `/opt/atstex-lab/backups/`.*
 
-### 3. Pemulihan Database (Restore)
+### 2. Pemulihan Database (Restore)
 Untuk memulihkan database dari file *backup* spesifik (skrip ini akan otomatis membuat *backup* keamanan internal sebelum melakukan *restore*):
 ```bash
 sudo ./restore-db.sh /opt/atstex-lab/backups/backup_YYYYMMDD_HHMMSS.sql.gz
 ```
 
-### 4. Pengecekan Kesehatan Server (Health Checks)
+### 3. Pengecekan Kesehatan Server (Health Checks)
 Cek status berjalan dari Docker, Nginx, PostgreSQL, pemakaian memori, dan ruang disk:
 ```bash
 sudo ./health-check.sh
