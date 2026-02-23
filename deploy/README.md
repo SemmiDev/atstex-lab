@@ -1,158 +1,158 @@
-# ATSTEX-LAB — Ansible Deployment 🚀
+# ATSTEX-LAB — Deploy dengan Ansible 🚀
 
-This directory contains the complete Infrastructure-as-Code (IaC) setup for deploying **ATSTEX-LAB** to a production Ubuntu server using Ansible.
+Direktori ini berisi konfigurasi *Infrastructure-as-Code* (IaC) lengkap untuk mend-deploy **ATSTEX-LAB** ke server *production* Ubuntu menggunakan Ansible.
 
-It automates the installation of Docker, Nginx (with Let's Encrypt SSL), PostgreSQL, and handles the building, deploying, and rollback of the Go application.
-
----
-
-## 🏗 Architecture
-
-- **OS:** Ubuntu Linux (Hardened with UFW firewall, Fail2Ban, Swap file, unattended-upgrades)
-- **Proxy:** Nginx with Let's Encrypt SSL auto-renewal
-- **Database:** PostgreSQL containerized, mapped only to `localhost`
-- **Application:** Multi-stage Go Docker container mapping to port `8080`
+Setup ini secara otomatis menginstal Docker, Nginx (beserta sertifikat SSL dari Let's Encrypt), PostgreSQL, serta menangani proses *build*, *deploy*, dan *rollback* aplikasi Go.
 
 ---
 
-## 📁 Directory Structure
+## 🏗 Arsitektur
+
+- **OS:** Ubuntu Linux (Diperkuat dengan *firewall* UFW, Fail2Ban, *Swap file*, dan *unattended-upgrades*)
+- **Proxy:** Nginx dengan perpanjangan otomatis sertifikat SSL Let's Encrypt
+- **Database:** PostgreSQL di dalam *container*, hanya dapat diakses melalui `localhost`
+- **Aplikasi:** *Container* Docker multi-tahap (*multi-stage*) untuk aplikasi Go yang mengekspos *port* `8080`
+
+---
+
+## 📁 Struktur Direktori
 
 ```text
 deploy/
-├── ansible.cfg              # Ansible configuration tweaks
+├── ansible.cfg              # Penyesuaian konfigurasi Ansible
 ├── group_vars/
-│   ├── all.yml              # Global settings (app name, ports)
-│   └── production.yml       # Production secrets, domains, CPU limits
+│   ├── all.yml              # Pengaturan global (nama aplikasi, port)
+│   └── production.yml       # Rahasia production, domain, batasan CPU
 ├── inventory/
-│   └── production.ini       # Server IP and SSH connection details
+│   └── production.ini       # Alamat IP server dan detail koneksi SSH
 ├── playbooks/
-│   ├── site.yml             # Main playbook: Executes full server setup
-│   ├── setup.yml            # Infrastructure only (no app deploy)
-│   └── deploy.yml           # App deployment & updates only
+│   ├── site.yml             # Playbook utama: Menjalankan setup server secara menyeluruh
+│   ├── setup.yml            # Hanya infrastruktur (tanpa deploy aplikasi)
+│   └── deploy.yml           # Hanya untuk deploy & pembaruan aplikasi
 ├── roles/                   # Ansible roles (common, docker, nginx, postgres, app)
-└── scripts/                 # Utility shell scripts installed to /opt/atstex-lab/scripts
+└── scripts/                 # Utility shell scripts yang diinstal ke /opt/atstex-lab/scripts
 ```
 
 ---
 
-## 🔐 Managing Secrets Safely for GitHub (Ansible Vault)
+## 🔐 Mengelola Rahasia dengan Aman untuk GitHub (Ansible Vault)
 
-Your `group_vars/production.yml` contains sensitive information (database passwords, Google OAuth secrets, AI API keys). **Never push plaintext secrets to a public GitHub repository.**
+File `group_vars/production.yml` Anda berisi informasi sensitif (*password* *database*, *secret* Google OAuth, *API key* AI). **Jangan pernah melakukan *push* teks rahasia secara terang-terangan (*plaintext*) ke repositori GitHub publik.**
 
-Instead, use **Ansible Vault** to encrypt the file before committing:
+Sebagai gantinya, gunakan **Ansible Vault** untuk mengenkripsi file tersebut sebelum melakukan *commit*:
 
-### 1. Encrypt the file
+### 1. Mengenkripsi file
 ```bash
 cd deploy/
 ansible-vault encrypt group_vars/production.yml
 ```
-*You will be prompted to create a vault password. Remember this password!*
+*Anda akan diminta untuk membuat password vault. Ingatlah password ini!*
 
-### 2. Edit the encrypted file
-If you need to change a variable later, do not decrypt it completely. Use the edit command:
+### 2. Mengedit file terenkripsi
+Jika Anda perlu mengubah variabel di kemudian hari, jangan mendekripsinya secara keseluruhan. Gunakan perintah edit:
 ```bash
 ansible-vault edit group_vars/production.yml
 ```
 
-### 3. Run playbooks with Vault
-When running deployment commands manually, you must tell Ansible to ask for the vault password:
+### 3. Menjalankan playbook dengan Vault
+Saat menjalankan perintah *deploy* secara manual, Anda harus memberi tahu Ansible untuk meminta *password vault*:
 ```bash
 ansible-playbook -i inventory/production.ini playbooks/site.yml --ask-vault-pass
 ```
-*Note: The `./scripts/deploy.sh` wrapper script handles this automatically if it detects an encrypted file.*
+*Catatan: Skrip pembungkus `./scripts/deploy.sh` akan menangani hal ini secara otomatis jika mendeteksi file yang terenkripsi.*
 
 ---
 
-## 🚀 Deployment Guide
+## 🚀 Panduan Deployment
 
-### Prerequisites
-1. You must have Ansible installed on your local control machine:
+### Prasyarat
+1. Anda harus memiliki Ansible yang terinstal di mesin lokal Anda:
    ```bash
    brew install ansible         # macOS
    sudo apt install ansible     # Ubuntu/Debian
    ```
-2. Your local SSH public key (`~/.ssh/id_rsa.pub` or `~/.ssh/id_ed25519.pub`) must be added to the remote server's `root` user initially.
+2. *Public key* SSH lokal Anda (`~/.ssh/id_rsa.pub` atau `~/.ssh/id_ed25519.pub`) harus sudah ditambahkan ke *user* `root` di server tujuan (*remote*) terlebih dahulu.
 
-### Step 1: Configuration
-1. Edit `inventory/production.ini` and set your server's public IP address.
-2. Edit `group_vars/production.yml` (using `ansible-vault edit` if encrypted) and ensure your domain name, email, and API keys are correct.
+### Langkah 1: Konfigurasi
+1. Edit `inventory/production.ini` dan atur alamat IP publik server Anda.
+2. Edit `group_vars/production.yml` (menggunakan `ansible-vault edit` jika terenkripsi) dan pastikan nama domain, email, serta *API key* Anda sudah benar.
 
-### Step 2: Initial Server Setup & Deploy
-To provision a brand new server from scratch and deploy the application for the first time, use the wrapper script from the **project root**:
+### Langkah 2: Setup Server Awal & Deploy
+Untuk mem-provisi server yang benar-benar baru dari awal dan mend-deploy aplikasi untuk pertama kalinya, gunakan *wrapper script* dari **root proyek**:
 
 ```bash
 cd deploy/
 ./scripts/deploy.sh --env production
 ```
-This will run the `site.yml` playbook, configuring the OS, installing Docker/Nginx/PostgreSQL, getting SSL certificates, and building the Go app.
+Perintah ini akan menjalankan *playbook* `site.yml`, mengonfigurasi OS, menginstal Docker/Nginx/PostgreSQL, memproses sertifikat SSL, dan melakukan *build* pada aplikasi Go.
 
-### Step 3: Pushing App Updates
-When you modify your Go code or HTML templates and want to push the update to the server, you do **not** need to run the full setup again. Just run the application deployment playbook:
+### Langkah 3: Mendorong Pembaruan Aplikasi (App Updates)
+Ketika Anda memodifikasi kode Go atau *template* HTML dan ingin melakukan *push* pembaruan ke server, Anda **tidak** perlu menjalankan *setup* penuh lagi. Cukup jalankan *playbook deployment* aplikasi:
 
 ```bash
 cd deploy/
 ./scripts/deploy.sh --env production --app-only
 ```
-This skips the infrastructure setup, builds the new Docker image, tags the old one as a rollback, and restarts the container with zero-downtime Nginx proxying.
+Langkah ini akan melewati *setup* infrastruktur, melakukan *build image* Docker baru, menyimpan *image* lama sebagai *tag fallback*/rollback, dan memulai ulang *container* menggunakan *proxy* Nginx tanpa *downtime* (*zero-downtime*).
 
-### Step 4: Updating Specific Components (Tags)
-If you only changed the configuration for a specific infrastructure component (e.g., you updated the Nginx template or added a new PostgreSQL user), you can run just that role without going through the entire `site.yml` process.
+### Langkah 4: Memperbarui Komponen Spesifik (Menggunakan Tags)
+Jika Anda hanya mengubah konfigurasi untuk satu komponen infrastruktur spesifik (misalnya, Anda memperbarui *template* Nginx atau menambahkan *user* PostgreSQL baru), Anda dapat menjalankan hanya *role* tersebut tanpa melalui seluruh proses `site.yml`.
 
-Use the `--tags` argument with the name of the role:
+Gunakan argumen `--tags` dengan nama dari *role* terkait:
 
-**Update Nginx Only:**
+**Hanya Memperbarui Nginx:**
 ```bash
 ansible-playbook -i inventory/production.ini playbooks/site.yml --tags nginx
 ```
 
-**Update PostgreSQL Only:**
+**Hanya Memperbarui PostgreSQL:**
 ```bash
 ansible-playbook -i inventory/production.ini playbooks/site.yml --tags postgres
 ```
 
-*(Note: Add `--ask-vault-pass` to these manual commands if your `group_vars` are encrypted).*
+*(Catatan: Tambahkan `--ask-vault-pass` pada perintah manual ini jika file `group_vars` Anda terenkripsi).*
 
 ---
 
-## 🛠 Server Utility Scripts
+## 🛠 Skrip Utilitas Server
 
-During setup, Ansible installs several handy helper scripts on the remote server located at `/opt/atstex-lab/scripts/`.
+Selama masa setup, Ansible menginstal beberapa skrip pembantu yang berguna di server yang berada di `/opt/atstex-lab/scripts/`.
 
-You can access these by SSHing into the server:
+Anda dapat mengakses skrip-skrip ini dengan melakukan koneksi SSH ke server:
 ```bash
-ssh deploy@<YOUR_SERVER_IP>
+ssh deploy@<IP_SERVER_ANDA>
 cd /opt/atstex-lab/scripts/
 ```
 
-### 1. Instant Rollbacks
-If a new deployment breaks the application, you can instantly revert to the previous Docker container image:
+### 1. Rollback Instan
+Jika *deployment* baru merusak aplikasi, Anda dapat mengembalikannya ke *image container* Docker sebelumnya secara instan:
 ```bash
 sudo ./rollback.sh
 ```
 
-### 2. Database Backups
-PostgreSQL backups are automatically run daily via cron. However, you can trigger a manual backup anytime:
+### 2. Backup Database
+*Backup* PostgreSQL dijalankan secara otomatis setiap hari via `cron`. Namun, Anda dapat memicu eksekusi *backup* manual kapan saja:
 ```bash
 sudo ./backup-db.sh
 ```
-*Backups are stored as `.sql.gz` files in `/opt/atstex-lab/backups/`.*
+*Backup akan disimpan sebagai file `.sql.gz` di dalam `/opt/atstex-lab/backups/`.*
 
-### 3. Database Restoration
-To restore the database from a specific backup file (it will automatically create a pre-restore safety backup first):
+### 3. Pemulihan Database (Restore)
+Untuk memulihkan database dari file *backup* spesifik (skrip ini akan otomatis membuat *backup* keamanan internal sebelum melakukan *restore*):
 ```bash
 sudo ./restore-db.sh /opt/atstex-lab/backups/backup_YYYYMMDD_HHMMSS.sql.gz
 ```
 
-### 4. Health Checks
-Check the status of Docker, Nginx, PostgreSQL, memory, and disk space:
+### 4. Pengecekan Kesehatan Server (Health Checks)
+Cek status berjalan dari Docker, Nginx, PostgreSQL, pemakaian memori, dan ruang disk:
 ```bash
 sudo ./health-check.sh
 ```
 
 ---
 
-## 🛡 Security Notes
-- The `common` Ansible role automatically hardens the server by disabling SSH password authentication and root login (forcing the use of the `deploy` user with SSH keys).
-- UFW Firewall drops all traffic except ports 22 (SSH), 80 (HTTP), and 443 (HTTPS).
-- Fail2Ban prevents brute-force SSH attacks.
-- PostgreSQL port `5432` is intentionally NOT exposed to the public internet; it only binds to Docker's internal networking (`127.0.0.1`).
+## 🛡 Catatan Keamanan
+- Role Ansible `common` secara otomatis memperkuat (*harden*) server dengan menonaktifkan autentikasi *password* SSH dan akses masuk akun `root` (memaksa penggunaan *user* `deploy` dengan SSH *keys*).
+- *Firewall* UFW memblokir semua *traffic* kecuali *port* 22 (SSH), 80 (HTTP), dan 443 (HTTPS).
+- Fail2Ban mencegah serangan pemerasan (*brute-force*) terhadap *port* SSH.
+- Port PostgreSQL `5432` secara sengaja TIDAK dibuka untuk internet publik; port ini hanya terhubung (*bind*) ke dalam jaringan internal Docker (`127.0.0.1`).
