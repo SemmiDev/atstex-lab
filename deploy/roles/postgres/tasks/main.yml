@@ -51,6 +51,11 @@
   until: pg_ready.rc == 0
   changed_when: false
 
+- name: Allow external PostgreSQL access through UFW
+  command: "ufw allow {{ postgres_port }}/tcp"
+  ignore_errors: true
+  when: postgres_expose_public | default(false) | bool
+
 # ── Backup Cron ──────────────────────────────────────────────
 - name: Setup daily database backup cron
   cron:

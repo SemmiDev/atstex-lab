@@ -12,7 +12,11 @@ services:
       POSTGRES_PASSWORD: "{{ postgres_password }}"
       POSTGRES_DB: "{{ postgres_db }}"
     ports:
+{% if postgres_expose_public | default(false) | bool %}
+      - "0.0.0.0:{{ postgres_port }}:5432"
+{% else %}
       - "127.0.0.1:{{ postgres_port }}:5432"
+{% endif %}
     volumes:
       - {{ postgres_data_dir }}:/var/lib/postgresql/data
       - {{ app_dir }}/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
