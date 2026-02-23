@@ -411,8 +411,14 @@
     </style>
 
     <script src="/static/js/input.js"></script>
-    <script src="/static/js/sidebar.js"></script>
     <script src="/static/js/i18n.js"></script>
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const toggleBtn = document.getElementById('sidebar-toggle');
+        if (toggleBtn) toggleBtn.addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('open'); });
+        if (overlay) overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); });
+    </script>
 </body>
 
 </html>
