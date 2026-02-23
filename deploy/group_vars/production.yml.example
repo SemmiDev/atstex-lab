@@ -1,0 +1,33 @@
+---
+# ╔══════════════════════════════════════════════════════════════╗
+# ║  ATSTEX-LAB — Production Variables (EXAMPLE DEFINITION)      ║
+# ╚══════════════════════════════════════════════════════════════╝
+
+env: production
+
+# ── Domain ───────────────────────────────────────────────────
+domain_name: "example.com"
+server_name: "example.com"
+
+# ── SSL ──────────────────────────────────────────────────────
+ssl_enabled: true
+certbot_email: "admin@example.com"
+
+# ── Database ─────────────────────────────────────────────────
+postgres_password: "your_secure_db_password"
+database_url: "postgres://{{ postgres_user }}:{{ postgres_password }}@localhost:{{ postgres_port }}/{{ postgres_db }}?sslmode=disable"
+
+# ── Google OAuth ─────────────────────────────────────────────
+google_client_id: "your_google_client_id.apps.googleusercontent.com"
+google_client_secret: "your_google_client_secret"
+google_callback_url: "https://example.com/auth/google/callback"
+
+# ── AI Configuration ────────────────────────────────────────
+ai_provider: "mistral"
+ai_model: "mistral-small-latest"
+ai_api_key: "your_ai_api_key"
+
+# ── Docker Resources ────────────────────────────────────────
+docker_cpu_limit: "1"
+docker_memory_limit: "1g"
+docker_tmpfs_size: "512m"

@@ -1,0 +1,52 @@
+---
+# ╔══════════════════════════════════════════════════════════════╗
+# ║  ATSTEX-LAB — Shared Variables (all environments)           ║
+# ╚══════════════════════════════════════════════════════════════╝
+
+# ── Application ──────────────────────────────────────────────
+app_name: atstex-lab
+app_user: atstex
+app_group: atstex
+app_port: 8080
+app_dir: /opt/atstex-lab
+app_repo: "https://github.com/SemmiDev/atstex-lab.git"
+app_branch: main
+
+# ── Docker ───────────────────────────────────────────────────
+docker_compose_version: "v2.29.1"
+docker_edition: ce
+docker_users:
+  - deploy
+  - "{{ app_user }}"
+
+# ── PostgreSQL ───────────────────────────────────────────────
+postgres_version: "18"
+postgres_user: atstex
+postgres_db: atstex
+postgres_port: 5432
+postgres_data_dir: /opt/atstex-lab/data/postgres
+postgres_backup_dir: /opt/atstex-lab/backups
+
+# ── Nginx ────────────────────────────────────────────────────
+nginx_worker_processes: auto
+nginx_worker_connections: 1024
+nginx_client_max_body_size: 50m
+
+# ── Firewall (UFW) ──────────────────────────────────────────
+ufw_allowed_ports:
+  - { port: 22, proto: tcp } # SSH
+  - { port: 80, proto: tcp } # HTTP
+  - { port: 443, proto: tcp } # HTTPS
+
+# ── System ───────────────────────────────────────────────────
+swap_size: 2G
+timezone: Asia/Jakarta
+deploy_user: deploy
+
+# ── SSL / Let's Encrypt ─────────────────────────────────────
+certbot_email: "sammidev4@gmail.com"
+
+# ── Backups ──────────────────────────────────────────────────
+backup_retention_days: 30
+backup_cron_hour: 2
+backup_cron_minute: 0
