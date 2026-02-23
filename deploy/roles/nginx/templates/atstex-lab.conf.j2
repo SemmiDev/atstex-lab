@@ -76,8 +76,9 @@ server {
         proxy_read_timeout    120s;
 
         proxy_buffering on;
-        proxy_buffer_size 4k;
-        proxy_buffers 8 4k;
+        proxy_buffer_size 128k;
+        proxy_buffers 4 256k;
+        proxy_busy_buffers_size 256k;
     }
 
     # ── Static Assets (if served separately) ─────────────────
