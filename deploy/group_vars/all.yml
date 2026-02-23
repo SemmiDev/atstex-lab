@@ -9,7 +9,7 @@ app_user: atstex
 app_group: atstex
 app_port: 8080
 app_dir: /opt/atstex-lab
-app_repo: "https://github.com/SemmiDev/atstex-lab.git"
+app_repo: "git@github.com:SemmiDev/atstex-lab.git"
 app_branch: main
 
 # ── Docker ───────────────────────────────────────────────────

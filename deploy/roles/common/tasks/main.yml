@@ -44,9 +44,11 @@
     create_home: yes
 
 - name: Allow deploy user passwordless sudo
-  lineinfile:
+  blockinfile:
     path: /etc/sudoers.d/{{ deploy_user }}
-    line: "{{ deploy_user }} ALL=(ALL) NOPASSWD: ALL"
+    block: |
+      {{ deploy_user }} ALL=(ALL) NOPASSWD: ALL
+      Defaults:{{ deploy_user }} env_keep += "SSH_AUTH_SOCK"
     create: yes
     validate: "visudo -cf %s"
 
