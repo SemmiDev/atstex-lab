@@ -5,7 +5,8 @@
 /* ── Layout ─────────────────────────────────────────────────── */
 .admin-layout {
     display: flex;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     background: var(--bg);
 }
 
@@ -156,6 +157,7 @@
 /* ── Main Content ───────────────────────────────────────────── */
 .admin-main {
     flex: 1;
+    min-height: 0;
     padding: 32px;
     overflow-y: auto;
 }
@@ -439,6 +441,7 @@
         transform: scale(0.9) translateY(20px);
         opacity: 0;
     }
+
     to {
         transform: scale(1) translateY(0);
         opacity: 1;
