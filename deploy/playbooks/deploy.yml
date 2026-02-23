@@ -55,8 +55,4 @@
           ║  ✅ Application Updated Successfully!        ║
           ║                                              ║
           ║  URL: https://{{ domain_name }}              ║
-          ║                                              ║
-          ║  Rollback:                                   ║
-          ║    ssh {{ deploy_user }}@{{ ansible_host }}   ║
-          ║    {{ app_dir }}/scripts/rollback.sh          ║
           ╚══════════════════════════════════════════════╝
