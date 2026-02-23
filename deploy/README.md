@@ -95,6 +95,23 @@ cd deploy/
 ```
 This skips the infrastructure setup, builds the new Docker image, tags the old one as a rollback, and restarts the container with zero-downtime Nginx proxying.
 
+### Step 4: Updating Specific Components (Tags)
+If you only changed the configuration for a specific infrastructure component (e.g., you updated the Nginx template or added a new PostgreSQL user), you can run just that role without going through the entire `site.yml` process.
+
+Use the `--tags` argument with the name of the role:
+
+**Update Nginx Only:**
+```bash
+ansible-playbook -i inventory/production.ini playbooks/site.yml --tags nginx
+```
+
+**Update PostgreSQL Only:**
+```bash
+ansible-playbook -i inventory/production.ini playbooks/site.yml --tags postgres
+```
+
+*(Note: Add `--ask-vault-pass` to these manual commands if your `group_vars` are encrypted).*
+
 ---
 
 ## 🛠 Server Utility Scripts
