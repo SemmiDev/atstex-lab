@@ -267,6 +267,23 @@ textarea#editor::selection {
 }
 
 @media (max-width: 768px) {
+  header {
+    height: auto;
+    min-height: 60px;
+    padding: 12px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .engine-select-wrap {
+    margin-left: 0 !important;
+  }
+
+  #btn-compile {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+
   .workspace {
     flex-direction: column;
   }
@@ -274,6 +291,7 @@ textarea#editor::selection {
   .editor-pane {
     width: 100%;
     min-width: 0;
+    min-height: 0;
     flex: 1;
   }
 
@@ -284,6 +302,7 @@ textarea#editor::selection {
   }
 
   .preview-pane {
+    min-height: 0;
     flex: 1;
   }
 }
@@ -683,6 +702,7 @@ pre#log-output .warn-line {
 .settings-panel {
   flex: 1;
   width: 100%;
+  min-height: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
