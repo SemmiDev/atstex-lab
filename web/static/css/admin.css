@@ -5,7 +5,8 @@
 /* ── Layout ─────────────────────────────────────────────────── */
 .admin-layout {
     display: flex;
-    height: 100vh;
+    height: 100%;
+    min-height: 0;
     overflow: hidden;
     background: var(--bg);
 }
@@ -13,14 +14,10 @@
 /* ── Sidebar ────────────────────────────────────────────────── */
 .admin-sidebar {
     width: 280px;
-    min-height: 100vh;
     background: var(--surface);
     border-right: 4px solid var(--border);
     display: flex;
     flex-direction: column;
-    position: sticky;
-    top: 0;
-    height: 100vh;
 }
 
 .sidebar-brand {
