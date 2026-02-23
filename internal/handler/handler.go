@@ -337,6 +337,9 @@ func (h *Handler) ExtractPDF(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Enforce 5MB limit on request body entirely to prevent memory exhaustion
+	r.Body = http.MaxBytesReader(w, r.Body, 5<<20)
+
 	var req struct {
 		Text string `json:"text"`
 	}
@@ -348,6 +351,13 @@ func (h *Handler) ExtractPDF(w http.ResponseWriter, r *http.Request) {
 
 	if len(req.Text) < 50 {
 		jsonError(w, "PDF text is too short to extract meaningful data", http.StatusBadRequest)
+		return
+	}
+
+	const maxChars = 20000
+	if len(req.Text) > maxChars {
+		log.Warn("PDF text exceeds maximum allowed characters", "text_len", len(req.Text), "max_chars", maxChars)
+		jsonError(w, "PDF text exceeds maximum allowed characters", http.StatusRequestEntityTooLarge)
 		return
 	}
 

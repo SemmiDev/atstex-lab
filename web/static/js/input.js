@@ -705,6 +705,13 @@ if (btnUploadPdf && pdfUploadInput) {
       return;
     }
 
+    // 2MB file size limit for PDF processing
+    const MAX_MB = 2;
+    if (file.size > MAX_MB * 1024 * 1024) {
+      showStatus(`File is too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Max allowed size is ${MAX_MB}MB.`, true);
+      return;
+    }
+
     const originalBtnHTML = btnUploadPdf.innerHTML;
 
     // Lock all interactive controls
@@ -745,6 +752,12 @@ if (btnUploadPdf && pdfUploadInput) {
       const textLen = fullText.trim().length;
       if (textLen < 50) {
         throw new Error('Could not extract enough text from the PDF. Is the PDF text-based?');
+      }
+
+      // Hard limit on character count (~3000-4000 words limit, usually ~6 pages) to prevent token exhaustion
+      const MAX_CHARS = 20000;
+      if (textLen > MAX_CHARS) {
+        throw new Error(`PDF contains too much text (${textLen.toLocaleString()} chars). Please keep it under ${MAX_CHARS.toLocaleString()} characters.`);
       }
 
       updateExtractStep(`🤖 Sending ${textLen.toLocaleString()} chars to AI... this may take ~10s`);
