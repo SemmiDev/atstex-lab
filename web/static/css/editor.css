@@ -39,8 +39,7 @@
 /* Body layout is now controlled by Tailwind utilities on the <body> tag.
    Keep only editor-specific body resets here. */
 body {
-  font-size: 14px;
-  line-height: 1.6;
+  /* Removed font-size to avoid overriding global sidebar styling */
 }
 
 /* ── TOP BAR ──────────────────────────────────────────── */

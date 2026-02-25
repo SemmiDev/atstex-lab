@@ -1010,3 +1010,17 @@ func (s *Server) handleListMyCoverLetters() http.HandlerFunc {
 		s.encode(w, r, http.StatusOK, letters)
 	}
 }
+
+// ── Job Application Tracking ──────────────────────────────────
+
+// handleKanbanPage renders the job application tracking board.
+func (s *Server) handleKanbanPage() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+		if err := s.tmpl.ExecuteTemplate(w, "kanban", map[string]interface{}{"User": user}); err != nil {
+			s.reqLog(r).Error("template error", "err", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}
+	}
+}

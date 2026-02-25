@@ -76,6 +76,13 @@ func (s *Server) routes() {
 		r.Get("/cover-letter", s.handleCoverLetterPage())
 		r.Post("/api/cover-letter/generate", s.handleGenerateCoverLetter())
 		r.Get("/api/cover-letters", s.handleListMyCoverLetters())
+		// Job Application Tracking
+		r.Get("/kanban", s.handleKanbanPage())
+		r.Get("/api/applications", s.GetJobApplications())
+		r.Post("/api/applications", s.CreateJobApplication())
+		r.Put("/api/applications/{id}", s.UpdateJobApplication())
+		r.Put("/api/applications/{id}/status", s.UpdateJobApplicationStatus())
+		r.Delete("/api/applications/{id}", s.DeleteJobApplication())
 	})
 
 	// Admin routes (requires login + admin role)

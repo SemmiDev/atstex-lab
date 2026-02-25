@@ -1,24 +1,14 @@
-{{define "profile"}}
+{{define "kanban"}}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <title>atstex-lab — Profile & Sessions</title>
+    <title>atstex-lab — Job Application Tracker</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder for job seekers.">
-    <meta name="keywords" content="ATS resume builder, LaTeX resume, CV maker, recruiter-ready resume, free resume builder, data privacy, ATSTEXLAB">
-    <meta name="author" content="ATSTEXLAB">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="atstex-lab — Profile & Sessions">
-    <meta property="og:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
-    <meta property="og:image" content="/static/cv-favicon.svg">
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:title" content="atstex-lab — Profile & Sessions">
-    <meta property="twitter:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
-    <meta property="twitter:image" content="/static/cv-favicon.svg">
     <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/kanban.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&display=swap"
         rel="stylesheet">
@@ -57,10 +47,10 @@
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Cover Letter</span></a>
             <a href="/kanban"
-                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i
                     class="ph ph-columns text-2xl"></i> <span class="sidebar-nav-text">Kanban</span></a>
             <a href="/profile"
-                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i
+                class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profile</span></a>
             <a href="/publish"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
@@ -94,77 +84,73 @@
     <!-- Overlay for mobile clicking -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
 
-    <main class="flex-1 min-h-0 overflow-y-auto bg-bg relative p-6 md:p-10 flex justify-center">
-        <div class="w-full max-w-3xl flex flex-col gap-8">
-            <div class="card flex flex-col md:flex-row items-center md:items-start gap-6 pt-10">
-                <img src="{{.User.Picture}}" alt="Profile Image"
-                    class="w-24 h-24 rounded-full border-[4px] border-border shadow-[4px_4px_0px_#000]">
-                <div class="text-center md:text-left">
-                    <h1 class="font-disp font-extrabold text-3xl m-0">{{.User.Name}}</h1>
-                    <p
-                        class="font-mono mt-2 text-muted font-bold flex items-center justify-center md:justify-start gap-2 break-all">
-                        <i class="ph-bold ph-envelope"></i> {{.User.Email}}
-                    </p>
-                    <p class="text-sm font-semibold mt-1">Member since {{.User.CreatedAt.Format "02 Jan 2006"}}</p>
+    <main class="flex-1 min-h-0 overflow-y-auto bg-bg relative p-6 md:p-10">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4 mb-6">
+                <h1 class="text-2xl md:text-3xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3 w-full md:w-auto">
+                    <i class="ph-bold ph-columns text-3xl"></i> Job Applications
+                </h1>
+                <button id="add-job-btn" class="btn btn-primary w-full md:w-auto justify-center md:mt-[-8px]">
+                    <i class="ph-bold ph-plus"></i> <span class="btn-label">Add Application</span>
+                </button>
+            </div>
+
+            <div id="kanban-board" class="flex flex-col md:flex-row gap-4 h-full min-h-[60vh]">
+                <div class="kanban-column" data-status="Applied">
+                    <h2>Applied</h2>
+                    <div class="card-container"></div>
+                </div>
+                <div class="kanban-column" data-status="Interview">
+                    <h2>Interview</h2>
+                    <div class="card-container"></div>
+                </div>
+                <div class="kanban-column" data-status="Offer">
+                    <h2>Offer</h2>
+                    <div class="card-container"></div>
+                </div>
+                <div class="kanban-column" data-status="Rejected">
+                    <h2>Rejected</h2>
+                    <div class="card-container"></div>
                 </div>
             </div>
+        </div>
 
-            <div class="bg-surface border-[3px] border-border p-5 flex items-center gap-4 shadow-[4px_4px_0_#000]">
-                <div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;border:2px solid var(--border);background:var(--accent3);flex-shrink:0;">🤖</div>
-                <div class="flex flex-col">
-                    <span class="font-mono font-extrabold text-2xl">{{.User.AITokensUsed}}</span>
-                    <span class="text-xs font-bold uppercase tracking-wider text-muted">AI Tokens Used</span>
-                </div>
-            </div>
-
-            <div class="flex flex-col gap-2">
-                <h2
-                    class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
-                    <i class="ph-bold ph-devices text-3xl"></i> Active Sessions
-                </h2>
-                <p class="font-semibold text-muted">Review the devices currently logged into your account. You can
-                    revoke any unrecognized sessions.</p>
-            </div>
-
-            <div class="flex flex-col gap-4">
-                {{range .Sessions}}
-                <div
-                    class="bg-surface border-[3px] border-border p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-[4px_4px_0_#000]">
+        <!-- Add/Edit Modal -->
+        <div id="job-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
+            <div class="bg-surface border-[3px] border-border shadow-[8px_8px_0_#000] w-full max-w-md p-6 relative">
+                <button id="cancel-btn-top" class="absolute top-4 right-4 text-2xl outline-none hover:text-error transition-colors"><i class="ph-bold ph-x"></i></button>
+                <h3 class="font-disp font-extrabold text-2xl uppercase tracking-tight mb-4 border-b-2 border-border pb-2" id="modal-title">Add Job Application</h3>
+                <form id="job-form" class="flex flex-col gap-4">
+                    <input type="hidden" id="application-id">
                     <div class="flex flex-col gap-1">
-                        <div class="font-bold uppercase tracking-wider text-xs mb-1">Log In Device</div>
-                        <span class="font-mono text-sm font-bold flex items-center gap-2"><i
-                                class="ph-bold ph-globe"></i> {{if .IPAddress}}{{.IPAddress}}{{else}}Unknown
-                            IP{{end}}</span>
-                        <span class="text-sm font-medium text-muted flex items-center gap-2"><i
-                                class="ph-bold ph-monitor"></i> {{if .UserAgent}}{{.UserAgent}}{{else}}Unknown Browser /
-                            OS{{end}}</span>
-                        <span class="text-xs font-semibold text-gray-500 mt-1">Expires: {{.ExpiresAt.Format "02 Jan 2006, 15:04 MST"}}</span>
+                        <label for="company" class="text-xs font-bold uppercase tracking-wider text-muted">Company</label>
+                        <input type="text" id="company" name="company" class="form-input" required>
                     </div>
-                    <div class="w-full md:w-auto">
-                        <form action="/auth/sessions/{{.Token}}/delete" method="POST"
-                            onsubmit="return confirm('Are you sure you want to revoke this session? The device will be logged out immediately.');">
-                            <button type="submit"
-                                class="btn btn-ghost w-full !border-error !text-error hover:!bg-error hover:!text-white">Revoke
-                                Access</button>
-                        </form>
+                    <div class="flex flex-col gap-1">
+                        <label for="job-title" class="text-xs font-bold uppercase tracking-wider text-muted">Job Title</label>
+                        <input type="text" id="job-title" name="job-title" class="form-input" required>
                     </div>
-                </div>
-                {{end}}
-            </div>
-
-            <div class="bg-[#fff5f5] border-[3px] border-error p-6 mt-4 flex flex-col gap-4 shadow-[4px_4px_0_#ff3333]">
-                <h3 class="text-xl font-extrabold uppercase text-error flex items-center gap-2 m-0"><i
-                        class="ph-bold ph-warning"></i> Danger Zone</h3>
-                <p class="font-medium text-error">Once you delete an account, there is no going back. All biodata,
-                    settings, and sessions will be destroyed forever.</p>
-                <form action="/auth/delete-account" method="POST"
-                    onsubmit="return confirm('Delete account and all data forever? This cannot be undone.');">
-                    <button type="submit" class="btn !bg-error !text-white !border-error">Delete Account</button>
+                    <div class="flex flex-col gap-1">
+                        <label for="cv-profile" class="text-xs font-bold uppercase tracking-wider text-muted">CV Profile</label>
+                        <select id="cv-profile" name="cv-profile" class="form-input" required>
+                            <!-- Options will be populated by JS -->
+                        </select>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <label for="notes" class="text-xs font-bold uppercase tracking-wider text-muted">Notes</label>
+                        <textarea id="notes" name="notes" rows="3" class="form-input"></textarea>
+                    </div>
+                    <div class="flex gap-3 mt-4">
+                        <button type="button" id="cancel-btn" class="btn btn-ghost flex-1 justify-center">Cancel</button>
+                        <button type="button" id="save-job-btn" class="btn btn-primary flex-1 justify-center">Save</button>
+                    </div>
                 </form>
             </div>
         </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script src="/static/js/kanban.js"></script>
     <script>
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
@@ -187,11 +173,10 @@
 
         if (collapseBtn) {
             collapseBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('collapsed');
+                document.body.classList.toggle('sidebar-collapsed');
             });
         }
     </script>
 </body>
-
 </html>
 {{end}}

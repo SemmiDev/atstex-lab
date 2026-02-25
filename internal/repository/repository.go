@@ -60,6 +60,12 @@ type Repository interface {
 	// Cover Letters
 	CreateCoverLetter(ctx context.Context, cl *domain.CoverLetter) error
 	GetCoverLettersByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CoverLetter, error)
+	// Job Application Tracking
+	CreateJobApplication(ctx context.Context, j *domain.JobApplication) (*domain.JobApplication, error)
+	UpdateJobApplication(ctx context.Context, app *domain.JobApplication) error
+	GetJobApplicationsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.JobApplication, error)
+	UpdateJobApplicationStatus(ctx context.Context, id uuid.UUID, status string) error
+	DeleteJobApplication(ctx context.Context, id uuid.UUID) error
 	Close() error
 }
 
@@ -473,4 +479,58 @@ func (r *postgresRepo) GetCoverLettersByUserID(ctx context.Context, userID uuid.
 		letters = []domain.CoverLetter{}
 	}
 	return letters, nil
+}
+
+// ── Job Application Tracking ──────────────────────────────────
+
+func (r *postgresRepo) CreateJobApplication(ctx context.Context, j *domain.JobApplication) (*domain.JobApplication, error) {
+	query := `INSERT INTO job_applications (user_id, cv_profile_id, company, job_title, status, notes)
+		VALUES ($1, $2, $3, $4, $5, $6)
+		RETURNING id, user_id, cv_profile_id, company, job_title, status, notes, created_at, updated_at`
+
+	var cvProfileID interface{}
+	if j.CVProfileID != nil {
+		cvProfileID = *j.CVProfileID
+	}
+
+	err := r.db.GetContext(ctx, j, query, j.UserID, cvProfileID, j.Company, j.JobTitle, j.Status, j.Notes)
+	return j, err
+}
+
+func (r *postgresRepo) GetJobApplicationsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.JobApplication, error) {
+	var apps []domain.JobApplication
+	err := r.db.SelectContext(ctx, &apps,
+		`SELECT id, user_id, cv_profile_id, company, job_title, status, notes, created_at, updated_at
+		 FROM job_applications WHERE user_id = $1 ORDER BY created_at DESC`, userID)
+	if err != nil {
+		return nil, err
+	}
+	if apps == nil {
+		apps = []domain.JobApplication{}
+	}
+	return apps, nil
+}
+
+func (r *postgresRepo) UpdateJobApplicationStatus(ctx context.Context, id uuid.UUID, status string) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE job_applications SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, status, id)
+	return err
+}
+
+func (r *postgresRepo) UpdateJobApplication(ctx context.Context, app *domain.JobApplication) error {
+	var cvProfileID interface{}
+	if app.CVProfileID != nil {
+		cvProfileID = *app.CVProfileID
+	}
+
+	query := `UPDATE job_applications
+			  SET company = $1, job_title = $2, cv_profile_id = $3, notes = $4, updated_at = CURRENT_TIMESTAMP
+			  WHERE id = $5 AND user_id = $6`
+
+	_, err := r.db.ExecContext(ctx, query, app.Company, app.JobTitle, cvProfileID, app.Notes, app.ID, app.UserID)
+	return err
+}
+
+func (r *postgresRepo) DeleteJobApplication(ctx context.Context, id uuid.UUID) error {
+	_, err := r.db.ExecContext(ctx, `DELETE FROM job_applications WHERE id = $1`, id)
+	return err
 }
