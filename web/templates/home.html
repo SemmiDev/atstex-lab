@@ -6,6 +6,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ATSTEXLAB — ATS-Optimized LaTeX Resumes</title>
+  <meta name="description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder for job seekers.">
+  <meta name="keywords" content="ATS resume builder, LaTeX resume, CV maker, recruiter-ready resume, free resume builder, data privacy, ATSTEXLAB">
+  <meta name="author" content="ATSTEXLAB">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ATSTEXLAB — ATS-Optimized LaTeX Resumes">
+  <meta property="og:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+  <meta property="og:image" content="/static/cv-favicon.svg">
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:title" content="ATSTEXLAB — ATS-Optimized LaTeX Resumes">
+  <meta property="twitter:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+  <meta property="twitter:image" content="/static/cv-favicon.svg">
+  <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
   <link rel="stylesheet" href="/static/css/style.css">
   <link rel="stylesheet" href="/static/css/home.css">
   <link
@@ -183,9 +195,15 @@
           Create different resumes for different roles.
           One for "Back End Developer", another for "Data Engineer" — you decide.
         </p>
-      </div>
+      <!-- The first 4 cards stay in the hero grid for balance -->
+    </div>
+  </main>
 
-      <div class="feature-card alt-3" data-aos="zoom-in" data-aos-delay="450">
+  <!-- ── BOTTOM SECTION ────────────────────────────────────────── -->
+  <section class="bottom-section" data-aos="fade-up" data-aos-delay="200">
+
+    <div class="bottom-features-grid">
+      <div class="feature-card alt-3">
         <div class="icon">🤖</div>
         <h3 data-i18n="feature.5.title">AI-Powered Extraction</h3>
         <p data-i18n="feature.5.desc">
@@ -193,29 +211,29 @@
         </p>
       </div>
 
-      <div class="feature-card" data-aos="zoom-in" data-aos-delay="480">
+      <div class="feature-card alt-4">
         <div class="icon">✨</div>
         <h3 data-i18n="feature.6.title">AI CV Review & Scoring</h3>
         <p data-i18n="feature.6.desc">
           Get actionable feedback tailored by AI. Discover strengths, weaknesses, and a structured rating to help your resume stand out.
         </p>
       </div>
+    </div>
 
-      <div class="feature-card saweria-card" data-aos="zoom-in" data-aos-delay="500"
-        style="grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 16px;">
-        <h3 style="margin-bottom: 0;" data-i18n="support.title">☕ Support the Project</h3>
-        <p style="margin-bottom: 12px;" data-i18n="support.desc">If you found this tool helpful, consider leaving a tip to keep the servers
-          running!</p>
-        <a href="https://saweria.co/sammidev" target="_blank"
-          style="display: inline-block; transition: transform var(--transition);"
-          onmouseover="this.style.transform='translate(-4px, -4px)';" onmouseout="this.style.transform='none';">
-          <img src="/static/saweria.png" alt="Saweria QR Code"
-            style="width: 350px; height: 350px; border: 4px solid var(--border); box-shadow: var(--shadow-sm); border-radius: 8px; background: white; display: block;" />
+    <!-- Horizontal Support Banner -->
+    <div class="support-banner saweria-card" data-aos="fade-up" data-aos-delay="300">
+      <div class="support-text">
+        <h3 data-i18n="support.title">☕ Support the Project</h3>
+        <p data-i18n="support.desc">If you found this tool helpful, consider leaving a tip to keep the servers running!</p>
+      </div>
+      <div class="support-qr">
+        <a href="https://saweria.co/sammidev" target="_blank">
+          <img src="/static/saweria.png" alt="Saweria QR Code" />
         </a>
       </div>
-
     </div>
-  </main>
+
+  </section>
 
   <footer class="footer" data-aos="fade-up" data-aos-delay="200">
     <p data-i18n="footer.copyright">© 2026 ATSTEXLAB · Your Resume, Recruiter-Ready</p>

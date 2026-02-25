@@ -1,0 +1,839 @@
+package handler
+
+import (
+	"context"
+	"encoding/json"
+	"html"
+	"html/template"
+	"log/slog"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
+	"github.com/semmidev/atstex-lab/internal/auth"
+	"github.com/semmidev/atstex-lab/internal/compiler"
+	"github.com/semmidev/atstex-lab/internal/cvtemplate"
+	"github.com/semmidev/atstex-lab/internal/domain"
+	"github.com/semmidev/atstex-lab/internal/extractor"
+	mw "github.com/semmidev/atstex-lab/internal/middleware"
+	"github.com/semmidev/atstex-lab/internal/repository"
+)
+
+// compileRequest is the JSON body expected by POST /compile.
+type compileRequest struct {
+	Source string `json:"source"`
+	Engine string `json:"engine"`
+}
+
+// compileResponse is the JSON body returned by POST /compile.
+type compileResponse struct {
+	OK      bool   `json:"ok"`
+	Log     string `json:"log"`
+	Elapsed string `json:"elapsed"`
+	Engine  string `json:"engine"`
+	Error   string `json:"error,omitempty"`
+}
+
+// Server holds shared dependencies for HTTP handlers.
+type Server struct {
+	router     chi.Router
+	tmpl       *template.Template
+	logger     *slog.Logger
+	repo       repository.Repository
+	authConfig *auth.Config
+	aiConfig   extractor.AIConfig
+}
+
+// NewServer constructs a Server and sets up its routes.
+func NewServer(tmpl *template.Template, logger *slog.Logger, r repository.Repository, ac *auth.Config, ai extractor.AIConfig) *Server {
+	s := &Server{
+		tmpl:       tmpl,
+		logger:     logger,
+		repo:       r,
+		authConfig: ac,
+		aiConfig:   ai,
+	}
+	s.routes()
+	return s
+}
+
+func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.router.ServeHTTP(w, r)
+}
+
+// reqLog returns the per-request logger from context (with request_id and trace_id),
+// falling back to the handler's base logger.
+func (s *Server) reqLog(r *http.Request) *slog.Logger {
+	return mw.GetLogger(r.Context())
+}
+
+// encode is a helper to encode JSON responses.
+func (s *Server) encode(w http.ResponseWriter, r *http.Request, status int, v interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	if err := json.NewEncoder(w).Encode(v); err != nil {
+		s.reqLog(r).Error("failed to encode json response", "err", err)
+	}
+}
+
+// respondError is a helper for returning JSON errors.
+func (s *Server) respondError(w http.ResponseWriter, r *http.Request, err error, status int) {
+	s.encode(w, r, status, compileResponse{OK: false, Error: err.Error()})
+}
+
+// respondErrMsg is a helper for returning custom string JSON errors.
+func (s *Server) respondErrMsg(w http.ResponseWriter, r *http.Request, msg string, status int) {
+	s.encode(w, r, status, compileResponse{OK: false, Error: msg})
+}
+
+// Home renders the landing page.
+func (s *Server) handleHome() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+		if err := s.tmpl.ExecuteTemplate(w, "home", map[string]interface{}{"User": user}); err != nil {
+			s.reqLog(r).Error("template error", "err", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}
+	}
+}
+
+// Support renders the Support/Donate page.
+func (s *Server) handleSupport() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+		if err := s.tmpl.ExecuteTemplate(w, "support", map[string]interface{}{"User": user}); err != nil {
+			s.reqLog(r).Error("template error", "err", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}
+	}
+}
+
+// Editor renders the main application UI.
+func (s *Server) handleEditor() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+		if err := s.tmpl.ExecuteTemplate(w, "editor", map[string]interface{}{"User": user}); err != nil {
+			s.reqLog(r).Error("template error", "err", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}
+	}
+}
+
+// Input renders the data collection UI.
+func (s *Server) handleInput() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+		if err := s.tmpl.ExecuteTemplate(w, "input", map[string]interface{}{"User": user}); err != nil {
+			s.reqLog(r).Error("template error", "err", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}
+	}
+}
+
+// InputEmbed renders a stripped-down biodata form for embedding in the editor.
+func (s *Server) handleInputEmbed() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+		if err := s.tmpl.ExecuteTemplate(w, "input_embed", map[string]interface{}{"User": user}); err != nil {
+			s.reqLog(r).Error("template error", "err", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}
+	}
+}
+
+// Profile renders the user profile and session management UI.
+func (s *Server) handleProfile() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+		sessions, err := s.repo.GetSessionsByUserID(r.Context(), user.ID)
+		if err != nil {
+			s.reqLog(r).Error("failed to get active sessions", "err", err)
+		}
+
+		data := map[string]interface{}{
+			"User":     user,
+			"Sessions": sessions,
+		}
+
+		if err := s.tmpl.ExecuteTemplate(w, "profile", data); err != nil {
+			s.reqLog(r).Error("template error", "err", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}
+	}
+}
+
+// DeleteSession handles deleting a specific session (remote logout).
+func (s *Server) handleDeleteSession() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+		tokenToDelete := chi.URLParam(r, "token")
+
+		if tokenToDelete == "" {
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
+
+		// Make sure the session actually belongs to this user before deleting it
+		sess, err := s.repo.GetSession(r.Context(), tokenToDelete)
+		if err != nil || sess.UserID != user.ID {
+			s.reqLog(r).Warn("unauthorized session deletion attempt", "user", user.ID, "token", tokenToDelete)
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+
+		if err := s.repo.DeleteSession(r.Context(), tokenToDelete); err != nil {
+			s.reqLog(r).Error("failed to delete remote session", "err", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		http.Redirect(w, r, "/profile", http.StatusSeeOther)
+	}
+}
+
+// ListTemplates returns a JSON list of available CV templates.
+func (s *Server) handleListTemplates() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		tpls, err := cvtemplate.List()
+		if err != nil {
+			s.reqLog(r).Error("listing templates error", "err", err)
+			s.respondErrMsg(w, r, "failed to list templates", http.StatusInternalServerError)
+			return
+		}
+		s.encode(w, r, http.StatusOK, tpls)
+	}
+}
+
+// GetTemplate returns the raw LaTeX source for a template.
+func (s *Server) handleGetTemplate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		name := chi.URLParam(r, "name")
+		if name == "" {
+			s.respondErrMsg(w, r, "name is required", http.StatusBadRequest)
+			return
+		}
+		content, err := cvtemplate.Get(name)
+		if err != nil {
+			s.respondError(w, r, err, http.StatusNotFound)
+			return
+		}
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.Write([]byte(content))
+	}
+}
+
+// renderTemplateRequest is the request body for both RenderTemplate and ApplyPageSettings.
+type renderTemplateRequest struct {
+	cvtemplate.CVData
+	Settings *cvtemplate.PageSettings `json:"settings,omitempty"`
+}
+
+// RenderTemplate handles POST /api/templates/{name}/render.
+func (s *Server) handleRenderTemplate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		name := chi.URLParam(r, "name")
+		if name == "" {
+			s.respondErrMsg(w, r, "name is required", http.StatusBadRequest)
+			return
+		}
+
+		var req renderTemplateRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			s.reqLog(r).Error("invalid request body", "err", err)
+			s.respondErrMsg(w, r, "invalid request body: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		ps := cvtemplate.DefaultPageSettings()
+		if req.Settings != nil {
+			ps = *req.Settings
+		}
+
+		content, err := cvtemplate.Render(name, req.CVData, ps)
+		if err != nil {
+			s.reqLog(r).Error("template render error", "err", err)
+			s.respondError(w, r, err, http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.Write([]byte(content))
+	}
+}
+
+// Compile handles POST /compile — accepts JSON, returns JSON + PDF via separate endpoint.
+func (s *Server) handleCompile() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req compileRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		if len(req.Source) == 0 {
+			s.respondErrMsg(w, r, "source is empty", http.StatusBadRequest)
+			return
+		}
+
+		engine := compiler.Engine(req.Engine)
+		switch engine {
+		case compiler.EnginePdfLatex, compiler.EngineXeLatex, compiler.EngineLuaLatex:
+			// valid
+		default:
+			engine = compiler.EnginePdfLatex
+		}
+
+		opts := compiler.Options{
+			Engine:  engine,
+			Timeout: 60 * time.Second,
+		}
+
+		s.reqLog(r).Info("compiling", "engine", engine, "source_len", len(req.Source))
+
+		result, err := compiler.Compile(r.Context(), []byte(req.Source), opts)
+		if err != nil {
+			s.reqLog(r).Warn("compilation error", "err", err)
+			resp := compileResponse{
+				OK:     false,
+				Error:  err.Error(),
+				Engine: string(engine),
+			}
+			if result != nil {
+				resp.Log = result.Log
+				resp.Elapsed = result.Elapsed.Round(time.Millisecond).String()
+			}
+			s.encode(w, r, http.StatusUnprocessableEntity, resp)
+			return
+		}
+
+		s.reqLog(r).Info("compilation succeeded", "engine", engine, "elapsed", result.Elapsed, "pdf_bytes", len(result.PDF))
+
+		w.Header().Set("Content-Type", "application/pdf")
+		w.Header().Set("X-Latex-Log", truncate(result.Log, 8192))
+		w.Header().Set("X-Latex-Elapsed", result.Elapsed.Round(time.Millisecond).String())
+		w.Header().Set("X-Latex-Engine", string(result.Engine))
+		w.Header().Set("Content-Disposition", "inline; filename=\"document.pdf\"")
+		w.WriteHeader(http.StatusOK)
+		w.Write(result.PDF)
+	}
+}
+
+// truncate caps a string at n bytes to avoid huge response headers.
+func truncate(s string, n int) string {
+	if len(s) <= n {
+		return s
+	}
+	return s[:n] + "…"
+}
+
+// pageSettingsRequest is the JSON body expected by POST /api/page-settings/apply.
+type pageSettingsRequest struct {
+	Template string                  `json:"template"`
+	CVData   cvtemplate.CVData       `json:"cvData"`
+	Settings cvtemplate.PageSettings `json:"settings"`
+}
+
+// ApplyPageSettings handles POST /api/page-settings/apply.
+func (s *Server) handleApplyPageSettings() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req pageSettingsRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			s.reqLog(r).Error("invalid request body", "err", err)
+			s.respondErrMsg(w, r, "invalid request body: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if req.Template == "" {
+			s.respondErrMsg(w, r, "template name is required", http.StatusBadRequest)
+			return
+		}
+
+		content, err := cvtemplate.Render(req.Template, req.CVData, req.Settings)
+		if err != nil {
+			s.reqLog(r).Error("page settings render error", "err", err)
+			s.respondError(w, r, err, http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		w.Write([]byte(content))
+	}
+}
+
+// ExtractPDF handles POST /api/extract-pdf — receives PDF text and returns structured biodata JSON.
+func (s *Server) handleExtractPDF() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log := s.reqLog(r)
+
+		if s.aiConfig.APIKey == "" && s.aiConfig.Provider != "ollama" {
+			log.Error("AI API key not configured")
+			s.respondErrMsg(w, r, "AI extraction not configured", http.StatusServiceUnavailable)
+			return
+		}
+
+		// Enforce 5MB limit on request body entirely to prevent memory exhaustion
+		r.Body = http.MaxBytesReader(w, r.Body, 5<<20)
+
+		var req struct {
+			Text string `json:"text"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			log.Error("invalid request body", "err", err)
+			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		if len(req.Text) < 50 {
+			s.respondErrMsg(w, r, "PDF text is too short to extract meaningful data", http.StatusBadRequest)
+			return
+		}
+
+		const maxChars = 20000
+		if len(req.Text) > maxChars {
+			log.Warn("PDF text exceeds maximum allowed characters", "text_len", len(req.Text), "max_chars", maxChars)
+			s.respondErrMsg(w, r, "PDF text exceeds maximum allowed characters", http.StatusRequestEntityTooLarge)
+			return
+		}
+
+		log.Info("extracting biodata from PDF text", "text_len", len(req.Text), "provider", s.aiConfig.Provider, "model", s.aiConfig.Model)
+
+		result, totalTokens, genInfo, err := extractor.ExtractBiodata(r.Context(), req.Text, s.aiConfig)
+		if err != nil {
+			log.Error("extraction failed", "err", err)
+			s.respondErrMsg(w, r, "AI extraction failed: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Log full AI output for easy tracking
+		genInfoJSON, _ := json.Marshal(genInfo)
+		log.Info("extraction succeeded",
+			"provider", s.aiConfig.Provider,
+			"model", s.aiConfig.Model,
+			"tokens", totalTokens,
+			"generation_info", string(genInfoJSON),
+		)
+
+		// Track AI token usage (use Background context since the request context
+		// will be cancelled after the HTTP response is sent)
+		u, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+		if u != nil && totalTokens > 0 {
+			uid := u.ID
+			tokens := totalTokens
+			go func() {
+				ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+				defer cancel()
+				_ = s.repo.IncrementAITokensUsed(ctx, uid, tokens)
+			}()
+		}
+
+		s.encode(w, r, http.StatusOK, result)
+	}
+}
+
+// ── Admin Handlers ─────────────────────────────────────────────
+
+// AdminDashboard renders the admin page.
+func (s *Server) handleAdminDashboard() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		u, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+		if err := s.tmpl.ExecuteTemplate(w, "admin", map[string]interface{}{
+			"User": u,
+		}); err != nil {
+			s.reqLog(r).Error("admin template error", "err", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+	}
+}
+
+// AdminGetStats returns JSON aggregate stats for the admin dashboard.
+func (s *Server) handleAdminGetStats() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		stats, err := s.repo.AdminGetStats(r.Context())
+		if err != nil {
+			s.reqLog(r).Error("admin stats error", "err", err)
+			s.respondErrMsg(w, r, "failed to load stats", http.StatusInternalServerError)
+			return
+		}
+		s.encode(w, r, http.StatusOK, stats)
+	}
+}
+
+// AdminListUsers returns paginated, searchable user list JSON.
+func (s *Server) handleAdminListUsers() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+		page, _ := strconv.Atoi(q.Get("page"))
+		if page < 1 {
+			page = 1
+		}
+		perPage, _ := strconv.Atoi(q.Get("per_page"))
+		if perPage < 1 {
+			perPage = 20
+		}
+
+		params := domain.AdminListParams{
+			Page:    page,
+			PerPage: perPage,
+			Search:  q.Get("search"),
+			Sort:    q.Get("sort"),
+			Order:   q.Get("order"),
+		}
+
+		rows, total, err := s.repo.AdminListUsers(r.Context(), params)
+		if err != nil {
+			s.reqLog(r).Error("admin list users error", "err", err)
+			s.respondErrMsg(w, r, "failed to list users", http.StatusInternalServerError)
+			return
+		}
+
+		s.encode(w, r, http.StatusOK, map[string]interface{}{
+			"users":   rows,
+			"total":   total,
+			"page":    page,
+			"perPage": perPage,
+		})
+	}
+}
+
+// ── Feedback Handlers ──────────────────────────────────────────
+
+// FeedbackPage renders the user feedback page.
+func (s *Server) handleFeedbackPage() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+		if err := s.tmpl.ExecuteTemplate(w, "feedback", map[string]interface{}{"User": user}); err != nil {
+			s.reqLog(r).Error("template error", "err", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}
+	}
+}
+
+// CreateFeedback handles POST /api/feedback — user submits new feedback.
+func (s *Server) handleCreateFeedback() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+		// Limit the payload to 10KB to prevent DoS via massive JSON payloads
+		r.Body = http.MaxBytesReader(w, r.Body, 10<<10)
+
+		var req struct {
+			Subject string `json:"subject"`
+			Message string `json:"message"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			s.respondErrMsg(w, r, "invalid request body or payload too large", http.StatusBadRequest)
+			return
+		}
+
+		req.Subject = strings.TrimSpace(req.Subject)
+		req.Message = strings.TrimSpace(req.Message)
+
+		if req.Subject == "" || req.Message == "" {
+			s.respondErrMsg(w, r, "subject and message are required", http.StatusBadRequest)
+			return
+		}
+
+		if len(req.Subject) > 200 {
+			s.respondErrMsg(w, r, "subject must not exceed 200 characters", http.StatusBadRequest)
+			return
+		}
+
+		if len(req.Message) > 2000 {
+			s.respondErrMsg(w, r, "message must not exceed 2000 characters", http.StatusBadRequest)
+			return
+		}
+
+		// Escape the input strings so they are safe to render without execution
+		safeSubject := html.EscapeString(req.Subject)
+		safeMessage := html.EscapeString(req.Message)
+
+		fb, err := s.repo.CreateFeedback(r.Context(), user.ID, safeSubject, safeMessage)
+		if err != nil {
+			s.reqLog(r).Error("create feedback error", "err", err)
+			s.respondErrMsg(w, r, "failed to create feedback", http.StatusInternalServerError)
+			return
+		}
+
+		s.encode(w, r, http.StatusCreated, fb)
+	}
+}
+
+// ListMyFeedbacks handles GET /api/feedback — returns the current user's feedbacks.
+func (s *Server) handleListMyFeedbacks() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+		feedbacks, err := s.repo.GetFeedbacksByUserID(r.Context(), user.ID)
+		if err != nil {
+			s.reqLog(r).Error("list feedbacks error", "err", err)
+			s.respondErrMsg(w, r, "failed to list feedbacks", http.StatusInternalServerError)
+			return
+		}
+
+		s.encode(w, r, http.StatusOK, feedbacks)
+	}
+}
+
+// AdminListFeedbacks handles GET /api/admin/feedbacks — paginated feedback list.
+func (s *Server) handleAdminListFeedbacks() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		q := r.URL.Query()
+		page, _ := strconv.Atoi(q.Get("page"))
+		if page < 1 {
+			page = 1
+		}
+		perPage, _ := strconv.Atoi(q.Get("per_page"))
+		if perPage < 1 {
+			perPage = 20
+		}
+
+		params := domain.FeedbackListParams{
+			Page:    page,
+			PerPage: perPage,
+			Search:  q.Get("search"),
+		}
+
+		rows, total, err := s.repo.AdminListFeedbacks(r.Context(), params)
+		if err != nil {
+			s.reqLog(r).Error("admin list feedbacks error", "err", err)
+			s.respondErrMsg(w, r, "failed to list feedbacks", http.StatusInternalServerError)
+			return
+		}
+
+		s.encode(w, r, http.StatusOK, map[string]interface{}{
+			"feedbacks": rows,
+			"total":     total,
+			"page":      page,
+			"perPage":   perPage,
+		})
+	}
+}
+
+// AdminReplyFeedback handles POST /api/admin/feedbacks/{id}/reply — admin answers feedback.
+func (s *Server) handleAdminReplyFeedback() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idStr := chi.URLParam(r, "id")
+		feedbackID, err := uuid.Parse(idStr)
+		if err != nil {
+			s.respondErrMsg(w, r, "invalid feedback ID", http.StatusBadRequest)
+			return
+		}
+
+		var req struct {
+			Reply string `json:"reply"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			return
+		}
+		if req.Reply == "" {
+			s.respondErrMsg(w, r, "reply is required", http.StatusBadRequest)
+			return
+		}
+
+		if err := s.repo.AdminReplyFeedback(r.Context(), feedbackID, req.Reply); err != nil {
+			s.reqLog(r).Error("admin reply feedback error", "err", err)
+			s.respondErrMsg(w, r, "failed to reply to feedback", http.StatusInternalServerError)
+			return
+		}
+
+		s.encode(w, r, http.StatusOK, map[string]interface{}{"ok": true})
+	}
+}
+
+// ForbiddenPage renders a styled 403 page.
+func (s *Server) handleForbiddenPage() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.WriteHeader(http.StatusForbidden)
+		if err := s.tmpl.ExecuteTemplate(w, "forbidden", nil); err != nil {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+		}
+	}
+}
+
+// AdminBlockUser blocks a user.
+func (s *Server) handleAdminBlockUser() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		userID, err := uuid.Parse(chi.URLParam(r, "id"))
+		if err != nil {
+			s.respondErrMsg(w, r, "invalid user ID", http.StatusBadRequest)
+			return
+		}
+		if err := s.repo.AdminBlockUser(r.Context(), userID); err != nil {
+			s.reqLog(r).Error("admin block user error", "err", err)
+			s.respondErrMsg(w, r, "failed to block user", http.StatusInternalServerError)
+			return
+		}
+		s.encode(w, r, http.StatusOK, map[string]interface{}{"ok": true})
+	}
+}
+
+// AdminUnblockUser unblocks a user.
+func (s *Server) handleAdminUnblockUser() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		userID, err := uuid.Parse(chi.URLParam(r, "id"))
+		if err != nil {
+			s.respondErrMsg(w, r, "invalid user ID", http.StatusBadRequest)
+			return
+		}
+		if err := s.repo.AdminUnblockUser(r.Context(), userID); err != nil {
+			s.reqLog(r).Error("admin unblock user error", "err", err)
+			s.respondErrMsg(w, r, "failed to unblock user", http.StatusInternalServerError)
+			return
+		}
+		s.encode(w, r, http.StatusOK, map[string]interface{}{"ok": true})
+	}
+}
+
+// AdminDeleteUser deletes a user and all their data.
+func (s *Server) handleAdminDeleteUser() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		userID, err := uuid.Parse(chi.URLParam(r, "id"))
+		if err != nil {
+			s.respondErrMsg(w, r, "invalid user ID", http.StatusBadRequest)
+			return
+		}
+		if err := s.repo.AdminDeleteUser(r.Context(), userID); err != nil {
+			s.reqLog(r).Error("admin delete user error", "err", err)
+			s.respondErrMsg(w, r, "failed to delete user", http.StatusInternalServerError)
+			return
+		}
+		s.encode(w, r, http.StatusOK, map[string]interface{}{"ok": true})
+	}
+}
+
+// AdminDeleteFeedback deletes a feedback entry.
+func (s *Server) handleAdminDeleteFeedback() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		feedbackID, err := uuid.Parse(chi.URLParam(r, "id"))
+		if err != nil {
+			s.respondErrMsg(w, r, "invalid feedback ID", http.StatusBadRequest)
+			return
+		}
+		if err := s.repo.AdminDeleteFeedback(r.Context(), feedbackID); err != nil {
+			s.reqLog(r).Error("admin delete feedback error", "err", err)
+			s.respondErrMsg(w, r, "failed to delete feedback", http.StatusInternalServerError)
+			return
+		}
+		s.encode(w, r, http.StatusOK, map[string]interface{}{"ok": true})
+	}
+}
+
+// ── CV Review ─────────────────────────────────────────────────
+
+// CVReviewPage renders the AI CV critique page.
+func (s *Server) handleCVReviewPage() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+		profiles, _ := s.repo.GetCVProfilesByUserID(r.Context(), user.ID)
+
+		if err := s.tmpl.ExecuteTemplate(w, "cv-review", map[string]interface{}{
+			"User":     user,
+			"Profiles": profiles,
+		}); err != nil {
+			s.reqLog(r).Error("template error", "err", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}
+	}
+}
+
+// CreateCVReview generates an AI critique for a selected CV profile.
+func (s *Server) handleCreateCVReview() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+		var req struct {
+			ProfileID string `json:"profileId"`
+			Language  string `json:"language"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		profileID, err := uuid.Parse(req.ProfileID)
+		if err != nil {
+			s.respondErrMsg(w, r, "invalid profile ID", http.StatusBadRequest)
+			return
+		}
+
+		lang := req.Language
+		if lang == "" {
+			lang = "en"
+		}
+
+		profile, err := s.repo.GetCVProfile(r.Context(), profileID)
+		if err != nil {
+			s.respondErrMsg(w, r, "profile not found", http.StatusNotFound)
+			return
+		}
+		if profile.UserID != user.ID {
+			s.respondErrMsg(w, r, "forbidden", http.StatusForbidden)
+			return
+		}
+		if len(profile.Biodata) == 0 || string(profile.Biodata) == "null" || string(profile.Biodata) == "{}" {
+			s.respondErrMsg(w, r, "this CV profile has no biodata — please fill in your biodata first", http.StatusBadRequest)
+			return
+		}
+
+		critiqueResult, tokensUsed, err := extractor.CritiqueCVProfile(r.Context(), string(profile.Biodata), lang, s.aiConfig)
+		if err != nil {
+			s.reqLog(r).Error("AI critique error", "err", err)
+			s.respondErrMsg(w, r, "AI critique failed: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if tokensUsed > 0 {
+			_ = s.repo.IncrementAITokensUsed(r.Context(), user.ID, tokensUsed)
+		}
+
+		review := &domain.CVReview{
+			UserID:          user.ID,
+			ProfileID:       profileID,
+			ProfileTitle:    profile.Title,
+			Language:        lang,
+			Score:           critiqueResult.Score,
+			Strengths:       critiqueResult.Strengths,
+			Improvements:    critiqueResult.Improvements,
+			Recommendations: critiqueResult.Recommendations,
+			TokensUsed:      tokensUsed,
+		}
+		if err := s.repo.CreateCVReview(r.Context(), review); err != nil {
+			s.reqLog(r).Error("save cv review error", "err", err)
+			s.respondErrMsg(w, r, "failed to save review", http.StatusInternalServerError)
+			return
+		}
+
+		s.encode(w, r, http.StatusCreated, review)
+	}
+}
+
+// ListMyCVReviews returns the current user's CV review history.
+func (s *Server) handleListMyCVReviews() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+		reviews, err := s.repo.GetCVReviewsByUserID(r.Context(), user.ID)
+		if err != nil {
+			s.reqLog(r).Error("list cv reviews error", "err", err)
+			s.respondErrMsg(w, r, "failed to list reviews", http.StatusInternalServerError)
+			return
+		}
+
+		s.encode(w, r, http.StatusOK, reviews)
+	}
+}

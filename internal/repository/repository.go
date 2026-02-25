@@ -62,19 +62,37 @@ type postgresRepo struct {
 	db *sqlx.DB
 }
 
-func Connect(dsn string) (Repository, error) {
-	var db *sqlx.DB
-	var err error
+func Connect(ctx context.Context, dsn string) (Repository, error) {
+	// Beri batas waktu maksimal untuk seluruh proses connect
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
+	var (
+		db  *sqlx.DB
+		err error
+	)
 
 	for i := 0; i < 10; i++ {
-		db, err = sqlx.Connect("pgx", dsn)
+		// Cek dulu apakah context sudah cancelled/timeout
+		if ctx.Err() != nil {
+			return nil, fmt.Errorf("connect db cancelled: %w", ctx.Err())
+		}
+
+		db, err = sqlx.ConnectContext(ctx, "pgx", dsn)
 		if err == nil {
 			return &postgresRepo{db: db}, nil
 		}
-		time.Sleep(time.Second)
+
+		// Sleep dengan respect terhadap context
+		select {
+		case <-time.After(time.Second):
+			// lanjut retry
+		case <-ctx.Done():
+			return nil, fmt.Errorf("connect db timeout after %d attempts: %w", i+1, ctx.Err())
+		}
 	}
 
-	return nil, err
+	return nil, fmt.Errorf("connect db failed after 10 attempts: %w", err)
 }
 
 func (r *postgresRepo) Close() error {
