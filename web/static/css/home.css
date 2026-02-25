@@ -242,7 +242,8 @@ h1 .highlight {
 }
 
 .feature-card.alt-4 {
-    background: #e6e6fa; /* Light Lavender */
+    background: #e6e6fa;
+    /* Light Lavender */
 }
 
 .feature-card .icon {
@@ -362,6 +363,10 @@ h1 .highlight {
     .features-grid {
         width: 100%;
         max-width: 100%;
+    }
+
+    .bottom-section {
+        padding: 0 24px;
     }
 }
 
