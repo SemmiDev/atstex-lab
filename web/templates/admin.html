@@ -224,6 +224,9 @@
     </main>
   </div>
 
+  <script>
+    window.currentUserId = "{{if .User}}{{.User.ID}}{{end}}";
+  </script>
   <script src="/static/js/admin.js"></script>
   <script>
     const sidebar = document.getElementById('sidebar');

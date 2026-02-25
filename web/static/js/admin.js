@@ -127,7 +127,9 @@
             ? `<button class="btn-reply" onclick="adminUnblockUser('${u.id}')"><i class="ph-bold ph-lock-key-open"></i> Unblock</button>`
             : `<button class="btn-reply" onclick="adminBlockUser('${u.id}')"><i class="ph-bold ph-prohibit"></i> Block</button>`
           ) : ''}
-          ${u.role !== 'admin' ? `<button class="btn-reply" style="border-color:var(--error);color:var(--error);" onclick="adminDeleteUser('${u.id}', '${escHtml(u.name)}')"><i class="ph-bold ph-trash"></i></button>` : ''}
+          ${u.role !== 'admin' ? `<button class="btn-reply" style="color:var(--accent2);border-color:var(--accent2);margin-left:4px;" onclick="adminMakeUserAdmin('${u.id}', '${escHtml(u.name)}')"><i class="ph-bold ph-shield-star"></i> Admin</button>` : ''}
+          ${(u.role === 'admin' && u.id !== window.currentUserId) ? `<button class="btn-reply" style="color:var(--warning, #fbbf24);border-color:var(--warning, #fbbf24);margin-left:4px;" onclick="adminRevokeUserAdmin('${u.id}', '${escHtml(u.name)}')"><i class="ph-bold ph-shield-minus"></i> Revoke Admin</button>` : ''}
+          ${u.role !== 'admin' ? `<button class="btn-reply" style="border-color:var(--error);color:var(--error);margin-left:4px;" onclick="adminDeleteUser('${u.id}', '${escHtml(u.name)}')"><i class="ph-bold ph-trash"></i></button>` : ''}
         </td>
       </tr>
     `).join('');
@@ -389,6 +391,29 @@
       loadUsers();
     } catch (e) {
       alert('Failed to delete user.');
+    }
+  };
+
+  window.adminMakeUserAdmin = async function(id, name) {
+    if (!confirm(`Are you sure you want to promote "${name}" to Admin? They will have full access to this dashboard.`)) return;
+    try {
+      const res = await fetch(`/api/admin/users/${id}/make-admin`, { method: 'POST' });
+      if (!res.ok) throw new Error('Failed');
+      loadUsers();
+    } catch (e) {
+      alert('Failed to promote user to Admin.');
+    }
+  };
+
+  window.adminRevokeUserAdmin = async function(id, name) {
+    if (!confirm(`⚠️ Are you sure you want to REVOKE Admin access for "${name}"? They will lose access to this dashboard.`)) return;
+    try {
+      const res = await fetch(`/api/admin/users/${id}/revoke-admin`, { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Failed');
+      loadUsers();
+    } catch (e) {
+      alert('Failed to revoke Admin access: ' + e.message);
     }
   };
 

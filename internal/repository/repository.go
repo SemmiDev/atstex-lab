@@ -49,6 +49,8 @@ type Repository interface {
 	AdminBlockUser(ctx context.Context, userID uuid.UUID) error
 	AdminUnblockUser(ctx context.Context, userID uuid.UUID) error
 	AdminDeleteUser(ctx context.Context, userID uuid.UUID) error
+	AdminMakeUserAdmin(ctx context.Context, userID uuid.UUID) error
+	AdminRevokeUserAdmin(ctx context.Context, userID uuid.UUID) error
 	// Admin methods
 	AdminGetStats(ctx context.Context) (*domain.AdminStats, error)
 	AdminListUsers(ctx context.Context, params domain.AdminListParams) ([]domain.AdminUserRow, int, error)
@@ -401,6 +403,16 @@ func (r *postgresRepo) AdminBlockUser(ctx context.Context, userID uuid.UUID) err
 
 func (r *postgresRepo) AdminUnblockUser(ctx context.Context, userID uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE users SET is_blocked = false, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
+	return err
+}
+
+func (r *postgresRepo) AdminMakeUserAdmin(ctx context.Context, userID uuid.UUID) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE users SET role = 'admin', updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
+	return err
+}
+
+func (r *postgresRepo) AdminRevokeUserAdmin(ctx context.Context, userID uuid.UUID) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE users SET role = 'user', updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
 	return err
 }
 

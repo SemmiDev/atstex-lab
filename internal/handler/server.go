@@ -652,6 +652,53 @@ func (s *Server) handleAdminReplyFeedback() http.HandlerFunc {
 	}
 }
 
+// AdminMakeUserAdmin handles POST /api/admin/users/{id}/make-admin.
+func (s *Server) handleAdminMakeUserAdmin() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idStr := chi.URLParam(r, "id")
+		userID, err := uuid.Parse(idStr)
+		if err != nil {
+			s.respondErrMsg(w, r, "invalid user id", http.StatusBadRequest)
+			return
+		}
+
+		if err := s.repo.AdminMakeUserAdmin(r.Context(), userID); err != nil {
+			s.reqLog(r).Error("admin make user admin error", "err", err)
+			s.respondErrMsg(w, r, "failed to make user admin", http.StatusInternalServerError)
+			return
+		}
+
+		s.encode(w, r, http.StatusOK, map[string]string{"message": "user updated to admin"})
+	}
+}
+
+// AdminRevokeUserAdmin handles POST /api/admin/users/{id}/revoke-admin.
+func (s *Server) handleAdminRevokeUserAdmin() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idStr := chi.URLParam(r, "id")
+		targetUserID, err := uuid.Parse(idStr)
+		if err != nil {
+			s.respondErrMsg(w, r, "invalid user id", http.StatusBadRequest)
+			return
+		}
+
+		// Prevent admins from revoking their own access
+		currentUser, ok := r.Context().Value(auth.UserContextKey).(*domain.User)
+		if ok && currentUser.ID == targetUserID {
+			s.respondErrMsg(w, r, "cannot revoke your own admin access", http.StatusBadRequest)
+			return
+		}
+
+		if err := s.repo.AdminRevokeUserAdmin(r.Context(), targetUserID); err != nil {
+			s.reqLog(r).Error("admin revoke user admin error", "err", err)
+			s.respondErrMsg(w, r, "failed to revoke user admin", http.StatusInternalServerError)
+			return
+		}
+
+		s.encode(w, r, http.StatusOK, map[string]string{"message": "admin access revoked"})
+	}
+}
+
 // ForbiddenPage renders a styled 403 page.
 func (s *Server) handleForbiddenPage() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

@@ -86,6 +86,8 @@ func (s *Server) routes() {
 		r.Delete("/api/admin/feedbacks/{id}", s.handleAdminDeleteFeedback())
 		r.Post("/api/admin/users/{id}/block", s.handleAdminBlockUser())
 		r.Post("/api/admin/users/{id}/unblock", s.handleAdminUnblockUser())
+		r.Post("/api/admin/users/{id}/make-admin", s.handleAdminMakeUserAdmin())
+		r.Post("/api/admin/users/{id}/revoke-admin", s.handleAdminRevokeUserAdmin())
 		r.Delete("/api/admin/users/{id}", s.handleAdminDeleteUser())
 	})
 
