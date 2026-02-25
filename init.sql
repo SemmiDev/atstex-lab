@@ -71,3 +71,17 @@ CREATE TABLE IF NOT EXISTS cv_reviews (
 );
 CREATE INDEX IF NOT EXISTS idx_cv_reviews_user_id ON cv_reviews(user_id);
 CREATE INDEX IF NOT EXISTS idx_cv_reviews_profile_id ON cv_reviews(profile_id);
+
+CREATE TABLE IF NOT EXISTS cover_letters (
+    id UUID PRIMARY KEY DEFAULT uuidv7(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    profile_id UUID NOT NULL REFERENCES cv_profiles(id) ON DELETE CASCADE,
+    profile_title VARCHAR(255) NOT NULL DEFAULT '',
+    job_description TEXT NOT NULL DEFAULT '',
+    cover_letter_text TEXT NOT NULL DEFAULT '',
+    language VARCHAR(10) NOT NULL DEFAULT 'en',
+    tokens_used BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_cover_letters_user_id ON cover_letters(user_id);
+CREATE INDEX IF NOT EXISTS idx_cover_letters_profile_id ON cover_letters(profile_id);

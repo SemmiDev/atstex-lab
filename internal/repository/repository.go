@@ -57,6 +57,9 @@ type Repository interface {
 	// CV Review
 	CreateCVReview(ctx context.Context, review *domain.CVReview) error
 	GetCVReviewsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVReview, error)
+	// Cover Letters
+	CreateCoverLetter(ctx context.Context, cl *domain.CoverLetter) error
+	GetCoverLettersByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CoverLetter, error)
 	Close() error
 }
 
@@ -445,4 +448,29 @@ func (r *postgresRepo) GetCVReviewsByUserID(ctx context.Context, userID uuid.UUI
 		reviews = []domain.CVReview{}
 	}
 	return reviews, nil
+}
+
+// ── Cover Letters ──────────────────────────────────────────────
+
+func (r *postgresRepo) CreateCoverLetter(ctx context.Context, cl *domain.CoverLetter) error {
+	query := `INSERT INTO cover_letters (user_id, profile_id, profile_title, job_description, cover_letter_text, language, tokens_used)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		RETURNING id, created_at`
+	return r.db.QueryRowxContext(ctx, query,
+		cl.UserID, cl.ProfileID, cl.ProfileTitle, cl.JobDescription, cl.CoverLetterText, cl.Language, cl.TokensUsed,
+	).Scan(&cl.ID, &cl.CreatedAt)
+}
+
+func (r *postgresRepo) GetCoverLettersByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CoverLetter, error) {
+	var letters []domain.CoverLetter
+	err := r.db.SelectContext(ctx, &letters,
+		`SELECT id, user_id, profile_id, profile_title, job_description, cover_letter_text, language, tokens_used, created_at
+		 FROM cover_letters WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`, userID)
+	if err != nil {
+		return nil, err
+	}
+	if letters == nil {
+		letters = []domain.CoverLetter{}
+	}
+	return letters, nil
 }

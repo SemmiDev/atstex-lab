@@ -1,0 +1,370 @@
+{{define "cover-letter"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>atstex-lab — Cover Letter Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Generate ATS-friendly cover letters tailored to your resume using AI.">
+    <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Load Tesseract.js for browser-side OCR -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+
+<body class="flex flex-col md:flex-row h-dvh w-full bg-bg font-ui text-text overflow-hidden">
+    <div class="md:hidden flex items-center justify-between p-4 bg-surface border-b-[4px] border-border z-40">
+        <div class="font-disp font-extrabold text-2xl">ATSTEX<em class="text-accent italic">LAB</em></div>
+        <button id="sidebar-toggle" class="text-3xl"><i class="ph ph-list"></i></button>
+    </div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
+        <div class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
+            <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
+            <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Toggle Sidebar"><i class="ph-bold ph-caret-left"></i></button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4 pb-24 md:pb-4">
+            <a href="/" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Home</span></a>
+            <a href="/input" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a>
+            <a href="/editor" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
+            <a href="/cv-review" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">CV Review</span></a>
+            <a href="/cover-letter" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Cover Letter</span></a>
+            <a href="/profile" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profile</span></a>
+            <a href="/publish" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publish</span></a>
+            <a href="/feedback" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Feedback</span></a>
+            <a href="/support" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-coffee text-2xl"></i> <span class="sidebar-nav-text">Support</span></a>
+        </nav>
+
+        {{if .User}}
+        <div class="p-4 border-t-[4px] border-border bg-bg sidebar-profile-block">
+            <a href="/profile" class="flex items-center gap-3 p-2 bg-surface border-[3px] border-border shadow-[4px_4px_0_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#000] transition-all">
+                <img src="{{.User.Picture}}" alt="Profile" class="w-10 h-10 border-2 border-border object-cover">
+                <div class="flex flex-col overflow-hidden">
+                    <span class="font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{.User.Name}}</span>
+                    <form action="/auth/logout" method="POST" class="m-0">
+                        <button type="submit" class="text-error text-xs font-bold uppercase tracking-wider outline-none">Logout <i class="ph-bold ph-sign-out"></i></button>
+                    </form>
+                </div>
+            </a>
+        </div>
+        {{end}}
+    </aside>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+    <main class="flex-1 min-h-0 overflow-y-auto bg-bg relative p-6 md:p-10 flex justify-center">
+        <div class="w-full max-w-4xl flex flex-col gap-8">
+
+            <div class="flex flex-col gap-2">
+                <h1 class="text-3xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
+                    <i class="ph-bold ph-envelope-simple-open text-3xl"></i> Cover Letter Generator
+                </h1>
+                <p class="font-semibold text-muted">Generate highly tailored cover letters combining your structured CV data and a specific job description. 🚀</p>
+            </div>
+
+            <!-- Main Form -->
+            <div class="bg-surface border-[3px] border-border p-6 shadow-[4px_4px_0_#000] flex flex-col gap-6">
+
+                <!-- Profile Selection -->
+                <div class="flex flex-col gap-1">
+                    <label class="font-bold text-sm uppercase tracking-wide">Base CV Profile</label>
+                    <select id="cl-profile" class="form-input !py-3">
+                        <option value="">— Select a profile —</option>
+                        {{range .Profiles}}
+                        <option value="{{.ID}}">{{.Title}}</option>
+                        {{end}}
+                    </select>
+                </div>
+
+                <!-- Job Description Input -->
+                <div class="flex flex-col gap-2 border-t-[2px] border-dashed border-border pt-4">
+                    <div class="flex items-center justify-between">
+                        <label class="font-bold text-sm uppercase tracking-wide">Job Description</label>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-mono text-muted">OR OCR Image:</span>
+                            <label class="btn btn-ghost !px-3 !py-1 !text-xs cursor-pointer">
+                                <i class="ph-bold ph-image"></i> Scan Image
+                                <input type="file" id="cl-image-upload" accept="image/png, image/jpeg, image/jpg" style="display: none;">
+                            </label>
+                        </div>
+                    </div>
+
+                    <textarea id="cl-jobdesc" rows="6" class="form-input" placeholder="Paste the job description or requirements here..."></textarea>
+
+                    <div id="ocr-status" class="hidden text-xs font-mono text-accent2 font-bold mb-2 flex items-center gap-2">
+                        <i class="ph ph-spinner animate-spin"></i> Extracting text via OCR...
+                    </div>
+                </div>
+
+                <!-- Settings -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 border-t-[2px] border-dashed border-border pt-4">
+
+                    <!-- Language & Length -->
+                    <div class="flex flex-col gap-4">
+                        <div class="flex flex-col gap-1">
+                            <label class="font-bold text-sm uppercase tracking-wide">Language</label>
+                            <select id="cl-lang" class="form-input !py-2">
+                                <option value="en">English</option>
+                                <option value="id">Bahasa Indonesia</option>
+                                <option value="ja">Japanese</option>
+                                <option value="zh">Chinese</option>
+                                <option value="ko">Korean</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="font-bold text-sm uppercase tracking-wide">Max Paragraphs</label>
+                            <input type="number" id="cl-length" class="form-input !py-2" min="1" max="10" value="3">
+                        </div>
+                    </div>
+
+                    <!-- Tone (Checkboxes/Radios mapped to 1 tone logic) -->
+                    <div class="flex flex-col gap-2 bg-bg border-2 border-border p-3 max-h-[140px] overflow-y-auto" style="box-shadow: inset 2px 2px 0 var(--border);">
+                        <label class="font-bold text-sm uppercase tracking-wide mb-1 sticky top-0 bg-bg pb-1 border-b border-border">Tone / Style</label>
+                        <div class="flex flex-col gap-1" id="tone-group">
+                            <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent1/10 p-1"><input type="radio" name="cl-tone" value="Formal & Professional" checked> Formal & Professional</label>
+                            <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent1/10 p-1"><input type="radio" name="cl-tone" value="Semi-Formal"> Semi-Formal</label>
+                            <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent1/10 p-1"><input type="radio" name="cl-tone" value="Casual Professional"> Casual Professional</label>
+                            <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent1/10 p-1"><input type="radio" name="cl-tone" value="Confident & Assertive"> Confident & Assertive</label>
+                            <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent1/10 p-1"><input type="radio" name="cl-tone" value="Humble & Eager"> Humble & Eager</label>
+                            <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent1/10 p-1"><input type="radio" name="cl-tone" value="Analytical & Data-Driven"> Analytical & Data-Driven</label>
+                            <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent1/10 p-1"><input type="radio" name="cl-tone" value="Visionary"> Visionary</label>
+                            <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent1/10 p-1"><input type="radio" name="cl-tone" value="Creative"> Creative</label>
+                            <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent1/10 p-1"><input type="radio" name="cl-tone" value="Technical Depth"> Technical Depth</label>
+                            <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent1/10 p-1"><input type="radio" name="cl-tone" value="Leadership-Oriented"> Leadership-Oriented</label>
+                            <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent1/10 p-1"><input type="radio" name="cl-tone" value="Results-Focused"> Results-Focused</label>
+                            <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent1/10 p-1"><input type="radio" name="cl-tone" value="Storytelling Narrative"> Storytelling Narrative</label>
+                            <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent1/10 p-1"><input type="radio" name="cl-tone" value="Minimalist"> Minimalist</label>
+                            <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent1/10 p-1"><input type="radio" name="cl-tone" value="Passionate & Enthusiastic"> Passionate & Enthusiastic</label>
+                            <label class="flex items-center gap-2 text-sm cursor-pointer hover:bg-accent1/10 p-1"><input type="radio" name="cl-tone" value="Corporate-Polished"> Corporate-Polished</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between border-t-[3px] border-border pt-4">
+                    <div id="cl-status" class="text-sm font-bold text-error"></div>
+                    <button id="cl-generate-btn" class="btn btn-primary px-8">
+                        <i class="ph-bold ph-magic-wand text-lg"></i> GENERATE
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Display -->
+            <div id="cl-loading" style="display:none;" class="bg-surface border-[3px] border-border p-8 shadow-[4px_4px_0_#000] text-center">
+                <div style="font-size:2.5rem;animation:bounceUp 1s ease-in-out infinite;">🤖</div>
+                <h3 style="font-weight:800;font-size:1.1rem;text-transform:uppercase;margin:12px 0 8px;">Drafting Cover Letter</h3>
+                <p style="font-family:var(--font-mono);font-size:0.85rem;color:var(--muted);">Tailoring your experiences to the job description...</p>
+                <div style="display:flex;justify-content:center;gap:8px;margin-top:16px;">
+                    <span style="width:12px;height:12px;border:2px solid var(--border);background:var(--accent);animation:dotPulse 1.4s ease-in-out infinite;"></span>
+                    <span style="width:12px;height:12px;border:2px solid var(--border);background:var(--accent2);animation:dotPulse 1.4s ease-in-out 0.2s infinite;"></span>
+                    <span style="width:12px;height:12px;border:2px solid var(--border);background:var(--accent3, #5eeb8f);animation:dotPulse 1.4s ease-in-out 0.4s infinite;"></span>
+                </div>
+            </div>
+
+            <!-- Result Box -->
+            <div id="cl-result-container" class="hidden flex-col gap-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-extrabold uppercase tracking-wide flex items-center gap-2"><i class="ph-bold ph-check-circle text-success"></i> Your Tailored Cover Letter</h2>
+                    <button id="cl-copy-btn" class="btn btn-secondary !px-4 !py-2 !text-sm"><i class="ph-bold ph-copy"></i> Copy Text</button>
+                </div>
+                <textarea id="cl-result-text" rows="15" class="form-input font-ui text-md leading-relaxed bg-surface" readonly></textarea>
+                <div id="cl-token-usage" class="text-right text-xs font-mono font-bold text-muted"></div>
+            </div>
+
+            <!-- History -->
+            <div class="flex flex-col gap-2 mt-4">
+                <h2 class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
+                    <i class="ph-bold ph-clock-counter-clockwise text-3xl"></i> Generation History
+                </h2>
+            </div>
+            <div id="cl-history" class="flex flex-col gap-4">
+                <div class="text-center text-muted font-semibold py-8">Loading…</div>
+            </div>
+
+        </div>
+    </main>
+
+    <style>
+        @keyframes bounceUp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+        @keyframes dotPulse { 0%, 80%, 100% { transform: scale(1); opacity: 1; } 40% { transform: scale(1.5); opacity: 0.5; } }
+        .animate-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+
+    <script>
+        // Sidebar Init
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const toggleBtn = document.getElementById('sidebar-toggle');
+        const collapseBtn = document.getElementById('sidebar-collapse');
+        if (toggleBtn) toggleBtn.addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('open'); });
+        if (overlay) overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); });
+        if (collapseBtn) collapseBtn.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
+
+        // Elements
+        const profileSelect = document.getElementById('cl-profile');
+        const jobDescInput = document.getElementById('cl-jobdesc');
+        const imageUpload = document.getElementById('cl-image-upload');
+        const ocrStatus = document.getElementById('ocr-status');
+
+        const langSelect = document.getElementById('cl-lang');
+        const lengthInput = document.getElementById('cl-length');
+        const generateBtn = document.getElementById('cl-generate-btn');
+        const statusEl = document.getElementById('cl-status');
+
+        const loadingBox = document.getElementById('cl-loading');
+        const resultContainer = document.getElementById('cl-result-container');
+        const resultText = document.getElementById('cl-result-text');
+        const tokenUsageEl = document.getElementById('cl-token-usage');
+        const copyBtn = document.getElementById('cl-copy-btn');
+
+        // Handlers
+        imageUpload.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            ocrStatus.classList.remove('hidden');
+            jobDescInput.disabled = true;
+            generateBtn.disabled = true;
+
+            try {
+                // Initialize Tesseract worker
+                const worker = await Tesseract.createWorker('eng');
+                const result = await worker.recognize(file);
+                await worker.terminate();
+
+                // Append parsed text
+                const extractedText = result.data.text.trim();
+                const existing = jobDescInput.value.trim();
+                jobDescInput.value = existing ? existing + "\n\n" + extractedText : extractedText;
+
+            } catch (err) {
+                console.error("OCR Error:", err);
+                statusEl.textContent = "OCR failed to read the image.";
+            } finally {
+                ocrStatus.classList.add('hidden');
+                jobDescInput.disabled = false;
+                generateBtn.disabled = false;
+                e.target.value = ''; // Reset input
+            }
+        });
+
+        generateBtn.addEventListener('click', async () => {
+            statusEl.textContent = '';
+
+            const profileId = profileSelect.value;
+            const jobDesc = jobDescInput.value.trim();
+            const language = langSelect.value;
+            const maxParagraphs = parseInt(lengthInput.value) || 3;
+
+            const toneEl = document.querySelector('input[name="cl-tone"]:checked');
+            const tone = toneEl ? toneEl.value : "Professional";
+
+            if (!profileId) { statusEl.textContent = "Please select a base CV Profile."; return; }
+            if (!jobDesc) { statusEl.textContent = "Please provide a Job Description."; return; }
+
+            generateBtn.disabled = true;
+            loadingBox.style.display = '';
+            resultContainer.classList.add('hidden');
+
+            try {
+                const res = await fetch('/api/cover-letter/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        profileId,
+                        jobDesc,
+                        tone,
+                        maxParagraphs,
+                        language
+                    })
+                });
+
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || "Generation failed.");
+                }
+
+                const data = await res.json();
+
+                resultText.value = data.coverLetter;
+                tokenUsageEl.textContent = `Tokens used: ${data.tokensUsed || 0}`;
+                resultContainer.classList.remove('hidden');
+
+                // Scroll down
+                resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            } catch (err) {
+                statusEl.textContent = err.message;
+            } finally {
+                loadingBox.style.display = 'none';
+                generateBtn.disabled = false;
+            }
+        });
+
+        copyBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(resultText.value);
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = `<i class="ph-bold ph-check"></i> Copied!`;
+                setTimeout(() => copyBtn.innerHTML = originalText, 2500);
+            } catch (e) {
+                console.error("Failed to copy:", e);
+            }
+        });
+
+        async function loadHistory() {
+            const historyEl = document.getElementById('cl-history');
+            try {
+                const res = await fetch('/api/cover-letters');
+                if (!res.ok) throw new Error('Failed');
+                const letters = await res.json();
+                renderHistory(letters || [], historyEl);
+            } catch (e) {
+                historyEl.innerHTML = '<div class="text-center text-error font-semibold py-8">Failed to load history</div>';
+            }
+        }
+
+        function renderHistory(letters, historyEl) {
+            if (!letters.length) {
+                historyEl.innerHTML = '<div class="text-center text-muted font-semibold py-8">No cover letters generated yet. 🚀</div>';
+                return;
+            }
+
+            historyEl.innerHTML = letters.map(r => {
+                const date = new Date(r.createdAt).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+                return `
+                <details class="bg-surface border-[3px] border-border shadow-[4px_4px_0_#000]">
+                    <summary style="padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:16px;font-weight:700;">
+                        <span style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:3px solid var(--border);background:var(--accent);color:#fff;flex-shrink:0;"><i class="ph-bold ph-envelope-simple-open" style="font-size:1.2rem;"></i></span>
+                        <div style="flex:1;">
+                            <div style="font-size:0.95rem;text-transform:uppercase;">${escHtml(r.profileTitle)}</div>
+                            <div style="font-size:0.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;">${date} · ${r.language.toUpperCase()}</div>
+                        </div>
+                    </summary>
+                    <div style="padding:0 20px 20px;border-top:2px solid var(--border);">
+                        <div style="margin-top:16px;font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--accent2);margin-bottom:6px;"><i class="ph-bold ph-briefcase"></i> Job Description</div>
+                        <div style="font-size:0.85rem;line-height:1.6;white-space:pre-wrap;background:var(--bg);border:2px solid var(--border);padding:12px;max-height:150px;overflow-y:auto;margin-bottom:12px;">${escHtml(r.jobDescription)}</div>
+
+                        <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;color:#22c55e;margin-bottom:6px;"><i class="ph-bold ph-file-text"></i> Cover Letter</div>
+                        <div style="font-size:0.88rem;line-height:1.7;white-space:pre-wrap;background:var(--bg);border:2px solid var(--border);padding:16px;">${escHtml(r.coverLetterText)}</div>
+                    </div>
+                </details>`;
+            }).join('');
+        }
+
+        function escHtml(str) {
+            const el = document.createElement('span');
+            el.textContent = str || '';
+            return el.innerHTML;
+        }
+
+        loadHistory();
+    </script>
+</body>
+
+</html>
+{{end}}

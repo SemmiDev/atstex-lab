@@ -72,6 +72,10 @@ func (s *Server) routes() {
 		r.Get("/cv-review", s.handleCVReviewPage())
 		r.Post("/api/cv-review", s.handleCreateCVReview())
 		r.Get("/api/cv-reviews", s.handleListMyCVReviews())
+		// Cover Letter
+		r.Get("/cover-letter", s.handleCoverLetterPage())
+		r.Post("/api/cover-letter/generate", s.handleGenerateCoverLetter())
+		r.Get("/api/cover-letters", s.handleListMyCoverLetters())
 	})
 
 	// Admin routes (requires login + admin role)

@@ -884,3 +884,129 @@ func (s *Server) handleListMyCVReviews() http.HandlerFunc {
 		s.encode(w, r, http.StatusOK, reviews)
 	}
 }
+
+// ── Cover Letter ──────────────────────────────────────────────
+
+// CoverLetterPage renders the AI cover letter generator page.
+func (s *Server) handleCoverLetterPage() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+		profiles, _ := s.repo.GetCVProfilesByUserID(r.Context(), user.ID)
+
+		if err := s.tmpl.ExecuteTemplate(w, "cover-letter", map[string]interface{}{
+			"User":     user,
+			"Profiles": profiles,
+		}); err != nil {
+			s.reqLog(r).Error("template error", "err", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}
+	}
+}
+
+// GenerateCoverLetter handles the API request to generate a custom cover letter.
+func (s *Server) handleGenerateCoverLetter() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+		var req struct {
+			ProfileID     string `json:"profileId"`
+			JobDesc       string `json:"jobDesc"`
+			Tone          string `json:"tone"`
+			MaxParagraphs int    `json:"maxParagraphs"`
+			Language      string `json:"language"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		profileID, err := uuid.Parse(req.ProfileID)
+		if err != nil {
+			s.respondErrMsg(w, r, "invalid profile ID", http.StatusBadRequest)
+			return
+		}
+
+		if req.JobDesc == "" {
+			s.respondErrMsg(w, r, "job description is required", http.StatusBadRequest)
+			return
+		}
+
+		lang := req.Language
+		if lang == "" {
+			lang = "en"
+		}
+
+		profile, err := s.repo.GetCVProfile(r.Context(), profileID)
+		if err != nil {
+			s.respondErrMsg(w, r, "profile not found", http.StatusNotFound)
+			return
+		}
+		if profile.UserID != user.ID {
+			s.respondErrMsg(w, r, "forbidden", http.StatusForbidden)
+			return
+		}
+		if len(profile.Biodata) == 0 || string(profile.Biodata) == "null" || string(profile.Biodata) == "{}" {
+			s.respondErrMsg(w, r, "this CV profile has no biodata — please fill in your biodata first", http.StatusBadRequest)
+			return
+		}
+
+		coverLetter, tokensUsed, err := extractor.GenerateCoverLetter(
+			r.Context(),
+			string(profile.Biodata),
+			req.JobDesc,
+			req.Tone,
+			req.MaxParagraphs,
+			lang,
+			s.aiConfig,
+		)
+		if err != nil {
+			s.reqLog(r).Error("AI cover letter generator error", "err", err)
+			s.respondErrMsg(w, r, "AI generation failed: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if tokensUsed > 0 {
+			_ = s.repo.IncrementAITokensUsed(r.Context(), user.ID, tokensUsed)
+		}
+
+		cl := &domain.CoverLetter{
+			UserID:          user.ID,
+			ProfileID:       profileID,
+			ProfileTitle:    profile.Title,
+			JobDescription:  req.JobDesc,
+			CoverLetterText: coverLetter,
+			Language:        lang,
+			TokensUsed:      tokensUsed,
+		}
+
+		if err := s.repo.CreateCoverLetter(r.Context(), cl); err != nil {
+			s.reqLog(r).Error("save cover letter error", "err", err)
+			s.respondErrMsg(w, r, "failed to save cover letter", http.StatusInternalServerError)
+			return
+		}
+
+		s.encode(w, r, http.StatusOK, map[string]interface{}{
+			"coverLetter": coverLetter,
+			"tokensUsed":  tokensUsed,
+			"id":          cl.ID,
+		})
+	}
+}
+
+// ListMyCoverLetters returns the current user's cover letter history.
+func (s *Server) handleListMyCoverLetters() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+		letters, err := s.repo.GetCoverLettersByUserID(r.Context(), user.ID)
+		if err != nil {
+			s.reqLog(r).Error("list cover letters error", "err", err)
+			s.respondErrMsg(w, r, "failed to list cover letters", http.StatusInternalServerError)
+			return
+		}
+
+		s.encode(w, r, http.StatusOK, letters)
+	}
+}

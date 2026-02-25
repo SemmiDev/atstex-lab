@@ -2,13 +2,6 @@
 
 Based on the current architecture of **atstex-lab** (ATS-friendly LaTeX CV generator with AI integration, Neo-Brutalist design, and multi-profile support), here is a curated list of high-impact features to consider for the next sprint. These features are categorized by their primary value proposition.
 
-## 🤖 1. AI & Automation (High Impact, High Engagement)
-
-### A. Tailored Cover Letter Generator
-* **What it is:** A new feature where users can input a Job Description URL or text, and the system uses the existing AI integration to generate a tailored cover letter based on their selected CV profile.
-* **Why it's good:** Job seekers hate writing cover letters from scratch. Since we already have their structured biodata and AI models integrated, this is a low-effort, extremely high-value feature.
-* **Effort:** Medium (New prompt, new endpoint, simple UI addition).
-
 ### B. ATS Simulator & Job Match Scoring
 * **What it is:** Extending the recent "CV Critique" feature. Users paste a Job Description, and the AI acts as an ATS (Applicant Tracking System), scoring their CV match percentage and highlighting missing keywords they should add.
 * **Why it's good:** Directly aligns with the core value proposition of being an "ATS-friendly" platform. It gives users actionable insights.
@@ -21,23 +14,12 @@ Based on the current architecture of **atstex-lab** (ATS-friendly LaTeX CV gener
 
 ---
 
-## 📈 2. User Experience & Growth (User Acquisition & Retention)
-
-### A. Public Shareable web-CV Links
-* **What it is:** Allow users to switch a CV profile to "Public" and get a unique URL (e.g., `atstex-lab.com/u/username/backend-dev`) to share on LinkedIn or with recruiters.
-* **Why it's good:** Built-in viral loop. When recruiters or peers see a beautiful web-CV hosted on your domain, they discover your platform. Adds a portfolio aspect to the tool.
-* **Effort:** Medium (Routing, public read-only views, toggle in DB).
-
 ### B. Rich Text / WYSIWYG Editor for Biodata
 * **What it is:** Upgrade the textarea inputs for "Experience" and "Summary" to support a simple rich-text editor (bold, italic, bullet lists) that maps automatically to LaTeX commands (`\textbf{}`, `\textit{}`, `\begin{itemize}`).
 * **Why it's good:** Makes data entry much more intuitive. Users won't need to know LaTeX to format their bullet points nicely.
 * **Effort:** Medium (Integrating a lightweight JS editor like Quill/TipTap and writing a parser to LaTeX format).
 
-### C. Import from LinkedIn (PDF or Extension)
-* **What it is:** Users can upload their exported LinkedIn Profile PDF, and the app uses the existing AI PDF Extractor to instantly populate their biodata.
-* **Why it's good:** Removes the friction of data entry for new users, acting as a massive conversion booster during onboarding.
-* **Effort:** Low-Medium (Since the PDF extractor is already built, this might just require a specific prompt tweak for LinkedIn's format).
-
+### C. Import from LinkedIn
 ---
 
 ## 🛠 3. Professional & Power-User Tools
