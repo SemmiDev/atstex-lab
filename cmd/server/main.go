@@ -29,15 +29,15 @@ func main() {
 	}))
 	slog.SetDefault(logger)
 
-	if err := run(ctx, logger); err != nil {
+	cfg := config.Load()
+
+	if err := run(ctx, cfg, logger); err != nil {
 		logger.Error("server shutdown with error", "err", err)
 		os.Exit(1)
 	}
 }
 
-func run(ctx context.Context, logger *slog.Logger) error {
-	cfg := config.Load()
-
+func run(ctx context.Context, cfg *config.AppConfig, logger *slog.Logger) error {
 	// Database
 	repo, err := repository.Connect(ctx, cfg.DatabaseURL)
 	if err != nil {
