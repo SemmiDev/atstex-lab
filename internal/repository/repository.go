@@ -21,6 +21,7 @@ type Repository interface {
 	UpsertUser(ctx context.Context, googleID, email, name, picture string) (*domain.User, error)
 	GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
+	SoftDeleteUser(ctx context.Context, id uuid.UUID) error
 	CreateSession(ctx context.Context, userID uuid.UUID, token, ipAddress, userAgent string, expiresAt time.Time) error
 	GetSession(ctx context.Context, token string) (*domain.Session, error)
 	GetSessionsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.Session, error)
@@ -140,6 +141,11 @@ func (r *postgresRepo) GetUser(ctx context.Context, id uuid.UUID) (*domain.User,
 
 func (r *postgresRepo) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM users WHERE id = $1`, id)
+	return err
+}
+
+func (r *postgresRepo) SoftDeleteUser(ctx context.Context, id uuid.UUID) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE users SET is_blocked = true, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, id)
 	return err
 }
 

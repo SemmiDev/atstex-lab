@@ -1,21 +1,21 @@
 {{define "input_embed"}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biodata — Embedded</title>
-    <meta name="description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder for job seekers.">
-    <meta name="keywords" content="ATS resume builder, LaTeX resume, CV maker, recruiter-ready resume, free resume builder, data privacy, ATSTEXLAB">
+    <title>Biodata — Tersemat</title>
+    <meta name="description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source untuk pencari kerja.">
+    <meta name="keywords" content="Pembuat CV ATS, CV LaTeX, pembuat CV, CV siap rekruter, pembuat CV gratis, privasi data, ATSTEXLAB">
     <meta name="author" content="ATSTEXLAB">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Biodata — Embedded">
-    <meta property="og:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+    <meta property="og:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source.">
     <meta property="og:image" content="/static/cv-favicon.svg">
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:title" content="Biodata — Embedded">
-    <meta property="twitter:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+    <meta property="twitter:title" content="Biodata — Tersemat">
+    <meta property="twitter:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source.">
     <meta property="twitter:image" content="/static/cv-favicon.svg">
     <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
     <link rel="stylesheet" href="/static/css/style.css">
@@ -37,22 +37,22 @@
         <div class="card !p-4 !gap-4">
             <!-- Row 1: Profile selector -->
             <div class="flex items-center gap-3 flex-wrap">
-                <label class="font-mono font-bold text-xs uppercase tracking-wider whitespace-nowrap">CV Profile:</label>
+                <label class="font-mono font-bold text-xs uppercase tracking-wider whitespace-nowrap">Profil CV:</label>
                 <select id="cv-profile-select" class="form-input !py-2 flex-1 min-w-[140px]">
-                    <option value="">— Select or Create —</option>
+                    <option value="">— Pilih atau Buat —</option>
                 </select>
-                <button id="btn-new-profile" class="btn btn-ghost !px-3 !py-1.5 !text-xs"><i class="ph-bold ph-plus"></i> New</button>
+                <button id="btn-new-profile" class="btn btn-ghost !px-3 !py-1.5 !text-xs"><i class="ph-bold ph-plus"></i> Baru</button>
             </div>
             <!-- Row 2: Actions -->
             <div class="flex items-center justify-between flex-wrap gap-2">
                 <div class="flex items-center gap-2">
                     <input type="file" id="pdf-upload" accept="application/pdf" style="display: none;" />
-                    <button id="btn-upload-pdf" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-file-pdf"></i> Extract PDF</button>
-                    <button id="btn-fill-dummy" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-magic-wand"></i> Fill Example</button>
+                    <button id="btn-upload-pdf" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-file-pdf"></i> Ekstrak PDF</button>
+                    <button id="btn-fill-dummy" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-magic-wand"></i> Isi Contoh</button>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button id="btn-save-db" class="btn btn-primary !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-floppy-disk"></i> Save</button>
-                    <button id="btn-delete-profile" class="btn !px-3 !py-1.5 !text-xs !border-error !text-error" disabled><i class="ph-bold ph-trash"></i> Del</button>
+                    <button id="btn-save-db" class="btn btn-primary !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-floppy-disk"></i> Simpan</button>
+                    <button id="btn-delete-profile" class="btn !px-3 !py-1.5 !text-xs !border-error !text-error" disabled><i class="ph-bold ph-trash"></i> Hapus</button>
                 </div>
             </div>
             <p id="cv-status-msg" class="text-xs font-mono text-muted hidden"></p>
@@ -61,14 +61,14 @@
         <!-- Personal Info -->
         <section class="card" id="section-personal">
             <h2 class="text-xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
-                1. Personal Information <span class="badge">Required</span></h2>
+                1. Informasi Pribadi <span class="badge">Wajib</span></h2>
             <div class="grid grid-cols-1 gap-4">
                 <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm uppercase tracking-wide">Full Name</label>
+                    <label class="font-bold text-sm uppercase tracking-wide">Nama Lengkap</label>
                     <input type="text" data-field="personal.name" class="form-input" placeholder="John Doe">
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm uppercase tracking-wide">Target Job Title</label>
+                    <label class="font-bold text-sm uppercase tracking-wide">Posisi Pekerjaan Target</label>
                     <input type="text" data-field="personal.title" class="form-input" placeholder="Software Engineer">
                 </div>
                 <div class="flex flex-col gap-2">
@@ -76,26 +76,26 @@
                     <input type="email" data-field="personal.email" class="form-input" placeholder="john@example.com">
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm uppercase tracking-wide">Phone</label>
+                    <label class="font-bold text-sm uppercase tracking-wide">Telepon</label>
                     <input type="text" data-field="personal.phone" class="form-input" placeholder="+1 234 567 8900">
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm uppercase tracking-wide">Location</label>
+                    <label class="font-bold text-sm uppercase tracking-wide">Lokasi</label>
                     <input type="text" data-field="personal.location" class="form-input" placeholder="City, Country">
                 </div>
                 <div class="flex flex-col gap-2">
                     <label class="font-bold text-sm uppercase tracking-wide">LinkedIn</label>
-                    <input type="text" data-field="personal.linkedin.display" class="form-input" placeholder="Display: linkedin.com/in/johndoe">
+                    <input type="text" data-field="personal.linkedin.display" class="form-input" placeholder="Tampilan: linkedin.com/in/johndoe">
                     <input type="text" data-field="personal.linkedin.url" class="form-input" placeholder="URL: https://linkedin.com/in/johndoe">
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm uppercase tracking-wide">GitHub (Optional)</label>
-                    <input type="text" data-field="personal.github.display" class="form-input" placeholder="Display: github.com/johndoe">
+                    <label class="font-bold text-sm uppercase tracking-wide">GitHub (Opsional)</label>
+                    <input type="text" data-field="personal.github.display" class="form-input" placeholder="Tampilan: github.com/johndoe">
                     <input type="text" data-field="personal.github.url" class="form-input" placeholder="URL: https://github.com/johndoe">
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm uppercase tracking-wide">Website (Optional)</label>
-                    <input type="text" data-field="personal.website.display" class="form-input" placeholder="Display: johndoe.com">
+                    <label class="font-bold text-sm uppercase tracking-wide">Website (Opsional)</label>
+                    <input type="text" data-field="personal.website.display" class="form-input" placeholder="Tampilan: johndoe.com">
                     <input type="text" data-field="personal.website.url" class="form-input" placeholder="URL: https://johndoe.com">
                 </div>
             </div>
@@ -103,18 +103,18 @@
 
         <!-- Professional Summary -->
         <section class="card" id="section-summary">
-            <h2 class="text-xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2">2. Professional Summary</h2>
+            <h2 class="text-xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2">2. Ringkasan Profesional</h2>
             <div class="flex flex-col gap-2">
-                <label class="font-bold text-sm uppercase tracking-wide">Summary</label>
-                <textarea data-field="summary" rows="6" class="form-input" placeholder="Dedicated software engineer with 5+ years of experience in..."></textarea>
+                <label class="font-bold text-sm uppercase tracking-wide">Ringkasan</label>
+                <textarea data-field="summary" rows="6" class="form-input" placeholder="Software engineer berdedikasi dengan pengalaman 5+ tahun di..."></textarea>
             </div>
         </section>
 
         <!-- Work Experience -->
         <section class="card" id="section-experience">
             <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
-                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">3. Work Experience</h2>
-                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="experience">+ ADD</button>
+                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">3. Pengalaman Kerja</h2>
+                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="experience">+ TAMBAH</button>
             </div>
             <div class="flex flex-col gap-6" id="list-experience"></div>
         </section>
@@ -122,8 +122,8 @@
         <!-- Education -->
         <section class="card" id="section-education">
             <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
-                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">4. Education</h2>
-                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="education">+ ADD</button>
+                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">4. Pendidikan</h2>
+                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="education">+ TAMBAH</button>
             </div>
             <div class="flex flex-col gap-6" id="list-education"></div>
         </section>
@@ -131,31 +131,31 @@
         <!-- Projects -->
         <section class="card" id="section-projects">
             <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
-                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">5. Projects</h2>
-                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="projects">+ ADD</button>
+                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">5. Proyek</h2>
+                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="projects">+ TAMBAH</button>
             </div>
             <div class="flex flex-col gap-6" id="list-projects"></div>
         </section>
 
         <!-- Skills -->
         <section class="card" id="section-skills">
-            <h2 class="text-xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2">6. Skills</h2>
+            <h2 class="text-xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2">6. Keahlian</h2>
             <div class="grid grid-cols-1 gap-4">
                 <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm uppercase tracking-wide">Languages</label>
+                    <label class="font-bold text-sm uppercase tracking-wide">Bahasa</label>
                     <input type="text" data-field="skills.languages" class="form-input" placeholder="Go, Python, TypeScript">
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm uppercase tracking-wide">Frameworks</label>
+                    <label class="font-bold text-sm uppercase tracking-wide">Framework</label>
                     <input type="text" data-field="skills.frameworks" class="form-input" placeholder="React, Gin, Express">
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm uppercase tracking-wide">Tools</label>
+                    <label class="font-bold text-sm uppercase tracking-wide">Alat Bantu</label>
                     <input type="text" data-field="skills.tools" class="form-input" placeholder="Docker, Git, AWS">
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm uppercase tracking-wide">Other</label>
-                    <input type="text" data-field="skills.other" class="form-input" placeholder="Agile, Leadership">
+                    <label class="font-bold text-sm uppercase tracking-wide">Lainnya</label>
+                    <input type="text" data-field="skills.other" class="form-input" placeholder="Agile, Kepemimpinan">
                 </div>
             </div>
         </section>
@@ -163,8 +163,8 @@
         <!-- Certifications -->
         <section class="card" id="section-certifications">
             <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
-                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">7. Certifications</h2>
-                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="certifications">+ ADD</button>
+                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">7. Sertifikasi</h2>
+                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="certifications">+ TAMBAH</button>
             </div>
             <div class="flex flex-col gap-6" id="list-certifications"></div>
         </section>
@@ -172,8 +172,8 @@
         <!-- Volunteer -->
         <section class="card" id="section-volunteer">
             <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
-                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">8. Volunteer</h2>
-                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="volunteer">+ ADD</button>
+                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">8. Relawan</h2>
+                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="volunteer">+ TAMBAH</button>
             </div>
             <div class="flex flex-col gap-6" id="list-volunteer"></div>
         </section>
@@ -181,8 +181,8 @@
         <!-- Awards -->
         <section class="card" id="section-awards">
             <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
-                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">9. Awards</h2>
-                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="awards">+ ADD</button>
+                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">9. Penghargaan</h2>
+                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="awards">+ TAMBAH</button>
             </div>
             <div class="flex flex-col gap-6" id="list-awards"></div>
         </section>
@@ -190,8 +190,8 @@
         <!-- Talks -->
         <section class="card" id="section-talks">
             <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
-                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">10. Talks</h2>
-                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="talks">+ ADD</button>
+                <h2 class="text-xl font-extrabold uppercase tracking-wide m-0">10. Seminar & Konferensi</h2>
+                <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="talks">+ TAMBAH</button>
             </div>
             <div class="flex flex-col gap-6" id="list-talks"></div>
         </section>
@@ -202,14 +202,14 @@
     <div id="extract-overlay" class="extract-overlay" style="display:none;">
         <div class="extract-overlay-card">
             <div class="extract-bounce">📄</div>
-            <h3 class="extract-title">Extracting Your Resume</h3>
-            <p id="extract-step" class="extract-step">Reading PDF...</p>
+            <h3 class="extract-title">Mengekstrak Resume Anda</h3>
+            <p id="extract-step" class="extract-step">Membaca PDF...</p>
             <div class="extract-dots">
                 <span class="extract-dot"></span>
                 <span class="extract-dot"></span>
                 <span class="extract-dot"></span>
             </div>
-            <p class="extract-hint">AI is parsing your resume — hang tight! ✨</p>
+            <p class="extract-hint">AI sedang mengurai resume Anda — harap tunggu! ✨</p>
         </div>
     </div>
 

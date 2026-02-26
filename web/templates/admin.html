@@ -1,21 +1,21 @@
 {{define "admin"}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ATSTEXLAB — Admin Dashboard</title>
-  <meta name="description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder for job seekers.">
-  <meta name="keywords" content="ATS resume builder, LaTeX resume, CV maker, recruiter-ready resume, free resume builder, data privacy, ATSTEXLAB">
+  <meta name="description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source untuk pencari kerja.">
+  <meta name="keywords" content="Pembuat CV ATS, CV LaTeX, pembuat CV, CV siap rekruter, pembuat CV gratis, privasi data, ATSTEXLAB">
   <meta name="author" content="ATSTEXLAB">
   <meta property="og:type" content="website">
   <meta property="og:title" content="ATSTEXLAB — Admin Dashboard">
-  <meta property="og:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+  <meta property="og:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source.">
   <meta property="og:image" content="/static/cv-favicon.svg">
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:title" content="ATSTEXLAB — Admin Dashboard">
-  <meta property="twitter:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+  <meta property="twitter:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source.">
   <meta property="twitter:image" content="/static/cv-favicon.svg">
   <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
   <link rel="stylesheet" href="/static/css/style.css">
@@ -45,15 +45,15 @@
       <nav class="sidebar-nav pb-24 md:pb-4">
         <button class="sidebar-link active" data-panel="dashboard">
           <i class="ph-bold ph-chart-pie-slice"></i>
-          <span>Dashboard</span>
+          <span>Dasbor</span>
         </button>
         <button class="sidebar-link" data-panel="users">
           <i class="ph-bold ph-users-three"></i>
-          <span>Users</span>
+          <span>Pengguna</span>
         </button>
         <button class="sidebar-link" data-panel="feedback">
           <i class="ph-bold ph-chat-circle-text"></i>
-          <span>Feedback</span>
+          <span>Saran & Masukan</span>
         </button>
       </nav>
 
@@ -84,8 +84,8 @@
       <!-- Dashboard Panel -->
       <section class="admin-panel active" id="panel-dashboard">
         <div class="panel-header">
-          <h1><i class="ph-bold ph-chart-pie-slice"></i> Dashboard Overview</h1>
-          <p>Platform-wide analytics and stats</p>
+          <h1><i class="ph-bold ph-chart-pie-slice"></i> Ringkasan Dasbor</h1>
+          <p>Analitik dan statistik seluruh platform</p>
         </div>
 
         <div class="stats-grid" id="stats-grid">
@@ -93,21 +93,21 @@
             <div class="stat-icon" style="background:var(--accent);">👥</div>
             <div class="stat-info">
               <span class="stat-value" id="stat-users">–</span>
-              <span class="stat-label">Total Users</span>
+              <span class="stat-label">Total Pengguna</span>
             </div>
           </div>
           <div class="stat-card">
             <div class="stat-icon" style="background:var(--accent2);">🛡️</div>
             <div class="stat-info">
               <span class="stat-value" id="stat-admins">–</span>
-              <span class="stat-label">Admins</span>
+              <span class="stat-label">Admin</span>
             </div>
           </div>
           <div class="stat-card">
             <div class="stat-icon" style="background:var(--accent3);">🤖</div>
             <div class="stat-info">
               <span class="stat-value" id="stat-ai-tokens">–</span>
-              <span class="stat-label">AI Tokens Used</span>
+              <span class="stat-label">Token AI Terpakai</span>
             </div>
           </div>
           <div class="stat-card">
@@ -121,7 +121,7 @@
             <div class="stat-icon" style="background:var(--muted);">🔗</div>
             <div class="stat-info">
               <span class="stat-value" id="stat-sessions">–</span>
-              <span class="stat-label">Active Sessions</span>
+              <span class="stat-label">Sesi Aktif</span>
             </div>
           </div>
         </div>
@@ -130,17 +130,17 @@
       <!-- Users Panel -->
       <section class="admin-panel" id="panel-users">
         <div class="panel-header">
-          <h1><i class="ph-bold ph-users-three"></i> User Management</h1>
-          <p>All registered users with biodata and AI usage</p>
+          <h1><i class="ph-bold ph-users-three"></i> Manajemen Pengguna</h1>
+          <p>Semua pengguna terdaftar dengan biodata dan penggunaan AI</p>
         </div>
 
         <div class="users-toolbar">
           <div class="search-box">
             <i class="ph-bold ph-magnifying-glass"></i>
-            <input type="text" id="user-search" placeholder="Search by name or email…">
+            <input type="text" id="user-search" placeholder="Cari berdasarkan nama atau email…">
           </div>
           <div class="users-meta">
-            <span id="users-count">0 users</span>
+            <span id="users-count">0 pengguna</span>
           </div>
         </div>
 
@@ -148,15 +148,15 @@
           <table class="admin-table" id="users-table">
             <thead>
               <tr>
-                <th class="sortable" data-sort="name">Name <i class="ph ph-caret-up-down"></i></th>
+                <th class="sortable" data-sort="name">Nama <i class="ph ph-caret-up-down"></i></th>
                 <th class="sortable" data-sort="email">Email <i class="ph ph-caret-up-down"></i></th>
-                <th>Public URL</th>
-                <th class="sortable" data-sort="role">Role <i class="ph ph-caret-up-down"></i></th>
+                <th>URL Publik</th>
+                <th class="sortable" data-sort="role">Peran <i class="ph ph-caret-up-down"></i></th>
                 <th>Status</th>
                 <th class="sortable" data-sort="biodata_count">Biodata <i class="ph ph-caret-up-down"></i></th>
-                <th class="sortable" data-sort="ai_tokens_used">AI Tokens <i class="ph ph-caret-up-down"></i></th>
-                <th class="sortable" data-sort="created_at">Joined <i class="ph ph-caret-up-down"></i></th>
-                <th>Actions</th>
+                <th class="sortable" data-sort="ai_tokens_used">Token AI <i class="ph ph-caret-up-down"></i></th>
+                <th class="sortable" data-sort="created_at">Bergabung <i class="ph ph-caret-up-down"></i></th>
+                <th>Aksi</th>
               </tr>
             </thead>
             <tbody id="users-tbody"></tbody>
@@ -169,17 +169,17 @@
       <!-- Feedback Panel -->
       <section class="admin-panel" id="panel-feedback">
         <div class="panel-header">
-          <h1><i class="ph-bold ph-chat-circle-text"></i> Feedback Management</h1>
-          <p>User feedback and recommendations with admin replies</p>
+          <h1><i class="ph-bold ph-chat-circle-text"></i> Manajemen Masukan</h1>
+          <p>Saran dan rekomendasi pengguna beserta balasan admin</p>
         </div>
 
         <div class="users-toolbar">
           <div class="search-box">
             <i class="ph-bold ph-magnifying-glass"></i>
-            <input type="text" id="fb-search" placeholder="Search feedback by subject, message, or user…">
+            <input type="text" id="fb-search" placeholder="Cari masukan berdasarkan subjek, pesan, atau nama…">
           </div>
           <div class="users-meta">
-            <span id="fb-count">0 feedback</span>
+            <span id="fb-count">0 masukan</span>
           </div>
         </div>
 
@@ -187,12 +187,12 @@
           <table class="admin-table" id="fb-table">
             <thead>
               <tr>
-                <th>User</th>
-                <th>Subject</th>
-                <th>Message</th>
+                <th>Pengguna</th>
+                <th>Subjek</th>
+                <th>Pesan</th>
                 <th>Status</th>
-                <th>Date</th>
-                <th>Action</th>
+                <th>Tanggal</th>
+                <th>Aksi</th>
               </tr>
             </thead>
             <tbody id="fb-tbody"></tbody>
@@ -206,16 +206,16 @@
       <div class="modal-overlay" id="reply-modal" style="display:none;">
         <div class="modal-card">
           <div class="modal-header">
-            <h2><i class="ph-bold ph-chat-circle-text"></i> Reply to Feedback</h2>
+            <h2><i class="ph-bold ph-chat-circle-text"></i> Balas Masukan</h2>
             <button class="modal-close" id="close-reply-modal"><i class="ph-bold ph-x"></i></button>
           </div>
           <div class="modal-body">
             <div id="reply-fb-info" style="margin-bottom:16px;"></div>
-            <label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);display:block;margin-bottom:6px;">Admin Reply</label>
-            <textarea id="reply-text" rows="5" style="width:100%;padding:12px;border:3px solid var(--border);background:var(--bg);font:inherit;font-size:0.85rem;resize:vertical;outline:none;" placeholder="Type your reply…"></textarea>
+            <label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);display:block;margin-bottom:6px;">Balasan Admin</label>
+            <textarea id="reply-text" rows="5" style="width:100%;padding:12px;border:3px solid var(--border);background:var(--bg);font:inherit;font-size:0.85rem;resize:vertical;outline:none;" placeholder="Ketik balasan Anda…"></textarea>
           </div>
           <div class="modal-footer">
-            <button class="btn" id="btn-send-reply"><i class="ph-bold ph-paper-plane-tilt"></i> Send Reply</button>
+            <button class="btn" id="btn-send-reply"><i class="ph-bold ph-paper-plane-tilt"></i> Kirim Balasan</button>
             <span id="reply-status" style="font-size:0.8rem;font-weight:700;"></span>
           </div>
         </div>

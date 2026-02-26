@@ -1,21 +1,21 @@
 {{define "editor"}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ATSTEXLAB — Engineered ATS Resume Builder</title>
-  <meta name="description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder for job seekers.">
-  <meta name="keywords" content="ATS resume builder, LaTeX resume, CV maker, recruiter-ready resume, free resume builder, data privacy, ATSTEXLAB">
+  <meta name="description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source untuk pencari kerja.">
+  <meta name="keywords" content="Pembuat CV ATS, CV LaTeX, pembuat CV, CV siap rekruter, pembuat CV gratis, privasi data, ATSTEXLAB">
   <meta name="author" content="ATSTEXLAB">
   <meta property="og:type" content="website">
   <meta property="og:title" content="ATSTEXLAB — Engineered ATS Resume Builder">
-  <meta property="og:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+  <meta property="og:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source.">
   <meta property="og:image" content="/static/cv-favicon.svg">
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:title" content="ATSTEXLAB — Engineered ATS Resume Builder">
-  <meta property="twitter:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+  <meta property="twitter:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source.">
   <meta property="twitter:image" content="/static/cv-favicon.svg">
   <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -43,13 +43,13 @@
     class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
     <div class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
       <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
-      <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Toggle Sidebar"><i class="ph-bold ph-caret-left"></i></button>
+      <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Tutup Sidebar"><i class="ph-bold ph-caret-left"></i></button>
     </div>
 
     <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4 pb-24 md:pb-4">
       <a href="/"
         class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-          class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Home</span></a>
+          class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Beranda</span></a>
       <a href="/input"
         class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
           class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a>
@@ -58,25 +58,25 @@
           class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
             <a href="/cv-review"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">CV Review</span></a>
+                    class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">Review CV</span></a>
             <a href="/cover-letter"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Cover Letter</span></a>
+                    class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Surat Lamaran</span></a>
             <a href="/kanban"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-columns text-2xl"></i> <span class="sidebar-nav-text">Kanban</span></a>
             <a href="/profile"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profile</span></a>
+                    class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profil</span></a>
             <a href="/publish"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publish</span></a>
+                    class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publikasi</span></a>
             <a href="/feedback"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Feedback</span></a>
+                    class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Saran & Masukan</span></a>
             <a href="/support"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-coffee text-2xl"></i> <span class="sidebar-nav-text">Support</span></a>
+                    class="ph ph-coffee text-2xl"></i> <span class="sidebar-nav-text">Dukungan</span></a>
         </nav>
 
     {{if .User}}
@@ -87,7 +87,7 @@
         <div class="flex flex-col overflow-hidden">
           <span class="font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{.User.Name}}</span>
           <form action="/auth/logout" method="POST" class="m-0">
-            <button type="submit" class="text-error text-xs font-bold uppercase tracking-wider outline-none">Logout <i
+            <button type="submit" class="text-error text-xs font-bold uppercase tracking-wider outline-none">Keluar <i
                 class="ph-bold ph-sign-out"></i></button>
           </form>
         </div>
@@ -105,7 +105,7 @@
     <!-- ── SECONDARY HEADER & ACTIONS ────────────────────────────── -->
     <header class="page-header">
       <div class="engine-select-wrap">
-        <label for="engine">Engine</label>
+        <label for="engine">Mesin (Engine)</label>
         <select id="engine">
           <option value="pdflatex">pdflatex</option>
           <option value="xelatex">xelatex</option>
@@ -116,14 +116,14 @@
       <div class="engine-select-wrap" style="margin-left: 10px;">
         <label for="template">Template</label>
         <select id="template">
-          <option value="">(Blank)</option>
-          <option value="example">Example</option>
+          <option value="">(Kosong)</option>
+          <option value="example">Contoh</option>
         </select>
       </div>
 
       <button class="btn btn-primary" id="btn-compile" title="Compile (Ctrl+Enter)">
         <span class="spinner" aria-hidden="true"></span>
-        <span class="btn-label">▶ Compile</span>
+        <span class="btn-label">▶ Kompilasi</span>
         <kbd>⌃↵</kbd>
       </button>
     </header>
@@ -141,7 +141,7 @@
           <button class="editor-tab" id="tab-settings"
             style="display:flex; align-items:center; gap:8px; height:100%; padding:0 16px; border:none; background:transparent; font:inherit; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; cursor:pointer; border-bottom:3px solid transparent; color:var(--muted);">
             <span class="dot" style="width:12px;height:12px;background:var(--accent2);border:2px solid var(--border);"></span>
-            Page Settings
+            Pengaturan Halaman
           </button>
           <!-- <button class="editor-tab" id="tab-editor" style="display:flex; align-items:center; gap:8px; height:100%; padding:0 16px; border:none; background:transparent; font:inherit; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; cursor:pointer; border-bottom:3px solid transparent; color:var(--muted);">
             <span class="dot" style="width:12px;height:12px;background:var(--accent3);border:2px solid var(--border);"></span>
@@ -155,19 +155,19 @@
         <div id="settings-panel" class="settings-panel" style="display:none;">
           <div class="settings-scroll">
             <div class="settings-section">
-              <h3 class="settings-section-title"><i class="ph ph-file-text"></i> Document</h3>
+              <h3 class="settings-section-title"><i class="ph ph-file-text"></i> Dokumen</h3>
               <div class="settings-grid">
                 <div class="settings-field">
-                  <label for="ps-doc-class">Document Class</label>
+                  <label for="ps-doc-class">Kelas Dokumen</label>
                   <select id="ps-doc-class">
-                    <option value="article">Article</option>
-                    <option value="report">Report</option>
-                    <option value="letter">Letter</option>
-                    <option value="book">Book</option>
+                    <option value="article">Artikel</option>
+                    <option value="report">Laporan</option>
+                    <option value="letter">Surat</option>
+                    <option value="book">Buku</option>
                   </select>
                 </div>
                 <div class="settings-field">
-                  <label for="ps-paper-size">Paper Size</label>
+                  <label for="ps-paper-size">Ukuran Kertas</label>
                   <select id="ps-paper-size">
                     <option value="a4paper">A4</option>
                     <option value="letterpaper">US Letter</option>
@@ -175,7 +175,7 @@
                   </select>
                 </div>
                 <div class="settings-field">
-                  <label for="ps-font-size">Font Size</label>
+                  <label for="ps-font-size">Ukuran Font</label>
                   <select id="ps-font-size">
                     <option value="10pt">10pt</option>
                     <option value="11pt">11pt</option>
@@ -183,7 +183,7 @@
                   </select>
                 </div>
                 <div class="settings-field">
-                  <label for="ps-font-family">Font Family</label>
+                  <label for="ps-font-family">Jenis Font</label>
                   <select id="ps-font-family">
                     <option value="default">Default (CM)</option>
                     <option value="helvet">Helvetica (Sans)</option>
@@ -196,45 +196,45 @@
             </div>
 
             <div class="settings-section">
-              <h3 class="settings-section-title"><i class="ph ph-frame-corners"></i> Margins</h3>
+              <h3 class="settings-section-title"><i class="ph ph-frame-corners"></i> Margin</h3>
               <div class="settings-grid">
                 <div class="settings-field">
-                  <label for="ps-margin-top">Top</label>
-                  <input type="text" id="ps-margin-top" value="0.5in" placeholder="e.g. 0.5in">
+                  <label for="ps-margin-top">Atas</label>
+                  <input type="text" id="ps-margin-top" value="0.5in" placeholder="contoh: 0.5in">
                 </div>
                 <div class="settings-field">
-                  <label for="ps-margin-bottom">Bottom</label>
-                  <input type="text" id="ps-margin-bottom" value="0.5in" placeholder="e.g. 0.5in">
+                  <label for="ps-margin-bottom">Bawah</label>
+                  <input type="text" id="ps-margin-bottom" value="0.5in" placeholder="contoh: 0.5in">
                 </div>
                 <div class="settings-field">
-                  <label for="ps-margin-left">Left</label>
-                  <input type="text" id="ps-margin-left" value="0.7in" placeholder="e.g. 0.7in">
+                  <label for="ps-margin-left">Kiri</label>
+                  <input type="text" id="ps-margin-left" value="0.7in" placeholder="contoh: 0.7in">
                 </div>
                 <div class="settings-field">
-                  <label for="ps-margin-right">Right</label>
-                  <input type="text" id="ps-margin-right" value="0.7in" placeholder="e.g. 0.7in">
+                  <label for="ps-margin-right">Kanan</label>
+                  <input type="text" id="ps-margin-right" value="0.7in" placeholder="contoh: 0.7in">
                 </div>
               </div>
             </div>
 
             <div class="settings-section">
-              <h3 class="settings-section-title"><i class="ph ph-text-aa"></i> Typography</h3>
+              <h3 class="settings-section-title"><i class="ph ph-text-aa"></i> Tipografi</h3>
               <div class="settings-grid">
                 <div class="settings-field">
-                  <label for="ps-line-spacing">Line Spacing</label>
+                  <label for="ps-line-spacing">Spasi Baris</label>
                   <select id="ps-line-spacing">
-                    <option value="1">Single (1.0)</option>
+                    <option value="1">Tunggal (1.0)</option>
                     <option value="1.15">1.15</option>
                     <option value="1.5">1.5</option>
-                    <option value="2">Double (2.0)</option>
+                    <option value="2">Ganda (2.0)</option>
                   </select>
                 </div>
                 <div class="settings-field">
-                  <label for="ps-alignment">Alignment</label>
+                  <label for="ps-alignment">Perataan</label>
                   <select id="ps-alignment">
-                    <option value="justify">Justify</option>
-                    <option value="left">Left (Ragged Right)</option>
-                    <option value="center">Center</option>
+                    <option value="justify">Rata Kiri Kanan (Justify)</option>
+                    <option value="left">Kiri (Ragged Right)</option>
+                    <option value="center">Tengah (Center)</option>
                   </select>
                 </div>
               </div>
@@ -244,12 +244,12 @@
               <h3 class="settings-section-title"><i class="ph ph-rows"></i> Header &amp; Footer</h3>
               <div class="settings-grid settings-grid-wide">
                 <div class="settings-field">
-                  <label for="ps-header-text">Header Text</label>
-                  <input type="text" id="ps-header-text" placeholder="e.g. My Resume">
+                  <label for="ps-header-text">Teks Header</label>
+                  <input type="text" id="ps-header-text" placeholder="contoh: Resume Saya">
                 </div>
                 <div class="settings-field">
-                  <label for="ps-footer-text">Footer Text</label>
-                  <input type="text" id="ps-footer-text" placeholder="Leave empty for page number">
+                  <label for="ps-footer-text">Teks Footer</label>
+                  <input type="text" id="ps-footer-text" placeholder="Kosongkan untuk nomor halaman">
                 </div>
               </div>
             </div>
@@ -257,11 +257,11 @@
             <div class="settings-actions">
               <button class="btn btn-primary" id="btn-apply-settings">
                 <i class="ph-bold ph-check-circle"></i>
-                <span class="btn-label">Apply &amp; Compile</span>
+                <span class="btn-label">Terapkan &amp; Kompilasi</span>
               </button>
               <button class="btn btn-ghost" id="btn-reset-settings">
                 <i class="ph-bold ph-arrow-counter-clockwise"></i>
-                <span class="btn-label">Reset</span>
+                <span class="btn-label">Atur Ulang</span>
               </button>
             </div>
           </div>
@@ -270,7 +270,7 @@
         <!-- Log panel inside editor pane -->
         <div class="log-panel" id="log-panel">
           <div class="log-header" id="log-toggle">
-            <span>Compiler Log</span>
+            <span>Log Kompilator</span>
             <span class="badge" id="log-badge" style="display:none"></span>
           </div>
           <pre id="log-output"></pre>
@@ -283,23 +283,22 @@
       <!-- Preview -->
       <div class="preview-pane" id="preview-pane">
         <div class="preview-toolbar">
-          <span class="pane-label"><span class="dot"></span>Preview</span>
+          <span class="pane-label"><span class="dot"></span>Pratinjau</span>
 
-          <button class="zoom-btn" id="zoom-out" title="Zoom out">−</button>
+          <button class="zoom-btn" id="zoom-out" title="Perkecil">−</button>
           <span class="zoom-val" id="zoom-val">100%</span>
-          <button class="zoom-btn" id="zoom-in" title="Zoom in">+</button>
-          <button class="zoom-btn" id="zoom-fit" title="Fit to width"
-            style="width:auto;padding:0 8px;font-size:11px;">Fit</button>
+          <button class="zoom-btn" id="zoom-in" title="Perbesar">+</button>
+          <button class="zoom-btn" id="zoom-fit" title="Paskan lebar"
+            style="width:auto;padding:0 8px;font-size:11px;">Paskan</button>
 
-          <button class="btn-download" id="btn-download" disabled title="Download PDF">↓ PDF</button>
-          <button class="btn-download" id="btn-download-tex" title="Download LaTeX source" style="margin-left:4px;">↓ .tex</button>
+          <button class="btn-download" id="btn-download" disabled title="Unduh PDF">↓ PDF</button>
+          <button class="btn-download" id="btn-download-tex" title="Unduh sumber LaTeX" style="margin-left:4px;">↓ .tex</button>
         </div>
 
         <div class="preview-scroll" id="preview-scroll">
           <div class="preview-empty" id="preview-empty">
             <div class="icon">∫</div>
-            <p>Write LaTeX in the editor and press <strong style="color:var(--text)">Compile</strong> to render the PDF
-              here.</p>
+            <p>Tulis LaTeX di editor dan tekan <strong style="color:var(--text)">Kompilasi</strong> untuk memuat PDF di sini.</p>
           </div>
         </div>
       </div>
@@ -310,7 +309,7 @@
     <div class="statusbar">
       <div class="status-item">
         <span class="status-dot" id="status-dot"></span>
-        <span id="status-text">Ready</span>
+        <span id="status-text">Siap</span>
       </div>
       <span class="sep">|</span>
       <span id="status-elapsed"></span>
@@ -323,22 +322,22 @@
     <div id="compile-overlay" class="compile-overlay" style="display:none;">
       <div class="compile-overlay-card">
         <div class="compile-bounce">⚙️</div>
-        <h3 class="compile-title">Compiling LaTeX</h3>
-        <p id="compile-step" class="compile-step">Rendering template…</p>
+        <h3 class="compile-title">Mengkompilasi LaTeX</h3>
+        <p id="compile-step" class="compile-step">Memuat template…</p>
         <div class="compile-dots">
           <span class="compile-dot"></span>
           <span class="compile-dot"></span>
           <span class="compile-dot"></span>
         </div>
-        <p class="compile-hint">Building your PDF — hang tight! 📄</p>
+        <p class="compile-hint">Membuat PDF Anda — mohon tunggu! 📄</p>
       </div>
     </div>
 
     <div class="donation-modal" id="donation-modal">
       <div class="donation-modal-card">
         <button class="close-modal-btn" id="close-donation-modal"><i class="ph-bold ph-x"></i></button>
-        <h2>🎉 Your PDF is Downloading!</h2>
-        <p>If ATSTEXLAB helped you secure that interview, consider leaving a tip to support the servers!</p>
+        <h2>🎉 PDF Anda Sedang Diunduh!</h2>
+        <p>Jika ATSTEXLAB membantu Anda mendapatkan wawancara tersebut, pertimbangkan untuk memberikan tip guna mendukung server!</p>
         <a href="https://saweria.co/sammidev" target="_blank">
           <img src="/static/saweria.png" alt="Saweria QR Code" />
         </a>

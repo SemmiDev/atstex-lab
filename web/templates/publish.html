@@ -1,21 +1,21 @@
 {{define "publish"}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
-    <title>atstex-lab — Publish Settings</title>
+    <title>atstex-lab — Pengaturan Publikasi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder for job seekers.">
-    <meta name="keywords" content="ATS resume builder, LaTeX resume, CV maker, recruiter-ready resume, free resume builder, data privacy, ATSTEXLAB">
+    <meta name="description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source untuk pencari kerja.">
+    <meta name="keywords" content="Pembuat CV ATS, CV LaTeX, pembuat CV, CV siap rekruter, pembuat CV gratis, privasi data, ATSTEXLAB">
     <meta name="author" content="ATSTEXLAB">
     <meta property="og:type" content="website">
     <meta property="og:title" content="atstex-lab — Publish Settings">
-    <meta property="og:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+    <meta property="og:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source.">
     <meta property="og:image" content="/static/cv-favicon.svg">
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:title" content="atstex-lab — Publish Settings">
-    <meta property="twitter:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+    <meta property="twitter:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source.">
     <meta property="twitter:image" content="/static/cv-favicon.svg">
     <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
     <link rel="stylesheet" href="/static/css/style.css">
@@ -88,13 +88,13 @@
         class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
         <div class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
             <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
-            <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Toggle Sidebar"><i class="ph-bold ph-caret-left"></i></button>
+            <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Tutup Sidebar"><i class="ph-bold ph-caret-left"></i></button>
         </div>
 
         <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4 pb-24 md:pb-4">
             <a href="/"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Home</span></a>
+                    class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Beranda</span></a>
             <a href="/input"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a>
@@ -103,25 +103,25 @@
                     class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
             <a href="/cv-review"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">CV Review</span></a>
+                    class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">Review CV</span></a>
             <a href="/cover-letter"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Cover Letter</span></a>
+                    class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Surat Lamaran</span></a>
             <a href="/kanban"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-columns text-2xl"></i> <span class="sidebar-nav-text">Kanban</span></a>
             <a href="/profile"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profile</span></a>
+                    class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profil</span></a>
             <a href="/publish"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i
-                    class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publish</span></a>
+                    class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publikasi</span></a>
             <a href="/feedback"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Feedback</span></a>
+                    class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Saran & Masukan</span></a>
             <a href="/support"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-coffee text-2xl"></i> <span class="sidebar-nav-text">Support</span></a>
+                    class="ph ph-coffee text-2xl"></i> <span class="sidebar-nav-text">Dukungan</span></a>
         </nav>
 
         {{if .User}}
@@ -133,7 +133,7 @@
                     <span class="font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{.User.Name}}</span>
                     <form action="/auth/logout" method="POST" class="m-0">
                         <button type="submit"
-                            class="text-error text-xs font-bold uppercase tracking-wider outline-none">Logout <i
+                            class="text-error text-xs font-bold uppercase tracking-wider outline-none">Keluar <i
                                 class="ph-bold ph-sign-out"></i></button>
                     </form>
                 </div>
@@ -151,28 +151,28 @@
             <!-- Section: Username -->
             <div class="flex flex-col gap-2">
                 <h1 class="text-3xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
-                    <i class="ph-bold ph-globe text-3xl"></i> Public Profile
+                    <i class="ph-bold ph-globe text-3xl"></i> Profil Publik
                 </h1>
-                <p class="font-semibold text-muted">Claim a unique username and publish your CV profiles as a shareable web page.</p>
+                <p class="font-semibold text-muted">Klaim nama pengguna unik dan publikasikan profil CV Anda sebagai halaman web yang dapat dibagikan.</p>
             </div>
 
             <div class="card flex flex-col gap-4 pt-6">
                 <h2 class="text-xl font-extrabold uppercase tracking-wide flex items-center gap-2 m-0">
-                    <i class="ph-bold ph-at"></i> Username
+                    <i class="ph-bold ph-at"></i> Nama Pengguna
                 </h2>
                 <div class="username-form">
                     <input type="text" id="username-input" class="username-input"
-                           placeholder="your-username"
+                           placeholder="nama-pengguna-anda"
                            value="{{if .User.Username}}{{deref .User.Username}}{{end}}"
                            maxlength="30" autocomplete="off" spellcheck="false">
                     <button id="save-username-btn" class="btn" onclick="saveUsername()">
-                        <i class="ph-bold ph-floppy-disk"></i> Save
+                        <i class="ph-bold ph-floppy-disk"></i> Simpan
                     </button>
                 </div>
                 <div id="username-status" class="username-status"></div>
                 <div class="url-preview" id="url-preview" style="{{if not .User.Username}}display:none{{end}}">
                     <i class="ph-bold ph-link text-lg"></i>
-                    <span>Your public page: </span>
+                    <span>Halaman publik Anda: </span>
                     <a id="public-url" href="{{if .User.Username}}/u/{{deref .User.Username}}{{end}}" target="_blank">
                         {{if .User.Username}}/u/{{deref .User.Username}}{{else}}/u/...{{end}}
                     </a>
@@ -182,9 +182,9 @@
             <!-- Section: Profile Visibility -->
             <div class="flex flex-col gap-2">
                 <h2 class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
-                    <i class="ph-bold ph-eye text-3xl"></i> Profile Visibility
+                    <i class="ph-bold ph-eye text-3xl"></i> Visibilitas Profil
                 </h2>
-                <p class="font-semibold text-muted">Toggle which CV profiles are visible on your public page.</p>
+                <p class="font-semibold text-muted">Tentukan profil CV mana yang terlihat di halaman publik Anda.</p>
             </div>
 
             <div class="profile-toggle-list">
@@ -194,8 +194,8 @@
                     <div class="profile-toggle-info">
                         <span class="profile-toggle-title">{{.Title}}</span>
                         <span class="profile-toggle-subtitle">
-                            {{if .IsPublic}}<i class="ph-bold ph-globe"></i> Public{{else}}<i class="ph-bold ph-lock"></i> Private{{end}}
-                            · Updated {{.UpdatedAt.Format "02 Jan 2006"}}
+                            {{if .IsPublic}}<i class="ph-bold ph-globe"></i> Publik{{else}}<i class="ph-bold ph-lock"></i> Pribadi{{end}}
+                            · Diperbarui {{.UpdatedAt.Format "02 Jan 2006"}}
                         </span>
                     </div>
                     <label class="toggle-switch">
@@ -208,7 +208,7 @@
                 {{else}}
                 <div class="no-profiles-msg">
                     <i class="ph-bold ph-folder-notch-open" style="font-size:2rem; display:block; margin-bottom:0.5rem;"></i>
-                    No CV profiles yet. <a href="/input" style="color:var(--accent); font-weight:800;">Create one first</a>.
+                    Belum ada profil CV. <a href="/input" style="color:var(--accent); font-weight:800;">Buat satu terlebih dahulu</a>.
                 </div>
                 {{end}}
             </div>
@@ -254,13 +254,13 @@
             usernameInput.value = val;
 
             if (val.length < 3) {
-                statusEl.textContent = val.length > 0 ? 'Username must be at least 3 characters' : '';
+                statusEl.textContent = val.length > 0 ? 'Nama pengguna minimal 3 karakter' : '';
                 statusEl.className = 'username-status invalid';
                 usernameInput.className = 'username-input' + (val.length > 0 ? ' error' : '');
                 return;
             }
 
-            statusEl.textContent = 'Checking...';
+            statusEl.textContent = 'Memeriksa...';
             statusEl.className = 'username-status invalid';
 
             checkTimer = setTimeout(async () => {
@@ -268,16 +268,16 @@
                     const res = await fetch(`/api/username/check?q=${encodeURIComponent(val)}`);
                     const data = await res.json();
                     if (data.available) {
-                        statusEl.textContent = '✓ Username is available';
+                        statusEl.textContent = '✓ Nama pengguna tersedia';
                         statusEl.className = 'username-status available';
                         usernameInput.className = 'username-input success';
                     } else {
-                        statusEl.textContent = '✗ ' + (data.reason || 'Username is taken');
+                        statusEl.textContent = '✗ ' + (data.reason || 'Nama pengguna sudah digunakan');
                         statusEl.className = 'username-status taken';
                         usernameInput.className = 'username-input error';
                     }
                 } catch (e) {
-                    statusEl.textContent = 'Error checking username';
+                    statusEl.textContent = 'Kesalahan memeriksa nama pengguna';
                     statusEl.className = 'username-status taken';
                 }
             }, 400);
@@ -286,14 +286,14 @@
         async function saveUsername() {
             const val = usernameInput.value.trim().toLowerCase();
             if (val.length < 3) {
-                statusEl.textContent = 'Username must be at least 3 characters';
+                statusEl.textContent = 'Nama pengguna minimal 3 karakter';
                 statusEl.className = 'username-status taken';
                 return;
             }
 
             const btn = document.getElementById('save-username-btn');
             btn.disabled = true;
-            btn.innerHTML = '<i class="ph-bold ph-spinner"></i> Saving...';
+            btn.innerHTML = '<i class="ph-bold ph-spinner"></i> Menyimpan...';
 
             try {
                 const res = await fetch('/api/username', {
@@ -304,23 +304,23 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    statusEl.textContent = '✓ Username saved!';
+                    statusEl.textContent = '✓ Nama pengguna disimpan!';
                     statusEl.className = 'username-status available';
                     usernameInput.className = 'username-input success';
                     urlPreview.style.display = 'flex';
                     publicUrl.href = '/u/' + val;
                     publicUrl.textContent = '/u/' + val;
                 } else {
-                    statusEl.textContent = '✗ ' + (data.error || 'Failed to save');
+                    statusEl.textContent = '✗ ' + (data.error || 'Gagal menyimpan');
                     statusEl.className = 'username-status taken';
                     usernameInput.className = 'username-input error';
                 }
             } catch (e) {
-                statusEl.textContent = 'Network error. Please try again.';
+                statusEl.textContent = 'Kesalahan jaringan. Silakan coba lagi.';
                 statusEl.className = 'username-status taken';
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Save';
+                btn.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Simpan';
             }
         }
 
@@ -335,11 +335,11 @@
                     body: JSON.stringify({ is_public: isPublic })
                 });
 
-                if (!res.ok) throw new Error('Failed');
+                if (!res.ok) throw new Error('Gagal');
 
                 // Update the subtitle text
                 const iconClass = isPublic ? 'ph-globe' : 'ph-lock';
-                const label = isPublic ? 'Public' : 'Private';
+                const label = isPublic ? 'Publik' : 'Pribadi';
                 const dateText = subtitle.textContent.split('·')[1] || '';
                 subtitle.innerHTML = `<i class="ph-bold ${iconClass}"></i> ${label} ·${dateText}`;
 
@@ -349,7 +349,7 @@
             } catch (e) {
                 // Revert checkbox
                 checkbox.checked = !isPublic;
-                alert('Failed to update visibility. Please try again.');
+                alert('Gagal memperbarui visibilitas. Silakan coba lagi.');
             }
         }
     </script>

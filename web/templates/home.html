@@ -1,21 +1,21 @@
 {{define "home"}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ATSTEXLAB — ATS-Optimized LaTeX Resumes</title>
-  <meta name="description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder for job seekers.">
-  <meta name="keywords" content="ATS resume builder, LaTeX resume, CV maker, recruiter-ready resume, free resume builder, data privacy, ATSTEXLAB">
+  <title>ATSTEXLAB — Pembuat CV LaTeX Teroptimasi ATS</title>
+  <meta name="description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source untuk pencari kerja.">
+  <meta name="keywords" content="Pembuat CV ATS, CV LaTeX, pembuat CV, CV siap rekruter, pembuat CV gratis, privasi data, ATSTEXLAB">
   <meta name="author" content="ATSTEXLAB">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="ATSTEXLAB — ATS-Optimized LaTeX Resumes">
-  <meta property="og:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+  <meta property="og:title" content="ATSTEXLAB — Pembuat CV LaTeX Teroptimasi ATS">
+  <meta property="og:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source.">
   <meta property="og:image" content="/static/cv-favicon.svg">
   <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:title" content="ATSTEXLAB — ATS-Optimized LaTeX Resumes">
-  <meta property="twitter:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+  <meta property="twitter:title" content="ATSTEXLAB — Pembuat CV LaTeX Teroptimasi ATS">
+  <meta property="twitter:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source.">
   <meta property="twitter:image" content="/static/cv-favicon.svg">
   <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
   <link rel="stylesheet" href="/static/css/style.css">
@@ -103,8 +103,8 @@
     <div class="font-disp font-extrabold text-2xl tracking-tight">ATSTEX<em class="text-accent italic">LAB</em></div>
     <div class="flex items-center gap-4">
       <div class="lang-switch">
-          <button class="lang-btn active" data-lang="en"><span class="flag">🇬🇧</span> EN</button>
-          <button class="lang-btn" data-lang="id"><span class="flag">🇮🇩</span> ID</button>
+          <button class="lang-btn" data-lang="en"><span class="flag">🇬🇧</span> EN</button>
+          <button class="lang-btn active" data-lang="id"><span class="flag">🇮🇩</span> ID</button>
       </div>
     </div>
   </nav>
@@ -122,38 +122,36 @@
     <div class="hero-content">
 
       <div class="badge-new" data-aos="fade-down" data-aos-delay="100">
-        <span class="pulse-dot"></span> <span data-i18n="hero.badge">Resume Builder That Beats the Bots</span>
+        <span class="pulse-dot"></span> <span data-i18n="hero.badge">Pembuat CV yang Lolos Screening Robot</span>
       </div>
 
       <h1 data-aos="fade-up" data-aos-delay="200" data-aos-duration="800">
-        <span data-i18n-hero="1">Structured for</span> <span class="highlight" data-i18n-hero="2">Machines.</span><br>
-        <span data-i18n-hero="3">Designed for Humans.</span>
+        <span data-i18n-hero="1">Lolos Seleksi</span> <span class="highlight" data-i18n-hero="2">Sistem.</span><br>
+        <span data-i18n-hero="3">Memikat Hati Rekruter.</span>
       </h1>
 
       <p class="subtitle" data-aos="fade-up" data-aos-delay="400" data-i18n="hero.subtitle">
-        ATSTEXLAB helps you build professional, ATS-friendly resumes that actually
-        get read by recruiters. Fill in your details, pick a template, and download
-        a polished PDF — all from your browser.
+        ATSTEXLAB membantu Anda membuat CV profesional yang ramah ATS dan disukai rekruter. Isi data, pilih template, dan unduh PDF yang rapi.
       </p>
 
       <div class="cta-group" data-aos="zoom-in" data-aos-delay="600">
         {{if .User}}
         {{if .User.IsAdmin}}
-        <a href="/admin" class="btn btn-primary btn-lg"><i class="ph-bold ph-chart-pie-slice"></i> <span>Dashboard</span></a>
+        <a href="/admin" class="btn btn-primary btn-lg"><i class="ph-bold ph-chart-pie-slice"></i> <span>Dasbor</span></a>
         {{else}}
-        <a href="/input" class="btn btn-primary btn-lg"><i class="ph-bold ph-magic-wand"></i> <span data-i18n="hero.btn.builder">Builder</span></a>
+        <a href="/input" class="btn btn-primary btn-lg"><i class="ph-bold ph-magic-wand"></i> <span data-i18n="hero.btn.builder">Buat CV</span></a>
         {{end}}
         <form action="/auth/logout" method="POST" style="display:inline;">
-          <button type="submit" class="btn btn-ghost btn-lg"><i class="ph-bold ph-sign-out"></i> <span data-i18n="hero.btn.logout">Logout</span></button>
+          <button type="submit" class="btn btn-ghost btn-lg"><i class="ph-bold ph-sign-out"></i> <span data-i18n="hero.btn.logout">Keluar</span></button>
         </form>
         {{else}}
-        <a href="/auth/google/login" class="btn btn-primary btn-lg"><i class="ph-bold ph-google-logo"></i> <span data-i18n="hero.btn.signin">Sign in with Google</span></a>
+        <a href="/auth/google/login" class="btn btn-primary btn-lg"><i class="ph-bold ph-google-logo"></i> <span data-i18n="hero.btn.signin">Masuk dengan Google</span></a>
         {{end}}
       </div>
 
       <!-- Positioning Line -->
       <div class="trusted-by" data-aos="fade-up" data-aos-delay="800">
-        <p data-i18n="hero.trusted">TRUSTED BY JOB SEEKERS, FRESH GRADS, AND CAREER SWITCHERS</p>
+        <p data-i18n="hero.trusted">DIPERCAYA OLEH PENCARI KERJA, LULUSAN BARU, DAN PROFESIONAL</p>
       </div>
 
     </div>
@@ -163,37 +161,33 @@
 
       <div class="feature-card" data-aos="fade-right" data-aos-delay="100">
         <div class="icon">⚡</div>
-        <h3 data-i18n="feature.1.title">Instant PDF Export</h3>
+        <h3 data-i18n="feature.1.title">Ekspor PDF Instan</h3>
         <p data-i18n="feature.1.desc">
-          Hit compile and get a perfectly formatted PDF in seconds.
-          No software to install — everything runs in your browser.
+          Klik compile dan dapatkan PDF berformat sempurna dalam hitungan detik. Tanpa instalasi software — semuanya berjalan di browser.
         </p>
       </div>
 
       <div class="feature-card alt" data-aos="fade-left" data-aos-delay="200">
         <div class="icon">🆓</div>
-        <h3 data-i18n="feature.2.title">100% Free, Forever</h3>
+        <h3 data-i18n="feature.2.title">100% Gratis, Selamanya</h3>
         <p data-i18n="feature.2.desc">
-          No paywalls, no subscriptions, no hidden fees.
-          Sign in with Google to save your CV profiles — completely free.
+          Tanpa biaya langganan, tanpa fitur tersembunyi. Masuk dengan Google untuk menyimpan profil CV Anda — sepenuhnya gratis.
         </p>
       </div>
 
       <div class="feature-card" data-aos="fade-right" data-aos-delay="300">
         <div class="icon">📄</div>
-        <h3 data-i18n="feature.3.title">ATS-Friendly Templates</h3>
+        <h3 data-i18n="feature.3.title">Template Ramah ATS</h3>
         <p data-i18n="feature.3.desc">
-          Every template is designed to pass Applicant Tracking Systems.
-          Clean layout, clear sections, no hidden formatting tricks.
+          Setiap template didesain untuk lolos Applicant Tracking Systems. Tata letak bersih, bagian yang jelas, tanpa trik format tersembunyi.
         </p>
       </div>
 
       <div class="feature-card alt-2" data-aos="fade-left" data-aos-delay="400">
         <div class="icon">🎯</div>
-        <h3 data-i18n="feature.4.title">Multiple CV Profiles</h3>
+        <h3 data-i18n="feature.4.title">Banyak Profil CV</h3>
         <p data-i18n="feature.4.desc">
-          Create different resumes for different roles.
-          One for "Back End Developer", another for "Data Engineer" — you decide.
+          Buat CV berbeda untuk peran yang berbeda. Satu untuk "Back End Developer", satu lagi untuk "Data Engineer" — Anda yang tentukan.
         </p>
       <!-- The first 4 cards stay in the hero grid for balance -->
     </div>
@@ -205,25 +199,25 @@
     <div class="bottom-features-grid">
       <div class="feature-card alt-3">
         <div class="icon">🤖</div>
-        <h3 data-i18n="feature.5.title">AI-Powered Extraction</h3>
+        <h3 data-i18n="feature.5.title">Ekstraksi PDF dengan AI</h3>
         <p data-i18n="feature.5.desc">
-          Upload your existing PDF resume and let our AI parse it directly into your biodata profile. No manual copy-pasting required.
+          Unggah CV PDF Anda yang sudah ada dan biarkan AI kami menyalinnya langsung ke profil biodata Anda. Bebas repot salin-tempel manual.
         </p>
       </div>
 
       <div class="feature-card alt-4">
         <div class="icon">✨</div>
-        <h3 data-i18n="feature.6.title">AI CV Review & Scoring</h3>
+        <h3 data-i18n="feature.6.title">Review & Penilaian CV dengan AI</h3>
         <p data-i18n="feature.6.desc">
-          Get actionable feedback tailored by AI. Discover strengths, weaknesses, and a structured rating to help your resume stand out.
+          Dapatkan masukan dari AI. Ketahui kelebihan, kekurangan, dan skor terstruktur agar CV Anda lebih menonjol.
         </p>
       </div>
 
       <div class="feature-card alt-5" data-aos="fade-up" data-aos-delay="250">
         <div class="icon">✉️</div>
-        <h3 data-i18n="feature.7.title">AI Cover Letter Generator</h3>
+        <h3 data-i18n="feature.7.title">Pembuat Cover Letter AI</h3>
         <p data-i18n="feature.7.desc">
-          Generate highly tailored cover letters combining your structured CV data and a specific job description.
+          Buat cover letter yang sangat sesuai dengan menggabungkan data CV Anda dan deskripsi pekerjaan secara spesifik.
         </p>
       </div>
     </div>
@@ -231,8 +225,8 @@
     <!-- Horizontal Support Banner -->
     <div class="support-banner saweria-card" data-aos="fade-up" data-aos-delay="300">
       <div class="support-text">
-        <h3 data-i18n="support.title">☕ Support the Project</h3>
-        <p data-i18n="support.desc">If you found this tool helpful, consider leaving a tip to keep the servers running!</p>
+        <h3>☕ <span data-i18n="support.title">Dukung Proyek Ini</span></h3>
+        <p data-i18n="support.desc">Jika alat ini bermanfaat bagi Anda, pertimbangkan untuk memberikan tip agar server tetap menyala!</p>
       </div>
       <div class="support-qr">
         <a href="https://saweria.co/sammidev" target="_blank">
@@ -244,7 +238,7 @@
   </section>
 
   <footer class="footer" data-aos="fade-up" data-aos-delay="200">
-    <p data-i18n="footer.copyright">© 2026 ATSTEXLAB · Your Resume, Recruiter-Ready</p>
+    <p data-i18n="footer.copyright">© 2026 ATSTEXLAB · CV Anda, Siap Dipanggil</p>
   </footer>
 
   <!-- AOS init -->

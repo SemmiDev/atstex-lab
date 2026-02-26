@@ -160,7 +160,7 @@ func (s *Server) handleDeleteAccount() http.HandlerFunc {
 
 		sess, err := s.repo.GetSession(r.Context(), cookie.Value)
 		if err == nil {
-			s.repo.DeleteUser(r.Context(), sess.UserID)
+			s.repo.SoftDeleteUser(r.Context(), sess.UserID)
 			s.repo.DeleteSession(r.Context(), cookie.Value)
 		}
 

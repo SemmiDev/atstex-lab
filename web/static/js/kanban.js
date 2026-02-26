@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addJobBtn.addEventListener('click', () => {
         jobForm.reset();
         document.getElementById('application-id').value = '';
-        document.getElementById('modal-title').textContent = 'Add Job Application';
+        document.getElementById('modal-title').textContent = 'Tambah Lamaran Pekerjaan';
         showModal();
     });
 

@@ -1,21 +1,21 @@
 {{define "cv-review"}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <title>atstex-lab — CV Review</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder for job seekers.">
-    <meta name="keywords" content="ATS resume builder, LaTeX resume, CV maker, recruiter-ready resume, free resume builder, data privacy, ATSTEXLAB">
+    <meta name="description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source untuk pencari kerja.">
+    <meta name="keywords" content="Pembuat CV ATS, CV LaTeX, pembuat CV, CV siap rekruter, pembuat CV gratis, privasi data, ATSTEXLAB">
     <meta name="author" content="ATSTEXLAB">
     <meta property="og:type" content="website">
     <meta property="og:title" content="atstex-lab — CV Review">
-    <meta property="og:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+    <meta property="og:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source.">
     <meta property="og:image" content="/static/cv-favicon.svg">
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:title" content="atstex-lab — CV Review">
-    <meta property="twitter:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+    <meta property="twitter:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source.">
     <meta property="twitter:image" content="/static/cv-favicon.svg">
     <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
     <link rel="stylesheet" href="/static/css/style.css">
@@ -35,13 +35,13 @@
         class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
         <div class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
             <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
-            <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Toggle Sidebar"><i class="ph-bold ph-caret-left"></i></button>
+            <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Tutup Sidebar"><i class="ph-bold ph-caret-left"></i></button>
         </div>
 
         <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4 pb-24 md:pb-4">
             <a href="/"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Home</span></a>
+                    class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Beranda</span></a>
             <a href="/input"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a>
@@ -50,25 +50,25 @@
                     class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
             <a href="/cv-review"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i
-                    class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">CV Review</span></a>
+                    class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">Review CV</span></a>
             <a href="/cover-letter"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Cover Letter</span></a>
+                    class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Surat Lamaran</span></a>
             <a href="/kanban"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-columns text-2xl"></i> <span class="sidebar-nav-text">Kanban</span></a>
                     <a href="/profile"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profile</span></a>
+                    class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profil</span></a>
             <a href="/publish"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publish</span></a>
+                    class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publikasi</span></a>
             <a href="/feedback"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Feedback</span></a>
+                    class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Saran & Masukan</span></a>
             <a href="/support"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-coffee text-2xl"></i> <span class="sidebar-nav-text">Support</span></a>
+                    class="ph ph-coffee text-2xl"></i> <span class="sidebar-nav-text">Dukungan</span></a>
         </nav>
 
         {{if .User}}
@@ -80,7 +80,7 @@
                     <span class="font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{.User.Name}}</span>
                     <form action="/auth/logout" method="POST" class="m-0">
                         <button type="submit"
-                            class="text-error text-xs font-bold uppercase tracking-wider outline-none">Logout <i
+                            class="text-error text-xs font-bold uppercase tracking-wider outline-none">Keluar <i
                                 class="ph-bold ph-sign-out"></i></button>
                     </form>
                 </div>
@@ -97,41 +97,41 @@
             <!-- Header -->
             <div class="flex flex-col gap-2">
                 <h1 class="text-3xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
-                    <i class="ph-bold ph-brain text-3xl"></i> AI CV Review
+                    <i class="ph-bold ph-brain text-3xl"></i> Review CV AI
                 </h1>
-                <p class="font-semibold text-muted">Get AI-powered feedback on your CV — score, strengths, areas for improvement, and actionable recommendations.</p>
+                <p class="font-semibold text-muted">Dapatkan umpan balik berbasis AI untuk CV Anda — skor, kekuatan, area yang perlu diperbaiki, dan rekomendasi yang dapat ditindaklanjuti.</p>
             </div>
 
             <!-- Critique Form -->
             <div class="bg-surface border-[3px] border-border p-6 shadow-[4px_4px_0_#000]">
                 <h2 class="text-lg font-extrabold uppercase tracking-wide mb-4 flex items-center gap-2">
-                    <i class="ph-bold ph-sparkle"></i> Analyze Your CV
+                    <i class="ph-bold ph-sparkle"></i> Analisis CV Anda
                 </h2>
                 <form id="review-form" class="flex flex-col gap-4">
                     <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold uppercase tracking-wider text-muted">CV Profile</label>
+                        <label class="text-xs font-bold uppercase tracking-wider text-muted">Profil CV</label>
                         <select id="rv-profile"
                             class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]">
-                            <option value="">— Select a profile —</option>
+                            <option value="">— Pilih profil —</option>
                             {{range .Profiles}}
                             <option value="{{.ID}}">{{.Title}}</option>
                             {{end}}
                         </select>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold uppercase tracking-wider text-muted">Response Language</label>
+                        <label class="text-xs font-bold uppercase tracking-wider text-muted">Bahasa Ulasan</label>
                         <select id="rv-lang"
                             class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]">
-                            <option value="en">English</option>
-                            <option value="id">Bahasa Indonesia</option>
-                            <option value="ja">Japanese</option>
-                            <option value="zh">Chinese</option>
-                            <option value="ko">Korean</option>
+                            <option value="en">Inggris</option>
+                            <option value="id" selected>Bahasa Indonesia</option>
+                            <option value="ja">Jepang</option>
+                            <option value="zh">Mandarin</option>
+                            <option value="ko">Korea</option>
                         </select>
                     </div>
                     <div class="flex items-center gap-3">
                         <button type="submit" class="btn" id="rv-submit-btn">
-                            <i class="ph-bold ph-lightning"></i> Review My CV
+                            <i class="ph-bold ph-lightning"></i> Ulas CV Saya
                         </button>
                         <span id="rv-status" class="text-sm font-bold"></span>
                     </div>
@@ -141,8 +141,8 @@
             <!-- Loading Overlay -->
             <div id="rv-loading" style="display:none;" class="bg-surface border-[3px] border-border p-8 shadow-[4px_4px_0_#000] text-center">
                 <div style="font-size:2.5rem;animation:bounceUp 1s ease-in-out infinite;">🧠</div>
-                <h3 style="font-weight:800;font-size:1.1rem;text-transform:uppercase;margin:12px 0 8px;">Analyzing Your CV</h3>
-                <p style="font-family:var(--font-mono);font-size:0.85rem;color:var(--muted);">AI is reviewing your resume — this may take 10-30 seconds…</p>
+                <h3 style="font-weight:800;font-size:1.1rem;text-transform:uppercase;margin:12px 0 8px;">Menganalisis CV Anda</h3>
+                <p style="font-family:var(--font-mono);font-size:0.85rem;color:var(--muted);">AI sedang meninjau resume Anda — ini mungkin memakan waktu 10-30 detik…</p>
                 <div style="display:flex;justify-content:center;gap:8px;margin-top:16px;">
                     <span style="width:12px;height:12px;border:2px solid var(--border);background:var(--accent);animation:dotPulse 1.4s ease-in-out infinite;"></span>
                     <span style="width:12px;height:12px;border:2px solid var(--border);background:var(--accent2);animation:dotPulse 1.4s ease-in-out 0.2s infinite;"></span>
@@ -156,11 +156,11 @@
             <!-- History -->
             <div class="flex flex-col gap-2">
                 <h2 class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
-                    <i class="ph-bold ph-clock-counter-clockwise text-3xl"></i> Review History
+                    <i class="ph-bold ph-clock-counter-clockwise text-3xl"></i> Riwayat Ulasan
                 </h2>
             </div>
             <div id="rv-history" class="flex flex-col gap-4">
-                <div class="text-center text-muted font-semibold py-8">Loading…</div>
+                <div class="text-center text-muted font-semibold py-8">Memuat…</div>
             </div>
         </div>
     </main>
@@ -215,7 +215,7 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const profileId = profileSelect.value;
-            if (!profileId) { statusEl.textContent = 'Please select a CV profile'; statusEl.style.color = 'var(--error)'; return; }
+            if (!profileId) { statusEl.textContent = 'Pilih profil CV'; statusEl.style.color = 'var(--error)'; return; }
 
             submitBtn.disabled = true;
             statusEl.textContent = '';
@@ -230,7 +230,7 @@
                 });
                 if (!res.ok) {
                     const err = await res.json();
-                    throw new Error(err.error || 'Review failed');
+                    throw new Error(err.error || 'Ulasan gagal');
                 }
                 const review = await res.json();
                 loadingEl.style.display = 'none';
@@ -256,7 +256,7 @@
             const circumference = 2 * Math.PI * 38;
             const offset = circumference - (r.score / 100) * circumference;
             const color = getScoreColor(r.score);
-            const label = r.score >= 80 ? 'Excellent' : r.score >= 60 ? 'Good' : r.score >= 40 ? 'Needs Work' : 'Poor';
+            const label = r.score >= 80 ? 'Sangat Baik' : r.score >= 60 ? 'Baik' : r.score >= 40 ? 'Perlu Perbaikan' : 'Buruk';
 
             resultEl.innerHTML = `
                 <div class="bg-surface border-[3px] border-border p-6 shadow-[4px_4px_0_#000]">
@@ -281,15 +281,15 @@
                     </div>
 
                     <div class="review-section">
-                        <div class="review-section-title" style="color:#22c55e;"><i class="ph-bold ph-check-circle"></i> Strengths</div>
+                        <div class="review-section-title" style="color:#22c55e;"><i class="ph-bold ph-check-circle"></i> Kekuatan</div>
                         <div class="review-section-body">${escHtml(r.strengths)}</div>
                     </div>
                     <div class="review-section">
-                        <div class="review-section-title" style="color:#f97316;"><i class="ph-bold ph-warning-circle"></i> Areas for Improvement</div>
+                        <div class="review-section-title" style="color:#f97316;"><i class="ph-bold ph-warning-circle"></i> Area Perbaikan</div>
                         <div class="review-section-body">${escHtml(r.improvements)}</div>
                     </div>
                     <div class="review-section">
-                        <div class="review-section-title" style="color:var(--accent2);"><i class="ph-bold ph-lightbulb"></i> Recommendations</div>
+                        <div class="review-section-title" style="color:var(--accent2);"><i class="ph-bold ph-lightbulb"></i> Rekomendasi</div>
                         <div class="review-section-body">${escHtml(r.recommendations)}</div>
                     </div>
                 </div>`;
@@ -303,19 +303,19 @@
                 const reviews = await res.json();
                 renderHistory(reviews || []);
             } catch (e) {
-                historyEl.innerHTML = '<div class="text-center text-error font-semibold py-8">Failed to load review history</div>';
+                historyEl.innerHTML = '<div class="text-center text-error font-semibold py-8">Gagal memuat riwayat ulasan</div>';
             }
         }
 
         function renderHistory(reviews) {
             if (!reviews.length) {
-                historyEl.innerHTML = '<div class="text-center text-muted font-semibold py-8">No reviews yet. Select a CV profile above and click Review! 🚀</div>';
+                historyEl.innerHTML = '<div class="text-center text-muted font-semibold py-8">Belum ada ulasan. Pilih profil CV di atas dan klik Ulas! 🚀</div>';
                 return;
             }
 
             historyEl.innerHTML = reviews.map(r => {
                 const color = getScoreColor(r.score);
-                const date = new Date(r.createdAt).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+                const date = new Date(r.createdAt).toLocaleDateString('id-ID', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
                 return `
                 <details class="bg-surface border-[3px] border-border shadow-[4px_4px_0_#000]">
                     <summary style="padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:16px;font-weight:700;">
@@ -327,15 +327,15 @@
                     </summary>
                     <div style="padding:0 20px 20px;border-top:2px solid var(--border);">
                         <div class="review-section">
-                            <div class="review-section-title" style="color:#22c55e;margin-top:16px;"><i class="ph-bold ph-check-circle"></i> Strengths</div>
+                            <div class="review-section-title" style="color:#22c55e;margin-top:16px;"><i class="ph-bold ph-check-circle"></i> Kekuatan</div>
                             <div class="review-section-body">${escHtml(r.strengths)}</div>
                         </div>
                         <div class="review-section">
-                            <div class="review-section-title" style="color:#f97316;"><i class="ph-bold ph-warning-circle"></i> Areas for Improvement</div>
+                            <div class="review-section-title" style="color:#f97316;"><i class="ph-bold ph-warning-circle"></i> Area Perbaikan</div>
                             <div class="review-section-body">${escHtml(r.improvements)}</div>
                         </div>
                         <div class="review-section">
-                            <div class="review-section-title" style="color:var(--accent2);"><i class="ph-bold ph-lightbulb"></i> Recommendations</div>
+                            <div class="review-section-title" style="color:var(--accent2);"><i class="ph-bold ph-lightbulb"></i> Rekomendasi</div>
                             <div class="review-section-body">${escHtml(r.recommendations)}</div>
                         </div>
                     </div>

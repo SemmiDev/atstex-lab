@@ -5,10 +5,10 @@ const dictionary = {
     "nav.home": "Home",
     "nav.build": "Build",
     "hero.badge": "Resume Builder That Beats the Bots",
-    "hero.title.1": "Structured for",
-    "hero.title.2": "Machines.",
-    "hero.title.3": "Designed for Humans.",
-    "hero.subtitle": "ATSTEXLAB helps you build professional, ATS-friendly resumes that actually get read by recruiters. Fill in your details, pick a template, and download a polished PDF — all from your browser.",
+    "hero.title.1": "ATS",
+    "hero.title.2": "Optimized",
+    "hero.title.3": "& Recruiter-Centric.",
+    "hero.subtitle": "ATSTEXLAB helps you build professional, ATS-friendly resumes that actually get read by recruiters. Fill in your details, pick a template, and download a polished PDF.",
     "hero.btn.builder": "Builder",
     "hero.btn.logout": "Logout",
     "hero.btn.signin": "Sign in with Google",
@@ -23,6 +23,10 @@ const dictionary = {
     "feature.4.desc": "Create different resumes for different roles. One for \"Back End Developer\", another for \"Data Engineer\" — you decide.",
     "feature.5.title": "AI-Powered PDF Extraction",
     "feature.5.desc": "Upload your existing PDF resume and let our local AI parse it directly into your biodata profile. No manual copy-pasting required.",
+    "feature.6.title": "AI CV Review & Scoring",
+    "feature.6.desc": "Get actionable feedback tailored by AI. Discover strengths, weaknesses, and a structured rating to help your resume stand out.",
+    "feature.7.title": "AI Cover Letter Generator",
+    "feature.7.desc": "Generate highly tailored cover letters combining your structured CV data and a specific job description.",
     "support.title": "Support the Project",
     "support.desc": "If you found this tool helpful, consider leaving a tip to keep the servers running!",
     "footer.copyright": "© 2026 ATSTEXLAB · Your Resume, Recruiter-Ready"
@@ -31,10 +35,10 @@ const dictionary = {
     "nav.home": "Beranda",
     "nav.build": "Buat CV",
     "hero.badge": "Pembuat CV yang Lolos Screening Robot",
-    "hero.title.1": "Terstruktur untuk",
-    "hero.title.2": "Mesin.",
-    "hero.title.3": "Didesain untuk Manusia.",
-    "hero.subtitle": "ATSTEXLAB membantu Anda membuat CV profesional yang ramah ATS dan disukai rekruter. Isi data, pilih template, dan unduh PDF yang rapi — semua dari browser Anda.",
+    "hero.title.1": "Lolos Seleksi",
+    "hero.title.2": "Sistem.",
+    "hero.title.3": "Memikat Hati Rekruter.",
+    "hero.subtitle": "ATSTEXLAB membantu Anda membuat CV profesional yang ramah ATS dan disukai rekruter. Isi data, pilih template, dan unduh PDF yang rapi.",
     "hero.btn.builder": "Buat CV",
     "hero.btn.logout": "Keluar",
     "hero.btn.signin": "Masuk dengan Google",
@@ -49,6 +53,10 @@ const dictionary = {
     "feature.4.desc": "Buat CV berbeda untuk peran yang berbeda. Satu untuk \"Back End Developer\", satu lagi untuk \"Data Engineer\" — Anda yang tentukan.",
     "feature.5.title": "Ekstraksi PDF dengan AI",
     "feature.5.desc": "Unggah CV PDF Anda yang sudah ada dan biarkan AI kami menyalinnya langsung ke profil biodata Anda. Bebas repot salin-tempel manual.",
+    "feature.6.title": "Review & Penilaian CV dengan AI",
+    "feature.6.desc": "Dapatkan masukan dari AI. Ketahui kelebihan, kekurangan, dan skor terstruktur agar CV Anda lebih menonjol.",
+    "feature.7.title": "Pembuat Cover Letter AI",
+    "feature.7.desc": "Buat cover letter yang sangat sesuai dengan menggabungkan data CV Anda dan deskripsi pekerjaan secara spesifik.",
     "support.title": "Dukung Proyek Ini",
     "support.desc": "Jika alat ini bermanfaat bagi Anda, pertimbangkan untuk memberikan tip agar server tetap menyala!",
     "footer.copyright": "© 2026 ATSTEXLAB · CV Anda, Siap Dipanggil"
@@ -135,7 +143,7 @@ function setLanguage(lang) {
 }
 
 function initI18n() {
-  const savedLang = localStorage.getItem("atstex_lang") || "en";
+  const savedLang = localStorage.getItem("atstex_lang") || "id";
 
   // Bind click handlers
   document.querySelectorAll('.lang-btn').forEach(btn => {

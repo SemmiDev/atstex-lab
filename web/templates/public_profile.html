@@ -1,23 +1,23 @@
 {{define "public_profile"}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
-    <title>{{.ProfileUser.Name}} — ATSTEX-LAB Resume</title>
+    <title>{{.ProfileUser.Name}} — Resume ATSTEX-LAB</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="View {{.ProfileUser.Name}}'s professional CV profiles on ATSTEX-LAB. ATS-optimized resumes built with LaTeX.">
-    <meta property="og:title" content="{{.ProfileUser.Name}} — ATSTEX-LAB Resume">
-    <meta property="og:description" content="View {{.ProfileUser.Name}}'s professional CV profiles. ATS-optimized LaTeX resumes.">
+    <meta name="description" content="Lihat profil CV profesional {{.ProfileUser.Name}} di ATSTEX-LAB. Resume LaTeX yang ramah ATS.">
+    <meta property="og:title" content="{{.ProfileUser.Name}} — Resume ATSTEX-LAB">
+    <meta property="og:description" content="Lihat profil CV profesional {{.ProfileUser.Name}}. Resume LaTeX yang dioptimalkan untuk ATS.">
     <meta property="og:type" content="profile">
     <meta property="og:url" content="/u/{{.Username}}">
     <meta name="robots" content="index, follow">
     <meta name="author" content="ATSTEXLAB">
-    <meta name="keywords" content="ATS resume builder, LaTeX resume, CV maker, {{.ProfileUser.Name}} resume">
+    <meta name="keywords" content="pembuat cv ats, resume latex, pembuat cv, resume {{.ProfileUser.Name}}">
     <meta property="og:image" content="/static/cv-favicon.svg">
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:title" content="{{.ProfileUser.Name}} — ATSTEX-LAB Resume">
-    <meta property="twitter:description" content="View {{.ProfileUser.Name}}'s professional CV profiles. ATS-optimized LaTeX resumes.">
+    <meta property="twitter:title" content="{{.ProfileUser.Name}} — Resume ATSTEX-LAB">
+    <meta property="twitter:description" content="Lihat profil CV profesional {{.ProfileUser.Name}}. Resume LaTeX yang dioptimalkan untuk ATS.">
     <meta property="twitter:image" content="/static/cv-favicon.svg">
     <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
     <link rel="stylesheet" href="/static/css/style.css">
@@ -145,11 +145,11 @@
         <div>
             {{if .User}}
             <a href="/input" class="download-btn" style="font-size:0.7rem; padding:0.4rem 0.8rem;">
-                <i class="ph-bold ph-magic-wand"></i> My Resumes
+                <i class="ph-bold ph-magic-wand"></i> Resume Saya
             </a>
             {{else}}
             <a href="/auth/google/login" class="download-btn" style="font-size:0.7rem; padding:0.4rem 0.8rem;">
-                <i class="ph-bold ph-google-logo"></i> Sign In
+                <i class="ph-bold ph-google-logo"></i> Masuk
             </a>
             {{end}}
         </div>
@@ -165,8 +165,8 @@
         {{if .Profiles}}
         <!-- Expand/Collapse All Controls -->
         <div class="controls-bar">
-            <button onclick="expandAll()"><i class="ph-bold ph-arrows-out-simple"></i> Expand All</button>
-            <button onclick="collapseAll()"><i class="ph-bold ph-arrows-in-simple"></i> Collapse All</button>
+            <button onclick="expandAll()"><i class="ph-bold ph-arrows-out-simple"></i> Buka Semua</button>
+            <button onclick="collapseAll()"><i class="ph-bold ph-arrows-in-simple"></i> Tutup Semua</button>
         </div>
 
         {{range $idx, $p := .Profiles}}
@@ -190,14 +190,14 @@
         {{else}}
         <div class="empty-state">
             <i class="ph-bold ph-folder-notch-open"></i>
-            <h2>No public profiles yet</h2>
-            <p>This user hasn't published any CV profiles.</p>
+            <h2>Belum ada profil publik</h2>
+            <p>Pengguna ini belum memublikasikan profil CV apa pun.</p>
         </div>
         {{end}}
     </div>
 
     <footer class="public-footer">
-        <p>Built with <a href="/">ATSTEX<em>LAB</em></a> — ATS-Optimized LaTeX Resumes, Free Forever.</p>
+        <p>Dibuat dengan <a href="/">ATSTEX<em>LAB</em></a> — Resume LaTeX Ramah ATS, Gratis Selamanya.</p>
     </footer>
 
     <script>
@@ -294,7 +294,7 @@
 
     function renderBiodata(bio, container) {
         if (!bio || Object.keys(bio).length === 0) {
-            container.innerHTML = '<p style="color:var(--muted);font-weight:600;text-align:center;padding:2rem;">Biodata not yet filled in.</p>';
+            container.innerHTML = '<p style="color:var(--muted);font-weight:600;text-align:center;padding:2rem;">Biodata belum diisi.</p>';
             return;
         }
 
@@ -303,11 +303,11 @@
 
         // Personal Info
         const personalFields = [
-            ['Full Name', p.name],
-            ['Job Title', p.title],
+            ['Nama Lengkap', p.name],
+            ['Posisi/Pekerjaan', p.title],
             ['Email', p.email],
-            ['Phone', p.phone],
-            ['Location', p.location],
+            ['Telepon', p.phone],
+            ['Lokasi', p.location],
         ];
         if (p.linkedin) personalFields.push(['LinkedIn', typeof p.linkedin === 'object' ? (p.linkedin.display || p.linkedin.url) : p.linkedin]);
         if (p.github) personalFields.push(['GitHub', typeof p.github === 'object' ? (p.github.display || p.github.url) : p.github]);
@@ -322,63 +322,63 @@
 
         // Summary
         if (bio.summary) {
-            html += `<div class="bio-section"><h3 class="bio-section-title"><i class="ph-bold ph-text-align-left"></i> Professional Summary</h3>`;
+            html += `<div class="bio-section"><h3 class="bio-section-title"><i class="ph-bold ph-text-align-left"></i> Ringkasan Profesional</h3>`;
             html += `<p class="bio-field-value" style="line-height:1.6;white-space:pre-line;">${esc(bio.summary)}</p></div>`;
         }
 
         // Skills
         const sk = bio.skills;
         if (sk && (sk.languages || sk.frameworks || sk.tools || sk.other)) {
-            html += `<div class="bio-section"><h3 class="bio-section-title"><i class="ph-bold ph-lightning"></i> Skills</h3>`;
+            html += `<div class="bio-section"><h3 class="bio-section-title"><i class="ph-bold ph-lightning"></i> Keahlian</h3>`;
             html += `<div class="skills-grid">`;
-            if (sk.languages) html += `<div class="skills-category"><span class="skills-category-label">Languages</span><div class="tags-container">${renderTags(sk.languages, 'lang')}</div></div>`;
-            if (sk.frameworks) html += `<div class="skills-category"><span class="skills-category-label">Frameworks</span><div class="tags-container">${renderTags(sk.frameworks, 'fw')}</div></div>`;
-            if (sk.tools) html += `<div class="skills-category"><span class="skills-category-label">Tools</span><div class="tags-container">${renderTags(sk.tools, 'tool')}</div></div>`;
-            if (sk.other) html += `<div class="skills-category"><span class="skills-category-label">Other</span><div class="tags-container">${renderTags(sk.other, 'other')}</div></div>`;
+            if (sk.languages) html += `<div class="skills-category"><span class="skills-category-label">Bahasa Pemrograman</span><div class="tags-container">${renderTags(sk.languages, 'lang')}</div></div>`;
+            if (sk.frameworks) html += `<div class="skills-category"><span class="skills-category-label">Framework</span><div class="tags-container">${renderTags(sk.frameworks, 'fw')}</div></div>`;
+            if (sk.tools) html += `<div class="skills-category"><span class="skills-category-label">Alat Bantu</span><div class="tags-container">${renderTags(sk.tools, 'tool')}</div></div>`;
+            if (sk.other) html += `<div class="skills-category"><span class="skills-category-label">Lainnya</span><div class="tags-container">${renderTags(sk.other, 'other')}</div></div>`;
             html += `</div></div>`;
         }
 
         // Experience
-        html += renderSection('ph-briefcase', 'Work Experience', bio.experience, {
+        html += renderSection('ph-briefcase', 'Pengalaman Kerja', bio.experience, {
             title: 'title', subtitle: 'company', startDate: 'startDate', endDate: 'endDate',
             location: 'location', description: 'description', highlights: 'highlights'
         });
 
         // Education
-        html += renderSection('ph-graduation-cap', 'Education', bio.education, {
+        html += renderSection('ph-graduation-cap', 'Pendidikan', bio.education, {
             title: 'degree', subtitle: 'school', startDate: 'startDate', endDate: 'endDate',
             location: 'location', description: 'description', highlights: 'highlights'
         });
 
         // Projects
-        html += renderSection('ph-code', 'Projects', bio.projects, {
+        html += renderSection('ph-code', 'Proyek', bio.projects, {
             title: 'name', subtitle: 'role', startDate: 'startDate', endDate: 'endDate',
             description: 'description', technologies: 'technologies', url: 'url', highlights: 'highlights'
         });
 
         // Certifications
-        html += renderSection('ph-certificate', 'Certifications', bio.certifications, {
+        html += renderSection('ph-certificate', 'Sertifikasi', bio.certifications, {
             title: 'name', issuer: 'issuer', date: 'date', url: 'url', description: 'description'
         });
 
         // Volunteer
-        html += renderSection('ph-hand-heart', 'Volunteer Experience', bio.volunteer, {
+        html += renderSection('ph-hand-heart', 'Pengalaman Relawan', bio.volunteer, {
             title: 'role', subtitle: 'organization', startDate: 'startDate', endDate: 'endDate',
             description: 'description', highlights: 'highlights'
         });
 
         // Awards
-        html += renderSection('ph-trophy', 'Honors & Awards', bio.awards, {
+        html += renderSection('ph-trophy', 'Penghargaan & Prestasi', bio.awards, {
             title: 'title', issuer: 'issuer', date: 'date', description: 'description'
         });
 
         // Talks
-        html += renderSection('ph-microphone-stage', 'Talks & Conferences', bio.talks, {
+        html += renderSection('ph-microphone-stage', 'Seminar & Konferensi', bio.talks, {
             title: 'title', subtitle: 'event', date: 'date', location: 'location',
             description: 'description', url: 'url'
         });
 
-        container.innerHTML = html || '<p style="color:var(--muted);font-weight:600;text-align:center;padding:2rem;">Biodata not yet filled in.</p>';
+        container.innerHTML = html || '<p style="color:var(--muted);font-weight:600;text-align:center;padding:2rem;">Biodata belum diisi.</p>';
     }
 
     // ── Init: render all profile cards ─────────────────
@@ -392,7 +392,7 @@
             renderBiodata(bio, body);
         } catch (e) {
             console.error('Biodata parse error for profile ' + idx, e);
-            body.innerHTML = '<p style="color:var(--muted);font-weight:600;text-align:center;padding:2rem;">Biodata not available.</p>';
+            body.innerHTML = '<p style="color:var(--muted);font-weight:600;text-align:center;padding:2rem;">Biodata tidak tersedia.</p>';
         }
     });
     </script>

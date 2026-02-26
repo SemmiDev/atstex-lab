@@ -1,21 +1,21 @@
 {{define "profile"}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
-    <title>atstex-lab — Profile & Sessions</title>
+    <title>atstex-lab — Profil & Sesi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder for job seekers.">
-    <meta name="keywords" content="ATS resume builder, LaTeX resume, CV maker, recruiter-ready resume, free resume builder, data privacy, ATSTEXLAB">
+    <meta name="description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source untuk pencari kerja.">
+    <meta name="keywords" content="Pembuat CV ATS, CV LaTeX, pembuat CV, CV siap rekruter, pembuat CV gratis, privasi data, ATSTEXLAB">
     <meta name="author" content="ATSTEXLAB">
     <meta property="og:type" content="website">
     <meta property="og:title" content="atstex-lab — Profile & Sessions">
-    <meta property="og:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+    <meta property="og:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source.">
     <meta property="og:image" content="/static/cv-favicon.svg">
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:title" content="atstex-lab — Profile & Sessions">
-    <meta property="twitter:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+    <meta property="twitter:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source.">
     <meta property="twitter:image" content="/static/cv-favicon.svg">
     <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
     <link rel="stylesheet" href="/static/css/style.css">
@@ -37,13 +37,13 @@
         class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
         <div class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
             <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
-            <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Toggle Sidebar"><i class="ph-bold ph-caret-left"></i></button>
+            <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Tutup Sidebar"><i class="ph-bold ph-caret-left"></i></button>
         </div>
 
         <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4 pb-24 md:pb-4">
             <a href="/"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Home</span></a>
+                    class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Beranda</span></a>
             <a href="/input"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a>
@@ -52,25 +52,25 @@
                     class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
             <a href="/cv-review"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">CV Review</span></a>
+                    class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">Review CV</span></a>
             <a href="/cover-letter"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Cover Letter</span></a>
+                    class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Surat Lamaran</span></a>
             <a href="/kanban"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-columns text-2xl"></i> <span class="sidebar-nav-text">Kanban</span></a>
             <a href="/profile"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i
-                    class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profile</span></a>
+                    class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profil</span></a>
             <a href="/publish"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publish</span></a>
+                    class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publikasi</span></a>
             <a href="/feedback"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Feedback</span></a>
+                    class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Saran & Masukan</span></a>
             <a href="/support"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-coffee text-2xl"></i> <span class="sidebar-nav-text">Support</span></a>
+                    class="ph ph-coffee text-2xl"></i> <span class="sidebar-nav-text">Dukungan</span></a>
         </nav>
 
         {{if .User}}
@@ -82,7 +82,7 @@
                     <span class="font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{.User.Name}}</span>
                     <form action="/auth/logout" method="POST" class="m-0">
                         <button type="submit"
-                            class="text-error text-xs font-bold uppercase tracking-wider outline-none">Logout <i
+                            class="text-error text-xs font-bold uppercase tracking-wider outline-none">Keluar <i
                                 class="ph-bold ph-sign-out"></i></button>
                     </form>
                 </div>
@@ -105,7 +105,7 @@
                         class="font-mono mt-2 text-muted font-bold flex items-center justify-center md:justify-start gap-2 break-all">
                         <i class="ph-bold ph-envelope"></i> {{.User.Email}}
                     </p>
-                    <p class="text-sm font-semibold mt-1">Member since {{.User.CreatedAt.Format "02 Jan 2006"}}</p>
+                    <p class="text-sm font-semibold mt-1">Anggota sejak {{.User.CreatedAt.Format "02 Jan 2006"}}</p>
                 </div>
             </div>
 
@@ -113,17 +113,16 @@
                 <div style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;border:2px solid var(--border);background:var(--accent3);flex-shrink:0;">🤖</div>
                 <div class="flex flex-col">
                     <span class="font-mono font-extrabold text-2xl">{{.User.AITokensUsed}}</span>
-                    <span class="text-xs font-bold uppercase tracking-wider text-muted">AI Tokens Used</span>
+                    <span class="text-xs font-bold uppercase tracking-wider text-muted">Token AI Terpakai</span>
                 </div>
             </div>
 
             <div class="flex flex-col gap-2">
                 <h2
                     class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
-                    <i class="ph-bold ph-devices text-3xl"></i> Active Sessions
+                    <i class="ph-bold ph-devices text-3xl"></i> Sesi Aktif
                 </h2>
-                <p class="font-semibold text-muted">Review the devices currently logged into your account. You can
-                    revoke any unrecognized sessions.</p>
+                <p class="font-semibold text-muted">Tinjau perangkat yang sedang masuk ke akun Anda. Anda dapat mencabut sesi yang tidak dikenali.</p>
             </div>
 
             <div class="flex flex-col gap-4">
@@ -131,21 +130,18 @@
                 <div
                     class="bg-surface border-[3px] border-border p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-[4px_4px_0_#000]">
                     <div class="flex flex-col gap-1">
-                        <div class="font-bold uppercase tracking-wider text-xs mb-1">Log In Device</div>
+                        <div class="font-bold uppercase tracking-wider text-xs mb-1">Perangkat Masuk</div>
                         <span class="font-mono text-sm font-bold flex items-center gap-2"><i
-                                class="ph-bold ph-globe"></i> {{if .IPAddress}}{{.IPAddress}}{{else}}Unknown
-                            IP{{end}}</span>
+                                class="ph-bold ph-globe"></i> {{if .IPAddress}}{{.IPAddress}}{{else}}IP Tidak Diketahui{{end}}</span>
                         <span class="text-sm font-medium text-muted flex items-center gap-2"><i
-                                class="ph-bold ph-monitor"></i> {{if .UserAgent}}{{.UserAgent}}{{else}}Unknown Browser /
-                            OS{{end}}</span>
-                        <span class="text-xs font-semibold text-gray-500 mt-1">Expires: {{.ExpiresAt.Format "02 Jan 2006, 15:04 MST"}}</span>
+                                class="ph-bold ph-monitor"></i> {{if .UserAgent}}{{.UserAgent}}{{else}}Browser / OS Tidak Diketahui{{end}}</span>
+                        <span class="text-xs font-semibold text-gray-500 mt-1">Berakhir: {{.ExpiresAt.Format "02 Jan 2006, 15:04 MST"}}</span>
                     </div>
                     <div class="w-full md:w-auto">
                         <form action="/auth/sessions/{{.Token}}/delete" method="POST"
-                            onsubmit="return confirm('Are you sure you want to revoke this session? The device will be logged out immediately.');">
+                            onsubmit="return confirm('Apakah Anda yakin ingin mencabut sesi ini? Perangkat ini akan segera dikeluarkan.');">
                             <button type="submit"
-                                class="btn btn-ghost w-full !border-error !text-error hover:!bg-error hover:!text-white">Revoke
-                                Access</button>
+                                class="btn btn-ghost w-full !border-error !text-error hover:!bg-error hover:!text-white">Cabut Akses</button>
                         </form>
                     </div>
                 </div>
@@ -154,12 +150,11 @@
 
             <div class="bg-[#fff5f5] border-[3px] border-error p-6 mt-4 flex flex-col gap-4 shadow-[4px_4px_0_#ff3333]">
                 <h3 class="text-xl font-extrabold uppercase text-error flex items-center gap-2 m-0"><i
-                        class="ph-bold ph-warning"></i> Danger Zone</h3>
-                <p class="font-medium text-error">Once you delete an account, there is no going back. All biodata,
-                    settings, and sessions will be destroyed forever.</p>
+                        class="ph-bold ph-warning"></i> Zona Bahaya</h3>
+                <p class="font-medium text-error">Setelah Anda menghapus akun, semua data tidak dapat dikembalikan. Semua biodata, pengaturan, dan sesi akan dihancurkan selamanya.</p>
                 <form action="/auth/delete-account" method="POST"
-                    onsubmit="return confirm('Delete account and all data forever? This cannot be undone.');">
-                    <button type="submit" class="btn !bg-error !text-white !border-error">Delete Account</button>
+                    onsubmit="return confirm('Hapus akun dan semua data selamanya? Tindakan ini tidak dapat dibatalkan.');">
+                    <button type="submit" class="btn !bg-error !text-white !border-error">Hapus Akun</button>
                 </form>
             </div>
         </div>

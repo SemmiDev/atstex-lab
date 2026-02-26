@@ -1,21 +1,21 @@
 {{define "input"}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>atstex-lab — Input CV Data</title>
-    <meta name="description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder for job seekers.">
-    <meta name="keywords" content="ATS resume builder, LaTeX resume, CV maker, recruiter-ready resume, free resume builder, data privacy, ATSTEXLAB">
+    <meta name="description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source untuk pencari kerja.">
+    <meta name="keywords" content="Pembuat CV ATS, CV LaTeX, pembuat CV, CV siap rekruter, pembuat CV gratis, privasi data, ATSTEXLAB">
     <meta name="author" content="ATSTEXLAB">
     <meta property="og:type" content="website">
     <meta property="og:title" content="atstex-lab — Input CV Data">
-    <meta property="og:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+    <meta property="og:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source.">
     <meta property="og:image" content="/static/cv-favicon.svg">
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:title" content="atstex-lab — Input CV Data">
-    <meta property="twitter:description" content="Build professional, ATS-friendly LaTeX resumes in your browser. Free, secure, and open-source CV builder.">
+    <meta property="twitter:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV gratis, aman, dan open-source.">
     <meta property="twitter:image" content="/static/cv-favicon.svg">
     <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
     <link rel="stylesheet" href="/static/css/style.css">
@@ -41,13 +41,13 @@
         class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
         <div class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
             <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
-            <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Toggle Sidebar"><i class="ph-bold ph-caret-left"></i></button>
+            <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Tutup Sidebar"><i class="ph-bold ph-caret-left"></i></button>
         </div>
 
         <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4 pb-24 md:pb-4">
             <a href="/"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Home</span></a>
+                    class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Beranda</span></a>
             <a href="/input"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i
                     class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a>
@@ -56,25 +56,25 @@
                     class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
             <a href="/cv-review"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">CV Review</span></a>
+                    class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">Review CV</span></a>
             <a href="/cover-letter"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Cover Letter</span></a>
+                    class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Surat Lamaran</span></a>
             <a href="/kanban"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-columns text-2xl"></i> <span class="sidebar-nav-text">Kanban</span></a>
             <a href="/profile"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profile</span></a>
+                    class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profil</span></a>
             <a href="/publish"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publish</span></a>
+                    class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publikasi</span></a>
             <a href="/feedback"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Feedback</span></a>
+                    class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Saran & Masukan</span></a>
             <a href="/support"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
-                    class="ph ph-coffee text-2xl"></i> <span class="sidebar-nav-text">Support</span></a>
+                    class="ph ph-coffee text-2xl"></i> <span class="sidebar-nav-text">Dukungan</span></a>
         </nav>
 
         {{if .User}}
@@ -86,7 +86,7 @@
                     <span class="font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{.User.Name}}</span>
                     <form action="/auth/logout" method="POST" class="m-0">
                         <button type="submit"
-                            class="text-error text-xs font-bold uppercase tracking-wider outline-none">Logout <i
+                            class="text-error text-xs font-bold uppercase tracking-wider outline-none">Keluar <i
                                 class="ph-bold ph-sign-out"></i></button>
                     </form>
                 </div>
@@ -107,42 +107,42 @@
             <div class="card !p-4 !gap-4">
                 <!-- Row 1: Profile selector -->
                 <div class="flex items-center gap-3 flex-wrap">
-                    <label class="font-mono font-bold text-xs uppercase tracking-wider whitespace-nowrap">CV Profile:</label>
+                    <label class="font-mono font-bold text-xs uppercase tracking-wider whitespace-nowrap">Profil CV:</label>
                     <select id="cv-profile-select" class="form-input !py-2 flex-1 min-w-[180px]">
-                        <option value="">— Select or Create —</option>
+                        <option value="">— Pilih atau Buat Baru —</option>
                     </select>
-                    <button id="btn-new-profile" class="btn btn-ghost !px-3 !py-1.5 !text-xs"><i class="ph-bold ph-plus"></i> New</button>
+                    <button id="btn-new-profile" class="btn btn-ghost !px-3 !py-1.5 !text-xs"><i class="ph-bold ph-plus"></i> Baru</button>
                 </div>
                 <!-- Row 2: Actions -->
                 <div class="flex items-center justify-between flex-wrap gap-2">
                     <div class="flex items-center gap-2">
                         <input type="file" id="pdf-upload" accept="application/pdf" style="display: none;" />
-                        <button id="btn-upload-pdf" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-file-pdf"></i> Extract PDF</button>
-                        <button id="btn-fill-dummy" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-magic-wand"></i> Fill Example</button>
+                        <button id="btn-upload-pdf" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-file-pdf"></i> Ekstrak PDF</button>
+                        <button id="btn-fill-dummy" class="btn btn-ghost !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-magic-wand"></i> Isi Contoh</button>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button id="btn-save-db" class="btn btn-primary !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-floppy-disk"></i> Save</button>
-                        <button id="btn-delete-profile" class="btn !px-3 !py-1.5 !text-xs !border-error !text-error" disabled><i class="ph-bold ph-trash"></i> Delete</button>
+                        <button id="btn-save-db" class="btn btn-primary !px-3 !py-1.5 !text-xs" disabled><i class="ph-bold ph-floppy-disk"></i> Simpan</button>
+                        <button id="btn-delete-profile" class="btn !px-3 !py-1.5 !text-xs !border-error !text-error" disabled><i class="ph-bold ph-trash"></i> Hapus</button>
                     </div>
                 </div>
                 <p id="cv-status-msg" class="text-xs font-mono text-muted hidden"></p>
             </div>
 
-            <p class="text-lg font-medium border-l-[6px] border-accent pl-4">Fill out your professional details below.
-                All data is saved automatically to your browser's local storage.</p>
+            <p class="text-lg font-medium border-l-[6px] border-accent pl-4">Isi detail profesional Anda di bawah ini.
+                Semua data akan disimpan secara otomatis.</p>
 
             <!-- Personal Info -->
             <section class="card" id="section-personal">
                 <h2
                     class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
-                    1. Personal Information <span class="badge">Required</span></h2>
+                    1. Informasi Pribadi <span class="badge">Wajib</span></h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="flex flex-col gap-2">
-                        <label class="font-bold text-sm uppercase tracking-wide">Full Name</label>
-                        <input type="text" data-field="personal.name" class="form-input" placeholder="John Doe">
+                        <label class="font-bold text-sm uppercase tracking-wide">Nama Lengkap</label>
+                        <input type="text" data-field="personal.name" class="form-input" placeholder="Budi Santoso">
                     </div>
                     <div class="flex flex-col gap-2">
-                        <label class="font-bold text-sm uppercase tracking-wide">Target Job Title</label>
+                        <label class="font-bold text-sm uppercase tracking-wide">Posisi Pekerjaan</label>
                         <input type="text" data-field="personal.title" class="form-input"
                             placeholder="Software Engineer">
                     </div>
@@ -156,9 +156,9 @@
                         <input type="text" data-field="personal.phone" class="form-input" placeholder="+1 234 567 8900">
                     </div>
                     <div class="flex flex-col gap-2">
-                        <label class="font-bold text-sm uppercase tracking-wide">Location</label>
+                        <label class="font-bold text-sm uppercase tracking-wide">Alamat / Lokasi</label>
                         <input type="text" data-field="personal.location" class="form-input"
-                            placeholder="City, Country">
+                            placeholder="Kota, Negara">
                     </div>
                     <div class="flex flex-col gap-2">
                         <label class="font-bold text-sm uppercase tracking-wide">LinkedIn</label>
@@ -170,19 +170,19 @@
                         </div>
                     </div>
                     <div class="flex flex-col gap-2">
-                        <label class="font-bold text-sm uppercase tracking-wide">GitHub (Optional)</label>
+                        <label class="font-bold text-sm uppercase tracking-wide">GitHub (Opsional)</label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <input type="text" data-field="personal.github.display" class="form-input"
-                                placeholder="Display: github.com/johndoe">
+                                placeholder="Teks: github.com/johndoe">
                             <input type="text" data-field="personal.github.url" class="form-input"
                                 placeholder="URL: https://github.com/johndoe">
                         </div>
                     </div>
                     <div class="flex flex-col gap-2">
-                        <label class="font-bold text-sm uppercase tracking-wide">Website (Optional)</label>
+                        <label class="font-bold text-sm uppercase tracking-wide">Website (Opsional)</label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <input type="text" data-field="personal.website.display" class="form-input"
-                                placeholder="Display: johndoe.com">
+                                placeholder="Teks: johndoe.com">
                             <input type="text" data-field="personal.website.url" class="form-input"
                                 placeholder="URL: https://johndoe.com">
                         </div>
@@ -193,20 +193,19 @@
             <!-- Professional Summary -->
             <section class="card" id="section-summary">
                 <h2 class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2">2.
-                    Professional Summary</h2>
+                    Profil Profesional</h2>
                 <div class="flex flex-col gap-2">
-                    <label class="font-bold text-sm uppercase tracking-wide">Summary</label>
+                    <label class="font-bold text-sm uppercase tracking-wide">Ringkasan Tambahan</label>
                     <textarea data-field="summary" rows="20" class="form-input"
-                        placeholder="Dedicated software engineer with 5+ years of experience in..."></textarea>
+                        placeholder="Software engineer dengan pengalaman 5+ tahun dalam..."></textarea>
                 </div>
             </section>
 
             <!-- Work Experience -->
             <section class="card" id="section-experience">
                 <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
-                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">3. Work Experience</h2>
-                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="experience">+ ADD
-                        JOB</button>
+                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">3. Pengalaman Kerja</h2>
+                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="experience">+ TAMBAH PEKERJAAN</button>
                 </div>
                 <div class="flex flex-col gap-6" id="list-experience">
                     <!-- Dynamic items injected here -->
@@ -216,9 +215,8 @@
             <!-- Education -->
             <section class="card" id="section-education">
                 <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
-                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">4. Education</h2>
-                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="education">+ ADD
-                        EDUCATION</button>
+                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">4. Pendidikan</h2>
+                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="education">+ TAMBAH PENDIDIKAN</button>
                 </div>
                 <div class="flex flex-col gap-6" id="list-education">
                     <!-- Dynamic items injected here -->
@@ -228,9 +226,8 @@
             <!-- Projects -->
             <section class="card" id="section-projects">
                 <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
-                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">5. Projects</h2>
-                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="projects">+ ADD
-                        PROJECT</button>
+                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">5. Proyek</h2>
+                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="projects">+ TAMBAH PROYEK</button>
                 </div>
                 <div class="flex flex-col gap-6" id="list-projects">
                     <!-- Dynamic items injected here -->
@@ -239,27 +236,27 @@
 
             <!-- Skills -->
             <section class="card" id="section-skills">
-                <h2 class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2">6. Skills
+                <h2 class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2">6. Keahlian
                 </h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div class="flex flex-col gap-2">
-                        <label class="font-bold text-sm uppercase tracking-wide">Languages (comma separated)</label>
+                        <label class="font-bold text-sm uppercase tracking-wide">Bahasa (pisahkan dengan koma)</label>
                         <input type="text" data-field="skills.languages" class="form-input"
                             placeholder="Go, Python, TypeScript">
                     </div>
                     <div class="flex flex-col gap-2">
-                        <label class="font-bold text-sm uppercase tracking-wide">Frameworks/Libraries</label>
+                        <label class="font-bold text-sm uppercase tracking-wide">Framework/Pustaka</label>
                         <input type="text" data-field="skills.frameworks" class="form-input"
                             placeholder="React, Gin, Express">
                     </div>
                     <div class="flex flex-col gap-2">
-                        <label class="font-bold text-sm uppercase tracking-wide">Developer Tools</label>
+                        <label class="font-bold text-sm uppercase tracking-wide">Alat Pengembang</label>
                         <input type="text" data-field="skills.tools" class="form-input"
                             placeholder="Docker, Git, AWS, Linux">
                     </div>
                     <div class="flex flex-col gap-2">
-                        <label class="font-bold text-sm uppercase tracking-wide">Other / Soft Skills</label>
-                        <input type="text" data-field="skills.other" class="form-input" placeholder="Agile, Leadership">
+                        <label class="font-bold text-sm uppercase tracking-wide">Keahlian Lain / Soft Skills</label>
+                        <input type="text" data-field="skills.other" class="form-input" placeholder="Agile, Kepemimpinan">
                     </div>
                 </div>
             </section>
@@ -267,9 +264,8 @@
             <!-- Certifications -->
             <section class="card" id="section-certifications">
                 <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
-                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">7. Certifications (Optional)</h2>
-                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="certifications">+ ADD
-                        CERT</button>
+                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">7. Sertifikasi (Opsional)</h2>
+                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="certifications">+ TAMBAH SERTIFIKAT</button>
                 </div>
                 <div class="flex flex-col gap-6" id="list-certifications">
                     <!-- Dynamic items injected here -->
@@ -279,10 +275,9 @@
             <!-- Volunteer -->
             <section class="card" id="section-volunteer">
                 <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
-                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">8. Volunteer Experience (Optional)
+                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">8. Pengalaman Sukarelawan (Opsional)
                     </h2>
-                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="volunteer">+ ADD
-                        VOLUNTEER</button>
+                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="volunteer">+ TAMBAH SUKARELAWAN</button>
                 </div>
                 <div class="flex flex-col gap-6" id="list-volunteer">
                     <!-- Dynamic items injected here -->
@@ -292,8 +287,8 @@
             <!-- Awards -->
             <section class="card" id="section-awards">
                 <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
-                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">9. Honors & Awards (Optional)</h2>
-                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="awards">+ ADD AWARD</button>
+                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">9. Penghargaan (Opsional)</h2>
+                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="awards">+ TAMBAH PENGHARGAAN</button>
                 </div>
                 <div class="flex flex-col gap-6" id="list-awards">
                     <!-- Dynamic items injected here -->
@@ -303,9 +298,9 @@
             <!-- Talks -->
             <section class="card" id="section-talks">
                 <div class="flex justify-between items-end border-b-[3px] border-border pb-2">
-                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">10. Talks & Conferences (Optional)
+                    <h2 class="text-2xl font-extrabold uppercase tracking-wide m-0">10. Seminar & Konferensi (Opsional)
                     </h2>
-                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="talks">+ ADD TALK</button>
+                    <button class="btn btn-ghost !px-3 !py-1 !text-xs btn-add" data-target="talks">+ TAMBAH SEMINAR</button>
                 </div>
                 <div class="flex flex-col gap-6" id="list-talks">
                     <!-- Dynamic items injected here -->
@@ -319,14 +314,14 @@
     <div id="extract-overlay" class="extract-overlay" style="display:none;">
         <div class="extract-overlay-card">
             <div class="extract-bounce">📄</div>
-            <h3 class="extract-title">Extracting Your Resume</h3>
-            <p id="extract-step" class="extract-step">Reading PDF...</p>
+            <h3 class="extract-title">Mengekstrak Resume Anda</h3>
+            <p id="extract-step" class="extract-step">Membaca PDF...</p>
             <div class="extract-dots">
                 <span class="extract-dot"></span>
                 <span class="extract-dot"></span>
                 <span class="extract-dot"></span>
             </div>
-            <p class="extract-hint">AI is parsing your resume — hang tight! ✨</p>
+            <p class="extract-hint">AI sedang membaca resume Anda — mohon tunggu! ✨</p>
         </div>
     </div>
 
