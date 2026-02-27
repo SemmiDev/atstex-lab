@@ -311,6 +311,31 @@
 
 
 
+      <!-- Assign Plan Modal -->
+      <div class="modal-overlay" id="assign-plan-modal" style="display:none;">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h2><i class="ph-bold ph-crown"></i> Assign Subscription</h2>
+            <button class="modal-close" id="close-assign-plan-modal"><i class="ph-bold ph-x"></i></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="assign-plan-user-id">
+            <div id="assign-plan-user-info" style="margin-bottom:16px; font-weight: bold; color: var(--accent);"></div>
+            <form id="assign-plan-form" class="flex flex-col gap-4">
+              <div class="flex flex-col">
+                <label>Pilih Paket</label>
+                <select id="assign-plan-select" required class="w-full p-2 border-[3px] border-border bg-bg outline-none">
+                  <option value="">Memuat paket...</option>
+                </select>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary w-full justify-center" id="btn-submit-assign-plan">Tetapkan Paket</button>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
 

@@ -124,9 +124,10 @@
         <td>${fmtNum(u.aiTokensUsed)}</td>
         <td>${fmtDate(u.createdAt)}</td>
         <td style="white-space:nowrap;">
+          ${u.role !== 'admin' ? `<button class="btn-reply" style="color:var(--accent);border-color:var(--accent);" onclick="openAssignPlanModal('${u.id}', '${escHtml(u.name)}')"><i class="ph-bold ph-crown"></i> Assign Plan</button>` : ''}
           ${u.role !== 'admin' ? (u.isBlocked
-            ? `<button class="btn-reply" onclick="adminUnblockUser('${u.id}')"><i class="ph-bold ph-lock-key-open"></i> Unblock</button>`
-            : `<button class="btn-reply" onclick="adminBlockUser('${u.id}')"><i class="ph-bold ph-prohibit"></i> Block</button>`
+            ? `<button class="btn-reply" style="margin-left:4px;" onclick="adminUnblockUser('${u.id}')"><i class="ph-bold ph-lock-key-open"></i> Unblock</button>`
+            : `<button class="btn-reply" style="margin-left:4px;" onclick="adminBlockUser('${u.id}')"><i class="ph-bold ph-prohibit"></i> Block</button>`
           ) : ''}
           ${u.role !== 'admin' ? `<button class="btn-reply" style="color:var(--accent2);border-color:var(--accent2);margin-left:4px;" onclick="adminMakeUserAdmin('${u.id}', '${escHtml(u.name)}')"><i class="ph-bold ph-shield-star"></i> Admin</button>` : ''}
           ${(u.role === 'admin' && u.id !== window.currentUserId) ? `<button class="btn-reply" style="color:var(--warning, #fbbf24);border-color:var(--warning, #fbbf24);margin-left:4px;" onclick="adminRevokeUserAdmin('${u.id}', '${escHtml(u.name)}')"><i class="ph-bold ph-shield-minus"></i> Revoke Admin</button>` : ''}
@@ -579,5 +580,84 @@ Tindakan ini tidak dapat dibatalkan.`)) return;
       alert('Gagal menghapus paket langganan.');
     }
   };
+
+  // ── Assign Plan Modal ───────────────────────────────────────
+  const assignPlanModal = document.getElementById('assign-plan-modal');
+  const btnCloseAssignPlanModal = document.getElementById('close-assign-plan-modal');
+  const btnSubmitAssignPlan = document.getElementById('btn-submit-assign-plan');
+  const assignPlanSelect = document.getElementById('assign-plan-select');
+
+  if (btnCloseAssignPlanModal) {
+    btnCloseAssignPlanModal.addEventListener('click', () => { assignPlanModal.style.display = 'none'; });
+    if (assignPlanModal) {
+      assignPlanModal.addEventListener('click', (e) => {
+        if (e.target === assignPlanModal) assignPlanModal.style.display = 'none';
+      });
+    }
+  }
+
+  window.openAssignPlanModal = async function(userId, userName) {
+    const userIdInput = document.getElementById('assign-plan-user-id');
+    const userInfoDiv = document.getElementById('assign-plan-user-info');
+    if (!userIdInput || !userInfoDiv || !assignPlanModal || !assignPlanSelect) return;
+
+    userIdInput.value = userId;
+    userInfoDiv.innerText = userName;
+    assignPlanModal.style.display = 'flex';
+
+    // Fetch and populate plans if empty
+    assignPlanSelect.innerHTML = '<option value="">Memuat paket...</option>';
+    try {
+      if (allPlans.length === 0) {
+        const res = await fetch('/api/admin/subscription-plans');
+        if (res.ok) {
+          allPlans = await res.json() || [];
+        }
+      }
+
+      assignPlanSelect.innerHTML = '<option value="">-- Pilih Paket --</option>' +
+        allPlans.filter(p => p.isActive).map(p => `<option value="${p.id}" data-months="${p.durationMonths}">${escHtml(p.name)} - Rp ${fmtNum(p.priceIdr)} (${p.durationMonths} bln)</option>`).join('');
+    } catch (e) {
+      assignPlanSelect.innerHTML = '<option value="">Gagal memuat paket</option>';
+    }
+  };
+
+  if (btnSubmitAssignPlan) {
+    btnSubmitAssignPlan.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const userIdInput = document.getElementById('assign-plan-user-id');
+      if (!userIdInput) return;
+      const userId = userIdInput.value;
+      const planId = assignPlanSelect.value;
+
+      if (!planId) {
+        alert("Pilih paket terlebih dahulu.");
+        return;
+      }
+
+      const option = assignPlanSelect.options[assignPlanSelect.selectedIndex];
+      const months = option.getAttribute('data-months') || "1";
+
+      btnSubmitAssignPlan.disabled = true;
+      try {
+        const res = await fetch(`/api/admin/users/${userId}/subscribe`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ planId, months })
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || "Gagal menetapkan paket.");
+        }
+        assignPlanModal.style.display = 'none';
+        alert('Berhasil menetapkan paket.');
+        loadUsers(); // Refresh the user list
+      } catch (err) {
+        alert(err.message || 'Gagal menetapkan paket!');
+      } finally {
+        btnSubmitAssignPlan.disabled = false;
+      }
+    });
+  }
 
 })();
