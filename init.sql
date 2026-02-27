@@ -112,3 +112,44 @@ CREATE TABLE IF NOT EXISTS ats_simulations (
 );
 CREATE INDEX IF NOT EXISTS idx_ats_simulations_user_id ON ats_simulations(user_id);
 CREATE INDEX IF NOT EXISTS idx_ats_simulations_profile_id ON ats_simulations(profile_id);
+
+CREATE TABLE IF NOT EXISTS subscription_plans (
+    id UUID PRIMARY KEY DEFAULT uuidv7(),
+    name VARCHAR(255) NOT NULL,
+    price_idr BIGINT NOT NULL,
+    duration_months INTEGER NOT NULL DEFAULT 1,
+    max_cv_profiles INTEGER NOT NULL, -- -1 for unlimited
+    max_cv_reviews INTEGER NOT NULL, -- -1 for unlimited
+    max_ats_simulations INTEGER NOT NULL,
+    max_cover_letters INTEGER NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_subscriptions (
+    id UUID PRIMARY KEY DEFAULT uuidv7(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    plan_id UUID NOT NULL REFERENCES subscription_plans(id) ON DELETE CASCADE,
+    start_date TIMESTAMPTZ NOT NULL,
+    end_date TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_subscriptions_user_id ON user_subscriptions(user_id);
+
+-- Default Subscription Plans
+INSERT INTO subscription_plans (id, name, price_idr, duration_months, max_cv_profiles, max_cv_reviews, max_ats_simulations, max_cover_letters, is_active)
+SELECT
+    '018e9c40-1111-7000-8000-000000000001'::uuid, 'Gratis', 0, 1, 1, 5, 5, 10, true
+WHERE NOT EXISTS (SELECT 1 FROM subscription_plans WHERE name = 'Gratis');
+
+INSERT INTO subscription_plans (id, name, price_idr, duration_months, max_cv_profiles, max_cv_reviews, max_ats_simulations, max_cover_letters, is_active)
+SELECT
+    '018e9c40-2222-7000-8000-000000000002'::uuid, 'Basic', 20000, 1, 3, 10, 10, 10, true
+WHERE NOT EXISTS (SELECT 1 FROM subscription_plans WHERE name = 'Basic');
+
+INSERT INTO subscription_plans (id, name, price_idr, duration_months, max_cv_profiles, max_cv_reviews, max_ats_simulations, max_cover_letters, is_active)
+SELECT
+    '018e9c40-3333-7000-8000-000000000003'::uuid, 'Pro', 30000, 1, -1, 50, 50, 50, true
+WHERE NOT EXISTS (SELECT 1 FROM subscription_plans WHERE name = 'Pro');

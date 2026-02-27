@@ -1,0 +1,359 @@
+{{define "subscription"}}
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATSTEXLAB — Paket Langganan</title>
+  <meta name="description"
+    content="Pilih paket langganan ATSTEXLAB untuk fitur AI Review, Simulasi ATS, dan Cover Letter.">
+  <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <style>
+    .subs-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .subs-header h1 {
+      font-family: var(--font-disp);
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .subs-header p {
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .current-sub-banner {
+      background: var(--accent2);
+      color: #fff;
+      border: 4px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 3rem;
+      text-align: center;
+      box-shadow: 4px 4px 0 var(--border);
+    }
+
+    .current-sub-banner h2 {
+      font-weight: 800;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .plan-card {
+      background: var(--bg);
+      border: 4px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 6px 6px 0 var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+
+    .plan-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 8px 8px 0 var(--border);
+    }
+
+    .plan-card.pro {
+      border-color: var(--accent);
+      box-shadow: 6px 6px 0 var(--accent);
+    }
+
+    .plan-card.pro:hover {
+      box-shadow: 8px 8px 0 var(--accent);
+    }
+
+    .plan-badge {
+      position: absolute;
+      top: -16px;
+      right: 20px;
+      background: var(--accent);
+      color: #fff;
+      padding: 4px 12px;
+      border: 3px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      box-shadow: 2px 2px 0 var(--border);
+    }
+
+    .plan-name {
+      font-family: var(--font-disp);
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .plan-price {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.25rem;
+    }
+
+    .plan-price span {
+      font-size: 1rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .plan-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 2rem 0;
+      flex: 1;
+    }
+
+    .plan-features li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+
+    .plan-features li i {
+      color: var(--accent2);
+      font-size: 1.25rem;
+    }
+
+    .plan-action {
+      margin-top: auto;
+    }
+
+    .btn-plan {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 1rem;
+      background: var(--surface);
+      border: 3px solid var(--border);
+      border-radius: 8px;
+      font-weight: 800;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s;
+      box-shadow: 3px 3px 0 var(--border);
+    }
+
+    .btn-plan:hover {
+      background: var(--bg);
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0 var(--border);
+    }
+
+    .plan-card.pro .btn-plan {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .plan-card.pro .btn-plan:hover {
+      background: #4f46e5;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body class="flex flex-col md:flex-row h-dvh w-full bg-bg font-ui text-text overflow-hidden">
+  <!-- Mobile Header overlay toggle -->
+  <div class="md:hidden flex items-center justify-between p-4 bg-surface border-b-[4px] border-border z-40">
+    <div class="font-disp font-extrabold text-2xl">ATSTEX<em class="text-accent italic">LAB</em></div>
+    <button id="sidebar-toggle" class="text-3xl"><i class="ph ph-list"></i></button>
+  </div>
+
+  <!-- The Sidebar -->
+  <aside id="sidebar"
+    class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
+    <div
+      class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
+      <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
+      <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Tutup Sidebar"><i
+          class="ph-bold ph-caret-left"></i></button>
+    </div>
+    <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4 pb-24 md:pb-4">
+      <a href="/"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Beranda</span></a>
+      <a href="/input"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a>
+      <a href="/editor"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
+      <a href="/cv-review"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">Review CV</span></a>
+      <a href="/ats-simulator"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-robot text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.ats_simulator">Simulator
+          ATS</span></a>
+      <a href="/cover-letter"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Surat Lamaran</span></a>
+      <a href="/kanban"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-columns text-2xl"></i> <span class="sidebar-nav-text">Kanban</span></a>
+      <a href="/profile"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profil</span></a>
+      <a href="/publish"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publikasi</span></a>
+      <a href="/feedback"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Saran & Masukan</span></a>
+      <a href="/subscription"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i
+          class="ph ph-crown text-2xl"></i> <span class="sidebar-nav-text">Langganan</span></a>
+    </nav>
+
+    {{if .User}}
+    <div class="p-4 border-t-[4px] border-border bg-bg sidebar-profile-block">
+      <a href="/profile"
+        class="flex items-center gap-3 p-2 bg-surface border-[3px] border-border shadow-[4px_4px_0_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#000] transition-all">
+        <img src="{{.User.Picture}}" alt="Profile" class="w-10 h-10 border-2 border-border object-cover">
+        <div class="flex flex-col overflow-hidden">
+          <span class="font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{.User.Name}}</span>
+          <form action="/auth/logout" method="POST" class="m-0">
+            <button type="submit" class="text-error text-xs font-bold uppercase tracking-wider outline-none">Keluar <i
+                class="ph-bold ph-sign-out"></i></button>
+          </form>
+        </div>
+      </a>
+    </div>
+    {{end}}
+  </aside>
+
+  <!-- Overlay for mobile clicking -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+  <main class="flex-1 min-h-0 overflow-y-auto bg-surface relative p-6 md:p-10 flex justify-center">
+    <div class="w-full max-w-5xl flex flex-col gap-8">
+
+      <div class="subs-header">
+        <h1>Pilih Paket Anda</h1>
+        <p>Buka potensi penuh karir Anda dengan fitur canggih dari ATSTEXLAB. Tingkatkan peluang lolos ATS dan dapatkan
+          panggilan wawancara.</p>
+      </div>
+
+      {{if .CurrentSub}}
+      <div class="current-sub-banner">
+        <h2>Anda sedang berlangganan Paket {{.CurrentSub.Plan.Name}} 👑</h2>
+        <p>Paket Anda aktif hingga <strong>{{.CurrentSub.EndDate.Format "02 Jan 2006"}}</strong>.</p>
+      </div>
+      {{end}}
+
+      <div class="plans-grid">
+        {{if .ActivePlans}}
+        {{range .ActivePlans}}
+        <div class="plan-card {{if gt .PriceIDR 0}}pro{{end}}">
+          {{if gt .PriceIDR 0}}
+          <div class="plan-badge">Rekomendasi</div>
+          {{end}}
+
+          <h3 class="plan-name">{{.Name}}</h3>
+          <div class="plan-price">
+            {{if eq .PriceIDR 0}}
+            Gratis
+            {{else}}
+            Rp {{.PriceIDR}} <span>/ {{.DurationMonths}} bln</span>
+            {{end}}
+          </div>
+
+          <ul class="plan-features">
+            <li>
+              <i class="ph-fill ph-check-circle"></i>
+              {{if eq .MaxCVProfiles -1}} Profil CV Tidak Terbatas {{else}} {{.MaxCVProfiles}} Profil CV {{end}}
+            </li>
+            <li>
+              <i class="ph-fill ph-check-circle"></i>
+              {{if eq .MaxCVReviews -1}} Review AI Tidak Terbatas {{else}} {{.MaxCVReviews}} Review AI {{end}}
+            </li>
+            <li>
+              <i class="ph-fill ph-check-circle"></i>
+              {{if eq .MaxATSSimulations -1}} Simulasi ATS Tidak Terbatas {{else}} {{.MaxATSSimulations}} Simulasi ATS
+              {{end}}
+            </li>
+            <li>
+              <i class="ph-fill ph-check-circle"></i>
+              {{if eq .MaxCoverLetters -1}} Cover Letter Tidak Terbatas {{else}} {{.MaxCoverLetters}} Cover Letter
+              {{end}}
+            </li>
+          </ul>
+
+          <div class="plan-action">
+            <a href="#" class="btn-plan"
+              onclick="alert('Pemesanan paket otomatis sedang dalam pengembangan. Silakan hubungi admin untuk upgrade akun.'); return false;">
+              {{if eq .PriceIDR 0}} Paket Saat Ini {{else}} Pilih Paket {{end}}
+            </a>
+          </div>
+        </div>
+        {{end}}
+        {{else}}
+        <div class="col-span-1 md:col-span-3 empty-state">
+          <i class="ph ph-mask-sad text-4xl mb-4 block text-muted"></i>
+          Tidak ada paket langganan yang tersedia saat ini.<br>Silakan hubungi administrator.
+        </div>
+        {{end}}
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const collapseBtn = document.getElementById('sidebar-collapse');
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        sidebar.classList.add('open');
+        overlay.classList.add('open');
+      });
+    }
+
+    if (overlay) {
+      overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+      });
+    }
+
+    if (collapseBtn) {
+      collapseBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+      });
+    }
+  </script>
+</body>
+
+</html>
+{{end}}

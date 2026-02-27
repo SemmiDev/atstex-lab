@@ -20,6 +20,7 @@
       // Lazy load
       if (target === 'users' && !usersLoaded) loadUsers();
       if (target === 'feedback' && !fbLoaded) loadFeedbacks();
+      if (target === 'subscriptions' && !subsLoaded) loadSubs();
     });
   });
 
@@ -427,4 +428,156 @@
       alert('Failed to delete feedback.');
     }
   };
+
+  // ── Subscriptions Panel ─────────────────────────────────────
+  let subsLoaded = false;
+  let allPlans = [];
+  const subsCount = document.getElementById('subs-count');
+  const subsTbody = document.getElementById('subs-tbody');
+
+  const planModal = document.getElementById('plan-modal');
+  const planForm = document.getElementById('plan-form');
+  const btnAddPlan = document.getElementById('btn-add-plan');
+  const btnClosePlan = document.getElementById('close-plan-modal');
+  const btnSavePlan = document.getElementById('btn-save-plan');
+
+  if (btnAddPlan) btnAddPlan.addEventListener('click', () => openPlanModal());
+  if (btnClosePlan) {
+    btnClosePlan.addEventListener('click', () => { planModal.style.display = 'none'; });
+    planModal.addEventListener('click', (e) => { if(e.target === planModal) planModal.style.display = 'none'; });
+  }
+
+  async function loadSubs() {
+    subsLoaded = true;
+    try {
+      const res = await fetch('/api/admin/subscription-plans');
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+      allPlans = data || [];
+      subsCount.textContent = `${allPlans.length} paket`;
+      renderSubsTable(allPlans);
+    } catch (e) {
+      console.error('Failed to load subs:', e);
+      subsTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted);">Gagal memuat paket</td></tr>';
+    }
+  }
+
+  function renderSubsTable(plans) {
+    if (!plans.length) {
+      subsTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted);">Belum ada paket langganan</td></tr>';
+      return;
+    }
+    subsTbody.innerHTML = plans.map(p => {
+      const c = (v) => v === -1 ? '∞' : v;
+      return `
+      <tr>
+        <td style="font-weight:700;">${escHtml(p.name)}</td>
+        <td>Rp ${fmtNum(p.priceIdr)}</td>
+        <td>${p.durationMonths} bln</td>
+        <td>CV: ${c(p.maxCvProfiles)} | Rv: ${c(p.maxCvReviews)} | ATS: ${c(p.maxAtsSimulations)} | Cov: ${c(p.maxCoverLetters)}</td>
+        <td style="text-align:center;"><span class="role-badge" style="background:var(--accent);color:#fff;">${p.activeUsersCount || 0}</span></td>
+        <td>${p.isActive ? '<span class="role-badge" style="background:var(--accent2);color:#fff;">Aktif</span>' : '<span class="role-badge" style="background:var(--muted);color:#fff;">Nonaktif</span>'}</td>
+        <td style="white-space:nowrap;">
+          <button class="btn-reply" onclick="openPlanModal('${p.id}')"><i class="ph-bold ph-pencil"></i> Edit</button>
+          <button class="btn-reply" style="margin-left:4px; ${p.isActive ? 'color:var(--warning);border-color:var(--warning);' : 'color:var(--accent2);border-color:var(--accent2);'}" onclick="togglePlan('${p.id}', ${!p.isActive})"><i class="ph-bold ph-power"></i> ${p.isActive ? 'Matikan' : 'Aktifkan'}</button>
+          <button class="btn-reply" style="border-color:var(--error);color:var(--error);margin-left:4px;" onclick="adminDeletePlan('${p.id}', '${escHtml(p.name)}')"><i class="ph-bold ph-trash"></i> Hapus</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  window.openPlanModal = function(id = null) {
+    document.getElementById('plan-id').value = '';
+    planForm.reset();
+    document.getElementById('plan-modal-title').innerHTML = '<i class="ph-bold ph-crown"></i> Tambah Paket';
+
+    if (id) {
+      const plan = allPlans.find(p => p.id === id);
+      if (plan) {
+        document.getElementById('plan-id').value = plan.id;
+        document.getElementById('plan-name').value = plan.name;
+        document.getElementById('plan-price').value = plan.priceIdr;
+        document.getElementById('plan-duration').value = plan.durationMonths;
+        document.getElementById('plan-max-cv').value = plan.maxCvProfiles;
+        document.getElementById('plan-max-review').value = plan.maxCvReviews;
+        document.getElementById('plan-max-ats').value = plan.maxAtsSimulations;
+        document.getElementById('plan-max-cover').value = plan.maxCoverLetters;
+        document.getElementById('plan-active').checked = plan.isActive;
+        document.getElementById('plan-modal-title').innerHTML = '<i class="ph-bold ph-crown"></i> Edit Paket';
+      }
+    }
+    planModal.style.display = 'flex';
+  };
+
+  if (btnSavePlan) {
+    btnSavePlan.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (!planForm.checkValidity()) {
+        planForm.reportValidity();
+        return;
+      }
+
+      const id = document.getElementById('plan-id').value;
+      const payload = {
+        name: document.getElementById('plan-name').value,
+        priceIdr: parseInt(document.getElementById('plan-price').value),
+        durationMonths: parseInt(document.getElementById('plan-duration').value),
+        maxCvProfiles: parseInt(document.getElementById('plan-max-cv').value),
+        maxCvReviews: parseInt(document.getElementById('plan-max-review').value),
+        maxAtsSimulations: parseInt(document.getElementById('plan-max-ats').value),
+        maxCoverLetters: parseInt(document.getElementById('plan-max-cover').value),
+        isActive: document.getElementById('plan-active').checked
+      };
+
+      const method = id ? 'PUT' : 'POST';
+      const url = id ? `/api/admin/subscription-plans/${id}` : '/api/admin/subscription-plans';
+
+      btnSavePlan.disabled = true;
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('Failed');
+        planModal.style.display = 'none';
+        loadSubs();
+      } catch (err) {
+        alert('Gagal menyimpan paket!');
+      } finally {
+        btnSavePlan.disabled = false;
+      }
+    });
+  }
+
+  window.togglePlan = async function(id, isActive) {
+    if (!confirm(`Apa Anda yakin ingin ${isActive ? 'mengaktifkan' : 'menonaktifkan'} paket ini?`)) return;
+    try {
+      const res = await fetch(`/api/admin/subscription-plans/${id}/toggle`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive })
+      });
+      if (!res.ok) throw new Error('Failed');
+      loadSubs();
+    } catch (err) {
+      alert('Gagal merubah status paket!');
+    }
+  };
+
+  window.adminDeletePlan = async function(id, name) {
+    if (!confirm(`⚠️ PERINGATAN: Apakah Anda yakin ingin MENGHAPUS paket "${name}"?
+Jika ada pengguna yang sedang berlangganan paket ini, ini mungkin akan menyebabkan data langganan mereka bermasalah (akan dihapus karena CASCADE).
+Tindakan ini tidak dapat dibatalkan.`)) return;
+    try {
+      const res = await fetch(`/api/admin/subscription-plans/${id}`, {
+        method: 'DELETE'
+      });
+      if (!res.ok) throw new Error('Failed');
+      loadSubs();
+    } catch (e) {
+      alert('Gagal menghapus paket langganan.');
+    }
+  };
+
 })();

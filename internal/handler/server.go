@@ -101,12 +101,33 @@ func (s *Server) handleHome() http.HandlerFunc {
 	}
 }
 
-// Support renders the Support/Donate page.
-func (s *Server) handleSupport() http.HandlerFunc {
+// handleSubscriptionPage renders the subscription cards page.
+func (s *Server) handleSubscriptionPage() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
-		if err := s.tmpl.ExecuteTemplate(w, "support", map[string]interface{}{"User": user}); err != nil {
+
+		// Get all active plans to display
+		allPlans, err := s.repo.AdminListSubscriptionPlans(r.Context())
+		if err != nil {
+			s.reqLog(r).Error("error loading plans", "err", err)
+		}
+
+		var activePlans []domain.SubscriptionPlan
+		for _, p := range allPlans {
+			if p.IsActive {
+				activePlans = append(activePlans, p)
+			}
+		}
+
+		// Get user's current subscription
+		currentSub, _ := s.repo.GetUserActiveSubscription(r.Context(), user.ID)
+
+		if err := s.tmpl.ExecuteTemplate(w, "subscription", map[string]interface{}{
+			"User":        user,
+			"ActivePlans": activePlans,
+			"CurrentSub":  currentSub,
+		}); err != nil {
 			s.reqLog(r).Error("template error", "err", err)
 			http.Error(w, "internal error", http.StatusInternalServerError)
 		}

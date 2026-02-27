@@ -42,7 +42,7 @@ func (s *Server) routes() {
 	s.router.Group(func(r chi.Router) {
 		r.Use(auth.Middleware(s.repo))
 		r.Get("/profile", s.handleProfile())
-		r.Get("/support", s.handleSupport())
+		r.Get("/subscription", s.handleSubscriptionPage())
 		r.Post("/auth/sessions/{token}/delete", s.handleDeleteSession())
 		r.Get("/input", s.handleInput())
 		r.Get("/input/embed", s.handleInputEmbed())
@@ -104,6 +104,15 @@ func (s *Server) routes() {
 		r.Post("/api/admin/users/{id}/make-admin", s.handleAdminMakeUserAdmin())
 		r.Post("/api/admin/users/{id}/revoke-admin", s.handleAdminRevokeUserAdmin())
 		r.Delete("/api/admin/users/{id}", s.handleAdminDeleteUser())
+
+		// Subscription Management
+		r.Get("/api/admin/subscription-plans", s.handleAdminListSubscriptionPlans())
+		r.Post("/api/admin/subscription-plans", s.handleAdminCreateSubscriptionPlan())
+		r.Put("/api/admin/subscription-plans/{id}", s.handleAdminUpdateSubscriptionPlan())
+		r.Delete("/api/admin/subscription-plans/{id}", s.handleAdminDeleteSubscriptionPlan())
+		r.Post("/api/admin/subscription-plans/{id}/toggle", s.handleAdminToggleSubscriptionPlan())
+		r.Post("/api/admin/users/{id}/subscribe", s.handleAdminAssignSubscription())
+		r.Get("/api/admin/users/{id}/subscription", s.handleAdminGetUserSubscription())
 	})
 
 	// Forbidden page (accessible without login)

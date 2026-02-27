@@ -51,6 +51,10 @@
           <i class="ph-bold ph-users-three"></i>
           <span>Pengguna</span>
         </button>
+        <button class="sidebar-link" data-panel="subscriptions">
+          <i class="ph-bold ph-crown"></i>
+          <span>Paket Langganan</span>
+        </button>
         <button class="sidebar-link" data-panel="feedback">
           <i class="ph-bold ph-chat-circle-text"></i>
           <span>Saran & Masukan</span>
@@ -202,6 +206,38 @@
         <div class="pagination" id="fb-pagination"></div>
       </section>
 
+      <!-- Subscriptions Panel -->
+      <section class="admin-panel" id="panel-subscriptions">
+        <div class="panel-header">
+          <h1><i class="ph-bold ph-crown"></i> Paket Langganan</h1>
+          <p>Kelola konfigurasi dan harga paket langganan</p>
+        </div>
+
+        <div class="users-toolbar">
+          <div class="users-meta">
+            <span id="subs-count">0 paket</span>
+          </div>
+          <button class="btn btn-primary" id="btn-add-plan"><i class="ph-bold ph-plus"></i> Tambah Paket</button>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="admin-table" id="subs-table">
+            <thead>
+              <tr>
+                <th>Nama</th>
+                <th>Harga (Rp)</th>
+                <th>Durasi (Bulan)</th>
+                <th>Maks CV / Review / ATS / Surat</th>
+                <th>Pengguna Aktif</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="subs-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
       <!-- Reply Modal -->
       <div class="modal-overlay" id="reply-modal" style="display:none;">
         <div class="modal-card">
@@ -220,6 +256,60 @@
           </div>
         </div>
       </div>
+
+      <!-- Subscription Plan Form Modal -->
+      <div class="modal-overlay" id="plan-modal" style="display:none;">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h2 id="plan-modal-title"><i class="ph-bold ph-crown"></i> Tambah Paket</h2>
+            <button class="modal-close" id="close-plan-modal"><i class="ph-bold ph-x"></i></button>
+          </div>
+          <div class="modal-body">
+            <form id="plan-form" class="flex flex-col gap-4">
+              <input type="hidden" id="plan-id">
+              <div class="flex flex-col">
+                <label>Nama Paket</label>
+                <input type="text" id="plan-name" required class="w-full p-2 border-[3px] border-border bg-bg outline-none" placeholder="e.g Basic Tier">
+              </div>
+              <div class="flex flex-col">
+                <label>Harga (IDR)</label>
+                <input type="number" id="plan-price" required min="0" class="w-full p-2 border-[3px] border-border bg-bg outline-none">
+              </div>
+              <div class="flex flex-col">
+                <label>Durasi (Bulan)</label>
+                <input type="number" id="plan-duration" required min="1" value="1" class="w-full p-2 border-[3px] border-border bg-bg outline-none">
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col">
+                  <label>Maks CV Profiles (-1 = Tak Terbatas)</label>
+                  <input type="number" id="plan-max-cv" required class="w-full p-2 border-[3px] border-border bg-bg outline-none" value="1">
+                </div>
+                <div class="flex flex-col">
+                  <label>Maks Review AI</label>
+                  <input type="number" id="plan-max-review" required class="w-full p-2 border-[3px] border-border bg-bg outline-none" value="5">
+                </div>
+                <div class="flex flex-col">
+                  <label>Maks ATS Simulasi</label>
+                  <input type="number" id="plan-max-ats" required class="w-full p-2 border-[3px] border-border bg-bg outline-none" value="5">
+                </div>
+                <div class="flex flex-col">
+                  <label>Maks Cover Letter</label>
+                  <input type="number" id="plan-max-cover" required class="w-full p-2 border-[3px] border-border bg-bg outline-none" value="10">
+                </div>
+              </div>
+              <div class="flex items-center gap-2 mt-2">
+                <input type="checkbox" id="plan-active" class="w-5 h-5 border-[3px] border-border" checked>
+                <label>Aktif (Bisa dibeli/dilihat)</label>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary w-full justify-center" id="btn-save-plan">Simpan Paket</button>
+          </div>
+        </div>
+      </div>
+
+
 
     </main>
   </div>

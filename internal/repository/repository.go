@@ -72,6 +72,15 @@ type Repository interface {
 	CreateAtsSimulation(ctx context.Context, sim *domain.AtsSimulation) error
 	GetAtsSimulationsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.AtsSimulation, error)
 
+	// Subscriptions
+	AdminListSubscriptionPlans(ctx context.Context) ([]domain.SubscriptionPlan, error)
+	AdminCreateSubscriptionPlan(ctx context.Context, plan *domain.SubscriptionPlan) error
+	AdminUpdateSubscriptionPlan(ctx context.Context, plan *domain.SubscriptionPlan) error
+	AdminToggleSubscriptionPlan(ctx context.Context, id uuid.UUID, isActive bool) error
+	AdminDeleteSubscriptionPlan(ctx context.Context, id uuid.UUID) error
+	AdminAssignSubscription(ctx context.Context, userID, planID uuid.UUID, months int) error
+	GetUserActiveSubscription(ctx context.Context, userID uuid.UUID) (*domain.UserSubscription, error)
+
 	Close() error
 }
 
@@ -544,4 +553,96 @@ func (r *postgresRepo) UpdateJobApplication(ctx context.Context, app *domain.Job
 func (r *postgresRepo) DeleteJobApplication(ctx context.Context, id uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM job_applications WHERE id = $1`, id)
 	return err
+}
+
+// ── Subscriptions ──────────────────────────────────────────────
+
+func (r *postgresRepo) AdminListSubscriptionPlans(ctx context.Context) ([]domain.SubscriptionPlan, error) {
+	var plans []domain.SubscriptionPlan
+	query := `
+		SELECT
+			sp.id, sp.name, sp.price_idr, sp.duration_months,
+			sp.max_cv_profiles, sp.max_cv_reviews, sp.max_ats_simulations, sp.max_cover_letters,
+			sp.is_active, sp.created_at, sp.updated_at,
+			COUNT(us.id) AS active_users_count
+		FROM subscription_plans sp
+		LEFT JOIN user_subscriptions us ON sp.id = us.plan_id AND us.end_date > CURRENT_TIMESTAMP
+		GROUP BY sp.id
+		ORDER BY sp.price_idr ASC
+	`
+	if err := r.db.SelectContext(ctx, &plans, query); err != nil {
+		return nil, err
+	}
+	if plans == nil {
+		plans = []domain.SubscriptionPlan{}
+	}
+	return plans, nil
+}
+
+func (r *postgresRepo) AdminCreateSubscriptionPlan(ctx context.Context, plan *domain.SubscriptionPlan) error {
+	query := `INSERT INTO subscription_plans (name, price_idr, duration_months, max_cv_profiles, max_cv_reviews, max_ats_simulations, max_cover_letters, is_active)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		RETURNING id, created_at, updated_at`
+	return r.db.QueryRowxContext(ctx, query,
+		plan.Name, plan.PriceIDR, plan.DurationMonths, plan.MaxCVProfiles, plan.MaxCVReviews, plan.MaxATSSimulations, plan.MaxCoverLetters, plan.IsActive,
+	).Scan(&plan.ID, &plan.CreatedAt, &plan.UpdatedAt)
+}
+
+func (r *postgresRepo) AdminUpdateSubscriptionPlan(ctx context.Context, plan *domain.SubscriptionPlan) error {
+	query := `UPDATE subscription_plans
+		SET name = $1, price_idr = $2, duration_months = $3, max_cv_profiles = $4, max_cv_reviews = $5, max_ats_simulations = $6, max_cover_letters = $7, updated_at = CURRENT_TIMESTAMP
+		WHERE id = $8`
+	_, err := r.db.ExecContext(ctx, query,
+		plan.Name, plan.PriceIDR, plan.DurationMonths, plan.MaxCVProfiles, plan.MaxCVReviews, plan.MaxATSSimulations, plan.MaxCoverLetters, plan.ID,
+	)
+	return err
+}
+
+func (r *postgresRepo) AdminToggleSubscriptionPlan(ctx context.Context, id uuid.UUID, isActive bool) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE subscription_plans SET is_active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, isActive, id)
+	return err
+}
+
+func (r *postgresRepo) AdminDeleteSubscriptionPlan(ctx context.Context, id uuid.UUID) error {
+	_, err := r.db.ExecContext(ctx, `DELETE FROM subscription_plans WHERE id = $1`, id)
+	return err
+}
+
+func (r *postgresRepo) AdminAssignSubscription(ctx context.Context, userID, planID uuid.UUID, months int) error {
+	query := `INSERT INTO user_subscriptions (user_id, plan_id, start_date, end_date)
+		VALUES ($1, $2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + ($3 * interval '1 month'))`
+	_, err := r.db.ExecContext(ctx, query, userID, planID, months)
+	return err
+}
+
+func (r *postgresRepo) GetUserActiveSubscription(ctx context.Context, userID uuid.UUID) (*domain.UserSubscription, error) {
+	query := `
+		SELECT
+			us.id, us.user_id, us.plan_id, us.start_date, us.end_date, us.created_at,
+			sp.id AS "plan.id", sp.name AS "plan.name", sp.price_idr AS "plan.price_idr", sp.duration_months AS "plan.duration_months",
+			sp.max_cv_profiles AS "plan.max_cv_profiles", sp.max_cv_reviews AS "plan.max_cv_reviews",
+			sp.max_ats_simulations AS "plan.max_ats_simulations", sp.max_cover_letters AS "plan.max_cover_letters",
+			sp.is_active AS "plan.is_active"
+		FROM user_subscriptions us
+		JOIN subscription_plans sp ON sp.id = us.plan_id
+		WHERE us.user_id = $1 AND us.end_date > CURRENT_TIMESTAMP
+		ORDER BY us.end_date DESC
+		LIMIT 1
+	`
+	var us domain.UserSubscription
+	var sp domain.SubscriptionPlan
+	row := r.db.QueryRowxContext(ctx, query, userID)
+	err := row.Scan(
+		&us.ID, &us.UserID, &us.PlanID, &us.StartDate, &us.EndDate, &us.CreatedAt,
+		&sp.ID, &sp.Name, &sp.PriceIDR, &sp.DurationMonths,
+		&sp.MaxCVProfiles, &sp.MaxCVReviews, &sp.MaxATSSimulations, &sp.MaxCoverLetters, &sp.IsActive,
+	)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	us.Plan = &sp
+	return &us, nil
 }
