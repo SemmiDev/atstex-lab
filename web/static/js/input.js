@@ -632,7 +632,10 @@ btnNewProfile.addEventListener('click', async () => {
       body: JSON.stringify({ title: title.trim() })
     });
 
-    if (!res.ok) throw new Error('Failed to create profile');
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      throw new Error(errBody.error || 'Failed to create profile');
+    }
     const profile = await res.json();
 
     // Add to dropdown and select it

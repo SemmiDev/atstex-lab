@@ -58,9 +58,11 @@ type Repository interface {
 	// CV Review
 	CreateCVReview(ctx context.Context, review *domain.CVReview) error
 	GetCVReviewsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVReview, error)
+	CountCVReviewsByDate(ctx context.Context, userID uuid.UUID, start, end time.Time) (int, error)
 	// Cover Letters
 	CreateCoverLetter(ctx context.Context, cl *domain.CoverLetter) error
 	GetCoverLettersByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CoverLetter, error)
+	CountCoverLettersByDate(ctx context.Context, userID uuid.UUID, start, end time.Time) (int, error)
 	// Job Application Tracking
 	CreateJobApplication(ctx context.Context, j *domain.JobApplication) (*domain.JobApplication, error)
 	UpdateJobApplication(ctx context.Context, app *domain.JobApplication) error
@@ -71,6 +73,7 @@ type Repository interface {
 	// ATS Simmulator methods
 	CreateAtsSimulation(ctx context.Context, sim *domain.AtsSimulation) error
 	GetAtsSimulationsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.AtsSimulation, error)
+	CountAtsSimulationsByDate(ctx context.Context, userID uuid.UUID, start, end time.Time) (int, error)
 
 	// Subscriptions
 	AdminListSubscriptionPlans(ctx context.Context) ([]domain.SubscriptionPlan, error)
@@ -80,6 +83,7 @@ type Repository interface {
 	AdminDeleteSubscriptionPlan(ctx context.Context, id uuid.UUID) error
 	AdminAssignSubscription(ctx context.Context, userID, planID uuid.UUID, months int) error
 	GetUserActiveSubscription(ctx context.Context, userID uuid.UUID) (*domain.UserSubscription, error)
+	GetFreeSubscriptionPlan(ctx context.Context) (*domain.SubscriptionPlan, error)
 
 	Close() error
 }
@@ -476,6 +480,14 @@ func (r *postgresRepo) GetCVReviewsByUserID(ctx context.Context, userID uuid.UUI
 	return reviews, nil
 }
 
+func (r *postgresRepo) CountCVReviewsByDate(ctx context.Context, userID uuid.UUID, start, end time.Time) (int, error) {
+	var count int
+	err := r.db.GetContext(ctx, &count,
+		`SELECT COUNT(*) FROM cv_reviews WHERE user_id = $1 AND created_at >= $2 AND created_at <= $3`,
+		userID, start, end)
+	return count, err
+}
+
 // ── Cover Letters ──────────────────────────────────────────────
 
 func (r *postgresRepo) CreateCoverLetter(ctx context.Context, cl *domain.CoverLetter) error {
@@ -501,6 +513,14 @@ func (r *postgresRepo) GetCoverLettersByUserID(ctx context.Context, userID uuid.
 	return letters, nil
 }
 
+func (r *postgresRepo) CountCoverLettersByDate(ctx context.Context, userID uuid.UUID, start, end time.Time) (int, error) {
+	var count int
+	err := r.db.GetContext(ctx, &count,
+		`SELECT COUNT(*) FROM cover_letters WHERE user_id = $1 AND created_at >= $2 AND created_at <= $3`,
+		userID, start, end)
+	return count, err
+}
+
 // ── Job Application Tracking ──────────────────────────────────
 
 func (r *postgresRepo) CreateJobApplication(ctx context.Context, j *domain.JobApplication) (*domain.JobApplication, error) {
@@ -512,7 +532,6 @@ func (r *postgresRepo) CreateJobApplication(ctx context.Context, j *domain.JobAp
 	if j.CVProfileID != nil {
 		cvProfileID = *j.CVProfileID
 	}
-
 	err := r.db.GetContext(ctx, j, query, j.UserID, cvProfileID, j.Company, j.JobTitle, j.Status, j.Notes)
 	return j, err
 }
@@ -529,6 +548,14 @@ func (r *postgresRepo) GetJobApplicationsByUserID(ctx context.Context, userID uu
 		apps = []domain.JobApplication{}
 	}
 	return apps, nil
+}
+
+func (r *postgresRepo) CountAtsSimulationsByDate(ctx context.Context, userID uuid.UUID, start, end time.Time) (int, error) {
+	var count int
+	err := r.db.GetContext(ctx, &count,
+		`SELECT COUNT(*) FROM ats_simulations WHERE user_id = $1 AND created_at >= $2 AND created_at <= $3`,
+		userID, start, end)
+	return count, err
 }
 
 func (r *postgresRepo) UpdateJobApplicationStatus(ctx context.Context, id uuid.UUID, status string) error {
@@ -577,6 +604,17 @@ func (r *postgresRepo) AdminListSubscriptionPlans(ctx context.Context) ([]domain
 		plans = []domain.SubscriptionPlan{}
 	}
 	return plans, nil
+}
+
+func (r *postgresRepo) GetFreeSubscriptionPlan(ctx context.Context) (*domain.SubscriptionPlan, error) {
+	query := `SELECT id, name, price_idr, duration_months, max_cv_profiles, max_cv_reviews, max_ats_simulations, max_cover_letters, is_active, created_at, updated_at
+		FROM subscription_plans WHERE price_idr = 0 AND is_active = true LIMIT 1`
+	var plan domain.SubscriptionPlan
+	err := r.db.GetContext(ctx, &plan, query)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
+	return &plan, err
 }
 
 func (r *postgresRepo) AdminCreateSubscriptionPlan(ctx context.Context, plan *domain.SubscriptionPlan) error {

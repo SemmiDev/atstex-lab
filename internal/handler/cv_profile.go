@@ -40,6 +40,12 @@ func (s *Server) handleCreateCVProfile() http.HandlerFunc {
 			return
 		}
 
+		// Check subscription limits before creating a new profile
+		if err := s.checkSubscriptionLimits(r.Context(), user.ID, "cv_profile"); err != nil {
+			s.respondErrMsg(w, r, err.Error(), http.StatusForbidden)
+			return
+		}
+
 		profile, err := s.repo.CreateCVProfile(r.Context(), user.ID, body.Title)
 		if err != nil {
 			s.respondErrMsg(w, r, "failed to create profile", http.StatusInternalServerError)

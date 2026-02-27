@@ -73,6 +73,12 @@ func (s *Server) handleCreateAtsSimulation() http.HandlerFunc {
 			return
 		}
 
+		// Check subscription limits
+		if err := s.checkSubscriptionLimits(r.Context(), user.ID, "ats_simulation"); err != nil {
+			s.respondErrMsg(w, r, err.Error(), http.StatusForbidden)
+			return
+		}
+
 		simResult, tokensUsed, err := extractor.ScoreATS(r.Context(), string(profile.Biodata), req.JobDescription, lang, s.aiConfig)
 		if err != nil {
 			s.reqLog(r).Error("ATS scoring error", "err", err)

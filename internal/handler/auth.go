@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/semmidev/atstex-lab/internal/auth"
+	"github.com/semmidev/atstex-lab/internal/repository"
 )
 
 type googleUser struct {
@@ -75,6 +76,17 @@ func (s *Server) handleGoogleCallback() http.HandlerFunc {
 			s.reqLog(r).Error("failed to upsert user", "err", err)
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
+		}
+
+		// Ensure user has at least a Free subscription plan if none is active
+		_, err = s.repo.GetUserActiveSubscription(r.Context(), u.ID)
+		if err != nil {
+			if err == repository.ErrNotFound {
+				freePlan, planErr := s.repo.GetFreeSubscriptionPlan(r.Context())
+				if planErr == nil && freePlan != nil {
+					_ = s.repo.AdminAssignSubscription(r.Context(), u.ID, freePlan.ID, freePlan.DurationMonths)
+				}
+			}
 		}
 
 		sessionToken, err := auth.GenerateSessionToken()

@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"html"
 	"html/template"
 	"log/slog"
@@ -799,6 +800,72 @@ func (s *Server) handleAdminDeleteFeedback() http.HandlerFunc {
 	}
 }
 
+// checkSubscriptionLimits checks if a user has exceeded their AI feature limits for the active plan.
+func (s *Server) checkSubscriptionLimits(ctx context.Context, userID uuid.UUID, feature string) error {
+	sub, err := s.repo.GetUserActiveSubscription(ctx, userID)
+	if err != nil {
+		if err == repository.ErrNotFound {
+			return nil // No active subscription means they are likely on a default gratis plan, or should be handled separately. For now, assume they fall back to gratis limits if not explicitly saved, or we can assume Free plan limit.
+			// Ideally the system assigns the free plan on signup. Let's assume there is at least a Free subscription row, or if not, no limits can be checked properly.
+		}
+		return err
+	}
+
+	if sub.Plan == nil {
+		return nil // Shouldn't happen if query is correct, but safe fallback
+	}
+
+	switch feature {
+	case "cv_review":
+		if sub.Plan.MaxCVReviews == -1 {
+			return nil // Unlimited
+		}
+		count, err := s.repo.CountCVReviewsByDate(ctx, userID, sub.StartDate, sub.EndDate)
+		if err != nil {
+			return err
+		}
+		if count >= sub.Plan.MaxCVReviews {
+			return errors.New("You have reached the limit for AI CV Reviews on your current plan. Please upgrade to continue.")
+		}
+	case "cover_letter":
+		if sub.Plan.MaxCoverLetters == -1 {
+			return nil
+		}
+		count, err := s.repo.CountCoverLettersByDate(ctx, userID, sub.StartDate, sub.EndDate)
+		if err != nil {
+			return err
+		}
+		if count >= sub.Plan.MaxCoverLetters {
+			return errors.New("You have reached the limit for Cover Letter Generation on your current plan. Please upgrade to continue.")
+		}
+	case "ats_simulation":
+		if sub.Plan.MaxATSSimulations == -1 {
+			return nil
+		}
+		count, err := s.repo.CountAtsSimulationsByDate(ctx, userID, sub.StartDate, sub.EndDate)
+		if err != nil {
+			return err
+		}
+		if count >= sub.Plan.MaxATSSimulations {
+			return errors.New("You have reached the limit for ATS Simulations on your current plan. Please upgrade to continue.")
+		}
+	case "cv_profile":
+		if sub.Plan.MaxCVProfiles == -1 {
+			return nil
+		}
+		// Count total CV profiles currently owned by the user
+		profiles, err := s.repo.GetCVProfilesByUserID(ctx, userID)
+		if err != nil {
+			return err
+		}
+		if len(profiles) >= sub.Plan.MaxCVProfiles {
+			return errors.New("You have reached the maximum number of CV Profiles allowed on your current plan. Please upgrade to continue.")
+		}
+	}
+
+	return nil
+}
+
 // ── CV Review ─────────────────────────────────────────────────
 
 // CVReviewPage renders the AI CV critique page.
@@ -855,6 +922,12 @@ func (s *Server) handleCreateCVReview() http.HandlerFunc {
 		}
 		if len(profile.Biodata) == 0 || string(profile.Biodata) == "null" || string(profile.Biodata) == "{}" {
 			s.respondErrMsg(w, r, "this CV profile has no biodata — please fill in your biodata first", http.StatusBadRequest)
+			return
+		}
+
+		// Check subscription limits
+		if err := s.checkSubscriptionLimits(r.Context(), user.ID, "cv_review"); err != nil {
+			s.respondErrMsg(w, r, err.Error(), http.StatusForbidden)
 			return
 		}
 
@@ -970,6 +1043,12 @@ func (s *Server) handleGenerateCoverLetter() http.HandlerFunc {
 		}
 		if len(profile.Biodata) == 0 || string(profile.Biodata) == "null" || string(profile.Biodata) == "{}" {
 			s.respondErrMsg(w, r, "this CV profile has no biodata — please fill in your biodata first", http.StatusBadRequest)
+			return
+		}
+
+		// Check subscription limits
+		if err := s.checkSubscriptionLimits(r.Context(), user.ID, "cover_letter"); err != nil {
+			s.respondErrMsg(w, r, err.Error(), http.StatusForbidden)
 			return
 		}
 
