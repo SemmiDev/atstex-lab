@@ -26,6 +26,8 @@
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <!-- AOS — Animate On Scroll (~6KB) -->
   <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
+  <!-- Swiper JS (~40KB) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   <style>
     /* ── Playful extras ─────────────────────────────────── */
 
@@ -122,7 +124,7 @@
     <div class="hero-content">
 
       <div class="badge-new" data-aos="fade-down" data-aos-delay="100">
-        <span class="pulse-dot"></span> <span data-i18n="hero.badge">Pembuat CV yang Lolos Screening Robot</span>
+        <span class="pulse-dot"></span> <span data-i18n="hero.badge">FREE</span>
       </div>
 
       <h1 data-aos="fade-up" data-aos-delay="200" data-aos-duration="800">
@@ -156,71 +158,78 @@
 
     </div>
 
-    <!-- ── FEATURES GRID ─────────────────────────────────────────── -->
-    <div class="features-grid">
-
-      <div class="feature-card" data-aos="fade-right" data-aos-delay="100">
-        <div class="icon">⚡</div>
-        <h3 data-i18n="feature.1.title">Ekspor PDF Instan</h3>
-        <p data-i18n="feature.1.desc">
-          Klik compile dan dapatkan PDF berformat sempurna dalam hitungan detik. Tanpa instalasi software — semuanya berjalan di browser.
-        </p>
-      </div>
-
-      <div class="feature-card alt" data-aos="fade-left" data-aos-delay="200">
-        <div class="icon">🆓</div>
-        <h3 data-i18n="feature.2.title">100% Gratis, Selamanya</h3>
-        <p data-i18n="feature.2.desc">
-          Tanpa biaya langganan, tanpa fitur tersembunyi. Masuk dengan Google untuk menyimpan profil CV Anda — sepenuhnya gratis.
-        </p>
-      </div>
-
-      <div class="feature-card" data-aos="fade-right" data-aos-delay="300">
-        <div class="icon">📄</div>
-        <h3 data-i18n="feature.3.title">Template Ramah ATS</h3>
-        <p data-i18n="feature.3.desc">
-          Setiap template didesain untuk lolos Applicant Tracking Systems. Tata letak bersih, bagian yang jelas, tanpa trik format tersembunyi.
-        </p>
-      </div>
-
-      <div class="feature-card alt-2" data-aos="fade-left" data-aos-delay="400">
-        <div class="icon">🎯</div>
-        <h3 data-i18n="feature.4.title">Banyak Profil CV</h3>
-        <p data-i18n="feature.4.desc">
-          Buat CV berbeda untuk peran yang berbeda. Satu untuk "Back End Developer", satu lagi untuk "Data Engineer" — Anda yang tentukan.
-        </p>
-      <!-- The first 4 cards stay in the hero grid for balance -->
     </div>
   </main>
 
-  <!-- ── BOTTOM SECTION ────────────────────────────────────────── -->
-  <section class="bottom-section" data-aos="fade-up" data-aos-delay="200">
+  <!-- ── COOL CUTE SLIDER SECTION ────────────────────────────── -->
+  <section class="slider-section" data-aos="fade-up" data-aos-delay="200">
+    <div class="swiper featuresSwiper">
+      <div class="swiper-wrapper">
 
-    <div class="bottom-features-grid">
-      <div class="feature-card alt-3">
-        <div class="icon">🤖</div>
-        <h3 data-i18n="feature.5.title">Ekstraksi PDF dengan AI</h3>
-        <p data-i18n="feature.5.desc">
-          Unggah CV PDF Anda yang sudah ada dan biarkan AI kami menyalinnya langsung ke profil biodata Anda. Bebas repot salin-tempel manual.
-        </p>
-      </div>
+        <div class="swiper-slide feature-card">
+          <div class="icon">⚡</div>
+          <h3 data-i18n="feature.1.title">Ekspor PDF Instan</h3>
+          <p data-i18n="feature.1.desc">
+            Klik compile dan dapatkan PDF berformat sempurna dalam hitungan detik. Tanpa instalasi software — semuanya berjalan di browser.
+          </p>
+        </div>
 
-      <div class="feature-card alt-4">
-        <div class="icon">✨</div>
-        <h3 data-i18n="feature.6.title">Review & Penilaian CV dengan AI</h3>
-        <p data-i18n="feature.6.desc">
-          Dapatkan masukan dari AI. Ketahui kelebihan, kekurangan, dan skor terstruktur agar CV Anda lebih menonjol.
-        </p>
-      </div>
+        <div class="swiper-slide feature-card alt">
+          <div class="icon">🆓</div>
+          <h3 data-i18n="feature.2.title">100% Gratis, Selamanya</h3>
+          <p data-i18n="feature.2.desc">
+            Tanpa biaya langganan, tanpa fitur tersembunyi. Masuk dengan Google untuk menyimpan profil CV Anda — sepenuhnya gratis.
+          </p>
+        </div>
 
-      <div class="feature-card alt-5" data-aos="fade-up" data-aos-delay="250">
-        <div class="icon">✉️</div>
-        <h3 data-i18n="feature.7.title">Pembuat Cover Letter AI</h3>
-        <p data-i18n="feature.7.desc">
-          Buat cover letter yang sangat sesuai dengan menggabungkan data CV Anda dan deskripsi pekerjaan secara spesifik.
-        </p>
+        <div class="swiper-slide feature-card">
+          <div class="icon">📄</div>
+          <h3 data-i18n="feature.3.title">Template Ramah ATS</h3>
+          <p data-i18n="feature.3.desc">
+            Setiap template didesain untuk lolos Applicant Tracking Systems. Tata letak bersih, bagian yang jelas, tanpa trik format tersembunyi.
+          </p>
+        </div>
+
+        <div class="swiper-slide feature-card alt-2">
+          <div class="icon">🎯</div>
+          <h3 data-i18n="feature.4.title">Banyak Profil CV</h3>
+          <p data-i18n="feature.4.desc">
+            Buat CV berbeda untuk peran yang berbeda. Satu untuk "Back End Developer", satu lagi untuk "Data Engineer" — Anda yang tentukan.
+          </p>
+        </div>
+
+        <div class="swiper-slide feature-card alt-3">
+          <div class="icon">🤖</div>
+          <h3 data-i18n="feature.5.title">Ekstraksi PDF dengan AI</h3>
+          <p data-i18n="feature.5.desc">
+            Unggah CV PDF Anda yang sudah ada dan biarkan AI kami menyalinnya langsung ke profil biodata Anda. Bebas repot salin-tempel manual.
+          </p>
+        </div>
+
+        <div class="swiper-slide feature-card alt-4">
+          <div class="icon">✨</div>
+          <h3 data-i18n="feature.6.title">Review & Penilaian CV dengan AI</h3>
+          <p data-i18n="feature.6.desc">
+            Dapatkan masukan dari AI. Ketahui kelebihan, kekurangan, dan skor terstruktur agar CV Anda lebih menonjol.
+          </p>
+        </div>
+
+        <div class="swiper-slide feature-card alt-5">
+          <div class="icon">✉️</div>
+          <h3 data-i18n="feature.7.title">Pembuat Cover Letter AI</h3>
+          <p data-i18n="feature.7.desc">
+            Buat cover letter yang sangat sesuai dengan menggabungkan data CV Anda dan deskripsi pekerjaan secara spesifik.
+          </p>
+        </div>
+
       </div>
+      <!-- Add Pagination -->
+      <div class="swiper-pagination"></div>
     </div>
+  </section>
+
+  <!-- ── BOTTOM SECTION ────────────────────────────────────────── -->
+  <section class="bottom-section" data-aos="fade-up" data-aos-delay="300">
 
     <!-- Horizontal Support Banner -->
     <div class="support-banner saweria-card" data-aos="fade-up" data-aos-delay="300">
@@ -243,12 +252,38 @@
 
   <!-- AOS init -->
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+  <!-- Swiper JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script>
     AOS.init({
       duration: 700,
       easing: 'ease-out-cubic',
       once: true,
       offset: 50
+    });
+
+    const swiper = new Swiper('.featuresSwiper', {
+      effect: "coverflow",
+      grabCursor: true,
+      centeredSlides: true,
+      slidesPerView: "auto",
+      coverflowEffect: {
+        rotate: 0,
+        stretch: 0,
+        depth: 100,
+        modifier: 2,
+        slideShadows: false,
+      },
+      spaceBetween: 40,
+      loop: true,
+      autoplay: {
+        delay: 3000,
+        disableOnInteraction: false,
+      },
+      pagination: {
+        el: ".swiper-pagination",
+        clickable: true,
+      },
     });
   </script>
   <!-- i18n -->

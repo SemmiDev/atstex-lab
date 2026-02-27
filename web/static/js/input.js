@@ -21,6 +21,24 @@ let data = {
 };
 
 let activeProfileId = null;
+let isDirty = false;
+
+function markDirty() {
+  if (!activeProfileId) return;
+  isDirty = true;
+  if (btnSaveDB) {
+    btnSaveDB.classList.add('!bg-warn', '!text-black');
+    btnSaveDB.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Simpan*';
+  }
+}
+
+function clearDirty() {
+  isDirty = false;
+  if (btnSaveDB) {
+    btnSaveDB.classList.remove('!bg-warn', '!text-black');
+    btnSaveDB.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Simpan';
+  }
+}
 
 // ── Item Templates ──────────────────────────────────────
 const itemTemplates = {
@@ -245,7 +263,10 @@ function addItem(type, initialData = null) {
 
   // Attach change listeners to new inputs
   div.querySelectorAll('input, textarea').forEach(el => {
-    el.addEventListener('input', saveToStorage);
+    el.addEventListener('input', () => {
+      saveToStorage();
+      markDirty();
+    });
   });
 
   // Pre-fill if load
@@ -274,7 +295,10 @@ document.querySelectorAll('.btn-add').forEach(btn => {
 
 // Attach general listeners to static fields
 document.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
-  el.addEventListener('input', saveToStorage);
+  el.addEventListener('input', () => {
+    saveToStorage();
+    markDirty();
+  });
 });
 
 // ── CV Profile Management ──────────────────────────────
@@ -465,12 +489,36 @@ function showStatus(msg, isError = false) {
   setTimeout(() => statusMsg.classList.add('hidden'), 3000);
 }
 
+function updateFormElementsState(disabled) {
+  document.querySelectorAll('input:not(#pdf-upload), textarea').forEach(el => {
+    if (el.id !== 'pdf-upload') {
+      el.disabled = disabled;
+      if (disabled) {
+        el.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-100');
+      } else {
+        el.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-100');
+      }
+    }
+  });
+
+  document.querySelectorAll('.btn-add, .btn-remove').forEach(btn => {
+    btn.disabled = disabled;
+    if (disabled) {
+      btn.classList.add('opacity-50', 'cursor-not-allowed');
+    } else {
+      btn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+  });
+}
+
 function updateButtons() {
   const hasProfile = !!activeProfileId;
   btnSaveDB.disabled = !hasProfile;
   btnDeleteProfile.disabled = !hasProfile;
   if (btnFillDummy) btnFillDummy.disabled = !hasProfile;
   if (btnUploadPdf) btnUploadPdf.disabled = !hasProfile;
+
+  updateFormElementsState(!hasProfile);
 }
 
 async function fetchProfiles() {
@@ -538,6 +586,7 @@ async function loadProfileData(profileId) {
 
     populateForm(fullData);
     saveToStorage(); // sync to localStorage
+    clearDirty();
     showStatus(`Loaded "${profile.title}" from database`);
   } catch (e) {
     console.error(e);
@@ -546,18 +595,27 @@ async function loadProfileData(profileId) {
 }
 
 // On dropdown change
-profileSelect.addEventListener('change', async () => {
+profileSelect.addEventListener('change', async (e) => {
+  if (isDirty) {
+    if (!confirm("Ada perubahan yang belum disimpan. Yakin ingin mengganti profil tanpa menyimpan? / You have unsaved changes. Are you sure you want to switch profile without saving?")) {
+      e.target.value = activeProfileId || "";
+      return;
+    }
+  }
+
   const id = profileSelect.value;
   if (!id) {
     activeProfileId = null;
     localStorage.removeItem(ACTIVE_PROFILE_KEY);
     clearForm();
+    clearDirty();
     updateButtons();
     return;
   }
 
   activeProfileId = id;
   localStorage.setItem(ACTIVE_PROFILE_KEY, id);
+  clearDirty();
   await loadProfileData(id);
   updateButtons();
 });
@@ -614,6 +672,7 @@ btnSaveDB.addEventListener('click', async () => {
 
     if (!res.ok) throw new Error('Failed to save');
     showStatus('✅ Saved to database successfully!');
+    clearDirty();
   } catch (e) {
     console.error(e);
     showStatus('Failed to save to database', true);
@@ -644,6 +703,7 @@ btnDeleteProfile.addEventListener('click', async () => {
     profileSelect.value = '';
     clearForm();
     saveToStorage();
+    clearDirty();
     updateButtons();
 
     showStatus(`Deleted "${title}"`);
@@ -662,6 +722,7 @@ if (btnFillDummy) {
     }
     populateForm(JSON.parse(JSON.stringify(DUMMY_BIODATA)));
     saveToStorage();
+    markDirty();
     showStatus('Filled with example data — Sammi Aldhi Yanto 🚀');
   });
 }
@@ -780,6 +841,7 @@ if (btnUploadPdf && pdfUploadInput) {
       // 3. Populate form and save
       populateForm(extractedData);
       saveToStorage();
+      markDirty();
       showStatus('✨ Successfully extracted and applied data from PDF!', false);
 
     } catch (err) {
@@ -794,5 +856,26 @@ if (btnUploadPdf && pdfUploadInput) {
 
 // ── Init ───────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  // Call updateButtons immediately on load to disable default UI before fetch resolves
+  updateButtons();
   loadProfileList();
+
+  // Navigation interception for sidebar links
+  document.querySelectorAll('#sidebar a').forEach(link => {
+    link.addEventListener('click', (e) => {
+      if (isDirty) {
+        if (!confirm("Ada perubahan yang belum disimpan. Yakin ingin pindah halaman tanpa menyimpan? / You have unsaved changes. Are you sure you want to leave without saving?")) {
+          e.preventDefault();
+        }
+      }
+    });
+  });
+
+  // Window unload interception
+  window.addEventListener('beforeunload', (e) => {
+    if (isDirty) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
 });

@@ -34,7 +34,7 @@ const dictionary = {
   id: {
     "nav.home": "Beranda",
     "nav.build": "Buat CV",
-    "hero.badge": "Pembuat CV yang Lolos Screening Robot",
+    "hero.badge": "GRATIS",
     "hero.title.1": "Lolos Seleksi",
     "hero.title.2": "Sistem.",
     "hero.title.3": "Memikat Hati Rekruter.",
