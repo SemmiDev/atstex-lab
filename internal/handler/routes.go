@@ -83,6 +83,10 @@ func (s *Server) routes() {
 		r.Put("/api/applications/{id}", s.UpdateJobApplication())
 		r.Put("/api/applications/{id}/status", s.UpdateJobApplicationStatus())
 		r.Delete("/api/applications/{id}", s.DeleteJobApplication())
+		// ATS Simulator
+		r.Get("/ats-simulator", s.handleAtsSimulatorPage())
+		r.Post("/api/ats-simulator", s.handleCreateAtsSimulation())
+		r.Get("/api/ats-simulations", s.handleListMyAtsSimulations())
 	})
 
 	// Admin routes (requires login + admin role)

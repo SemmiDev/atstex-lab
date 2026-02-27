@@ -99,3 +99,16 @@ CREATE TABLE IF NOT EXISTS job_applications (
 );
 CREATE INDEX IF NOT EXISTS idx_job_applications_user_id ON job_applications(user_id);
 CREATE INDEX IF NOT EXISTS idx_job_applications_cv_profile_id ON job_applications(cv_profile_id);
+
+CREATE TABLE IF NOT EXISTS ats_simulations (
+    id UUID PRIMARY KEY DEFAULT uuidv7(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    profile_id UUID NOT NULL REFERENCES cv_profiles(id) ON DELETE CASCADE,
+    job_description TEXT NOT NULL DEFAULT '',
+    score INTEGER NOT NULL DEFAULT 0,
+    missing_keywords JSONB NOT NULL DEFAULT '[]',
+    recommendations TEXT NOT NULL DEFAULT '',
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_ats_simulations_user_id ON ats_simulations(user_id);
+CREATE INDEX IF NOT EXISTS idx_ats_simulations_profile_id ON ats_simulations(profile_id);

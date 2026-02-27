@@ -29,7 +29,20 @@ const dictionary = {
     "feature.7.desc": "Generate highly tailored cover letters combining your structured CV data and a specific job description.",
     "support.title": "Support the Project",
     "support.desc": "If you found this tool helpful, consider leaving a tip to keep the servers running!",
-    "footer.copyright": "© 2026 ATSTEXLAB · Your Resume, Recruiter-Ready"
+    "footer.copyright": "© 2026 ATSTEXLAB · Your Resume, Recruiter-Ready",
+    "nav.ats_simulator": "ATS Simulator",
+    "ats.title": "ATS Simulator",
+    "ats.desc": "Score your CV against a Job Description. Paste text or upload an image to extract text.",
+    "ats.form.profile": "CV Profile",
+    "ats.form.language": "Simulation Language",
+    "ats.form.jobdesc": "Job Description",
+    "ats.form.upload": "Upload Image",
+    "ats.btn.simulate": "Simulate ATS",
+    "ats.loading": "Analyzing CV against Job Description…",
+    "ats.result.score": "Match Score",
+    "ats.result.missing": "Missing Keywords",
+    "ats.result.recommendations": "Recommendations",
+    "ats.history.title": "Simulation History"
   },
   id: {
     "nav.home": "Beranda",
@@ -59,7 +72,20 @@ const dictionary = {
     "feature.7.desc": "Buat cover letter yang sangat sesuai dengan menggabungkan data CV Anda dan deskripsi pekerjaan secara spesifik.",
     "support.title": "Dukung Proyek Ini",
     "support.desc": "Jika alat ini bermanfaat bagi Anda, pertimbangkan untuk memberikan tip agar server tetap menyala!",
-    "footer.copyright": "© 2026 ATSTEXLAB · CV Anda, Siap Dipanggil"
+    "footer.copyright": "© 2026 ATSTEXLAB · CV Anda, Siap Dipanggil",
+    "nav.ats_simulator": "Simulator ATS",
+    "ats.title": "Simulator ATS",
+    "ats.desc": "Cocokkan CV Anda dengan Deskripsi Pekerjaan. Tempel teks atau unggah gambar untuk mengekstrak teks.",
+    "ats.form.profile": "Profil CV",
+    "ats.form.language": "Bahasa Simulasi",
+    "ats.form.jobdesc": "Deskripsi Pekerjaan",
+    "ats.form.upload": "Unggah Gambar (OCR)",
+    "ats.btn.simulate": "Mulai Simulasi",
+    "ats.loading": "Menganalisis kecocokan CV dengan Pekerjaan…",
+    "ats.result.score": "Skor Kecocokan",
+    "ats.result.missing": "Kata Kunci yang Hilang",
+    "ats.result.recommendations": "Rekomendasi",
+    "ats.history.title": "Riwayat Simulasi"
   }
 };
 

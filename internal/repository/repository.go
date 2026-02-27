@@ -67,6 +67,11 @@ type Repository interface {
 	GetJobApplicationsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.JobApplication, error)
 	UpdateJobApplicationStatus(ctx context.Context, id uuid.UUID, status string) error
 	DeleteJobApplication(ctx context.Context, id uuid.UUID) error
+
+	// ATS Simmulator methods
+	CreateAtsSimulation(ctx context.Context, sim *domain.AtsSimulation) error
+	GetAtsSimulationsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.AtsSimulation, error)
+
 	Close() error
 }
 
