@@ -343,12 +343,7 @@
           panggilan wawancara.</p>
       </div>
 
-      {{if .CurrentSub}}
-      <div class="current-sub-banner">
-        <h2>Anda sedang berlangganan Paket {{.CurrentSub.Plan.Name}} 👑</h2>
-        <p>Paket Anda aktif hingga <strong>{{.CurrentSub.EndDate.Format "02 Jan 2006"}}</strong>.</p>
-      </div>
-      {{end}}
+
 
       <div class="plans-grid">
         {{if .ActivePlans}}
@@ -392,8 +387,7 @@
             {{if eq .PriceIDR 0}}
             <div class="text-center font-bold text-muted p-4">Paket Default</div>
             {{else}}
-            <a href="#" class="btn-plan"
-              onclick="alert('Pemesanan paket otomatis sedang dalam pengembangan. Silakan hubungi admin untuk upgrade akun.'); return false;">
+            <a href="https://wa.me/6282387325971?text=Halo%20Admin,%20saya%20tertarik%20mengupgrade%20akun%20saya%20ke%20paket%20{{.Name}}.%20Tolong%20bantuannya!" class="btn-plan" target="_blank" rel="noopener noreferrer">
               Pilih Paket
             </a>
             {{end}}
@@ -421,14 +415,14 @@
               </div>
             </div>
             <div>
-              {{if $.CurrentSub}}
-                {{if eq $.CurrentSub.ID .ID}}
+              {{if $.Now}}
+                {{if gt .EndDate $.Now}}
                   <span class="status-badge active">Aktif</span>
                 {{else}}
                   <span class="status-badge inactive">Kedaluwarsa</span>
                 {{end}}
               {{else}}
-                <span class="status-badge inactive">Kedaluwarsa</span>
+                 <span class="status-badge inactive">Kedaluwarsa</span>
               {{end}}
             </div>
           </div>

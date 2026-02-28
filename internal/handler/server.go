@@ -121,17 +121,14 @@ func (s *Server) handleSubscriptionPage() http.HandlerFunc {
 			}
 		}
 
-		// Get user's current subscription
-		currentSub, _ := s.repo.GetUserActiveSubscription(r.Context(), user.ID)
-
 		// Get subscription history
 		historySubs, _ := s.repo.GetUserSubscriptions(r.Context(), user.ID)
 
 		if err := s.tmpl.ExecuteTemplate(w, "subscription", map[string]interface{}{
 			"User":        user,
 			"ActivePlans": activePlans,
-			"CurrentSub":  currentSub,
 			"HistorySubs": historySubs,
+			"Now":         time.Now(),
 		}); err != nil {
 			s.reqLog(r).Error("template error", "err", err)
 			http.Error(w, "internal error", http.StatusInternalServerError)
