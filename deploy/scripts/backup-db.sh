@@ -17,6 +17,8 @@ BACKUP_DIR="${1:-/opt/atstex-lab/backups}"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 BACKUP_FILE="${BACKUP_DIR}/atstex_${TIMESTAMP}.sql.gz"
 RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-30}"
+TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-8602704528:AAH5Z7u0Mmik9mmus2REYbO89A7u3aWPH6s}"
+TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID:-748895573}"
 
 # ── Colors ───────────────────────────────────────────────────
 RED='\033[0;31m'
@@ -46,6 +48,28 @@ docker exec "${CONTAINER_NAME}" \
 # ── Verify ───────────────────────────────────────────────────
 BACKUP_SIZE=$(ls -lh "${BACKUP_FILE}" | awk '{print $5}')
 echo -e "${GREEN}✅ Backup complete: ${BACKUP_FILE} (${BACKUP_SIZE})${NC}"
+
+# ── Send to Telegram ─────────────────────────────────────────
+if [[ -n "${TELEGRAM_BOT_TOKEN}" && -n "${TELEGRAM_CHAT_ID}" ]]; then
+    echo -e "${YELLOW}📤 Sending backup to Telegram...${NC}"
+    RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument" \
+        -F chat_id="${TELEGRAM_CHAT_ID}" \
+        -F document=@"${BACKUP_FILE}" \
+        -F caption="✅ atstex-postgres Database Backup (${BACKUP_SIZE})" || echo "")
+
+    HTTP_CODE=$(echo "${RESPONSE}" | tail -n1)
+    BODY=$(echo "${RESPONSE}" | sed '$d')
+
+    if [[ "${HTTP_CODE}" == "200" ]]; then
+        echo -e "${GREEN}✅ Backup successfully sent to Telegram${NC}"
+    else
+        echo -e "${RED}❌ Failed to send backup to Telegram (HTTP ${HTTP_CODE}):${NC}"
+        echo "${BODY}"
+    fi
+elif [[ -n "${TELEGRAM_BOT_TOKEN}" && -z "${TELEGRAM_CHAT_ID}" ]]; then
+    echo -e "${YELLOW}⚠️ TELEGRAM_CHAT_ID not set. Skipping Telegram notification.${NC}"
+    echo -e "${YELLOW}   Set TELEGRAM_CHAT_ID environment variable to receive backups.${NC}"
+fi
 
 # ── Cleanup Old Backups ─────────────────────────────────────
 DELETED=$(find "${BACKUP_DIR}" -name "atstex_*.sql.gz" -mtime +${RETENTION_DAYS} -delete -print | wc -l)

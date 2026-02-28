@@ -130,6 +130,13 @@ cd /opt/atstex-lab/scripts/
 sudo ./backup-db.sh
 ```
 *Backup akan disimpan sebagai file `.sql.gz` di dalam `/opt/atstex-lab/backups/`.*
+*Backup juga akan dikirimkan ke Telegram jika `TELEGRAM_BOT_TOKEN` dan `TELEGRAM_CHAT_ID` sudah diatur di dalam skrip `backup-db.sh`.*
+
+**Memperbarui Skrip Backup Tanpa Deploy Ulang:**
+Jika Anda hanya memperbarui skrip `backup-db.sh` (misal: menambahkan konfigurasi Telegram baru) dan ingin menerapkannya ke server tanpa menjalankan seluruh *deploy* proses aplikasi, Anda dapat menggunakan modul `copy` Ansible:
+```bash
+ansible -i inventory/production.ini webservers -m copy -a "src=scripts/backup-db.sh dest=/opt/atstex-lab/scripts/backup-db.sh owner=deploy group=deploy mode=0755" -b
+```
 
 ### 2. Pemulihan Database (Restore)
 Untuk memulihkan database dari file *backup* spesifik (skrip ini akan otomatis membuat *backup* keamanan internal sebelum melakukan *restore*):
