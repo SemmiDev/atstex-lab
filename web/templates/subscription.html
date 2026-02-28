@@ -416,7 +416,7 @@
             </div>
             <div>
               {{if $.Now}}
-                {{if gt .EndDate $.Now}}
+                {{if .EndDate.After $.Now}}
                   <span class="status-badge active">Aktif</span>
                 {{else}}
                   <span class="status-badge inactive">Kedaluwarsa</span>
