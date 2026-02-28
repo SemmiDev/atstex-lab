@@ -83,6 +83,7 @@ type Repository interface {
 	AdminDeleteSubscriptionPlan(ctx context.Context, id uuid.UUID) error
 	AdminAssignSubscription(ctx context.Context, userID, planID uuid.UUID, months int) error
 	GetUserActiveSubscription(ctx context.Context, userID uuid.UUID) (*domain.UserSubscription, error)
+	GetUserSubscriptions(ctx context.Context, userID uuid.UUID) ([]domain.UserSubscription, error)
 	GetFreeSubscriptionPlan(ctx context.Context) (*domain.SubscriptionPlan, error)
 
 	Close() error
@@ -684,3 +685,41 @@ func (r *postgresRepo) GetUserActiveSubscription(ctx context.Context, userID uui
 	us.Plan = &sp
 	return &us, nil
 }
+
+func (r *postgresRepo) GetUserSubscriptions(ctx context.Context, userID uuid.UUID) ([]domain.UserSubscription, error) {
+	query := `
+		SELECT
+			us.id, us.user_id, us.plan_id, us.start_date, us.end_date, us.created_at,
+			sp.id AS "plan.id", sp.name AS "plan.name", sp.price_idr AS "plan.price_idr", sp.duration_months AS "plan.duration_months",
+			sp.max_cv_profiles AS "plan.max_cv_profiles", sp.max_cv_reviews AS "plan.max_cv_reviews",
+			sp.max_ats_simulations AS "plan.max_ats_simulations", sp.max_cover_letters AS "plan.max_cover_letters",
+			sp.is_active AS "plan.is_active"
+		FROM user_subscriptions us
+		JOIN subscription_plans sp ON sp.id = us.plan_id
+		WHERE us.user_id = $1
+		ORDER BY us.created_at DESC
+	`
+	rows, err := r.db.QueryxContext(ctx, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var subscriptions []domain.UserSubscription
+	for rows.Next() {
+		var us domain.UserSubscription
+		var sp domain.SubscriptionPlan
+		err := rows.Scan(
+			&us.ID, &us.UserID, &us.PlanID, &us.StartDate, &us.EndDate, &us.CreatedAt,
+			&sp.ID, &sp.Name, &sp.PriceIDR, &sp.DurationMonths,
+			&sp.MaxCVProfiles, &sp.MaxCVReviews, &sp.MaxATSSimulations, &sp.MaxCoverLetters, &sp.IsActive,
+		)
+		if err != nil {
+			return nil, err
+		}
+		us.Plan = &sp
+		subscriptions = append(subscriptions, us)
+	}
+	return subscriptions, nil
+}
+

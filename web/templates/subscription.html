@@ -180,6 +180,53 @@
       font-style: italic;
     }
 
+    .history-section {
+      margin-top: 4rem;
+    }
+    .history-section h2 {
+      font-family: var(--font-disp);
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    .history-card {
+      background: var(--surface);
+      border: 3px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      box-shadow: 3px 3px 0 var(--border);
+    }
+    .history-info h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.25rem;
+      font-weight: 800;
+    }
+    .history-dates {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      border: 2px solid var(--border);
+    }
+    .status-badge.active {
+      background: var(--success, #10b981);
+      color: #fff;
+    }
+    .status-badge.inactive {
+      background: var(--border, #1a1a1a);
+      color: #fff;
+    }
+
     /* Target smaller screens to improve layout */
     @media (max-width: 640px) {
       .plans-grid {
@@ -342,14 +389,14 @@
           </ul>
 
           <div class="plan-action">
+            {{if eq .PriceIDR 0}}
+            <div class="text-center font-bold text-muted p-4">Paket Default</div>
+            {{else}}
             <a href="#" class="btn-plan"
               onclick="alert('Pemesanan paket otomatis sedang dalam pengembangan. Silakan hubungi admin untuk upgrade akun.'); return false;">
-              {{if $.CurrentSub}}
-                {{if eq .ID $.CurrentSub.PlanID}} Paket Saat Ini {{else}} Pilih Paket {{end}}
-              {{else}}
-                {{if eq .PriceIDR 0}} Paket Saat Ini {{else}} Pilih Paket {{end}}
-              {{end}}
+              Pilih Paket
             </a>
+            {{end}}
           </div>
         </div>
         {{end}}
@@ -358,6 +405,37 @@
           <i class="ph ph-mask-sad text-4xl mb-4 block text-muted"></i>
           Tidak ada paket langganan yang tersedia saat ini.<br>Silakan hubungi administrator.
         </div>
+        {{end}}
+      </div>
+
+      <div class="history-section">
+        <h2>Riwayat Berlangganan</h2>
+        {{if .HistorySubs}}
+        <div class="history-list">
+          {{range .HistorySubs}}
+          <div class="history-card">
+            <div class="history-info">
+              <h3>{{.Plan.Name}}</h3>
+              <div class="history-dates">
+                {{.StartDate.Format "02 Jan 2006"}} - {{.EndDate.Format "02 Jan 2006"}}
+              </div>
+            </div>
+            <div>
+              {{if $.CurrentSub}}
+                {{if eq $.CurrentSub.ID .ID}}
+                  <span class="status-badge active">Aktif</span>
+                {{else}}
+                  <span class="status-badge inactive">Kedaluwarsa</span>
+                {{end}}
+              {{else}}
+                <span class="status-badge inactive">Kedaluwarsa</span>
+              {{end}}
+            </div>
+          </div>
+          {{end}}
+        </div>
+        {{else}}
+        <p class="text-muted italic">Tidak ada riwayat berlangganan.</p>
         {{end}}
       </div>
     </div>
