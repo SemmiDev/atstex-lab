@@ -344,7 +344,11 @@
           <div class="plan-action">
             <a href="#" class="btn-plan"
               onclick="alert('Pemesanan paket otomatis sedang dalam pengembangan. Silakan hubungi admin untuk upgrade akun.'); return false;">
-              {{if eq .PriceIDR 0}} Paket Saat Ini {{else}} Pilih Paket {{end}}
+              {{if $.CurrentSub}}
+                {{if eq .ID $.CurrentSub.PlanID}} Paket Saat Ini {{else}} Pilih Paket {{end}}
+              {{else}}
+                {{if eq .PriceIDR 0}} Paket Saat Ini {{else}} Pilih Paket {{end}}
+              {{end}}
             </a>
           </div>
         </div>
