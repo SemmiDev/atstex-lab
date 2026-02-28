@@ -482,11 +482,18 @@ const DUMMY_BIODATA = {
   ]
 };
 
+let statusTimeoutId;
 function showStatus(msg, isError = false) {
   statusMsg.textContent = msg;
   statusMsg.classList.remove('hidden', '!text-error', '!text-accent2');
   statusMsg.classList.add(isError ? '!text-error' : '!text-accent2');
-  setTimeout(() => statusMsg.classList.add('hidden'), 3000);
+
+  if (statusTimeoutId) {
+    clearTimeout(statusTimeoutId);
+  }
+
+  const duration = isError ? 8000 : 3000;
+  statusTimeoutId = setTimeout(() => statusMsg.classList.add('hidden'), duration);
 }
 
 function updateFormElementsState(disabled) {
