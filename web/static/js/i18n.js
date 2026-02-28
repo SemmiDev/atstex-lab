@@ -4,7 +4,6 @@ const dictionary = {
   en: {
     "nav.home": "Home",
     "nav.build": "Build",
-    "hero.badge": "Resume Builder That Beats the Bots",
     "hero.title.1": "ATS",
     "hero.title.2": "Optimized",
     "hero.title.3": "& Recruiter-Centric.",
@@ -15,8 +14,6 @@ const dictionary = {
     "hero.trusted": "TRUSTED BY JOB SEEKERS, FRESH GRADS, AND CAREER SWITCHERS",
     "feature.1.title": "Instant PDF Export",
     "feature.1.desc": "Hit compile and get a perfectly formatted PDF in seconds. No software to install — everything runs in your browser.",
-    "feature.2.title": "100% Free, Forever",
-    "feature.2.desc": "No paywalls, no subscriptions, no hidden fees. Sign in with Google to save your CV profiles — completely free.",
     "feature.3.title": "ATS-Friendly Templates",
     "feature.3.desc": "Every template is designed to pass Applicant Tracking Systems. Clean layout, clear sections, no hidden formatting tricks.",
     "feature.4.title": "Multiple CV Profiles",
@@ -47,7 +44,6 @@ const dictionary = {
   id: {
     "nav.home": "Beranda",
     "nav.build": "Buat CV",
-    "hero.badge": "GRATIS",
     "hero.title.1": "Lolos Seleksi",
     "hero.title.2": "Sistem.",
     "hero.title.3": "Memikat Hati Rekruter.",
@@ -58,8 +54,6 @@ const dictionary = {
     "hero.trusted": "DIPERCAYA OLEH PENCARI KERJA, LULUSAN BARU, DAN PROFESIONAL",
     "feature.1.title": "Ekspor PDF Instan",
     "feature.1.desc": "Klik compile dan dapatkan PDF berformat sempurna dalam hitungan detik. Tanpa instalasi software — semuanya berjalan di browser.",
-    "feature.2.title": "100% Gratis, Selamanya",
-    "feature.2.desc": "Tanpa biaya langganan, tanpa fitur tersembunyi. Masuk dengan Google untuk menyimpan profil CV Anda — sepenuhnya gratis.",
     "feature.3.title": "Template Ramah ATS",
     "feature.3.desc": "Setiap template didesain untuk lolos Applicant Tracking Systems. Tata letak bersih, bagian yang jelas, tanpa trik format tersembunyi.",
     "feature.4.title": "Banyak Profil CV",

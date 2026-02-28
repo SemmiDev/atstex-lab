@@ -51,7 +51,7 @@
 
     .plans-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 2rem;
       max-width: 1000px;
       margin: 0 auto;
@@ -179,6 +179,38 @@
       color: var(--muted);
       font-style: italic;
     }
+
+    /* Target smaller screens to improve layout */
+    @media (max-width: 640px) {
+      .plans-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      .subs-header {
+        margin-bottom: 2rem;
+      }
+      .subs-header h1 {
+        font-size: 2rem;
+        line-height: 1.2;
+      }
+      .plan-card {
+        padding: 1.5rem;
+      }
+      .plan-name {
+        font-size: 1.5rem;
+      }
+      .plan-price {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+      .current-sub-banner {
+        padding: 1rem;
+        margin-bottom: 2rem;
+      }
+      .current-sub-banner h2 {
+        font-size: 1.25rem;
+      }
+    }
   </style>
 </head>
 
@@ -255,8 +287,8 @@
   <!-- Overlay for mobile clicking -->
   <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
 
-  <main class="flex-1 min-h-0 overflow-y-auto bg-surface relative p-6 md:p-10 flex justify-center">
-    <div class="w-full max-w-5xl flex flex-col gap-8">
+  <main class="flex-1 min-h-0 overflow-y-auto bg-surface relative p-4 md:p-10 flex justify-center">
+    <div class="w-full max-w-5xl flex flex-col gap-6 md:gap-8">
 
       <div class="subs-header">
         <h1>Pilih Paket Anda</h1>
