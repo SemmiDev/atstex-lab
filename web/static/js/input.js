@@ -656,7 +656,7 @@ btnNewProfile.addEventListener('click', async () => {
     showStatus(`Created "${profile.title}" — start filling in your data!`);
   } catch (e) {
     console.error(e);
-    showStatus('Failed to create profile', true);
+    showStatus(e.message || 'Failed to create profile', true);
   }
 });
 
