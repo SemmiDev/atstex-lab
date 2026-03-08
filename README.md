@@ -4,8 +4,6 @@ A modern, privacy-first LaTeX CV builder designed to help you generate beautiful
 
 Write your biodata, choose a template, and instantly compile it into a professional PDF.
 
-![Logo](/static/cv-favicon.svg)
-
 ---
 
 ## 🏗️ Architecture & Flow
