@@ -29,145 +29,44 @@ flowchart TB
 
         subgraph Dashboard [Dashboard & Productivity Features]
             Kanban[Kanban Job Tracker]
-            ATS[AI ATS Simulator]
-            CVReview[AI CV Reviewer]
-            CoverLetter[AI Cover Letter Gen]
-        end
+    UI[Web Frontend<br/>Tailwind/React]
+    GoAPI[Go Backend API]
+    DB[(PostgreSQL)]
+    AI[AI Engine<br/>OpenAI/Gemini]
 
-        subgraph Account [Account & Setup]
-            AuthUI[Google OAuth Login]
-            SessionMgr[Active Sessions & Profile]
-            Publish[Public Profile Settings]
-            Subscription[Pro Subscriptions]
-            Feedback[User Feedback]
-        end
-
-        AuthUI -.-> Dashboard
-        AuthUI -.-> CoreBuilder
-    end
-
-    %% External APIs
-    subgraph External [External APIs & Providers]
-        direction LR
-        GoogleAuth[Google OAuth Provider]
-        OpenAI[AI Models<br/>OpenAI/Gemini/Anthropic]
-    end
-
-    %% Backend Server Tier
-    subgraph Server [Go Backend API Gateway]
+    %% Sandbox Subgraph
+    subgraph Sandbox [Temporal Sandbox]
         direction TB
-        Router[HTTP Router & Chi Middleware]
-
-        subgraph Services [Business Logic Micro-Services]
-            direction LR
-            AuthSvc[Auth/Session Manager]
-            ProfileSvc[CV Profile CRUD]
-            KanbanSvc[Job Applications API]
-            FeedbackSvc[Feedback API]
-            PublicSvc[Public vanity /u/ URLs]
-
-            subgraph AIEngines [AI Orchestration]
-                AIExtract[PDF -> JSON Extractor]
-                AIAts[ATS Simulation Engine]
-                AIReview[CV Critique Engine]
-                AILetter[Cover Letter Engine]
-            end
-
-            TemplateSvc[LaTeX Template API]
-        end
-
-        subgraph Security [Compiler Security Layer]
-            Sanitizer[Go String Escaping & HTML Sanitizer]
-            Limits[OS Resource Limits: Timeouts/Memory]
-        end
-
-        Compiler[Go Compilation Coordinator]
-
-        %% API Routing
-        Router --> AuthSvc & ProfileSvc & KanbanSvc & FeedbackSvc & PublicSvc
-        Router --> AIEngines
-        Router --> TemplateSvc
-
-        TemplateSvc --> Sanitizer
-        Sanitizer --> Compiler
-        Compiler --> Limits
+        Template[LaTeX Template]
+        Tectonic([Tectonic Compiler])
     end
 
-    %% Storage & Execution Infrastructure
-    subgraph Infrastructure [Docker Infrastructure]
-        direction TB
-        DB[(PostgreSQL Database)]
+    %% Flow
+    User -->|Biodata & Photo| UI
+    User -->|PDF Resume| UI
 
-        subgraph Sandbox [Temporal Execution Sandbox]
-            TempDir[/tmp/workspace<br/>Isolated Mount/]
-            ImageDump[photo.jpg/png]
-            TexSource[document.tex]
+    UI <-->|JSON Data| GoAPI
 
-            Tectonic([Tectonic TeX Engine<br/>Alpine Pre-cached])
+    GoAPI <-->|Stores Profile| DB
+    GoAPI <-->|Extract Specs /<br/>Generate Cover Letter| AI
 
-            ImageDump -.-> Tectonic
-            TexSource -.-> Tectonic
-        end
-    end
-
-    %% Data Flow Connections
-    User == Interacts ==> Client
-
-    %% Auth Flows
-    AuthUI <-->|OAuth Tokens| GoogleAuth
-    AuthUI <-->|Set Cookies| Router
-    SessionMgr <--> Router
-    AuthSvc <--> DB
-
-    %% Builder Flows
-    Biodata == Syncs JSON ==> Router
-    Editor == Manual Compile ==> Router
-    Biodata == Extract PDF ==> Router
-    ProfileSvc <--> DB
-
-    %% Dashboard Flows
-    Kanban <-->|REST| Router
-    KanbanSvc <--> DB
-    Feedback <-->|REST| Router
-    FeedbackSvc <--> DB
-    Publish <-->|REST| Router
-    PublicSvc <--> DB
-
-    %% AI Integrations
-    ATS <--> |Request| Router
-    CVReview <--> |Request| Router
-    CoverLetter <--> |Request| Router
-
-    AIEngines <-->|Sends Prompts & Context<br/>Receives JSON / Markdown| OpenAI
-
-    %% Compilation Flows
-    Compiler == Writes Biodata Payload ==> TempDir
-    Compiler == Writes Base64 Photo ==> ImageDump
-    Compiler == Writes Master TeX ==> TexSource
-
-    Limits == Executes Command<br/>with restricted privs ==> Tectonic
-    Tectonic == Produces document.pdf ==> TempDir
-    TempDir == Reads PDF Bytes ==> Compiler
-
-    Compiler == Streams PDF Response ==> Router
-    Router == Returns Application/PDF ==> Preview
+    GoAPI -->|Injects Data| Template
+    Template --> Tectonic
+    Tectonic -.->|Returns PDF| GoAPI
+    GoAPI -.->|Streams Preview| UI
 
     %% Styling Elements
     classDef primary fill:#ff4794,stroke:#000,stroke-width:2px,color:#fff,font-weight:bold;
     classDef secondary fill:#475eff,stroke:#000,stroke-width:2px,color:#fff;
     classDef database fill:#5eeb8f,stroke:#000,stroke-width:2px,color:#000;
     classDef external fill:#f3f4f6,stroke:#000,stroke-width:2px,color:#000,stroke-dasharray: 5 5;
-    classDef secure fill:#ffbd45,stroke:#000,stroke-width:2px,color:#000;
     classDef sandbox fill:#e2e8f0,stroke:#64748b,stroke-width:2px,stroke-dasharray: 5 5;
-    classDef feature fill:#a8a2ff,stroke:#000,stroke-width:2px,color:#000;
 
-    class Biodata,Editor,Preview,AuthUI primary;
-    class Kanban,ATS,CVReview,CoverLetter,SessionMgr,Publish,Subscription,Feedback feature;
-    class Router,AuthSvc,ProfileSvc,AIEngines,TemplateSvc,Compiler,KanbanSvc,FeedbackSvc,PublicSvc,AIExtract,AIAts,AIReview,AILetter secondary;
-    class DB,Tectonic database;
-    class GoogleAuth,OpenAI external;
-    class Sanitizer,Limits secure;
-    class TempDir,ImageDump,TexSource sandbox;
+    class UI primary;
+    class GoAPI secondary;
+    class DB database;
+    class AI external;
+    class Template,Tectonic sandbox;
 ```
 
 ### How it Works
