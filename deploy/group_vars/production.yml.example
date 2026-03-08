@@ -15,7 +15,7 @@ certbot_email: "admin@example.com"
 
 # ── Database ─────────────────────────────────────────────────
 postgres_password: "your_secure_db_password"
-database_url: "postgres://{{ postgres_user }}:{{ postgres_password }}@localhost:{{ postgres_port }}/{{ postgres_db }}?sslmode=disable"
+database_url: "postgres://{{ postgres_user }}:{{ postgres_password }}@atstex-postgres:5432/{{ postgres_db }}?sslmode=disable"
 postgres_expose_public: false # Set to true to allow direct remote access via local DB clients (DBeaver, DataGrip, etc.)
 
 # ── Google OAuth ─────────────────────────────────────────────

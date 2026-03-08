@@ -14,7 +14,8 @@ services:
       - "127.0.0.1:{{ app_port }}:8080"
     env_file:
       - "{{ app_dir }}/src/.env"
-    network_mode: host
+    networks:
+      - atstex_network
     tmpfs:
       - /tmp:size={{ docker_tmpfs_size }},mode=1777
     deploy:
@@ -33,3 +34,7 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+networks:
+  atstex_network:
+    external: true

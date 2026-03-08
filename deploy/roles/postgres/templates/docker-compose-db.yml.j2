@@ -20,6 +20,8 @@ services:
     volumes:
       - {{ postgres_data_dir }}:/var/lib/postgresql/data
       - {{ app_dir }}/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - atstex_network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U {{ postgres_user }} -d {{ postgres_db }}"]
       interval: 10s
@@ -29,3 +31,7 @@ services:
       resources:
         limits:
           memory: 512m
+
+networks:
+  atstex_network:
+    external: true

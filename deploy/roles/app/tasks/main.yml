@@ -52,6 +52,11 @@
   become_user: "{{ deploy_user }}"
   ignore_errors: true
 
+- name: Create external Docker network for app and database isolation
+  command: docker network create atstex_network
+  ignore_errors: true
+  changed_when: false
+
 - name: Start application container
   command: docker compose -f docker-compose-app.yml up -d
   args:

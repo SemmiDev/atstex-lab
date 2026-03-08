@@ -35,6 +35,11 @@
     group: "{{ deploy_user }}"
     mode: "0644"
 
+- name: Create external Docker network for database isolation
+  command: docker network create atstex_network
+  ignore_errors: true
+  changed_when: false
+
 - name: Start PostgreSQL container
   command: docker compose -f docker-compose-db.yml up -d
   args:

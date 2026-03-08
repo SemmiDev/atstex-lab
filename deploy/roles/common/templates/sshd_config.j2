@@ -4,7 +4,7 @@
 # Do NOT edit manually on the server. Changes here will be
 # overwritten on next playbook run.
 
-Port 22
+Port {{ ssh_port }}
 Protocol 2
 AddressFamily any
 ListenAddress 0.0.0.0
@@ -12,6 +12,7 @@ ListenAddress 0.0.0.0
 # ── Authentication ───────────────────────────────────────────
 PermitRootLogin no
 PasswordAuthentication no
+PermitEmptyPasswords no
 PubkeyAuthentication yes
 AuthorizedKeysFile .ssh/authorized_keys
 ChallengeResponseAuthentication no

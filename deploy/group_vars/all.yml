@@ -3,6 +3,10 @@
 # ║  ATSTEX-LAB — Shared Variables (all environments)           ║
 # ╚══════════════════════════════════════════════════════════════╝
 
+# ── SSH ──────────────────────────────────────────────────────
+ssh_port: 2222
+ansible_port: "{{ ssh_port }}"
+
 # ── Application ──────────────────────────────────────────────
 app_name: atstex-lab
 app_user: atstex
@@ -34,7 +38,7 @@ nginx_client_max_body_size: 50m
 
 # ── Firewall (UFW) ──────────────────────────────────────────
 ufw_allowed_ports:
-  - { port: 22, proto: tcp } # SSH
+  - { port: "{{ ssh_port }}", proto: tcp } # SSH
   - { port: 80, proto: tcp } # HTTP
   - { port: 443, proto: tcp } # HTTPS
 
