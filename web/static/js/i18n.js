@@ -4,32 +4,41 @@ const dictionary = {
   en: {
     "nav.home": "Home",
     "nav.build": "Build",
-    "hero.title.1": "ATS",
-    "hero.title.2": "Optimized",
-    "hero.title.3": "& Recruiter-Centric.",
-    "hero.subtitle": "ATSTEXLAB helps you build professional, ATS-friendly resumes that actually get read by recruiters. Fill in your details, pick a template, and download a polished PDF.",
-    "hero.btn.builder": "Builder",
+    "hero.title.1": "Pass",
+    "hero.title.2": "the ATS.",
+    "hero.title.3": "Impress the Recruiter.",
+    "hero.subtitle":
+      "ATSTEXLAB helps you build a professional, ATS-friendly resume that recruiters actually want to read. Just fill in your details, pick a clean template, and download your PDF.",
+    "hero.btn.builder": "Build My Resume",
     "hero.btn.logout": "Logout",
     "hero.btn.signin": "Sign in with Google",
     "hero.trusted": "TRUSTED BY JOB SEEKERS, FRESH GRADS, AND CAREER SWITCHERS",
     "feature.1.title": "Instant PDF Export",
-    "feature.1.desc": "Hit compile and get a perfectly formatted PDF in seconds. No software to install — everything runs in your browser.",
+    "feature.1.desc":
+      "Hit compile and get a perfectly formatted PDF in seconds. No software to install — everything runs in your browser.",
     "feature.3.title": "ATS-Friendly Templates",
-    "feature.3.desc": "Every template is designed to pass Applicant Tracking Systems. Clean layout, clear sections, no hidden formatting tricks.",
+    "feature.3.desc":
+      "Every template is designed to pass Applicant Tracking Systems. Clean layout, clear sections, no hidden formatting tricks.",
     "feature.4.title": "Multiple CV Profiles",
-    "feature.4.desc": "Create different resumes for different roles. One for \"Back End Developer\", another for \"Data Engineer\" — you decide.",
-    "feature.5.title": "AI-Powered PDF Extraction",
-    "feature.5.desc": "Upload your existing PDF resume and let our local AI parse it directly into your biodata profile. No manual copy-pasting required.",
-    "feature.6.title": "AI CV Review & Scoring",
-    "feature.6.desc": "Get actionable feedback tailored by AI. Discover strengths, weaknesses, and a structured rating to help your resume stand out.",
+    "feature.4.desc":
+      'Create different resumes for different roles. One for "Back End Developer", another for "Data Engineer" — you decide.',
+    "feature.5.title": "Import from PDF",
+    "feature.5.desc":
+      "Upload your old resume and let our AI instantly sort your experience into a new profile. Skip the manual typing.",
+    "feature.6.title": "Get Instant AI Feedback",
+    "feature.6.desc":
+      "Get actionable feedback tailored by AI. Discover strengths, weaknesses, and a structured rating to help your resume stand out.",
     "feature.7.title": "AI Cover Letter Generator",
-    "feature.7.desc": "Generate highly tailored cover letters combining your structured CV data and a specific job description.",
+    "feature.7.desc":
+      "Generate highly tailored cover letters combining your structured CV data and a specific job description.",
     "support.title": "Support the Project",
-    "support.desc": "If you found this tool helpful, consider leaving a tip to keep the servers running!",
+    "support.desc":
+      "If you found this tool helpful, consider leaving a tip to keep the servers running!",
     "footer.copyright": "© 2026 ATSTEXLAB · Your Resume, Recruiter-Ready",
     "nav.ats_simulator": "ATS Simulator",
     "ats.title": "ATS Simulator",
-    "ats.desc": "Score your CV against a Job Description. Paste text or upload an image to extract text.",
+    "ats.desc":
+      "Score your CV against a Job Description. Paste text or upload an image to extract text.",
     "ats.form.profile": "CV Profile",
     "ats.form.language": "Simulation Language",
     "ats.form.jobdesc": "Job Description",
@@ -39,37 +48,47 @@ const dictionary = {
     "ats.result.score": "Match Score",
     "ats.result.missing": "Missing Keywords",
     "ats.result.recommendations": "Recommendations",
-    "ats.history.title": "Simulation History"
+    "ats.history.title": "Simulation History",
   },
   id: {
     "nav.home": "Beranda",
     "nav.build": "Buat CV",
-    "hero.title.1": "Lolos Seleksi",
-    "hero.title.2": "Sistem.",
-    "hero.title.3": "Memikat Hati Rekruter.",
-    "hero.subtitle": "ATSTEXLAB membantu Anda membuat CV profesional yang ramah ATS dan disukai rekruter. Isi data, pilih template, dan unduh PDF yang rapi.",
-    "hero.btn.builder": "Buat CV",
+    "hero.title.1": "Tembus",
+    "hero.title.2": "Sistem ATS.",
+    "hero.title.3": "Bikin Rekruter Terkesan.",
+    "hero.subtitle":
+      "Bikin CV profesional yang ramah ATS tanpa ribet. Cukup isi profil kamu, pilih template yang rapi, dan langsung unduh hasilnya dalam format PDF.",
+    "hero.btn.builder": "Buat CV Sekarang",
     "hero.btn.logout": "Keluar",
     "hero.btn.signin": "Masuk dengan Google",
-    "hero.trusted": "DIPERCAYA OLEH PENCARI KERJA, LULUSAN BARU, DAN PROFESIONAL",
+    "hero.trusted":
+      "DIPERCAYA OLEH PENCARI KERJA, LULUSAN BARU, DAN PROFESIONAL",
     "feature.1.title": "Ekspor PDF Instan",
-    "feature.1.desc": "Klik compile dan dapatkan PDF berformat sempurna dalam hitungan detik. Tanpa instalasi software — semuanya berjalan di browser.",
+    "feature.1.desc":
+      "Klik export dan PDF kamu langsung jadi. Ngga perlu install aplikasi tambahan, semuanya jalan langsung di browser.",
     "feature.3.title": "Template Ramah ATS",
-    "feature.3.desc": "Setiap template didesain untuk lolos Applicant Tracking Systems. Tata letak bersih, bagian yang jelas, tanpa trik format tersembunyi.",
+    "feature.3.desc":
+      "Semua template dirancang khusus supaya gampang dibaca oleh sistem ATS perusahaan. Gak ada format aneh yang bikin CV kamu gagal screening.",
     "feature.4.title": "Banyak Profil CV",
-    "feature.4.desc": "Buat CV berbeda untuk peran yang berbeda. Satu untuk \"Back End Developer\", satu lagi untuk \"Data Engineer\" — Anda yang tentukan.",
-    "feature.5.title": "Ekstraksi PDF dengan AI",
-    "feature.5.desc": "Unggah CV PDF Anda yang sudah ada dan biarkan AI kami menyalinnya langsung ke profil biodata Anda. Bebas repot salin-tempel manual.",
-    "feature.6.title": "Review & Penilaian CV dengan AI",
-    "feature.6.desc": "Dapatkan masukan dari AI. Ketahui kelebihan, kekurangan, dan skor terstruktur agar CV Anda lebih menonjol.",
+    "feature.4.desc":
+      'Buat CV berbeda untuk peran yang berbeda. Satu untuk "Back End Developer", satu lagi untuk "Data Engineer" — kamu yang tentukan.',
+    "feature.5.title": "Import Langsung dari PDF",
+    "feature.5.desc":
+      "Punya CV lama? Upload aja. AI kami bakal otomatis mindahin isinya ke profil baru kamu. Bebas capek ngetik ulang.",
+    "feature.6.title": "Dapatkan Masukan Instan AI",
+    "feature.6.desc":
+      "Cek seberapa bagus CV kamu dengan AI. Temukan kelebihan, bagian yang harus diperbaiki, dan skor keseluruhan biar CV makin stand out.",
     "feature.7.title": "Pembuat Cover Letter AI",
-    "feature.7.desc": "Buat cover letter yang sangat sesuai dengan menggabungkan data CV Anda dan deskripsi pekerjaan secara spesifik.",
+    "feature.7.desc":
+      "Buat cover letter yang sangat sesuai dengan menggabungkan data CV kamu dan deskripsi pekerjaan incaranmu.",
     "support.title": "Dukung Proyek Ini",
-    "support.desc": "Jika alat ini bermanfaat bagi Anda, pertimbangkan untuk memberikan tip agar server tetap menyala!",
+    "support.desc":
+      "Jika alat ini bermanfaat bagi Anda, pertimbangkan untuk memberikan tip agar server tetap menyala!",
     "footer.copyright": "© 2026 ATSTEXLAB · CV Anda, Siap Dipanggil",
     "nav.ats_simulator": "Simulator ATS",
     "ats.title": "Simulator ATS",
-    "ats.desc": "Cocokkan CV Anda dengan Deskripsi Pekerjaan. Tempel teks atau unggah gambar untuk mengekstrak teks.",
+    "ats.desc":
+      "Cocokkan CV Anda dengan Deskripsi Pekerjaan. Tempel teks atau unggah gambar untuk mengekstrak teks.",
     "ats.form.profile": "Profil CV",
     "ats.form.language": "Bahasa Simulasi",
     "ats.form.jobdesc": "Deskripsi Pekerjaan",
@@ -79,15 +98,15 @@ const dictionary = {
     "ats.result.score": "Skor Kecocokan",
     "ats.result.missing": "Kata Kunci yang Hilang",
     "ats.result.recommendations": "Rekomendasi",
-    "ats.history.title": "Riwayat Simulasi"
-  }
+    "ats.history.title": "Riwayat Simulasi",
+  },
 };
 
 // Inject toggle styles once
 (function injectI18nStyles() {
-  if (document.getElementById('i18n-styles')) return;
-  const style = document.createElement('style');
-  style.id = 'i18n-styles';
+  if (document.getElementById("i18n-styles")) return;
+  const style = document.createElement("style");
+  style.id = "i18n-styles";
   style.textContent = `
     .lang-switch {
       display: inline-flex;
@@ -140,7 +159,7 @@ function setLanguage(lang) {
 
   localStorage.setItem("atstex_lang", lang);
 
-  document.querySelectorAll("[data-i18n]").forEach(el => {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
     if (dictionary[lang][key]) {
       el.textContent = dictionary[lang][key];
@@ -158,17 +177,21 @@ function setLanguage(lang) {
   }
 
   // Update active toggle styling
-  document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-  document.querySelectorAll(`[data-lang="${lang}"]`).forEach(btn => btn.classList.add('active'));
+  document
+    .querySelectorAll(".lang-btn")
+    .forEach((btn) => btn.classList.remove("active"));
+  document
+    .querySelectorAll(`[data-lang="${lang}"]`)
+    .forEach((btn) => btn.classList.add("active"));
 }
 
 function initI18n() {
   const savedLang = localStorage.getItem("atstex_lang") || "id";
 
   // Bind click handlers
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const lang = btn.getAttribute('data-lang');
+  document.querySelectorAll(".lang-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const lang = btn.getAttribute("data-lang");
       if (lang) setLanguage(lang);
     });
   });
