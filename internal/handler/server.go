@@ -25,8 +25,9 @@ import (
 
 // compileRequest is the JSON body expected by POST /compile.
 type compileRequest struct {
-	Source string `json:"source"`
-	Engine string `json:"engine"`
+	Source      string `json:"source"`
+	Engine      string `json:"engine"`
+	PhotoBase64 string `json:"photo_base64"`
 }
 
 // compileResponse is the JSON body returned by POST /compile.
@@ -320,8 +321,9 @@ func (s *Server) handleCompile() http.HandlerFunc {
 		}
 
 		opts := compiler.Options{
-			Engine:  engine,
-			Timeout: 30 * time.Second,
+			Engine:      engine,
+			Timeout:     30 * time.Second,
+			PhotoBase64: req.PhotoBase64,
 		}
 
 		s.reqLog(r).Info("compiling", "engine", engine, "source_len", len(req.Source))

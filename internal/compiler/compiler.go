@@ -5,6 +5,7 @@ package compiler
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"fmt"
 	"os"
 	"os/exec"
@@ -36,9 +37,10 @@ type Result struct {
 
 // Options configures a compilation run.
 type Options struct {
-	Engine     Engine
-	Timeout    time.Duration
-	SinglePass bool // Skip the second pass (faster preview, may have unresolved refs)
+	Engine      Engine
+	Timeout     time.Duration
+	SinglePass  bool // Skip the second pass (faster preview, may have unresolved refs)
+	PhotoBase64 string
 }
 
 // DefaultOptions returns sensible defaults.
@@ -86,6 +88,29 @@ func Compile(ctx context.Context, source []byte, opts Options) (*Result, error) 
 	srcFile := filepath.Join(workDir, "document.tex")
 	if err := os.WriteFile(srcFile, source, 0o600); err != nil {
 		return nil, fmt.Errorf("writing source: %w", err)
+	}
+
+	// Handle optional base64 profile photo decoding.
+	if opts.PhotoBase64 != "" {
+		// A typical data URL looks like data:image/jpeg;base64,...
+		b64data := opts.PhotoBase64
+		ext := "jpg" // default
+		if strings.HasPrefix(opts.PhotoBase64, "data:image/") {
+			parts := strings.SplitN(opts.PhotoBase64, ",", 2)
+			if len(parts) == 2 {
+				// detect extension from "data:image/png;base64"
+				if strings.Contains(parts[0], "png") {
+					ext = "png"
+				}
+				b64data = parts[1]
+			}
+		}
+
+		photoBytes, err := base64.StdEncoding.DecodeString(b64data)
+		if err == nil {
+			photoPath := filepath.Join(workDir, "photo."+ext)
+			os.WriteFile(photoPath, photoBytes, 0o600)
+		}
 	}
 
 	start := time.Now()

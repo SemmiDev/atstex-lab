@@ -47,13 +47,14 @@ RUN echo '\documentclass{article}' > /tmp/dummy.tex && \
     echo '\usepackage{geometry,setspace,fancyhdr,array,tabularx,booktabs,longtable}' >> /tmp/dummy.tex && \
     echo '\usepackage{enumitem,xcolor,graphicx,hyperref,microtype,titlesec}' >> /tmp/dummy.tex && \
     echo '\usepackage{multicol,etoolbox,latexsym,marvosym,verbatim}' >> /tmp/dummy.tex && \
-    echo '\usepackage{helvet,mathptmx,palatino,courier}' >> /tmp/dummy.tex && \
+    echo '\usepackage{helvet,mathptmx,palatino,courier,lmodern}' >> /tmp/dummy.tex && \
     echo '\begin{document}Hello\end{document}' >> /tmp/dummy.tex && \
     tectonic /tmp/dummy.tex && \
     rm -f /tmp/dummy.*
 
 # Non-root user
-RUN adduser -D -u 1001 atstex-lab
+RUN adduser -D -u 1001 atstex-lab && \
+    chown -R atstex-lab:atstex-lab /var/cache/tectonic
 
 WORKDIR /home/atstex-lab
 

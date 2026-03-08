@@ -71,6 +71,14 @@
                 1. Informasi Pribadi <span class="badge">Wajib</span></h2>
             <div class="grid grid-cols-1 gap-4">
                 <div class="flex flex-col gap-2">
+                    <label class="font-bold text-sm uppercase tracking-wide">Foto Profil (Opsional)</label>
+                    <div class="flex items-center gap-4">
+                        <img id="photo-preview" src="/static/img/placeholder-profile.png" alt="Preview Foto" class="w-16 h-16 object-cover border-2 border-border shadow-[2px_2px_0_#000]">
+                        <input type="file" id="input-personal-photo" accept="image/png, image/jpeg" class="form-input text-xs flex-1">
+                        <button id="btn-remove-photo" class="btn btn-ghost !px-2 !py-2 !text-error hidden"><i class="ph-bold ph-trash"></i></button>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2">
                     <label class="font-bold text-sm uppercase tracking-wide">Nama Lengkap</label>
                     <input type="text" data-field="personal.name" class="form-input" placeholder="John Doe">
                 </div>

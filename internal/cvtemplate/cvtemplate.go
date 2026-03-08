@@ -57,6 +57,7 @@ type Link struct {
 }
 
 type Personal struct {
+	Photo    string `json:"photo"`
 	Name     string `json:"name"`
 	Title    string `json:"title"`
 	Email    string `json:"email"`

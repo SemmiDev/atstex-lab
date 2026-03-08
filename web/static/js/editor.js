@@ -259,10 +259,22 @@ async function compile() {
     }
 
     compileStep.textContent = "Memproses PDF…";
+    const payload = { source, engine: engineSel.value };
+    try {
+      const cvDataStr = localStorage.getItem("cv_data");
+      if (cvDataStr) {
+        const cvData = JSON.parse(cvDataStr);
+        if (cvData && cvData.personal && cvData.personal.photo) {
+          payload.photo_base64 = cvData.personal.photo;
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to read CV data for photo", e);
+    }
     const res = await fetch("/compile", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ source, engine: engineSel.value }),
+      body: JSON.stringify(payload),
     });
 
     if (

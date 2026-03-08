@@ -5,6 +5,7 @@ const ACTIVE_PROFILE_KEY = "cv_active_profile_id";
 // Default initial state
 let data = {
   personal: {
+    photo: "",
     linkedin: {},
     github: {},
     website: {},
@@ -199,7 +200,7 @@ function saveToStorage() {
 function clearForm() {
   // Reset data model
   data = {
-    personal: { linkedin: {}, github: {}, website: {} },
+    personal: { photo: "", linkedin: {}, github: {}, website: {} },
     summary: "",
     experience: [],
     education: [],
@@ -217,6 +218,14 @@ function clearForm() {
     .forEach((el) => {
       el.value = "";
     });
+
+  // Clear photo preview
+  const photoPreview = document.getElementById("photo-preview");
+  const btnRemovePhoto = document.getElementById("btn-remove-photo");
+  const inputPhoto = document.getElementById("input-personal-photo");
+  if (photoPreview) photoPreview.src = "/static/img/placeholder-profile.png";
+  if (btnRemovePhoto) btnRemovePhoto.classList.add("hidden");
+  if (inputPhoto) inputPhoto.value = "";
 
   // Clear dynamic lists
   [
@@ -256,6 +265,14 @@ function populateForm(newData) {
         el.value = current;
       }
     });
+
+  // Populate photo
+  const photoPreview = document.getElementById("photo-preview");
+  const btnRemovePhoto = document.getElementById("btn-remove-photo");
+  if (data.personal && data.personal.photo) {
+    if (photoPreview) photoPreview.src = data.personal.photo;
+    if (btnRemovePhoto) btnRemovePhoto.classList.remove("hidden");
+  }
 
   // Populate dynamic lists
   [
@@ -351,6 +368,44 @@ const btnFillDummy = document.getElementById("btn-fill-dummy");
 const btnUploadPdf = document.getElementById("btn-upload-pdf");
 const pdfUploadInput = document.getElementById("pdf-upload");
 const statusMsg = document.getElementById("cv-status-msg");
+
+const inputPhoto = document.getElementById("input-personal-photo");
+const photoPreview = document.getElementById("photo-preview");
+const btnRemovePhoto = document.getElementById("btn-remove-photo");
+
+if (inputPhoto) {
+  inputPhoto.addEventListener("change", function () {
+    const file = this.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        showStatus("Photo size must be less than 2MB.", true);
+        this.value = "";
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const b64 = e.target.result;
+        photoPreview.src = b64;
+        data.personal.photo = b64;
+        btnRemovePhoto.classList.remove("hidden");
+        saveToStorage();
+        markDirty();
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
+
+if (btnRemovePhoto) {
+  btnRemovePhoto.addEventListener("click", function () {
+    photoPreview.src = "/static/img/placeholder-profile.png";
+    inputPhoto.value = "";
+    data.personal.photo = "";
+    btnRemovePhoto.classList.add("hidden");
+    saveToStorage();
+    markDirty();
+  });
+}
 
 // ── Dummy Data ─────────────────────────────────────────
 const DUMMY_BIODATA = {
