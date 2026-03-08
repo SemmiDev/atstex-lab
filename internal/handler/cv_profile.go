@@ -14,7 +14,7 @@ import (
 // ListCVProfiles returns all CV profiles for the authenticated user.
 func (s *Server) handleListCVProfiles() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := r.Context().Value(auth.UserContextKey).(*domain.User)
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 		profiles, err := s.repo.GetCVProfilesByUserID(r.Context(), user.ID)
 		if err != nil {
 			s.respondErrMsg(w, r, "failed to fetch profiles", http.StatusInternalServerError)
@@ -30,7 +30,7 @@ func (s *Server) handleListCVProfiles() http.HandlerFunc {
 // CreateCVProfile creates a new CV profile with a title.
 func (s *Server) handleCreateCVProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := r.Context().Value(auth.UserContextKey).(*domain.User)
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
 		var body struct {
 			Title string `json:"title"`
@@ -59,7 +59,7 @@ func (s *Server) handleCreateCVProfile() http.HandlerFunc {
 // GetCVProfile returns a single CV profile by ID.
 func (s *Server) handleGetCVProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := r.Context().Value(auth.UserContextKey).(*domain.User)
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
 		id, err := uuid.Parse(chi.URLParam(r, "id"))
 		if err != nil {
@@ -86,7 +86,7 @@ func (s *Server) handleGetCVProfile() http.HandlerFunc {
 // SaveCVProfile updates the biodata JSON for a CV profile.
 func (s *Server) handleSaveCVProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := r.Context().Value(auth.UserContextKey).(*domain.User)
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
 		id, err := uuid.Parse(chi.URLParam(r, "id"))
 		if err != nil {
@@ -125,7 +125,7 @@ func (s *Server) handleSaveCVProfile() http.HandlerFunc {
 // UpdateCVProfileTitle renames a CV profile.
 func (s *Server) handleUpdateCVProfileTitle() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := r.Context().Value(auth.UserContextKey).(*domain.User)
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
 		id, err := uuid.Parse(chi.URLParam(r, "id"))
 		if err != nil {
@@ -164,7 +164,7 @@ func (s *Server) handleUpdateCVProfileTitle() http.HandlerFunc {
 // DeleteCVProfile removes a CV profile.
 func (s *Server) handleDeleteCVProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := r.Context().Value(auth.UserContextKey).(*domain.User)
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
 		id, err := uuid.Parse(chi.URLParam(r, "id"))
 		if err != nil {

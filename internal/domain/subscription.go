@@ -7,30 +7,30 @@ import (
 )
 
 type SubscriptionPlan struct {
-	ID                uuid.UUID `json:"id" db:"id"`
-	Name              string    `json:"name" db:"name"`
-	PriceIDR          int64     `json:"priceIdr" db:"price_idr"`
-	DurationMonths    int       `json:"durationMonths" db:"duration_months"`
-	MaxCVProfiles     int       `json:"maxCvProfiles" db:"max_cv_profiles"`
-	MaxCVReviews      int       `json:"maxCvReviews" db:"max_cv_reviews"`
-	MaxATSSimulations int       `json:"maxAtsSimulations" db:"max_ats_simulations"`
-	MaxCoverLetters   int       `json:"maxCoverLetters" db:"max_cover_letters"`
-	IsActive          bool      `json:"isActive" db:"is_active"`
-	CreatedAt         time.Time `json:"createdAt" db:"created_at"`
-	UpdatedAt         time.Time `json:"updatedAt" db:"updated_at"`
+	ID                uuid.UUID `db:"id"                  json:"id"`
+	Name              string    `db:"name"                json:"name"`
+	PriceIDR          int64     `db:"price_idr"           json:"priceIdr"`
+	DurationMonths    int       `db:"duration_months"     json:"durationMonths"`
+	MaxCVProfiles     int       `db:"max_cv_profiles"     json:"maxCvProfiles"`
+	MaxCVReviews      int       `db:"max_cv_reviews"      json:"maxCvReviews"`
+	MaxATSSimulations int       `db:"max_ats_simulations" json:"maxAtsSimulations"`
+	MaxCoverLetters   int       `db:"max_cover_letters"   json:"maxCoverLetters"`
+	IsActive          bool      `db:"is_active"           json:"isActive"`
+	CreatedAt         time.Time `db:"created_at"          json:"createdAt"`
+	UpdatedAt         time.Time `db:"updated_at"          json:"updatedAt"`
 
 	// Joined/Computed fields
-	ActiveUsersCount int `json:"activeUsersCount" db:"active_users_count"`
+	ActiveUsersCount int `db:"active_users_count" json:"activeUsersCount"`
 }
 
 type UserSubscription struct {
-	ID        uuid.UUID `json:"id" db:"id"`
-	UserID    uuid.UUID `json:"userId" db:"user_id"`
-	PlanID    uuid.UUID `json:"planId" db:"plan_id"`
-	StartDate time.Time `json:"startDate" db:"start_date"`
-	EndDate   time.Time `json:"endDate" db:"end_date"`
-	CreatedAt time.Time `json:"createdAt" db:"created_at"`
+	ID        uuid.UUID `db:"id"         json:"id"`
+	UserID    uuid.UUID `db:"user_id"    json:"userId"`
+	PlanID    uuid.UUID `db:"plan_id"    json:"planId"`
+	StartDate time.Time `db:"start_date" json:"startDate"`
+	EndDate   time.Time `db:"end_date"   json:"endDate"`
+	CreatedAt time.Time `db:"created_at" json:"createdAt"`
 
 	// Joined fields
-	Plan *SubscriptionPlan `json:"plan,omitempty" db:"-"`
+	Plan *SubscriptionPlan `db:"-" json:"plan,omitempty"`
 }

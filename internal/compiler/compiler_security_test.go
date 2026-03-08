@@ -218,7 +218,7 @@ func requirePdflatex(t *testing.T) {
 }
 
 func TestCompileEmptySource(t *testing.T) {
-	_, err := Compile(context.Background(), []byte{}, DefaultOptions())
+	_, err := Compile(t.Context(), []byte{}, DefaultOptions())
 	if err == nil {
 		t.Fatal("expected error for empty source")
 	}
@@ -232,7 +232,7 @@ func TestCompileMaxSourceSize(t *testing.T) {
 	for i := range oversized {
 		oversized[i] = 'a'
 	}
-	_, err := Compile(context.Background(), oversized, DefaultOptions())
+	_, err := Compile(t.Context(), oversized, DefaultOptions())
 	if err == nil {
 		t.Fatal("expected error for oversized source")
 	}
@@ -251,7 +251,7 @@ func TestCompileRejectsShellEscape(t *testing.T) {
 Hello
 \end{document}`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer cancel()
 
 	result, err := Compile(ctx, []byte(source), DefaultOptions())
@@ -262,7 +262,7 @@ Hello
 
 	// Verify the file was NOT created
 	if _, statErr := os.Stat("/tmp/hacked.txt"); statErr == nil {
-		os.Remove("/tmp/hacked.txt")
+		_ = os.Remove("/tmp/hacked.txt")
 		t.Fatal("shell escape was NOT blocked — /tmp/hacked.txt was created")
 	}
 }
@@ -276,7 +276,7 @@ func TestCompileRejectsInputCommand(t *testing.T) {
 \input{/etc/passwd}
 \end{document}`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer cancel()
 
 	_, err := Compile(ctx, []byte(source), DefaultOptions())
@@ -305,7 +305,7 @@ func TestCompileTimeout(t *testing.T) {
 		Timeout: 3 * time.Second,
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 	_, err := Compile(ctx, []byte(source), opts)
 	if err == nil {
 		t.Fatal("expected timeout error for infinite-loop document")
@@ -316,13 +316,12 @@ func TestCompileTimeout(t *testing.T) {
 }
 
 func TestCompileSuccessfulDocument(t *testing.T) {
-
 	source := `\documentclass{article}
 \begin{document}
 Hello, World!
 \end{document}`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer cancel()
 
 	opts := Options{
@@ -356,7 +355,7 @@ Hello, single pass!
 		SinglePass: true,
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 	result, err := Compile(ctx, []byte(source), opts)
 	if err != nil {
 		t.Fatalf("unexpected compile error: %v", err)
@@ -378,7 +377,7 @@ Temp dir test
 	entries1, _ := os.ReadDir(os.TempDir())
 	count1 := countAtstexDirs(entries1)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer cancel()
 
 	_, err := Compile(ctx, []byte(source), DefaultOptions())
@@ -414,7 +413,7 @@ func TestCompileNoShellEscapeFlag(t *testing.T) {
 Flag test
 \end{document}`
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer cancel()
 
 	result, err := Compile(ctx, []byte(source), DefaultOptions())

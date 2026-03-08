@@ -19,6 +19,7 @@ var TemplateFS fs.FS = templateRaw
 // StaticFS is the sub-filesystem rooted at web/static.
 var StaticFS fs.FS
 
+//nolint:gochecknoinits // web package initialization requires init
 func init() {
 	sub, err := fs.Sub(staticRaw, "static")
 	if err != nil {

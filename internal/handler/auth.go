@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"time"
@@ -26,6 +26,7 @@ func (s *Server) handleGoogleLogin() http.HandlerFunc {
 	}
 }
 
+//nolint:gocognit // handleGoogleCallback handles the entire oauth flow, making it complex.
 func (s *Server) handleGoogleCallback() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("oauthstate")
@@ -42,14 +43,20 @@ func (s *Server) handleGoogleCallback() http.HandlerFunc {
 		}
 
 		code := r.FormValue("code")
-		token, err := s.authConfig.OAuthConfig.Exchange(context.Background(), code)
+		token, err := s.authConfig.OAuthConfig.Exchange(r.Context(), code)
 		if err != nil {
 			s.reqLog(r).Error("oauth exchange failed", "err", err)
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
 		}
 
-		resp, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + token.AccessToken)
+		reqInfo, err := http.NewRequestWithContext(r.Context(), http.MethodGet, "https://www.googleapis.com/oauth2/v2/userinfo?access_token="+token.AccessToken, nil)
+		if err != nil {
+			s.reqLog(r).Error("failed to create user info request", "err", err)
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+			return
+		}
+		resp, err := http.DefaultClient.Do(reqInfo)
 		if err != nil {
 			s.reqLog(r).Error("failed to get user info", "err", err)
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
@@ -65,8 +72,8 @@ func (s *Server) handleGoogleCallback() http.HandlerFunc {
 		}
 
 		var gUser googleUser
-		if err := json.Unmarshal(body, &gUser); err != nil {
-			s.reqLog(r).Error("failed to parse user info", "err", err)
+		if parseErr := json.Unmarshal(body, &gUser); parseErr != nil {
+			s.reqLog(r).Error("failed to parse user info", "err", parseErr)
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 			return
 		}
@@ -81,7 +88,7 @@ func (s *Server) handleGoogleCallback() http.HandlerFunc {
 		// Ensure user has at least a Free subscription plan if none is active
 		_, err = s.repo.GetUserActiveSubscription(r.Context(), u.ID)
 		if err != nil {
-			if err == repository.ErrNotFound {
+			if errors.Is(err, repository.ErrNotFound) {
 				freePlan, planErr := s.repo.GetFreeSubscriptionPlan(r.Context())
 				if planErr == nil && freePlan != nil {
 					_ = s.repo.AdminAssignSubscription(r.Context(), u.ID, freePlan.ID, freePlan.DurationMonths)
@@ -139,7 +146,7 @@ func (s *Server) handleLogout() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("session_token")
 		if err == nil {
-			s.repo.DeleteSession(r.Context(), cookie.Value)
+			_ = s.repo.DeleteSession(r.Context(), cookie.Value)
 		}
 
 		http.SetCookie(w, &http.Cookie{
@@ -172,8 +179,8 @@ func (s *Server) handleDeleteAccount() http.HandlerFunc {
 
 		sess, err := s.repo.GetSession(r.Context(), cookie.Value)
 		if err == nil {
-			s.repo.SoftDeleteUser(r.Context(), sess.UserID)
-			s.repo.DeleteSession(r.Context(), cookie.Value)
+			_ = s.repo.SoftDeleteUser(r.Context(), sess.UserID)
+			_ = s.repo.DeleteSession(r.Context(), cookie.Value)
 		}
 
 		http.SetCookie(w, &http.Cookie{

@@ -36,7 +36,7 @@ func NewConfig(clientID, clientSecret, redirectURL string, r repository.Reposito
 
 func GenerateStateOauthCookie(w http.ResponseWriter) string {
 	b := make([]byte, 16)
-	rand.Read(b)
+	_, _ = rand.Read(b)
 	state := base64.URLEncoding.EncodeToString(b)
 	cookie := http.Cookie{
 		Name:     "oauthstate",

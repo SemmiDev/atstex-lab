@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"regexp"
 	"strings"
@@ -30,7 +31,7 @@ func (s *Server) handlePublicProfile() http.HandlerFunc {
 
 		profileUser, err := s.repo.GetUserByUsername(r.Context(), username)
 		if err != nil {
-			if err == repository.ErrNotFound {
+			if errors.Is(err, repository.ErrNotFound) {
 				http.NotFound(w, r)
 				return
 			}
@@ -106,8 +107,8 @@ func (s *Server) handlePublicProfileDownloadPDF() http.HandlerFunc {
 
 		// Parse biodata into CVData
 		var cvData cvtemplate.CVData
-		if err := json.Unmarshal(profile.Biodata, &cvData); err != nil {
-			s.reqLog(r).Error("failed to parse biodata for PDF", "err", err)
+		if parseErr := json.Unmarshal(profile.Biodata, &cvData); parseErr != nil {
+			s.reqLog(r).Error("failed to parse biodata for PDF", "err", parseErr)
 			http.Error(w, "failed to parse profile data", http.StatusInternalServerError)
 			return
 		}
@@ -145,7 +146,7 @@ func (s *Server) handlePublicProfileDownloadPDF() http.HandlerFunc {
 		filename := strings.ReplaceAll(profile.Title, " ", "_") + ".pdf"
 		w.Header().Set("Content-Type", "application/pdf")
 		w.Header().Set("Content-Disposition", `attachment; filename="`+filename+`"`)
-		w.Write(result.PDF)
+		_, _ = w.Write(result.PDF)
 	}
 }
 
@@ -177,7 +178,7 @@ func (s *Server) handlePublishSettings() http.HandlerFunc {
 // SetUsername handles PUT /api/username — validates and saves a username.
 func (s *Server) handleSetUsername() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := r.Context().Value(auth.UserContextKey).(*domain.User)
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
 		var body struct {
 			Username string `json:"username"`
@@ -225,7 +226,7 @@ func (s *Server) handleSetUsername() http.HandlerFunc {
 // CheckUsername handles GET /api/username/check?q=... — returns availability.
 func (s *Server) handleCheckUsername() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := r.Context().Value(auth.UserContextKey).(*domain.User)
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 		q := strings.TrimSpace(strings.ToLower(r.URL.Query().Get("q")))
 
 		if !usernameRegexp.MatchString(q) {
@@ -263,7 +264,7 @@ func (s *Server) handleCheckUsername() http.HandlerFunc {
 // ToggleProfileVisibility handles PUT /api/cv-profiles/{id}/visibility.
 func (s *Server) handleToggleProfileVisibility() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := r.Context().Value(auth.UserContextKey).(*domain.User)
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
 		id, err := uuid.Parse(chi.URLParam(r, "id"))
 		if err != nil {

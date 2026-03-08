@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -57,7 +58,7 @@ func DefaultOptions() Options {
 // directory that is cleaned up automatically.
 func Compile(ctx context.Context, source []byte, opts Options) (*Result, error) {
 	if len(source) == 0 {
-		return nil, fmt.Errorf("source is empty")
+		return nil, errors.New("source is empty")
 	}
 	if len(source) > maxSourceBytes {
 		return nil, fmt.Errorf("source exceeds maximum allowed size (%d bytes)", maxSourceBytes)
@@ -86,11 +87,12 @@ func Compile(ctx context.Context, source []byte, opts Options) (*Result, error) 
 	defer os.RemoveAll(workDir)
 
 	srcFile := filepath.Join(workDir, "document.tex")
-	if err := os.WriteFile(srcFile, source, 0o600); err != nil {
-		return nil, fmt.Errorf("writing source: %w", err)
+	if writeErr := os.WriteFile(srcFile, source, 0o600); writeErr != nil {
+		return nil, fmt.Errorf("writing source: %w", writeErr)
 	}
 
 	// Handle optional base64 profile photo decoding.
+	//nolint:nestif // Base64 handling logic is inherently nested
 	if opts.PhotoBase64 != "" {
 		// A typical data URL looks like data:image/jpeg;base64,...
 		b64data := opts.PhotoBase64
@@ -106,10 +108,10 @@ func Compile(ctx context.Context, source []byte, opts Options) (*Result, error) 
 			}
 		}
 
-		photoBytes, err := base64.StdEncoding.DecodeString(b64data)
-		if err == nil {
+		photoBytes, decodeErr := base64.StdEncoding.DecodeString(b64data)
+		if decodeErr == nil {
 			photoPath := filepath.Join(workDir, "photo."+ext)
-			os.WriteFile(photoPath, photoBytes, 0o600)
+			_ = os.WriteFile(photoPath, photoBytes, 0o600)
 		}
 	}
 
@@ -130,6 +132,7 @@ func Compile(ctx context.Context, source []byte, opts Options) (*Result, error) 
 	var logBuf bytes.Buffer
 	for pass := 1; pass <= passes; pass++ {
 		logBuf.Reset()
+		//nolint:gosec // Engine is validated against an allowlist and not directly user-provided.
 		cmd := exec.CommandContext(ctx,
 			string(engine),
 			"-no-shell-escape",
@@ -226,7 +229,7 @@ func compileTectonic(ctx context.Context, workDir, srcFile string, start time.Ti
 // cleanLog trims noise from the TeX log output.
 func cleanLog(raw string) string {
 	lines := strings.Split(raw, "\n")
-	var out []string
+	out := make([]string, 0, len(lines))
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 		if trimmed == "" {

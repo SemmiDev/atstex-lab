@@ -68,14 +68,15 @@ func (s *Server) handleCreateAtsSimulation() http.HandlerFunc {
 			s.respondErrMsg(w, r, "forbidden", http.StatusForbidden)
 			return
 		}
+		//nolint:goconst // string 'null' is used here only to check for empty json
 		if len(profile.Biodata) == 0 || string(profile.Biodata) == "null" || string(profile.Biodata) == "{}" {
 			s.respondErrMsg(w, r, "this CV profile has no biodata — please fill in your biodata first", http.StatusBadRequest)
 			return
 		}
 
 		// Check subscription limits
-		if err := s.checkSubscriptionLimits(r.Context(), user.ID, "ats_simulation"); err != nil {
-			s.respondErrMsg(w, r, err.Error(), http.StatusForbidden)
+		if checkErr := s.checkSubscriptionLimits(r.Context(), user.ID, "ats_simulation"); checkErr != nil {
+			s.respondErrMsg(w, r, checkErr.Error(), http.StatusForbidden)
 			return
 		}
 

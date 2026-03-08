@@ -8,17 +8,17 @@ import (
 
 // Feedback represents a user-submitted feedback or recommendation.
 type Feedback struct {
-	ID          uuid.UUID  `json:"id"          db:"id"`
-	UserID      uuid.UUID  `json:"userId"      db:"user_id"`
-	Subject     string     `json:"subject"     db:"subject"`
-	Message     string     `json:"message"     db:"message"`
-	AdminReply  *string    `json:"adminReply"  db:"admin_reply"`
-	RepliedAt   *time.Time `json:"repliedAt"   db:"replied_at"`
-	CreatedAt   time.Time  `json:"createdAt"   db:"created_at"`
+	ID         uuid.UUID  `db:"id"          json:"id"`
+	UserID     uuid.UUID  `db:"user_id"     json:"userId"`
+	Subject    string     `db:"subject"     json:"subject"`
+	Message    string     `db:"message"     json:"message"`
+	AdminReply *string    `db:"admin_reply" json:"adminReply"`
+	RepliedAt  *time.Time `db:"replied_at"  json:"repliedAt"`
+	CreatedAt  time.Time  `db:"created_at"  json:"createdAt"`
 	// Joined fields (only populated in admin listing)
-	UserName    string `json:"userName,omitempty"    db:"user_name"`
-	UserEmail   string `json:"userEmail,omitempty"   db:"user_email"`
-	UserPicture string `json:"userPicture,omitempty" db:"user_picture"`
+	UserName    string `db:"user_name"    json:"userName,omitempty"`
+	UserEmail   string `db:"user_email"   json:"userEmail,omitempty"`
+	UserPicture string `db:"user_picture" json:"userPicture,omitempty"`
 }
 
 // FeedbackListParams controls pagination and search for feedback listing.

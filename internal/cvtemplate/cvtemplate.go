@@ -2,6 +2,7 @@ package cvtemplate
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/fs"
 	"path/filepath"
@@ -21,7 +22,7 @@ type TemplateInfo struct {
 func List() ([]TemplateInfo, error) {
 	entries, err := fs.ReadDir(web.TemplateFS, "templates/cv")
 	if err != nil {
-		// If dir doesn't exist, just return empty list
+		//nolint:nilerr // If dir doesn't exist, just return empty list
 		return []TemplateInfo{}, nil
 	}
 
@@ -41,7 +42,7 @@ func List() ([]TemplateInfo, error) {
 // Get returns the source code of a specific template.
 func Get(name string) (string, error) {
 	if strings.Contains(name, "/") || strings.Contains(name, "\\") || strings.Contains(name, ".") {
-		return "", fmt.Errorf("invalid template name")
+		return "", errors.New("invalid template name")
 	}
 	path := filepath.Join("templates/cv", name+".tex")
 	b, err := fs.ReadFile(web.TemplateFS, path)

@@ -114,6 +114,7 @@ func buildTemplates() (*template.Template, error) {
 			if len(b) == 0 {
 				return template.JS("{}")
 			}
+			//nolint:gosec // JSON payload is already sanitized
 			return template.JS(b)
 		},
 	}

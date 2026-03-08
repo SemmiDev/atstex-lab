@@ -28,25 +28,25 @@ func (u *User) IsAdmin() bool {
 
 // AdminStats holds aggregate dashboard statistics.
 type AdminStats struct {
-	TotalUsers    int   `json:"totalUsers"      db:"total_users"`
-	TotalAdmins   int   `json:"totalAdmins"     db:"total_admins"`
-	TotalAITokens int64 `json:"totalAITokens"    db:"total_ai_tokens"`
-	TotalBiodata  int   `json:"totalBiodata"    db:"total_biodata"`
-	TotalSessions int   `json:"totalSessions"   db:"total_sessions"`
+	TotalUsers    int   `db:"total_users"     json:"totalUsers"`
+	TotalAdmins   int   `db:"total_admins"    json:"totalAdmins"`
+	TotalAITokens int64 `db:"total_ai_tokens" json:"totalAITokens"`
+	TotalBiodata  int   `db:"total_biodata"   json:"totalBiodata"`
+	TotalSessions int   `db:"total_sessions"  json:"totalSessions"`
 }
 
 // AdminUserRow is returned by the admin user listing endpoint.
 type AdminUserRow struct {
-	ID           uuid.UUID `json:"id"            db:"id"`
-	Email        string    `json:"email"         db:"email"`
-	Name         string    `json:"name"          db:"name"`
-	Picture      string    `json:"picture"       db:"picture"`
-	Role         string    `json:"role"          db:"role"`
-	Username     *string   `json:"username"      db:"username"`
-	IsBlocked    bool      `json:"isBlocked"     db:"is_blocked"`
-	AITokensUsed int64     `json:"aiTokensUsed"   db:"ai_tokens_used"`
-	BiodataCount int       `json:"biodataCount"  db:"biodata_count"`
-	CreatedAt    time.Time `json:"createdAt"     db:"created_at"`
+	ID           uuid.UUID `db:"id"             json:"id"`
+	Email        string    `db:"email"          json:"email"`
+	Name         string    `db:"name"           json:"name"`
+	Picture      string    `db:"picture"        json:"picture"`
+	Role         string    `db:"role"           json:"role"`
+	Username     *string   `db:"username"       json:"username"`
+	IsBlocked    bool      `db:"is_blocked"     json:"isBlocked"`
+	AITokensUsed int64     `db:"ai_tokens_used" json:"aiTokensUsed"`
+	BiodataCount int       `db:"biodata_count"  json:"biodataCount"`
+	CreatedAt    time.Time `db:"created_at"     json:"createdAt"`
 }
 
 // AdminListParams controls pagination, search, and ordering for user listing.

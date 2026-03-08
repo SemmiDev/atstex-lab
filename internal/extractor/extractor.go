@@ -35,6 +35,8 @@ func toInt64(v interface{}) (int64, bool) {
 // Supports:
 //   - Flat map keys: "TotalTokens" (OpenAI, Google)
 //   - Nested struct: info["usage"].TotalTokens (Mistral: UsageInfo struct)
+//
+//nolint:gocognit,nestif // extraction logic handles complex nested map structures output by LLMs
 func extractTotalTokens(info map[string]any) int64 {
 	// 1. Try flat key (OpenAI, Google, etc.)
 	if v, ok := info["TotalTokens"]; ok {
@@ -167,6 +169,8 @@ var systemPrompt = "You are a resume parser. Given raw text extracted from a PDF
 	"- Return ONLY the JSON object, nothing else."
 
 // newLLM creates an LLM client based on the provider configuration.
+//
+//nolint:staticcheck // SA1019: llms.LLM is deprecated but still required for older langchaingo versions
 func newLLM(ctx context.Context, cfg AIConfig) (llms.LLM, error) {
 	provider := strings.ToLower(cfg.Provider)
 
@@ -275,9 +279,7 @@ func ExtractBiodata(ctx context.Context, text string, cfg AIConfig) (map[string]
 	} else if strings.HasPrefix(cleaned, "```") {
 		cleaned = strings.TrimPrefix(cleaned, "```")
 	}
-	if strings.HasSuffix(cleaned, "```") {
-		cleaned = strings.TrimSuffix(cleaned, "```")
-	}
+	cleaned = strings.TrimSuffix(cleaned, "```")
 	cleaned = strings.TrimSpace(cleaned)
 
 	var result map[string]any
@@ -304,6 +306,7 @@ func CritiqueCVProfile(ctx context.Context, biodataJSON string, language string,
 	}
 
 	langInstruction := "Respond entirely in English."
+	//nolint:gocritic // ifElseChain is fine here
 	if strings.EqualFold(language, "id") {
 		langInstruction = "Respond entirely in Bahasa Indonesia."
 	} else if strings.EqualFold(language, "ja") {
@@ -371,9 +374,7 @@ CV Data:
 	} else if strings.HasPrefix(cleaned, "```") {
 		cleaned = strings.TrimPrefix(cleaned, "```")
 	}
-	if strings.HasSuffix(cleaned, "```") {
-		cleaned = strings.TrimSuffix(cleaned, "```")
-	}
+	cleaned = strings.TrimSuffix(cleaned, "```")
 	cleaned = strings.TrimSpace(cleaned)
 
 	var result CVCritiqueResult
@@ -406,6 +407,7 @@ func ScoreATS(ctx context.Context, biodataJSON string, jobDesc string, language 
 	}
 
 	langInstruction := "Respond entirely in English."
+	//nolint:gocritic // ifElseChain is fine here
 	if strings.EqualFold(language, "id") {
 		langInstruction = "Respond entirely in Bahasa Indonesia."
 	} else if strings.EqualFold(language, "ja") {
@@ -471,9 +473,7 @@ CV Data:
 	} else if strings.HasPrefix(cleaned, "```") {
 		cleaned = strings.TrimPrefix(cleaned, "```")
 	}
-	if strings.HasSuffix(cleaned, "```") {
-		cleaned = strings.TrimSuffix(cleaned, "```")
-	}
+	cleaned = strings.TrimSuffix(cleaned, "```")
 	cleaned = strings.TrimSpace(cleaned)
 
 	var result ATSCritiqueResult
@@ -498,6 +498,7 @@ func GenerateCoverLetter(ctx context.Context, biodataJSON string, jobDesc string
 	}
 
 	langInstruction := "Write the cover letter entirely in English."
+	//nolint:gocritic // ifElseChain is fine here
 	if strings.EqualFold(language, "id") {
 		langInstruction = "Write the cover letter entirely in Bahasa Indonesia."
 	} else if strings.EqualFold(language, "ja") {

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	// blank import for pgx driver.
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 	"github.com/semmidev/atstex-lab/internal/domain"
@@ -16,7 +17,7 @@ import (
 
 var ErrNotFound = errors.New("record not found")
 
-// Repository defines the data-access contract.
+//nolint:interfacebloat // Repository defines the full data-access contract.
 type Repository interface {
 	UpsertUser(ctx context.Context, googleID, email, name, picture string) (*domain.User, error)
 	GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error)
@@ -153,7 +154,7 @@ func (r *postgresRepo) GetUser(ctx context.Context, id uuid.UUID) (*domain.User,
 	query := `SELECT ` + userColumns + ` FROM users WHERE id = $1`
 	var u domain.User
 	err := r.db.GetContext(ctx, &u, query, id)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
 	return &u, err
@@ -181,7 +182,7 @@ func (r *postgresRepo) GetSession(ctx context.Context, token string) (*domain.Se
 	query := `SELECT id, user_id, token, ip_address, user_agent, expires_at, created_at FROM sessions WHERE token = $1`
 	var sess domain.Session
 	err := r.db.GetContext(ctx, &sess, query, token)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
 	return &sess, err
@@ -217,7 +218,7 @@ func (r *postgresRepo) GetCVProfile(ctx context.Context, id uuid.UUID) (*domain.
 	query := `SELECT ` + cvProfileColumns + ` FROM cv_profiles WHERE id = $1`
 	var p domain.CVProfile
 	err := r.db.GetContext(ctx, &p, query, id)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
 	return &p, err
@@ -259,7 +260,7 @@ func (r *postgresRepo) GetUserByUsername(ctx context.Context, username string) (
 	query := `SELECT ` + userColumns + ` FROM users WHERE LOWER(username) = LOWER($1)`
 	var u domain.User
 	err := r.db.GetContext(ctx, &u, query, username)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
 	return &u, err
@@ -618,7 +619,7 @@ func (r *postgresRepo) GetFreeSubscriptionPlan(ctx context.Context) (*domain.Sub
 		FROM subscription_plans WHERE price_idr = 0 AND is_active = true LIMIT 1`
 	var plan domain.SubscriptionPlan
 	err := r.db.GetContext(ctx, &plan, query)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
 	return &plan, err
@@ -682,7 +683,7 @@ func (r *postgresRepo) GetUserActiveSubscription(ctx context.Context, userID uui
 		&sp.ID, &sp.Name, &sp.PriceIDR, &sp.DurationMonths,
 		&sp.MaxCVProfiles, &sp.MaxCVReviews, &sp.MaxATSSimulations, &sp.MaxCoverLetters, &sp.IsActive,
 	)
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
 	if err != nil {

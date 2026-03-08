@@ -252,7 +252,7 @@ func (s *Server) handleGetTemplate() http.HandlerFunc {
 			return
 		}
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.Write([]byte(content))
+		_, _ = w.Write([]byte(content))
 	}
 }
 
@@ -294,7 +294,7 @@ func (s *Server) handleRenderTemplate() http.HandlerFunc {
 		}
 
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.Write([]byte(content))
+		_, _ = w.Write([]byte(content))
 	}
 }
 
@@ -352,7 +352,7 @@ func (s *Server) handleCompile() http.HandlerFunc {
 		w.Header().Set("X-Latex-Engine", string(result.Engine))
 		w.Header().Set("Content-Disposition", "inline; filename=\"document.pdf\"")
 		w.WriteHeader(http.StatusOK)
-		w.Write(result.PDF)
+		_, _ = w.Write(result.PDF)
 	}
 }
 
@@ -397,7 +397,7 @@ func (s *Server) handleApplyPageSettings() http.HandlerFunc {
 		}
 
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		w.Write([]byte(content))
+		_, _ = w.Write([]byte(content))
 	}
 }
 
@@ -460,6 +460,7 @@ func (s *Server) handleExtractPDF() http.HandlerFunc {
 		if u != nil && totalTokens > 0 {
 			uid := u.ID
 			tokens := totalTokens
+			//nolint:contextcheck // Background context intentionally used for async tracking
 			go func() {
 				ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 				defer cancel()
@@ -732,7 +733,7 @@ func (s *Server) handleAdminRevokeUserAdmin() http.HandlerFunc {
 
 // ForbiddenPage renders a styled 403 page.
 func (s *Server) handleForbiddenPage() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.WriteHeader(http.StatusForbidden)
 		if err := s.tmpl.ExecuteTemplate(w, "forbidden", nil); err != nil {
@@ -813,7 +814,7 @@ func (s *Server) handleAdminDeleteFeedback() http.HandlerFunc {
 func (s *Server) checkSubscriptionLimits(ctx context.Context, userID uuid.UUID, feature string) error {
 	sub, err := s.repo.GetUserActiveSubscription(ctx, userID)
 	if err != nil {
-		if err == repository.ErrNotFound {
+		if errors.Is(err, repository.ErrNotFound) {
 			return nil // No active subscription means they are likely on a default gratis plan, or should be handled separately. For now, assume they fall back to gratis limits if not explicitly saved, or we can assume Free plan limit.
 			// Ideally the system assigns the free plan on signup. Let's assume there is at least a Free subscription row, or if not, no limits can be checked properly.
 		}
@@ -834,7 +835,7 @@ func (s *Server) checkSubscriptionLimits(ctx context.Context, userID uuid.UUID, 
 			return err
 		}
 		if count >= sub.Plan.MaxCVReviews {
-			return errors.New("You have reached the limit for AI CV Reviews on your current plan. Please upgrade to continue.")
+			return errors.New("you have reached the limit for AI CV Reviews on your current plan, please upgrade to continue")
 		}
 	case "cover_letter":
 		if sub.Plan.MaxCoverLetters == -1 {
@@ -845,7 +846,7 @@ func (s *Server) checkSubscriptionLimits(ctx context.Context, userID uuid.UUID, 
 			return err
 		}
 		if count >= sub.Plan.MaxCoverLetters {
-			return errors.New("You have reached the limit for Cover Letter Generation on your current plan. Please upgrade to continue.")
+			return errors.New("you have reached the limit for Cover Letter Generation on your current plan, please upgrade to continue")
 		}
 	case "ats_simulation":
 		if sub.Plan.MaxATSSimulations == -1 {
@@ -856,7 +857,7 @@ func (s *Server) checkSubscriptionLimits(ctx context.Context, userID uuid.UUID, 
 			return err
 		}
 		if count >= sub.Plan.MaxATSSimulations {
-			return errors.New("You have reached the limit for ATS Simulations on your current plan. Please upgrade to continue.")
+			return errors.New("you have reached the limit for ATS Simulations on your current plan, please upgrade to continue")
 		}
 	case "cv_profile":
 		if sub.Plan.MaxCVProfiles == -1 {
@@ -868,7 +869,7 @@ func (s *Server) checkSubscriptionLimits(ctx context.Context, userID uuid.UUID, 
 			return err
 		}
 		if len(profiles) >= sub.Plan.MaxCVProfiles {
-			return errors.New("You have reached the maximum number of CV Profiles allowed on your current plan. Please upgrade to continue.")
+			return errors.New("you have reached the maximum number of CV Profiles allowed on your current plan, please upgrade to continue")
 		}
 	}
 
@@ -935,8 +936,8 @@ func (s *Server) handleCreateCVReview() http.HandlerFunc {
 		}
 
 		// Check subscription limits
-		if err := s.checkSubscriptionLimits(r.Context(), user.ID, "cv_review"); err != nil {
-			s.respondErrMsg(w, r, err.Error(), http.StatusForbidden)
+		if checkErr := s.checkSubscriptionLimits(r.Context(), user.ID, "cv_review"); checkErr != nil {
+			s.respondErrMsg(w, r, checkErr.Error(), http.StatusForbidden)
 			return
 		}
 
@@ -1056,8 +1057,8 @@ func (s *Server) handleGenerateCoverLetter() http.HandlerFunc {
 		}
 
 		// Check subscription limits
-		if err := s.checkSubscriptionLimits(r.Context(), user.ID, "cover_letter"); err != nil {
-			s.respondErrMsg(w, r, err.Error(), http.StatusForbidden)
+		if checkErr := s.checkSubscriptionLimits(r.Context(), user.ID, "cover_letter"); checkErr != nil {
+			s.respondErrMsg(w, r, checkErr.Error(), http.StatusForbidden)
 			return
 		}
 
