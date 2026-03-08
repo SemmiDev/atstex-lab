@@ -13,66 +13,117 @@ Write your biodata, choose a template, and instantly compile it into a professio
 Atstex-Lab acts as a bridge between a streamlined web frontend and the powerful LaTeX typesetting engine.
 
 ```mermaid
-graph TD
-    %% User Interactions
-    User((User)) -->|Fills Biodata| Frontend
-    User -->|Uploads PDF| AIExtractor
-    User -->|Uploads Photo| Frontend
+flowchart TB
+    %% Users and external triggers
+    User((User))
 
-    %% Frontend Subcomponents
-    subgraph Browser [Client Side]
-        Frontend[Web UI<br>HTML/JS + Tailwind]
-        Parser[PDF.js<br>Local Preview]
-        AuthUI[Google OAuth]
-    end
+    %% Frontend Tier
+    subgraph Client [Browser / Client Tier]
+        direction TB
+        UI[Web UI <br/>HTML/JS + Tailwind]
+        Editor[CV Data Editor<br/>Local Storage]
+        PreviewTool[PDF.js<br/>In-Browser Render]
+        AuthUI[OAuth Login]
 
-    %% API Gateway & Backend
-    subgraph Server [Go Backend API]
-        Router[HTTP Router + Auth]
-        CVRepo[CV Profile Manager]
-        AIEngine[AI Extraction Interface]
-        Compiler[LaTeX Compilation Engine]
+        UI <--> Editor
+        PreviewTool -.-> UI
     end
 
     %% External Services
-    subgraph AI [External AI APIs]
-        OpenAI[OpenAI / Gemini / Anthropic]
+    subgraph External [External APIs & Services]
+        direction LR
+        GoogleAuth[Google OAuth Provider]
+        OpenAI[AI Models<br/>OpenAI/Gemini/Anthropic]
     end
 
-    %% Storage & Sandbox
-    subgraph Infrastructure [Docker Environment]
-        DB[(PostgreSQL<br>Database)]
-        Sandbox[Temporal Sandbox<br>/tmp Workspace]
-        Tectonic([Tectonic TeX Engine])
+    %% Backend Server Tier
+    subgraph Server [Go Backend API Tier]
+        direction TB
+        Router[HTTP Router &<br/>Middleware]
+
+        subgraph Services [Business Logic]
+            AuthSvc[Auth & Session<br/>Management]
+            ProfileSvc[CV Profile<br/>Manager]
+            AIEngine[AI Extraction Interface<br/>PDF -> Text -> JSON]
+            TemplateSvc[LaTeX Template<br/>Injection & Routing]
+        end
+
+        subgraph Security [Security Layer]
+            Sanitizer[Input Sanitizer<br/>Go String Escaping]
+            Limits[OS Resource Limits<br/>Timeouts & Memory]
+        end
+
+        Compiler[Compilation Engine<br/>File I/O Coordinator]
+
+        %% Internal routing
+        Router --> AuthSvc
+        Router --> ProfileSvc
+        Router --> AIEngine
+        Router --> TemplateSvc
+        TemplateSvc --> Sanitizer
+        Sanitizer --> Compiler
+        Compiler --> Limits
     end
 
-    %% Flow Connections
-    Frontend <-->|JSON Payloads| Router
-    Frontend -.->|Renders PDF| Parser
-    AuthUI -->|Login| Router
-    AIExtractor -->|Raw Text| AIEngine
+    %% Storage & Execution Infrastructure
+    subgraph Infrastructure [Docker Infrastructure]
+        direction TB
+        DB[(PostgreSQL Database<br/>Sessions & CV Data)]
 
-    Router <-->|Reads/Writes| CVRepo
-    CVRepo <-->|Persists| DB
-    AIEngine <-->|Sends Prompt| OpenAI
-    OpenAI -.->|Returns JSON CV| AIEngine
+        subgraph Sandbox [Temporal Execution Sandbox]
+            TempDir[/tmp/workspace<br/>Isolated Directory/]
+            ImageDump[Temp Photo.jpg/png]
+            TexSource[Generated document.tex]
 
-    Router -->|Sends TeX + Images| Compiler
-    Compiler -->|Writes Source| Sandbox
-    Sandbox -->|Executes| Tectonic
-    Tectonic -->|Produces PDF| Sandbox
-    Sandbox -.->|Returns PDF Bytes| Compiler
+            Tectonic([Tectonic TeX Engine<br/>Alpine/Cache Pre-loaded])
 
-    %% Styling
+            ImageDump -.-> Tectonic
+            TexSource -.-> Tectonic
+        end
+    end
+
+    %% Data Flow Connections
+    User == Fills Form / Uploads Photo ==> UI
+    User == Signs In ==> AuthUI
+    User == Uploads Resume PDF ==> UI
+
+    AuthUI <-->|OAuth Tokens| GoogleAuth
+    AuthUI <-->|Session Cookies| Router
+
+    UI == Syncs Biodata JSON ==> Router
+    UI == Manual Compile Request ==> Router
+    UI == Extract PDF Request ==> Router
+
+    AuthSvc <-->|Validates/Stores| DB
+    ProfileSvc <-->|Saves/Loads JSON| DB
+
+    AIEngine <-->|Sends Prompt & Text<br/>Receives JSON Resume| OpenAI
+
+    Compiler == Writes Payload ==> TempDir
+    Compiler == Writes Base64 Photo ==> ImageDump
+    Compiler == Writes TeX Template ==> TexSource
+
+    Limits == Executes Command<br/>with restricted privs ==> Tectonic
+    Tectonic == Produces document.pdf ==> TempDir
+    TempDir == Reads PDF Bytes ==> Compiler
+
+    Compiler == Streams PDF Response ==> Router
+    Router == Returns Application/PDF ==> PreviewTool
+
+    %% Styling Elements
     classDef primary fill:#ff4794,stroke:#000,stroke-width:2px,color:#fff,font-weight:bold;
     classDef secondary fill:#475eff,stroke:#000,stroke-width:2px,color:#fff;
     classDef database fill:#5eeb8f,stroke:#000,stroke-width:2px,color:#000;
     classDef external fill:#f3f4f6,stroke:#000,stroke-width:2px,color:#000,stroke-dasharray: 5 5;
+    classDef secure fill:#ffbd45,stroke:#000,stroke-width:2px,color:#000;
+    classDef sandbox fill:#e2e8f0,stroke:#64748b,stroke-width:2px,stroke-dasharray: 5 5;
 
-    class Frontend,Parser,AuthUI primary;
-    class Router,CVRepo,AIEngine,Compiler secondary;
-    class DB,Sandbox,Tectonic database;
-    class OpenAI external;
+    class UI,Editor,PreviewTool,AuthUI primary;
+    class Router,AuthSvc,ProfileSvc,AIEngine,TemplateSvc,Compiler secondary;
+    class DB,Tectonic database;
+    class GoogleAuth,OpenAI external;
+    class Sanitizer,Limits secure;
+    class TempDir,ImageDump,TexSource sandbox;
 ```
 
 ### How it Works
