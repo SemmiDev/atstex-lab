@@ -1,5 +1,5 @@
 // Package compiler handles LaTeX source compilation to PDF.
-// It supports pdflatex, xelatex, and lualatex engines.
+// It supports pdflatex, xelatex, lualatex, and tectonic engines.
 package compiler
 
 import (
@@ -20,8 +20,9 @@ const (
 	EnginePdfLatex Engine = "pdflatex"
 	EngineXeLatex  Engine = "xelatex"
 	EngineLuaLatex Engine = "lualatex"
+	EngineTectonic Engine = "tectonic"
 
-	defaultTimeout = 60 * time.Second
+	defaultTimeout = 30 * time.Second
 	maxSourceBytes = 512 * 1024 // 512 KB
 )
 
@@ -35,8 +36,9 @@ type Result struct {
 
 // Options configures a compilation run.
 type Options struct {
-	Engine  Engine
-	Timeout time.Duration
+	Engine     Engine
+	Timeout    time.Duration
+	SinglePass bool // Skip the second pass (faster preview, may have unresolved refs)
 }
 
 // DefaultOptions returns sensible defaults.
@@ -48,8 +50,9 @@ func DefaultOptions() Options {
 }
 
 // Compile compiles LaTeX source and returns the resulting PDF bytes and log.
-// It runs the engine twice to resolve references/labels, then once more if
-// needed (BibTeX not included for simplicity — add as needed).
+// It runs the engine twice to resolve references/labels (unless SinglePass is
+// set), then reads the resulting PDF. Each invocation uses a fresh temporary
+// directory that is cleaned up automatically.
 func Compile(ctx context.Context, source []byte, opts Options) (*Result, error) {
 	if len(source) == 0 {
 		return nil, fmt.Errorf("source is empty")
@@ -87,12 +90,24 @@ func Compile(ctx context.Context, source []byte, opts Options) (*Result, error) 
 
 	start := time.Now()
 
-	// Run twice so \ref, \label, \tableofcontents, etc. resolve correctly.
+	// Tectonic uses a different invocation and handles multiple passes internally.
+	if engine == EngineTectonic {
+		return compileTectonic(ctx, workDir, srcFile, start, timeout)
+	}
+
+	// Determine number of passes: 2 for full compile, 1 for fast preview.
+	passes := 2
+	if opts.SinglePass {
+		passes = 1
+	}
+
+	// Run the traditional TeX engine with security-hardened flags.
 	var logBuf bytes.Buffer
-	for pass := 1; pass <= 2; pass++ {
+	for pass := 1; pass <= passes; pass++ {
 		logBuf.Reset()
 		cmd := exec.CommandContext(ctx,
 			string(engine),
+			"-no-shell-escape",
 			"-interaction=nonstopmode",
 			"-halt-on-error",
 			"-file-line-error",
@@ -102,6 +117,9 @@ func Compile(ctx context.Context, source []byte, opts Options) (*Result, error) 
 		cmd.Dir = workDir
 		cmd.Stdout = &logBuf
 		cmd.Stderr = &logBuf
+
+		// Apply OS-level resource limits (Linux only).
+		setProcessLimits(cmd)
 
 		if runErr := cmd.Run(); runErr != nil {
 			elapsed := time.Since(start)
@@ -130,6 +148,53 @@ func Compile(ctx context.Context, source []byte, opts Options) (*Result, error) 
 		Log:     cleanLog(logBuf.String()),
 		Elapsed: elapsed,
 		Engine:  engine,
+	}, nil
+}
+
+// compileTectonic handles compilation via the Tectonic engine, which
+// manages its own multi-pass logic internally.
+func compileTectonic(ctx context.Context, workDir, srcFile string, start time.Time, timeout time.Duration) (*Result, error) {
+	var logBuf bytes.Buffer
+
+	cmd := exec.CommandContext(ctx,
+		"tectonic",
+		"--outdir", workDir,
+		"--keep-logs",
+		"--untrusted",
+		srcFile,
+	)
+	cmd.Dir = workDir
+	cmd.Stdout = &logBuf
+	cmd.Stderr = &logBuf
+
+	setProcessLimits(cmd)
+
+	if runErr := cmd.Run(); runErr != nil {
+		elapsed := time.Since(start)
+		log := cleanLog(logBuf.String())
+		if ctx.Err() == context.DeadlineExceeded {
+			return nil, fmt.Errorf("compilation timed out after %s", timeout)
+		}
+		return &Result{
+			Log:     log,
+			Elapsed: elapsed,
+			Engine:  EngineTectonic,
+		}, fmt.Errorf("tectonic compilation failed: %w", runErr)
+	}
+
+	elapsed := time.Since(start)
+
+	pdfPath := filepath.Join(workDir, "document.pdf")
+	pdfBytes, err := os.ReadFile(pdfPath)
+	if err != nil {
+		return nil, fmt.Errorf("reading output PDF: %w", err)
+	}
+
+	return &Result{
+		PDF:     pdfBytes,
+		Log:     cleanLog(logBuf.String()),
+		Elapsed: elapsed,
+		Engine:  EngineTectonic,
 	}, nil
 }
 

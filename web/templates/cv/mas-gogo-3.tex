@@ -121,15 +121,15 @@
 
 [[ range .Awards ]]
 \vspace{1pt}
-\noindent\textbf{[[ .Title | texEscape ]]} [[ if .Issuer ]]-- [[ .Issuer | texEscape ]][[ end ]][[ if .Date ]], [[ .Date | texEscape ]][[ end ]]\\
-[[ if .Description ]][[ .Description | texEscape ]][[ end ]]
+\noindent\textbf{[[ .Title | texEscape ]]} [[ if .Issuer ]]-- [[ .Issuer | texEscape ]][[ end ]][[ if .Date ]], [[ .Date | texEscape ]][[ end ]]
+[[ if .Description ]]\\ [[ .Description | texEscape ]][[ end ]]
 \vspace{1pt}
 [[ end ]]
 
 [[ range .Talks ]]
 \vspace{1pt}
-\noindent\textbf{[[ .Title | texEscape ]]} [[ if .Event ]]at [[ .Event | texEscape ]][[ end ]][[ if .Date ]], [[ .Date | texEscape ]][[ end ]]\\
-[[ if .Description ]][[ .Description | texEscape ]][[ end ]]
+\noindent\textbf{[[ .Title | texEscape ]]} [[ if .Event ]]at [[ .Event | texEscape ]][[ end ]][[ if .Date ]], [[ .Date | texEscape ]][[ end ]]
+[[ if .Description ]]\\ [[ .Description | texEscape ]][[ end ]]
 \vspace{1pt}
 [[ end ]]
 

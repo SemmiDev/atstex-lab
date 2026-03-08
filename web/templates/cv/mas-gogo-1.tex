@@ -5,9 +5,7 @@
 
 [[ sprintf "\\documentclass[%s,%s]{%s}" .Settings.FontSize .Settings.PaperSize .Settings.DocumentClass ]]
 
-%% ── Encoding & Language ──────────────────────────────────────
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
+%% ── Language ──────────────────────────────────────
 \usepackage[english]{babel}
 
 %% ── Geometry (margins) ───────────────────────────────────────
@@ -53,8 +51,6 @@
 \usepackage{verbatim}
 
 %% ── ATS Readability ─────────────────────────────────────────
-\input{glyphtounicode}
-\pdfgentounicode=1
 
 %% ── Alignment ────────────────────────────────────────────────
 [[ if eq .Settings.Alignment "left" ]]\raggedright[[ end ]]

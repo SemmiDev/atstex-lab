@@ -107,12 +107,10 @@
 
     <!-- ── SECONDARY HEADER & ACTIONS ────────────────────────────── -->
     <header class="page-header">
-      <div class="engine-select-wrap">
+      <div class="engine-select-wrap" style="display: none;">
         <label for="engine">Mesin (Engine)</label>
         <select id="engine">
-          <option value="pdflatex">pdflatex</option>
-          <option value="xelatex">xelatex</option>
-          <option value="lualatex">lualatex</option>
+          <option value="tectonic">tectonic</option>
         </select>
       </div>
 
@@ -126,7 +124,7 @@
 
       <button class="btn btn-primary" id="btn-compile" title="Compile (Ctrl+Enter)">
         <span class="spinner" aria-hidden="true"></span>
-        <span class="btn-label">▶ Kompilasi</span>
+        <span class="btn-label">▶ Perbarui Dokumen</span>
         <kbd>⌃↵</kbd>
       </button>
     </header>
@@ -260,7 +258,7 @@
             <div class="settings-actions">
               <button class="btn btn-primary" id="btn-apply-settings">
                 <i class="ph-bold ph-check-circle"></i>
-                <span class="btn-label">Terapkan &amp; Kompilasi</span>
+                <span class="btn-label">Terapkan & Perbarui Dokumen</span>
               </button>
               <button class="btn btn-ghost" id="btn-reset-settings">
                 <i class="ph-bold ph-arrow-counter-clockwise"></i>
@@ -273,7 +271,7 @@
         <!-- Log panel inside editor pane -->
         <div class="log-panel" id="log-panel">
           <div class="log-header" id="log-toggle">
-            <span>Log Kompilator</span>
+            <span>Log Proses</span>
             <span class="badge" id="log-badge" style="display:none"></span>
           </div>
           <pre id="log-output"></pre>
@@ -299,10 +297,20 @@
         </div>
 
         <div class="preview-scroll" id="preview-scroll">
+
           <div class="preview-empty" id="preview-empty">
             <div class="icon">∫</div>
-            <p>Tulis LaTeX di editor dan tekan <strong style="color:var(--text)">Kompilasi</strong> untuk memuat PDF di sini.</p>
+            <p>Isi biodata Anda dan tekan <strong style="color:var(--text)">Perbarui Dokumen</strong> untuk memuat PDF di sini.</p>
           </div>
+        </div>
+
+        <!-- LaTeX error panel -->
+        <div class="preview-error-panel" id="preview-error-panel" style="display:none;">
+          <div class="preview-error-header" id="preview-error-toggle">
+            <span><i class="ph ph-warning-circle"></i> Kesalahan LaTeX</span>
+            <button class="preview-error-close" id="preview-error-close" title="Tutup"><i class="ph-bold ph-x"></i></button>
+          </div>
+          <pre class="preview-error-body" id="preview-error-body"></pre>
         </div>
       </div>
 
@@ -325,7 +333,7 @@
     <div id="compile-overlay" class="compile-overlay" style="display:none;">
       <div class="compile-overlay-card">
         <div class="compile-bounce">⚙️</div>
-        <h3 class="compile-title">Mengkompilasi LaTeX</h3>
+        <h3 class="compile-title">Memproses Dokumen</h3>
         <p id="compile-step" class="compile-step">Memuat template…</p>
         <div class="compile-dots">
           <span class="compile-dot"></span>

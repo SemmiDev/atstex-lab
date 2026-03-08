@@ -277,6 +277,9 @@ func (s *Server) handleRenderTemplate() http.HandlerFunc {
 			return
 		}
 
+		// Sanitize all user-supplied fields before template injection.
+		compiler.SanitizeCVData(&req.CVData)
+
 		ps := cvtemplate.DefaultPageSettings()
 		if req.Settings != nil {
 			ps = *req.Settings
@@ -310,7 +313,7 @@ func (s *Server) handleCompile() http.HandlerFunc {
 
 		engine := compiler.Engine(req.Engine)
 		switch engine {
-		case compiler.EnginePdfLatex, compiler.EngineXeLatex, compiler.EngineLuaLatex:
+		case compiler.EnginePdfLatex, compiler.EngineXeLatex, compiler.EngineLuaLatex, compiler.EngineTectonic:
 			// valid
 		default:
 			engine = compiler.EnginePdfLatex
@@ -318,7 +321,7 @@ func (s *Server) handleCompile() http.HandlerFunc {
 
 		opts := compiler.Options{
 			Engine:  engine,
-			Timeout: 60 * time.Second,
+			Timeout: 30 * time.Second,
 		}
 
 		s.reqLog(r).Info("compiling", "engine", engine, "source_len", len(req.Source))
@@ -380,6 +383,9 @@ func (s *Server) handleApplyPageSettings() http.HandlerFunc {
 			s.respondErrMsg(w, r, "template name is required", http.StatusBadRequest)
 			return
 		}
+
+		// Sanitize all user-supplied fields before template injection.
+		compiler.SanitizeCVData(&req.CVData)
 
 		content, err := cvtemplate.Render(req.Template, req.CVData, req.Settings)
 		if err != nil {

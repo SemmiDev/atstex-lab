@@ -31,6 +31,7 @@ type Repository interface {
 	GetCVProfile(ctx context.Context, id uuid.UUID) (*domain.CVProfile, error)
 	GetCVProfilesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVProfile, error)
 	UpdateCVProfileBiodata(ctx context.Context, id uuid.UUID, biodata json.RawMessage) error
+	UpdateCVProfileTitle(ctx context.Context, id uuid.UUID, title string) error
 	DeleteCVProfile(ctx context.Context, id uuid.UUID) error
 	// Public profile methods
 	SetUsername(ctx context.Context, userID uuid.UUID, username string) error
@@ -234,6 +235,11 @@ func (r *postgresRepo) GetCVProfilesByUserID(ctx context.Context, userID uuid.UU
 
 func (r *postgresRepo) UpdateCVProfileBiodata(ctx context.Context, id uuid.UUID, biodata json.RawMessage) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE cv_profiles SET biodata = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, biodata, id)
+	return err
+}
+
+func (r *postgresRepo) UpdateCVProfileTitle(ctx context.Context, id uuid.UUID, title string) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE cv_profiles SET title = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, title, id)
 	return err
 }
 
@@ -722,4 +728,3 @@ func (r *postgresRepo) GetUserSubscriptions(ctx context.Context, userID uuid.UUI
 	}
 	return subscriptions, nil
 }
-

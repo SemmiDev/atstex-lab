@@ -5,9 +5,7 @@
 
 [[ sprintf "\\documentclass[%s,%s]{%s}" .Settings.FontSize .Settings.PaperSize .Settings.DocumentClass ]]
 
-%% ── Encoding & Language ──────────────────────────────────────
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
+%% ── Language ──────────────────────────────────────
 \usepackage[english]{babel}
 
 %% ── Geometry (margins) ───────────────────────────────────────
@@ -57,8 +55,6 @@
 \usepackage{verbatim}
 
 %% ── ATS Readability ─────────────────────────────────────────
-\input{glyphtounicode}
-\pdfgentounicode=1
 
 %% ── Alignment ────────────────────────────────────────────────
 [[ if eq .Settings.Alignment "left" ]]\raggedright[[ end ]]
@@ -160,12 +156,12 @@
 [[ if or .Skills.Languages .Skills.Frameworks .Skills.Tools .Skills.Other ]]
 \section{Technical Skills}
  \begin{itemize}[leftmargin=0.15in, label={}]
-    \small{\item{
-     [[ if .Skills.Languages ]]\textbf{Languages}{: [[ .Skills.Languages | texEscape ]]} \\[[ end ]]
-     [[ if .Skills.Frameworks ]]\textbf{Frameworks}{: [[ .Skills.Frameworks | texEscape ]]} \\[[ end ]]
-     [[ if .Skills.Tools ]]\textbf{Tools}{: [[ .Skills.Tools | texEscape ]]} \\[[ end ]]
-     [[ if .Skills.Other ]]\textbf{Other}{: [[ .Skills.Other | texEscape ]]}\[[ end ]]
-    }}
+    \small{
+     [[ if .Skills.Languages ]]\item \textbf{Languages}{: [[ .Skills.Languages | texEscape ]]} [[ end ]]
+     [[ if .Skills.Frameworks ]]\item \textbf{Frameworks}{: [[ .Skills.Frameworks | texEscape ]]} [[ end ]]
+     [[ if .Skills.Tools ]]\item \textbf{Tools}{: [[ .Skills.Tools | texEscape ]]} [[ end ]]
+     [[ if .Skills.Other ]]\item \textbf{Other}{: [[ .Skills.Other | texEscape ]]} [[ end ]]
+    }
  \end{itemize}
 [[ end ]]
 
@@ -229,11 +225,11 @@
 [[ if .Awards ]]
 \section{Honors \& Awards}
  \begin{itemize}[leftmargin=0.15in, label={}]
-    \small{\item{
+    \small{
      [[ range .Awards ]]
-     \textbf{[[ .Title | texEscape ]]}, [[ .Issuer | texEscape ]][[ if .Description ]] (\textit{[[ .Description | texEscape ]]})[[ end ]] \hfill [[ .Date | texEscape ]] \\
+     \item \textbf{[[ .Title | texEscape ]]}, [[ .Issuer | texEscape ]][[ if .Description ]] (\textit{[[ .Description | texEscape ]]})[[ end ]] \hfill [[ .Date | texEscape ]]
      [[ end ]]
-    }}
+    }
  \end{itemize}
 [[ end ]]
 
@@ -242,11 +238,11 @@
 [[ if .Certifications ]]
 \section{Certifications \& Courses}
  \begin{itemize}[leftmargin=0.15in, label={}]
-    \small{\item{
+    \small{
      [[ range .Certifications ]]
-     \textbf{[[ .Name | texEscape ]]:} [[ .Issuer | texEscape ]] \\
+     \item \textbf{[[ .Name | texEscape ]]:} [[ .Issuer | texEscape ]]
      [[ end ]]
-    }}
+    }
  \end{itemize}
 [[ end ]]
 

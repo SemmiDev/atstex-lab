@@ -25,9 +25,9 @@
   /* Electric blue accent */
   --error: #ff3333;
   --warn: #ffdb33;
-  --font-mono: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
-  --font-ui: 'DM Sans', sans-serif;
-  --font-disp: 'DM Serif Display', serif;
+  --font-mono: "Fira Code", "Cascadia Code", "JetBrains Mono", monospace;
+  --font-ui: "DM Sans", sans-serif;
+  --font-disp: "DM Serif Display", serif;
   --radius: 0px;
   /* Sharp corners */
   --transition: 100ms linear;
@@ -38,9 +38,6 @@
 
 /* Body layout is now controlled by Tailwind utilities on the <body> tag.
    Keep only editor-specific body resets here. */
-body {
-  /* Removed font-size to avoid overriding global sidebar styling */
-}
 
 /* ── TOP BAR ──────────────────────────────────────────── */
 header {
@@ -88,7 +85,7 @@ header {
 .engine-select-wrap label {
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
 }
 
 select {
@@ -103,7 +100,9 @@ select {
   outline: none;
   cursor: pointer;
   box-shadow: 2px 2px 0px var(--border);
-  transition: box-shadow var(--transition), transform var(--transition);
+  transition:
+    box-shadow var(--transition),
+    transform var(--transition);
 }
 
 select:hover {
@@ -126,7 +125,9 @@ select:hover {
   border: 2px solid var(--border);
   outline: none;
   box-shadow: var(--shadow);
-  transition: transform var(--transition), box-shadow var(--transition);
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
   white-space: nowrap;
 }
 
@@ -219,7 +220,7 @@ kbd {
   font-weight: 700;
   color: var(--text);
   text-transform: uppercase;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
   flex-shrink: 0;
 }
 
@@ -251,7 +252,7 @@ textarea#editor {
 }
 
 textarea#editor::selection {
-  background: rgba(126, 232, 162, .18);
+  background: rgba(126, 232, 162, 0.18);
 }
 
 /* ── PREVIEW PANE ─────────────────────────────────────── */
@@ -322,7 +323,7 @@ textarea#editor::selection {
   font-weight: 700;
   color: var(--text);
   text-transform: uppercase;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
   margin-right: auto;
   display: flex;
   align-items: center;
@@ -351,7 +352,9 @@ textarea#editor::selection {
   font-size: 18px;
   font-weight: 700;
   box-shadow: 2px 2px 0 #000;
-  transition: transform var(--transition), box-shadow var(--transition);
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
 }
 
 .zoom-btn:hover {
@@ -385,7 +388,10 @@ textarea#editor::selection {
   font-family: var(--font-ui);
   box-shadow: 2px 2px 0 #000;
   text-transform: uppercase;
-  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  transition:
+    background var(--transition),
+    transform var(--transition),
+    box-shadow var(--transition);
 }
 
 .btn-download:hover {
@@ -437,7 +443,7 @@ textarea#editor::selection {
 
 .preview-empty .icon {
   font-size: 64px;
-  opacity: .12;
+  opacity: 0.12;
   line-height: 1;
 }
 
@@ -449,7 +455,7 @@ textarea#editor::selection {
 
 canvas.pdf-page {
   display: block;
-  box-shadow: 0 4px 32px rgba(0, 0, 0, .5);
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.5);
   border-radius: 3px;
   max-width: 100%;
 }
@@ -457,15 +463,15 @@ canvas.pdf-page {
 /* ── LOG PANEL ────────────────────────────────────────── */
 .log-panel {
   flex-shrink: 0;
-  max-height: 0;
+  max-height: 40px; /* Header is 40px, keep it visible */
   overflow: hidden;
-  transition: max-height .2s ease;
+  transition: max-height 0.2s ease;
   border-top: 3px solid var(--border);
   background: var(--surface);
 }
 
 .log-panel.open {
-  max-height: 220px;
+  max-height: 260px;
 }
 
 .log-header {
@@ -478,7 +484,7 @@ canvas.pdf-page {
   font-weight: 700;
   color: var(--text);
   text-transform: uppercase;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
   border-bottom: 3px solid var(--border);
   cursor: pointer;
   user-select: none;
@@ -577,14 +583,13 @@ pre#log-output .warn-line {
 }
 
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 1;
   }
 
   50% {
-    opacity: .3;
+    opacity: 0.3;
   }
 }
 
@@ -606,10 +611,10 @@ pre#log-output .warn-line {
 .spinner {
   width: 14px;
   height: 14px;
-  border: 2px solid rgba(14, 26, 16, .4);
+  border: 2px solid rgba(14, 26, 16, 0.4);
   border-top-color: #0d1a10;
   border-radius: 50%;
-  animation: spin .7s linear infinite;
+  animation: spin 0.7s linear infinite;
   display: none;
 }
 
@@ -618,7 +623,7 @@ pre#log-output .warn-line {
 }
 
 .btn-primary.loading .btn-label {
-  opacity: .7;
+  opacity: 0.7;
 }
 
 @keyframes spin {
@@ -688,8 +693,11 @@ pre#log-output .warn-line {
 }
 
 .cm-selectionBackground,
-.cm-editor.cm-focused>.cm-scroller>.cm-selectionLayer .cm-selectionBackground {
-  background-color: rgba(126, 232, 162, .18) !important;
+.cm-editor.cm-focused
+  > .cm-scroller
+  > .cm-selectionLayer
+  .cm-selectionBackground {
+  background-color: rgba(126, 232, 162, 0.18) !important;
 }
 
 .cm-cursor {
@@ -784,7 +792,9 @@ pre#log-output .warn-line {
   outline: none;
   cursor: pointer;
   box-shadow: 2px 2px 0px var(--border);
-  transition: box-shadow var(--transition), transform var(--transition);
+  transition:
+    box-shadow var(--transition),
+    transform var(--transition);
   width: 100%;
 }
 
@@ -871,7 +881,6 @@ pre#log-output .warn-line {
 }
 
 @keyframes compileBounce {
-
   0%,
   100% {
     transform: translateY(0);
@@ -926,7 +935,6 @@ pre#log-output .warn-line {
 }
 
 @keyframes compileDotPulse {
-
   0%,
   80%,
   100% {
@@ -1043,7 +1051,9 @@ pre#log-output .warn-line {
   justify-content: center;
   cursor: pointer;
   box-shadow: var(--shadow);
-  transition: transform var(--transition), box-shadow var(--transition);
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
   z-index: 2;
 }
 
@@ -1057,4 +1067,70 @@ pre#log-output .warn-line {
 .close-modal-btn:active {
   transform: translate(2px, 2px);
   box-shadow: 0px 0px 0px #000;
+}
+
+/* ── PREVIEW ERROR PANEL ──────────────────────────────── */
+.preview-error-panel {
+  flex-shrink: 0;
+  max-height: 220px;
+  display: flex;
+  flex-direction: column;
+  border-top: 3px solid var(--border);
+  background: var(--surface);
+  z-index: 5;
+}
+
+.preview-error-header {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: var(--error);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 3px solid var(--border);
+}
+
+.preview-error-header i {
+  font-size: 16px;
+  vertical-align: text-bottom;
+}
+
+.preview-error-close {
+  background: rgba(0, 0, 0, 0.15);
+  border: none;
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background var(--transition);
+}
+
+.preview-error-close:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.preview-error-body {
+  flex: 1;
+  padding: 12px 16px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #ff5555;
+  background: #111;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #444 transparent;
+  white-space: pre-wrap;
+  word-break: break-all;
 }

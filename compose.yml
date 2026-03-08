@@ -27,11 +27,15 @@ services:
       - postgres
     restart: unless-stopped
 
-    # Temp dir untuk compile — pakai tmpfs agar tidak nulis ke disk host
+    # Temp dir untuk compile
     tmpfs:
       - /tmp:size=512m,mode=1777
 
-    # Batasi resource agar satu compile berat tidak meledak
+    # Persistent package cache for Tectonic
+    volumes:
+      - tectonic-cache:/var/cache/tectonic
+
+    # Batasi resource
     deploy:
       resources:
         limits:
@@ -40,3 +44,5 @@ services:
 
 volumes:
   pgdata:
+  # Persistent Tectonic package cache (used by the tectonic service above)
+  tectonic-cache:

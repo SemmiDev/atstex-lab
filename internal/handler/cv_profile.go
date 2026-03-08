@@ -122,6 +122,45 @@ func (s *Server) handleSaveCVProfile() http.HandlerFunc {
 	}
 }
 
+// UpdateCVProfileTitle renames a CV profile.
+func (s *Server) handleUpdateCVProfileTitle() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+		id, err := uuid.Parse(chi.URLParam(r, "id"))
+		if err != nil {
+			s.respondErrMsg(w, r, "invalid profile id", http.StatusBadRequest)
+			return
+		}
+
+		// Verify ownership
+		profile, err := s.repo.GetCVProfile(r.Context(), id)
+		if err != nil {
+			s.respondErrMsg(w, r, "profile not found", http.StatusNotFound)
+			return
+		}
+		if profile.UserID != user.ID {
+			s.respondErrMsg(w, r, "forbidden", http.StatusForbidden)
+			return
+		}
+
+		var body struct {
+			Title string `json:"title"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.Title == "" {
+			s.respondErrMsg(w, r, "valid title is required", http.StatusBadRequest)
+			return
+		}
+
+		if err := s.repo.UpdateCVProfileTitle(r.Context(), id, body.Title); err != nil {
+			s.respondErrMsg(w, r, "failed to update title", http.StatusInternalServerError)
+			return
+		}
+
+		s.encode(w, r, http.StatusOK, map[string]string{"status": "title updated"})
+	}
+}
+
 // DeleteCVProfile removes a CV profile.
 func (s *Server) handleDeleteCVProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

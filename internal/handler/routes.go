@@ -52,6 +52,7 @@ func (s *Server) routes() {
 		r.Get("/api/templates/{name}", s.handleGetTemplate())
 		r.Post("/api/templates/{name}/render", s.handleRenderTemplate())
 		r.Post("/compile", s.handleCompile())
+
 		r.Post("/api/extract-pdf", s.handleExtractPDF())
 		r.Post("/api/page-settings/apply", s.handleApplyPageSettings())
 		// CV Profile API
@@ -59,6 +60,7 @@ func (s *Server) routes() {
 		r.Post("/api/cv-profiles", s.handleCreateCVProfile())
 		r.Get("/api/cv-profiles/{id}", s.handleGetCVProfile())
 		r.Put("/api/cv-profiles/{id}", s.handleSaveCVProfile())
+		r.Put("/api/cv-profiles/{id}/title", s.handleUpdateCVProfileTitle())
 		r.Delete("/api/cv-profiles/{id}", s.handleDeleteCVProfile())
 		r.Put("/api/cv-profiles/{id}/visibility", s.handleToggleProfileVisibility())
 		// Public profile API

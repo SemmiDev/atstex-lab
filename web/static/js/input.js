@@ -1,13 +1,13 @@
 // ── Constants & Helpers ───────────────────────────────
-const STORAGE_KEY = 'cv_data';
-const ACTIVE_PROFILE_KEY = 'cv_active_profile_id';
+const STORAGE_KEY = "cv_data";
+const ACTIVE_PROFILE_KEY = "cv_active_profile_id";
 
 // Default initial state
 let data = {
   personal: {
     linkedin: {},
     github: {},
-    website: {}
+    website: {},
   },
   summary: "",
   experience: [],
@@ -17,7 +17,7 @@ let data = {
   certifications: [],
   volunteer: [],
   awards: [],
-  talks: []
+  talks: [],
 };
 
 let activeProfileId = null;
@@ -27,7 +27,7 @@ function markDirty() {
   if (!activeProfileId) return;
   isDirty = true;
   if (btnSaveDB) {
-    btnSaveDB.classList.add('!bg-warn', '!text-black');
+    btnSaveDB.classList.add("!bg-warn", "!text-black");
     btnSaveDB.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Simpan*';
   }
 }
@@ -35,7 +35,7 @@ function markDirty() {
 function clearDirty() {
   isDirty = false;
   if (btnSaveDB) {
-    btnSaveDB.classList.remove('!bg-warn', '!text-black');
+    btnSaveDB.classList.remove("!bg-warn", "!text-black");
     btnSaveDB.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Simpan';
   }
 }
@@ -146,32 +146,42 @@ const itemTemplates = {
       <label>Description/Link (Optional)</label>
       <input type="text" data-dyn="description" placeholder="Presented to 500+ attendees...">
     </div>
-  `
+  `,
 };
 
 // ── Serialization & Deserialization ────────────────────
 function collectFormData() {
   // Capture static fields
-  document.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
-    const parts = el.dataset.field.split('.');
-    let current = data;
-    for (let i = 0; i < parts.length - 1; i++) {
+  document
+    .querySelectorAll("input[data-field], textarea[data-field]")
+    .forEach((el) => {
+      const parts = el.dataset.field.split(".");
+      let current = data;
+      for (let i = 0; i < parts.length - 1; i++) {
         if (!current[parts[i]]) {
-            current[parts[i]] = {};
+          current[parts[i]] = {};
         }
         current = current[parts[i]];
-    }
-    current[parts[parts.length - 1]] = el.value;
-  });
+      }
+      current[parts[parts.length - 1]] = el.value;
+    });
 
   // Capture dynamic lists
-  ['experience', 'education', 'projects', 'certifications', 'volunteer', 'awards', 'talks'].forEach(key => {
+  [
+    "experience",
+    "education",
+    "projects",
+    "certifications",
+    "volunteer",
+    "awards",
+    "talks",
+  ].forEach((key) => {
     data[key] = [];
     const container = document.getElementById(`list-${key}`);
     if (!container) return;
-    container.querySelectorAll('.dynamic-item').forEach(itemEl => {
+    container.querySelectorAll(".dynamic-item").forEach((itemEl) => {
       const obj = {};
-      itemEl.querySelectorAll('[data-dyn]').forEach(input => {
+      itemEl.querySelectorAll("[data-dyn]").forEach((input) => {
         obj[input.dataset.dyn] = input.value;
       });
       data[key].push(obj);
@@ -191,20 +201,35 @@ function clearForm() {
   data = {
     personal: { linkedin: {}, github: {}, website: {} },
     summary: "",
-    experience: [], education: [], projects: [],
+    experience: [],
+    education: [],
+    projects: [],
     skills: {},
-    certifications: [], volunteer: [], awards: [], talks: []
+    certifications: [],
+    volunteer: [],
+    awards: [],
+    talks: [],
   };
 
   // Clear static fields
-  document.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
-    el.value = '';
-  });
+  document
+    .querySelectorAll("input[data-field], textarea[data-field]")
+    .forEach((el) => {
+      el.value = "";
+    });
 
   // Clear dynamic lists
-  ['experience', 'education', 'projects', 'certifications', 'volunteer', 'awards', 'talks'].forEach(key => {
+  [
+    "experience",
+    "education",
+    "projects",
+    "certifications",
+    "volunteer",
+    "awards",
+    "talks",
+  ].forEach((key) => {
     const container = document.getElementById(`list-${key}`);
-    if (container) container.innerHTML = '';
+    if (container) container.innerHTML = "";
   });
 }
 
@@ -214,26 +239,36 @@ function populateForm(newData) {
   data = newData;
 
   // Populate static fields
-  document.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
-    const parts = el.dataset.field.split('.');
-    let current = data;
-    let found = true;
-    for (let i = 0; i < parts.length; i++) {
+  document
+    .querySelectorAll("input[data-field], textarea[data-field]")
+    .forEach((el) => {
+      const parts = el.dataset.field.split(".");
+      let current = data;
+      let found = true;
+      for (let i = 0; i < parts.length; i++) {
         if (current[parts[i]] === undefined) {
-            found = false;
-            break;
+          found = false;
+          break;
         }
         current = current[parts[i]];
-    }
-    if (found) {
+      }
+      if (found) {
         el.value = current;
-    }
-  });
+      }
+    });
 
   // Populate dynamic lists
-  ['experience', 'education', 'projects', 'certifications', 'volunteer', 'awards', 'talks'].forEach(key => {
+  [
+    "experience",
+    "education",
+    "projects",
+    "certifications",
+    "volunteer",
+    "awards",
+    "talks",
+  ].forEach((key) => {
     const items = data[key] || [];
-    items.forEach(itemData => addItem(key, itemData));
+    items.forEach((itemData) => addItem(key, itemData));
   });
 }
 
@@ -243,7 +278,9 @@ function loadFromStorage() {
   try {
     const parsed = JSON.parse(jsonStr);
     populateForm(parsed);
-  } catch(e) { console.error(e); }
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 // ── DOM Interactions ───────────────────────────────────
@@ -251,19 +288,19 @@ function addItem(type, initialData = null) {
   const container = document.getElementById(`list-${type}`);
   if (!container || !itemTemplates[type]) return;
 
-  const div = document.createElement('div');
-  div.className = 'dynamic-item';
+  const div = document.createElement("div");
+  div.className = "dynamic-item";
   div.innerHTML = itemTemplates[type];
 
   // Attach delete behavior
-  div.querySelector('.btn-remove').addEventListener('click', () => {
+  div.querySelector(".btn-remove").addEventListener("click", () => {
     div.remove();
     saveToStorage();
   });
 
   // Attach change listeners to new inputs
-  div.querySelectorAll('input, textarea').forEach(el => {
-    el.addEventListener('input', () => {
+  div.querySelectorAll("input, textarea").forEach((el) => {
+    el.addEventListener("input", () => {
       saveToStorage();
       markDirty();
     });
@@ -271,7 +308,7 @@ function addItem(type, initialData = null) {
 
   // Pre-fill if load
   if (initialData) {
-    div.querySelectorAll('[data-dyn]').forEach(el => {
+    div.querySelectorAll("[data-dyn]").forEach((el) => {
       const key = el.dataset.dyn;
       if (initialData[key] !== undefined) el.value = initialData[key];
     });
@@ -279,37 +316,41 @@ function addItem(type, initialData = null) {
 
   container.appendChild(div);
 
-  if (!initialData) { // focus first input if user added manually
-    const firstInput = div.querySelector('input');
+  if (!initialData) {
+    // focus first input if user added manually
+    const firstInput = div.querySelector("input");
     if (firstInput) firstInput.focus();
   }
 }
 
 // Attach listeners to Add buttons
-document.querySelectorAll('.btn-add').forEach(btn => {
-  btn.addEventListener('click', () => {
+document.querySelectorAll(".btn-add").forEach((btn) => {
+  btn.addEventListener("click", () => {
     addItem(btn.dataset.target);
     saveToStorage();
   });
 });
 
 // Attach general listeners to static fields
-document.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
-  el.addEventListener('input', () => {
-    saveToStorage();
-    markDirty();
+document
+  .querySelectorAll("input[data-field], textarea[data-field]")
+  .forEach((el) => {
+    el.addEventListener("input", () => {
+      saveToStorage();
+      markDirty();
+    });
   });
-});
 
 // ── CV Profile Management ──────────────────────────────
-const profileSelect = document.getElementById('cv-profile-select');
-const btnNewProfile = document.getElementById('btn-new-profile');
-const btnSaveDB = document.getElementById('btn-save-db');
-const btnDeleteProfile = document.getElementById('btn-delete-profile');
-const btnFillDummy = document.getElementById('btn-fill-dummy');
-const btnUploadPdf = document.getElementById('btn-upload-pdf');
-const pdfUploadInput = document.getElementById('pdf-upload');
-const statusMsg = document.getElementById('cv-status-msg');
+const profileSelect = document.getElementById("cv-profile-select");
+const btnNewProfile = document.getElementById("btn-new-profile");
+const btnRenameProfile = document.getElementById("btn-rename-profile");
+const btnSaveDB = document.getElementById("btn-save-db");
+const btnDeleteProfile = document.getElementById("btn-delete-profile");
+const btnFillDummy = document.getElementById("btn-fill-dummy");
+const btnUploadPdf = document.getElementById("btn-upload-pdf");
+const pdfUploadInput = document.getElementById("pdf-upload");
+const statusMsg = document.getElementById("cv-status-msg");
 
 // ── Dummy Data ─────────────────────────────────────────
 const DUMMY_BIODATA = {
@@ -321,47 +362,52 @@ const DUMMY_BIODATA = {
     location: "Jakarta, Indonesia",
     linkedin: {
       display: "linkedin.com/in/sammidev",
-      url: "https://linkedin.com/in/sammidev"
+      url: "https://linkedin.com/in/sammidev",
     },
     github: {
       display: "github.com/SemmiDev",
-      url: "https://github.com/SemmiDev"
+      url: "https://github.com/SemmiDev",
     },
     website: {
       display: "sammidev.com",
-      url: "https://sammidev.com"
-    }
+      url: "https://sammidev.com",
+    },
   },
-  summary: "Senior Software Engineer with 8+ years of experience building large-scale distributed systems at top technology companies. Proven track record of designing and shipping products used by billions of users worldwide. Deep expertise in backend engineering, cloud infrastructure, and system architecture. Passionate about open-source contributions and mentoring the next generation of engineers.",
+  summary:
+    "Senior Software Engineer with 8+ years of experience building large-scale distributed systems at top technology companies. Proven track record of designing and shipping products used by billions of users worldwide. Deep expertise in backend engineering, cloud infrastructure, and system architecture. Passionate about open-source contributions and mentoring the next generation of engineers.",
   experience: [
     {
       company: "Google",
       title: "Senior Software Engineer — Cloud Infrastructure",
       location: "Mountain View, CA (Remote)",
       dates: "Jan 2022 — Present",
-      bullets: "Architected and led the migration of a monolithic API gateway serving 2B+ daily requests to a microservices-based architecture using Go and gRPC, reducing p99 latency by 40%\nDesigned a distributed caching layer with Redis Cluster and Memcached that reduced database load by 65% across 12 services\nBuilt a real-time anomaly detection pipeline using Apache Beam and BigQuery, processing 500K events/sec to identify SLA violations\nMentored 5 junior engineers through Google's Engineering Residency program and led weekly architecture review sessions\nContributed to internal Go standard library improvements adopted across 200+ teams"
+      bullets:
+        "Architected and led the migration of a monolithic API gateway serving 2B+ daily requests to a microservices-based architecture using Go and gRPC, reducing p99 latency by 40%\nDesigned a distributed caching layer with Redis Cluster and Memcached that reduced database load by 65% across 12 services\nBuilt a real-time anomaly detection pipeline using Apache Beam and BigQuery, processing 500K events/sec to identify SLA violations\nMentored 5 junior engineers through Google's Engineering Residency program and led weekly architecture review sessions\nContributed to internal Go standard library improvements adopted across 200+ teams",
     },
     {
       company: "Meta (Facebook)",
       title: "Software Engineer — News Feed Ranking",
       location: "Menlo Park, CA",
       dates: "Jun 2019 — Dec 2021",
-      bullets: "Developed and optimized the News Feed content ranking pipeline serving 3.5B monthly active users using C++ and Python\nImplemented an A/B testing framework that reduced experiment setup time from 2 weeks to 2 hours, enabling 300+ concurrent experiments\nBuilt a feature store using Apache Spark and Hive to serve ML models with sub-10ms latency at scale\nCollaborated with the Integrity team to develop automated content moderation systems reducing harmful content by 35%\nReceived the 'Impact Award' for shipping a personalization algorithm that increased user engagement by 12%"
+      bullets:
+        "Developed and optimized the News Feed content ranking pipeline serving 3.5B monthly active users using C++ and Python\nImplemented an A/B testing framework that reduced experiment setup time from 2 weeks to 2 hours, enabling 300+ concurrent experiments\nBuilt a feature store using Apache Spark and Hive to serve ML models with sub-10ms latency at scale\nCollaborated with the Integrity team to develop automated content moderation systems reducing harmful content by 35%\nReceived the 'Impact Award' for shipping a personalization algorithm that increased user engagement by 12%",
     },
     {
       company: "Amazon Web Services (AWS)",
       title: "Software Development Engineer II — DynamoDB",
       location: "Seattle, WA",
       dates: "Aug 2017 — May 2019",
-      bullets: "Contributed to DynamoDB's core storage engine, implementing adaptive capacity allocation that improved throughput for bursty workloads by 50%\nDesigned and built an automated partition management system that handles 10+ trillion API calls per day\nDeveloped chaos engineering tools used by 50+ internal teams to validate service resilience\nLed the migration of monitoring infrastructure from legacy systems to CloudWatch, reducing operational overhead by 30%\nAuthored 3 internal technical papers on distributed consensus protocols adopted as reference material"
+      bullets:
+        "Contributed to DynamoDB's core storage engine, implementing adaptive capacity allocation that improved throughput for bursty workloads by 50%\nDesigned and built an automated partition management system that handles 10+ trillion API calls per day\nDeveloped chaos engineering tools used by 50+ internal teams to validate service resilience\nLed the migration of monitoring infrastructure from legacy systems to CloudWatch, reducing operational overhead by 30%\nAuthored 3 internal technical papers on distributed consensus protocols adopted as reference material",
     },
     {
       company: "Apple",
       title: "Software Engineer — Siri Backend",
       location: "Cupertino, CA",
       dates: "Jul 2016 — Jul 2017",
-      bullets: "Built low-latency natural language processing microservices in Java and Swift handling 500M+ daily Siri queries\nOptimized the intent classification pipeline, reducing inference time by 25% while maintaining 98.5% accuracy\nDeveloped automated integration testing framework that cut release cycle regression testing from 3 days to 4 hours\nCollaborated with the ML team to deploy on-device models that reduced server-side query volume by 20%"
-    }
+      bullets:
+        "Built low-latency natural language processing microservices in Java and Swift handling 500M+ daily Siri queries\nOptimized the intent classification pipeline, reducing inference time by 25% while maintaining 98.5% accuracy\nDeveloped automated integration testing framework that cut release cycle regression testing from 3 days to 4 hours\nCollaborated with the ML team to deploy on-device models that reduced server-side query volume by 20%",
+    },
   ],
   education: [
     {
@@ -370,7 +416,8 @@ const DUMMY_BIODATA = {
       location: "Stanford, CA",
       dates: "Sep 2014 — Jun 2016",
       gpa: "3.92 / 4.0",
-      activities: "Teaching Assistant for CS244b (Distributed Systems), Stanford ACM Chapter VP"
+      activities:
+        "Teaching Assistant for CS244b (Distributed Systems), Stanford ACM Chapter VP",
     },
     {
       institution: "Institut Teknologi Bandung (ITB)",
@@ -378,48 +425,55 @@ const DUMMY_BIODATA = {
       location: "Bandung, Indonesia",
       dates: "Aug 2010 — Jun 2014",
       gpa: "3.85 / 4.0 — Cum Laude",
-      activities: "Competitive Programming Team Captain, Google Developer Student Club Lead"
-    }
+      activities:
+        "Competitive Programming Team Captain, Google Developer Student Club Lead",
+    },
   ],
   projects: [
     {
       name: "AtstexLab",
       role: "Creator — Go, LaTeX, Tailwind CSS",
       link: "github.com/SemmiDev/atstex-lab",
-      bullets: "Built a self-hosted ATS-friendly resume builder with live LaTeX compilation and PDF preview\nImplemented multi-CV profile management with PostgreSQL and Google OAuth integration\nDesigned a brutalist UI with responsive sidebar, tabbed editor, and embedded biodata form"
+      bullets:
+        "Built a self-hosted ATS-friendly resume builder with live LaTeX compilation and PDF preview\nImplemented multi-CV profile management with PostgreSQL and Google OAuth integration\nDesigned a brutalist UI with responsive sidebar, tabbed editor, and embedded biodata form",
     },
     {
       name: "DistKV",
       role: "Creator — Go, Raft Consensus",
       link: "github.com/SemmiDev/distkv",
-      bullets: "Engineered a distributed key-value store with Raft consensus supporting 100K+ ops/sec\nImplemented log compaction, snapshotting, and membership change protocols from scratch\nAchieved 99.99% availability in production workloads across 5-node clusters"
+      bullets:
+        "Engineered a distributed key-value store with Raft consensus supporting 100K+ ops/sec\nImplemented log compaction, snapshotting, and membership change protocols from scratch\nAchieved 99.99% availability in production workloads across 5-node clusters",
     },
     {
       name: "GoQueue",
       role: "Creator — Go, Protocol Buffers",
       link: "github.com/SemmiDev/goqueue",
-      bullets: "Built a high-performance message queue with exactly-once delivery semantics\nSupports persistent storage with write-ahead log and configurable retention policies\nBenchmarked at 250K messages/sec with sub-millisecond p99 publish latency"
-    }
+      bullets:
+        "Built a high-performance message queue with exactly-once delivery semantics\nSupports persistent storage with write-ahead log and configurable retention policies\nBenchmarked at 250K messages/sec with sub-millisecond p99 publish latency",
+    },
   ],
   skills: {
     languages: "Go, Python, Java, C++, TypeScript, Rust, SQL",
-    frameworks: "gRPC, Gin, React, Next.js, Apache Beam, Apache Spark, Kubernetes",
-    tools: "Docker, Terraform, AWS (DynamoDB, Lambda, S3, ECS), GCP (BigQuery, Pub/Sub, GKE), PostgreSQL, Redis, Kafka",
-    other: "Distributed Systems Design, System Architecture, Technical Leadership, Mentoring, Agile, CI/CD"
+    frameworks:
+      "gRPC, Gin, React, Next.js, Apache Beam, Apache Spark, Kubernetes",
+    tools:
+      "Docker, Terraform, AWS (DynamoDB, Lambda, S3, ECS), GCP (BigQuery, Pub/Sub, GKE), PostgreSQL, Redis, Kafka",
+    other:
+      "Distributed Systems Design, System Architecture, Technical Leadership, Mentoring, Agile, CI/CD",
   },
   certifications: [
     {
       name: "AWS Certified Solutions Architect — Professional",
-      issuer: "Amazon Web Services, 2023"
+      issuer: "Amazon Web Services, 2023",
     },
     {
       name: "Google Cloud Professional Cloud Architect",
-      issuer: "Google Cloud, 2022"
+      issuer: "Google Cloud, 2022",
     },
     {
       name: "Certified Kubernetes Administrator (CKA)",
-      issuer: "Cloud Native Computing Foundation, 2021"
-    }
+      issuer: "Cloud Native Computing Foundation, 2021",
+    },
   ],
   volunteer: [
     {
@@ -427,35 +481,40 @@ const DUMMY_BIODATA = {
       role: "Lead Instructor",
       location: "Jakarta, Indonesia",
       dates: "2020 — Present",
-      bullets: "Taught programming fundamentals to 500+ underprivileged high school students across 15 schools\nDeveloped a Go programming curriculum adapted for Bahasa Indonesia\nOrganized annual hackathons connecting students with industry mentors"
+      bullets:
+        "Taught programming fundamentals to 500+ underprivileged high school students across 15 schools\nDeveloped a Go programming curriculum adapted for Bahasa Indonesia\nOrganized annual hackathons connecting students with industry mentors",
     },
     {
       organization: "Google Summer of Code",
       role: "Mentor — Go Project",
       location: "Remote",
       dates: "2021 — 2023",
-      bullets: "Mentored 6 open-source contributors on the Go compiler and standard library\nGuided students through code review, testing best practices, and community engagement\n4 of 6 mentees became regular Go contributors post-program"
-    }
+      bullets:
+        "Mentored 6 open-source contributors on the Go compiler and standard library\nGuided students through code review, testing best practices, and community engagement\n4 of 6 mentees became regular Go contributors post-program",
+    },
   ],
   awards: [
     {
       title: "Meta Impact Award",
       issuer: "Meta Platforms",
       date: "Dec 2021",
-      description: "Awarded for shipping a personalization algorithm that increased News Feed engagement by 12% across 3.5B users"
+      description:
+        "Awarded for shipping a personalization algorithm that increased News Feed engagement by 12% across 3.5B users",
     },
     {
       title: "AWS Builder Award",
       issuer: "Amazon Web Services",
       date: "Mar 2019",
-      description: "Recognized for contributions to DynamoDB's adaptive capacity system handling 10+ trillion daily API calls"
+      description:
+        "Recognized for contributions to DynamoDB's adaptive capacity system handling 10+ trillion daily API calls",
     },
     {
       title: "ICPC Asia Regional — Gold Medal",
       issuer: "ACM International Collegiate Programming Contest",
       date: "Nov 2013",
-      description: "1st place in the Indonesia National Contest and Gold Medal in the Asia Regional Finals representing ITB"
-    }
+      description:
+        "1st place in the Indonesia National Contest and Gold Medal in the Asia Regional Finals representing ITB",
+    },
   ],
   talks: [
     {
@@ -463,57 +522,69 @@ const DUMMY_BIODATA = {
       event: "GopherCon 2023",
       location: "San Diego, CA",
       date: "Sep 2023",
-      description: "Keynote talk on designing fault-tolerant microservices using Go, presented to 2,000+ attendees. Covered circuit breakers, bulkheads, and chaos engineering patterns."
+      description:
+        "Keynote talk on designing fault-tolerant microservices using Go, presented to 2,000+ attendees. Covered circuit breakers, bulkheads, and chaos engineering patterns.",
     },
     {
       title: "Scaling DynamoDB to 10 Trillion Requests",
       event: "AWS re:Invent 2018",
       location: "Las Vegas, NV",
       date: "Nov 2018",
-      description: "Technical deep-dive on DynamoDB's partition management and adaptive capacity allocation, co-presented with the DynamoDB principal engineer."
+      description:
+        "Technical deep-dive on DynamoDB's partition management and adaptive capacity allocation, co-presented with the DynamoDB principal engineer.",
     },
     {
       title: "Open Source in Southeast Asia: Building Communities",
       event: "FOSSASIA Summit 2022",
       location: "Singapore",
       date: "Apr 2022",
-      description: "Panel discussion on growing open-source communities in emerging tech ecosystems, moderated a workshop on first contributions."
-    }
-  ]
+      description:
+        "Panel discussion on growing open-source communities in emerging tech ecosystems, moderated a workshop on first contributions.",
+    },
+  ],
 };
 
 let statusTimeoutId;
 function showStatus(msg, isError = false) {
   statusMsg.textContent = msg;
-  statusMsg.classList.remove('hidden', '!text-error', '!text-accent2');
-  statusMsg.classList.add(isError ? '!text-error' : '!text-accent2');
+  statusMsg.classList.remove("hidden", "!text-error", "!text-accent2");
+  statusMsg.classList.add(isError ? "!text-error" : "!text-accent2");
 
   if (statusTimeoutId) {
     clearTimeout(statusTimeoutId);
   }
 
   const duration = isError ? 8000 : 3000;
-  statusTimeoutId = setTimeout(() => statusMsg.classList.add('hidden'), duration);
+  statusTimeoutId = setTimeout(
+    () => statusMsg.classList.add("hidden"),
+    duration,
+  );
 }
 
 function updateFormElementsState(disabled) {
-  document.querySelectorAll('input:not(#pdf-upload), textarea').forEach(el => {
-    if (el.id !== 'pdf-upload') {
-      el.disabled = disabled;
-      if (disabled) {
-        el.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-100');
-      } else {
-        el.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-100');
+  document
+    .querySelectorAll("input:not(#pdf-upload), textarea")
+    .forEach((el) => {
+      if (el.id !== "pdf-upload") {
+        el.disabled = disabled;
+        if (disabled) {
+          el.classList.add("opacity-50", "cursor-not-allowed", "bg-gray-100");
+        } else {
+          el.classList.remove(
+            "opacity-50",
+            "cursor-not-allowed",
+            "bg-gray-100",
+          );
+        }
       }
-    }
-  });
+    });
 
-  document.querySelectorAll('.btn-add, .btn-remove').forEach(btn => {
+  document.querySelectorAll(".btn-add, .btn-remove").forEach((btn) => {
     btn.disabled = disabled;
     if (disabled) {
-      btn.classList.add('opacity-50', 'cursor-not-allowed');
+      btn.classList.add("opacity-50", "cursor-not-allowed");
     } else {
-      btn.classList.remove('opacity-50', 'cursor-not-allowed');
+      btn.classList.remove("opacity-50", "cursor-not-allowed");
     }
   });
 }
@@ -522,6 +593,7 @@ function updateButtons() {
   const hasProfile = !!activeProfileId;
   btnSaveDB.disabled = !hasProfile;
   btnDeleteProfile.disabled = !hasProfile;
+  if (btnRenameProfile) btnRenameProfile.disabled = !hasProfile;
   if (btnFillDummy) btnFillDummy.disabled = !hasProfile;
   if (btnUploadPdf) btnUploadPdf.disabled = !hasProfile;
 
@@ -530,11 +602,11 @@ function updateButtons() {
 
 async function fetchProfiles() {
   try {
-    const res = await fetch('/api/cv-profiles');
+    const res = await fetch("/api/cv-profiles");
     if (!res.ok) return [];
     return await res.json();
   } catch (e) {
-    console.error('Failed to fetch profiles', e);
+    console.error("Failed to fetch profiles", e);
     return [];
   }
 }
@@ -544,8 +616,8 @@ async function loadProfileList() {
 
   // Rebuild select options
   profileSelect.innerHTML = '<option value="">— Select or Create —</option>';
-  profiles.forEach(p => {
-    const opt = document.createElement('option');
+  profiles.forEach((p) => {
+    const opt = document.createElement("option");
     opt.value = p.id;
     opt.textContent = p.title;
     profileSelect.appendChild(opt);
@@ -553,7 +625,7 @@ async function loadProfileList() {
 
   // Restore previously active profile
   const savedId = localStorage.getItem(ACTIVE_PROFILE_KEY);
-  if (savedId && profiles.find(p => p.id === savedId)) {
+  if (savedId && profiles.find((p) => p.id === savedId)) {
     profileSelect.value = savedId;
     activeProfileId = savedId;
     await loadProfileData(savedId);
@@ -568,18 +640,23 @@ async function loadProfileList() {
 async function loadProfileData(profileId) {
   try {
     const res = await fetch(`/api/cv-profiles/${profileId}`);
-    if (!res.ok) throw new Error('Failed to load profile');
+    if (!res.ok) throw new Error("Failed to load profile");
     const profile = await res.json();
 
     // Parse biodata and populate form
     let biodata = profile.biodata;
-    if (typeof biodata === 'string') {
+    if (typeof biodata === "string") {
       biodata = JSON.parse(biodata);
     }
 
     // Merge with default structure
     const fullData = {
-      personal: { linkedin: {}, github: {}, website: {}, ...((biodata && biodata.personal) || {}) },
+      personal: {
+        linkedin: {},
+        github: {},
+        website: {},
+        ...((biodata && biodata.personal) || {}),
+      },
       summary: (biodata && biodata.summary) || "",
       experience: (biodata && biodata.experience) || [],
       education: (biodata && biodata.education) || [],
@@ -588,7 +665,7 @@ async function loadProfileData(profileId) {
       certifications: (biodata && biodata.certifications) || [],
       volunteer: (biodata && biodata.volunteer) || [],
       awards: (biodata && biodata.awards) || [],
-      talks: (biodata && biodata.talks) || []
+      talks: (biodata && biodata.talks) || [],
     };
 
     populateForm(fullData);
@@ -597,14 +674,18 @@ async function loadProfileData(profileId) {
     showStatus(`Loaded "${profile.title}" from database`);
   } catch (e) {
     console.error(e);
-    showStatus('Failed to load profile', true);
+    showStatus("Failed to load profile", true);
   }
 }
 
 // On dropdown change
-profileSelect.addEventListener('change', async (e) => {
+profileSelect.addEventListener("change", async (e) => {
   if (isDirty) {
-    if (!confirm("Ada perubahan yang belum disimpan. Yakin ingin mengganti profil tanpa menyimpan? / You have unsaved changes. Are you sure you want to switch profile without saving?")) {
+    if (
+      !confirm(
+        "Ada perubahan yang belum disimpan. Yakin ingin mengganti profil tanpa menyimpan? / You have unsaved changes. Are you sure you want to switch profile without saving?",
+      )
+    ) {
       e.target.value = activeProfileId || "";
       return;
     }
@@ -628,25 +709,27 @@ profileSelect.addEventListener('change', async (e) => {
 });
 
 // New Profile
-btnNewProfile.addEventListener('click', async () => {
-  const title = prompt('Enter a title for this CV profile (e.g., "Back End Developer"):');
+btnNewProfile.addEventListener("click", async () => {
+  const title = prompt(
+    'Enter a title for this CV profile (e.g., "Back End Developer"):',
+  );
   if (!title || !title.trim()) return;
 
   try {
-    const res = await fetch('/api/cv-profiles', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: title.trim() })
+    const res = await fetch("/api/cv-profiles", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: title.trim() }),
     });
 
     if (!res.ok) {
       const errBody = await res.json().catch(() => ({}));
-      throw new Error(errBody.error || 'Failed to create profile');
+      throw new Error(errBody.error || "Failed to create profile");
     }
     const profile = await res.json();
 
     // Add to dropdown and select it
-    const opt = document.createElement('option');
+    const opt = document.createElement("option");
     opt.value = profile.id;
     opt.textContent = profile.title;
     profileSelect.appendChild(opt);
@@ -663,54 +746,93 @@ btnNewProfile.addEventListener('click', async () => {
     showStatus(`Created "${profile.title}" — start filling in your data!`);
   } catch (e) {
     console.error(e);
-    showStatus(e.message || 'Failed to create profile', true);
+    showStatus(e.message || "Failed to create profile", true);
   }
 });
 
+// Rename Profile
+if (btnRenameProfile) {
+  btnRenameProfile.addEventListener("click", async () => {
+    if (!activeProfileId) return;
+
+    const selectedOpt = profileSelect.options[profileSelect.selectedIndex];
+    const currentTitle = selectedOpt ? selectedOpt.textContent : "";
+
+    const newTitle = prompt(
+      "Masukkan nama baru untuk profil ini:",
+      currentTitle,
+    );
+    if (!newTitle || !newTitle.trim() || newTitle.trim() === currentTitle)
+      return;
+
+    try {
+      const res = await fetch(`/api/cv-profiles/${activeProfileId}/title`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: newTitle.trim() }),
+      });
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.error || "Gagal mengubah nama profil");
+      }
+
+      // Update UI
+      if (selectedOpt) {
+        selectedOpt.textContent = newTitle.trim();
+      }
+      showStatus(`Profil berhasil diubah menjadi "${newTitle.trim()}"`);
+    } catch (e) {
+      console.error(e);
+      showStatus(e.message || "Gagal mengubah nama profil", true);
+    }
+  });
+}
+
 // Save to DB
-btnSaveDB.addEventListener('click', async () => {
+btnSaveDB.addEventListener("click", async () => {
   if (!activeProfileId) return;
 
   collectFormData();
 
   try {
     const res = await fetch(`/api/cv-profiles/${activeProfileId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ biodata: data })
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ biodata: data }),
     });
 
-    if (!res.ok) throw new Error('Failed to save');
-    showStatus('✅ Saved to database successfully!');
+    if (!res.ok) throw new Error("Failed to save");
+    showStatus("✅ Saved to database successfully!");
     clearDirty();
   } catch (e) {
     console.error(e);
-    showStatus('Failed to save to database', true);
+    showStatus("Failed to save to database", true);
   }
 });
 
 // Delete Profile
-btnDeleteProfile.addEventListener('click', async () => {
+btnDeleteProfile.addEventListener("click", async () => {
   if (!activeProfileId) return;
 
   const selectedOpt = profileSelect.options[profileSelect.selectedIndex];
-  const title = selectedOpt ? selectedOpt.textContent : 'this profile';
+  const title = selectedOpt ? selectedOpt.textContent : "this profile";
 
   if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
 
   try {
     const res = await fetch(`/api/cv-profiles/${activeProfileId}`, {
-      method: 'DELETE'
+      method: "DELETE",
     });
 
-    if (!res.ok) throw new Error('Failed to delete');
+    if (!res.ok) throw new Error("Failed to delete");
 
     // Remove from dropdown
     if (selectedOpt) selectedOpt.remove();
 
     activeProfileId = null;
     localStorage.removeItem(ACTIVE_PROFILE_KEY);
-    profileSelect.value = '';
+    profileSelect.value = "";
     clearForm();
     saveToStorage();
     clearDirty();
@@ -719,34 +841,34 @@ btnDeleteProfile.addEventListener('click', async () => {
     showStatus(`Deleted "${title}"`);
   } catch (e) {
     console.error(e);
-    showStatus('Failed to delete profile', true);
+    showStatus("Failed to delete profile", true);
   }
 });
 
 // Fill Dummy Data
 if (btnFillDummy) {
-  btnFillDummy.addEventListener('click', () => {
+  btnFillDummy.addEventListener("click", () => {
     if (!activeProfileId) {
-      showStatus('Select or create a profile first', true);
+      showStatus("Select or create a profile first", true);
       return;
     }
     populateForm(JSON.parse(JSON.stringify(DUMMY_BIODATA)));
     saveToStorage();
     markDirty();
-    showStatus('Filled with example data — Sammi Aldhi Yanto 🚀');
+    showStatus("Filled with example data — Sammi Aldhi Yanto 🚀");
   });
 }
 
 // ── PDF Extraction ─────────────────────────────────────
-const extractOverlay = document.getElementById('extract-overlay');
-const extractStepEl = document.getElementById('extract-step');
+const extractOverlay = document.getElementById("extract-overlay");
+const extractStepEl = document.getElementById("extract-step");
 
 function showExtractOverlay(stepText) {
   if (extractOverlay) {
-    if (extractStepEl) extractStepEl.textContent = stepText || 'Reading PDF...';
-    extractOverlay.style.display = 'flex';
+    if (extractStepEl) extractStepEl.textContent = stepText || "Reading PDF...";
+    extractOverlay.style.display = "flex";
   }
-  document.body.classList.add('extracting-pdf');
+  document.body.classList.add("extracting-pdf");
 }
 
 function updateExtractStep(text) {
@@ -754,52 +876,66 @@ function updateExtractStep(text) {
 }
 
 function hideExtractOverlay() {
-  if (extractOverlay) extractOverlay.style.display = 'none';
-  document.body.classList.remove('extracting-pdf');
+  if (extractOverlay) extractOverlay.style.display = "none";
+  document.body.classList.remove("extracting-pdf");
 }
 
 if (btnUploadPdf && pdfUploadInput) {
-  btnUploadPdf.addEventListener('click', () => {
+  btnUploadPdf.addEventListener("click", () => {
     if (!activeProfileId) {
-      showStatus('Select or create a profile first', true);
+      showStatus("Select or create a profile first", true);
       return;
     }
     pdfUploadInput.click();
   });
 
-  pdfUploadInput.addEventListener('change', async (e) => {
+  pdfUploadInput.addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (file.type !== 'application/pdf') {
-      showStatus('Please upload a valid PDF file', true);
+    if (file.type !== "application/pdf") {
+      showStatus("Please upload a valid PDF file", true);
       return;
     }
 
     // 2MB file size limit for PDF processing
     const MAX_MB = 2;
     if (file.size > MAX_MB * 1024 * 1024) {
-      showStatus(`File is too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Max allowed size is ${MAX_MB}MB.`, true);
+      showStatus(
+        `File is too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Max allowed size is ${MAX_MB}MB.`,
+        true,
+      );
       return;
     }
 
     const originalBtnHTML = btnUploadPdf.innerHTML;
 
     // Lock all interactive controls
-    const lockableEls = [btnSaveDB, btnDeleteProfile, profileSelect, btnNewProfile, btnUploadPdf];
+    const lockableEls = [
+      btnSaveDB,
+      btnDeleteProfile,
+      profileSelect,
+      btnNewProfile,
+      btnUploadPdf,
+    ];
     if (btnFillDummy) lockableEls.push(btnFillDummy);
 
     const lockUI = () => {
-      lockableEls.forEach(el => { if (el) el.disabled = true; });
-      btnUploadPdf.innerHTML = '<span class="inline-block animate-spin mr-1">🪄</span> <span class="animate-pulse">Extracting...</span>';
-      btnUploadPdf.classList.add('opacity-75', 'cursor-not-allowed');
-      showExtractOverlay('📄 Reading your PDF...');
+      lockableEls.forEach((el) => {
+        if (el) el.disabled = true;
+      });
+      btnUploadPdf.innerHTML =
+        '<span class="inline-block animate-spin mr-1">🪄</span> <span class="animate-pulse">Extracting...</span>';
+      btnUploadPdf.classList.add("opacity-75", "cursor-not-allowed");
+      showExtractOverlay("📄 Reading your PDF...");
     };
 
     const unlockUI = () => {
-      lockableEls.forEach(el => { if (el) el.disabled = false; });
+      lockableEls.forEach((el) => {
+        if (el) el.disabled = false;
+      });
       btnUploadPdf.innerHTML = originalBtnHTML;
-      btnUploadPdf.classList.remove('opacity-75', 'cursor-not-allowed');
+      btnUploadPdf.classList.remove("opacity-75", "cursor-not-allowed");
       hideExtractOverlay();
       updateButtons(); // Restore correct disabled state based on profile
     };
@@ -810,71 +946,82 @@ if (btnUploadPdf && pdfUploadInput) {
       // 1. Read PDF with PDF.js
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      let fullText = '';
+      let fullText = "";
 
       for (let i = 1; i <= pdf.numPages; i++) {
         updateExtractStep(`📖 Reading page ${i} of ${pdf.numPages}...`);
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
-        const pageText = textContent.items.map(item => item.str).join(' ');
-        fullText += pageText + '\n';
+        const pageText = textContent.items.map((item) => item.str).join(" ");
+        fullText += pageText + "\n";
       }
 
       const textLen = fullText.trim().length;
       if (textLen < 50) {
-        throw new Error('Could not extract enough text from the PDF. Is the PDF text-based?');
+        throw new Error(
+          "Could not extract enough text from the PDF. Is the PDF text-based?",
+        );
       }
 
       // Hard limit on character count (~3000-4000 words limit, usually ~6 pages) to prevent token exhaustion
       const MAX_CHARS = 20000;
       if (textLen > MAX_CHARS) {
-        throw new Error(`PDF contains too much text (${textLen.toLocaleString()} chars). Please keep it under ${MAX_CHARS.toLocaleString()} characters.`);
+        throw new Error(
+          `PDF contains too much text (${textLen.toLocaleString()} chars). Please keep it under ${MAX_CHARS.toLocaleString()} characters.`,
+        );
       }
 
-      updateExtractStep(`🤖 Sending ${textLen.toLocaleString()} chars to AI... this may take ~10s`);
+      updateExtractStep(
+        `🤖 Sending ${textLen.toLocaleString()} chars to AI... this may take ~10s`,
+      );
 
       // 2. Send to backend AI extractor
-      const res = await fetch('/api/extract-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: fullText })
+      const res = await fetch("/api/extract-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: fullText }),
       });
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || 'AI extraction failed — please try again');
+        throw new Error(
+          errData.error || "AI extraction failed — please try again",
+        );
       }
 
-      updateExtractStep('✅ Applying extracted data to form...');
+      updateExtractStep("✅ Applying extracted data to form...");
       const extractedData = await res.json();
 
       // 3. Populate form and save
       populateForm(extractedData);
       saveToStorage();
       markDirty();
-      showStatus('✨ Successfully extracted and applied data from PDF!', false);
-
+      showStatus("✨ Successfully extracted and applied data from PDF!", false);
     } catch (err) {
-      console.error('PDF extraction error:', err);
-      showStatus(err.message || 'Error occurred during PDF extraction', true);
+      console.error("PDF extraction error:", err);
+      showStatus(err.message || "Error occurred during PDF extraction", true);
     } finally {
       unlockUI();
-      pdfUploadInput.value = ''; // clear input so the same file can be selected again
+      pdfUploadInput.value = ""; // clear input so the same file can be selected again
     }
   });
 }
 
 // ── Init ───────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   // Call updateButtons immediately on load to disable default UI before fetch resolves
   updateButtons();
   loadProfileList();
 
   // Navigation interception for sidebar links
-  document.querySelectorAll('#sidebar a').forEach(link => {
-    link.addEventListener('click', (e) => {
+  document.querySelectorAll("#sidebar a").forEach((link) => {
+    link.addEventListener("click", (e) => {
       if (isDirty) {
-        if (!confirm("Ada perubahan yang belum disimpan. Yakin ingin pindah halaman tanpa menyimpan? / You have unsaved changes. Are you sure you want to leave without saving?")) {
+        if (
+          !confirm(
+            "Ada perubahan yang belum disimpan. Yakin ingin pindah halaman tanpa menyimpan? / You have unsaved changes. Are you sure you want to leave without saving?",
+          )
+        ) {
           e.preventDefault();
         }
       }
@@ -882,10 +1029,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Window unload interception
-  window.addEventListener('beforeunload', (e) => {
+  window.addEventListener("beforeunload", (e) => {
     if (isDirty) {
       e.preventDefault();
-      e.returnValue = '';
+      e.returnValue = "";
     }
   });
 });

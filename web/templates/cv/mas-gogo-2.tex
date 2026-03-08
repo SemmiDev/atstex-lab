@@ -122,25 +122,25 @@
 
 [[ range .Projects ]]
 \vspace{2pt}
-\noindent\textbf{[[ .Name | texEscape ]][[ if .Role ]] -- [[ .Role | texEscape ]][[ end ]]}\\
-[[ if .Bullets ]][[ range texLines .Bullets ]][[ . | texEscape ]] [[ end ]][[ end ]]
-[[ if .Link ]]\href{https://[[ .Link | texEscape ]]}{[[ .Link | texEscape ]]}[[ end ]]
+\noindent\textbf{[[ .Name | texEscape ]][[ if .Role ]] -- [[ .Role | texEscape ]][[ end ]]}
+[[ if .Bullets ]]\\ [[ range texLines .Bullets ]][[ . | texEscape ]] [[ end ]][[ end ]]
+[[ if .Link ]]\\ \href{https://[[ .Link | texEscape ]]}{[[ .Link | texEscape ]]}[[ end ]]
 \vspace{2pt}
 
 [[ end ]]
 
 [[ range .Awards ]]
 \vspace{2pt}
-\noindent\textbf{[[ .Title | texEscape ]][[ if .Date ]] {\normalfont [[ .Date | texEscape ]]} [[ end ]][[ if .Issuer ]], [[ .Issuer | texEscape ]][[ end ]]}\\
-[[ if .Description ]][[ .Description | texEscape ]][[ end ]]
+\noindent\textbf{[[ .Title | texEscape ]][[ if .Date ]] {\normalfont [[ .Date | texEscape ]]} [[ end ]][[ if .Issuer ]], [[ .Issuer | texEscape ]][[ end ]]}
+[[ if .Description ]]\\ [[ .Description | texEscape ]][[ end ]]
 \vspace{2pt}
 
 [[ end ]]
 
 [[ range .Talks ]]
 \vspace{2pt}
-\noindent\textbf{[[ .Title | texEscape ]][[ if .Date ]] {\normalfont [[ .Date | texEscape ]]} [[ end ]][[ if .Event ]], [[ .Event | texEscape ]][[ end ]]}\\
-[[ if .Description ]][[ .Description | texEscape ]][[ end ]]
+\noindent\textbf{[[ .Title | texEscape ]][[ if .Date ]] {\normalfont [[ .Date | texEscape ]]} [[ end ]][[ if .Event ]], [[ .Event | texEscape ]][[ end ]]}
+[[ if .Description ]]\\ [[ .Description | texEscape ]][[ end ]]
 \vspace{2pt}
 
 [[ end ]]
