@@ -13,34 +13,58 @@ Write your biodata, choose a template, and instantly compile it into a professio
 Atstex-Lab acts as a bridge between a streamlined web frontend and the powerful LaTeX typesetting engine.
 
 ```mermaid
-flowchart LR
+flowchart TB
     %% Entities
     User((User))
-    UI[Web Frontend<br/>Tailwind/React]
-    GoAPI[Go Backend API]
+
+    subgraph Client [Browser / Client Tier]
+        direction LR
+        UI[Web Frontend<br/>Tailwind / HTML / JS]
+
+        subgraph Features [Platform Features]
+            direction TB
+            Builder[LaTeX CV Editor]
+            ATS[AI ATS Simulator]
+            Cover[AI Cover Letter Gen]
+            Kanban[Job Tracker]
+        end
+        UI <--> Features
+    end
+
+    subgraph Server [Go Backend API Tier]
+        direction TB
+        Gateway[HTTP Router & Auth]
+
+        subgraph Services [Business Logic]
+            direction LR
+            TemplateSvc[LaTeX Templates]
+            AISvc[AI Extraction / Generation]
+            ProfileSvc[User Profile/Data CRUD]
+        end
+        Gateway <--> Services
+    end
+
+    %% External & DB
     DB[(PostgreSQL)]
-    AI[AI Engine<br/>OpenAI/Gemini]
+    AI_API[OpenAI / Gemini]
 
     %% Sandbox Subgraph
     subgraph Sandbox [Temporal Sandbox]
         direction TB
-        Template[LaTeX Template]
+        Sanitizer[Input Sanitizer]
         Tectonic([Tectonic Compiler])
+        Sanitizer --> Tectonic
     end
 
-    %% Flow
-    User -->|Biodata & Photo| UI
-    User -->|PDF Resume| UI
+    %% Data Flow
+    User <-->|Reacts & Inputs| Client
+    Client <-->|REST API JSON| Gateway
 
-    UI <-->|JSON Data| GoAPI
+    Services <--> DB
+    AISvc <-->|Prompts| AI_API
 
-    GoAPI <-->|Stores Profile| DB
-    GoAPI <-->|Extract Specs /<br/>Generate Cover Letter| AI
-
-    GoAPI -->|Injects Data| Template
-    Template --> Tectonic
-    Tectonic -.->|Returns PDF| GoAPI
-    GoAPI -.->|Streams Preview| UI
+    TemplateSvc -->|Injects Data| Sanitizer
+    Tectonic -.->|Returns PDF Bytes| Gateway
 
     %% Styling Elements
     classDef primary fill:#ff4794,stroke:#000,stroke-width:2px,color:#fff,font-weight:bold;
@@ -49,11 +73,11 @@ flowchart LR
     classDef external fill:#f3f4f6,stroke:#000,stroke-width:2px,color:#000,stroke-dasharray: 5 5;
     classDef sandbox fill:#e2e8f0,stroke:#64748b,stroke-width:2px,stroke-dasharray: 5 5;
 
-    class UI primary;
-    class GoAPI secondary;
+    class UI,Builder,ATS,Cover,Kanban primary;
+    class Gateway,TemplateSvc,AISvc,ProfileSvc secondary;
     class DB database;
-    class AI external;
-    class Template,Tectonic sandbox;
+    class AI_API external;
+    class Sanitizer,Tectonic sandbox;
 ```
 
 ### How it Works
