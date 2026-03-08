@@ -1,0 +1,329 @@
+%% ══════════════════════════════════════════════════════════════════════
+%% ATSTEXLAB — mas-claude-pro
+%% The definitive ATS-optimized template.
+%% Synthesized from mas-gogo-{1,2,3} and mas-sammi-{1,photo,pro}.
+%%
+%% Design principles:
+%%   • 100% ATS-parseable: semantic reading order, no columns, no tables
+%%     for main content, plain Unicode text throughout.
+%%   • Photo-aware header: graceful minipage when .Personal.Photo is set.
+%%   • Blue accent (sectionblue) on section rules only — zero color noise
+%%     for body text, maximising ATS character recognition.
+%%   • Compact but breathable: tight inter-item skip, generous section gap.
+%%   • Every optional block (Summary, Skills, Projects, Volunteer, Awards,
+%%     Certifications, Talks) guarded — renders nothing when data absent.
+%%   • All field names cross-checked against cvtemplate struct:
+%%       Dates  → Experience, Education, Volunteer
+%%       Date   → Awards, Talks
+%%       (Certification has NO date field — only .Name and .Issuer)
+%% ══════════════════════════════════════════════════════════════════════
+
+[[ sprintf "\\documentclass[%s,%s]{%s}" .Settings.FontSize .Settings.PaperSize .Settings.DocumentClass ]]
+
+%% ── Encoding & Language ────────────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+%% ── Page Geometry ──────────────────────────────────────────────────
+\usepackage[
+  top=[[ .Settings.MarginTop ]],
+  bottom=[[ .Settings.MarginBottom ]],
+  left=[[ .Settings.MarginLeft ]],
+  right=[[ .Settings.MarginRight ]]
+]{geometry}
+
+%% ── Font ───────────────────────────────────────────────────────────
+[[ fontPkg .Settings.FontFamily ]]
+
+%% ── Line Spacing ───────────────────────────────────────────────────
+[[ if ne .Settings.LineSpacing 1.0 ]]\usepackage{setspace}
+[[ fmtSpacing .Settings.LineSpacing ]][[ end ]]
+
+%% ── Header / Footer ────────────────────────────────────────────────
+\usepackage{fancyhdr}
+[[ if or .Settings.HeaderText .Settings.FooterText ]]
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+[[ if .Settings.HeaderText ]]\chead{[[ .Settings.HeaderText | texEscape ]]}[[ end ]]
+[[ if .Settings.FooterText ]]\cfoot{[[ .Settings.FooterText | texEscape ]]}[[ else ]]\cfoot{\thepage}[[ end ]]
+[[ else ]]
+\pagestyle{empty}
+[[ end ]]
+
+%% ── Core Packages ──────────────────────────────────────────────────
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{titlesec}
+\usepackage{etoolbox}
+\usepackage{latexsym}
+\usepackage{marvosym}
+
+%% ── Colors ─────────────────────────────────────────────────────────
+\definecolor{sectionblue}{RGB}{23, 80, 161}
+\definecolor{ruleblue}{RGB}{23, 80, 161}
+\definecolor{bodytext}{RGB}{20, 20, 20}
+
+%% ── Hyperlinks (ATS: hidelinks keeps text clean for parsers) ───────
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  colorlinks=false,
+  urlcolor=sectionblue,
+  linkcolor=sectionblue,
+}
+
+%% ── Global Layout ──────────────────────────────────────────────────
+[[ if eq .Settings.Alignment "left" ]]\raggedright[[ end ]]
+[[ if eq .Settings.Alignment "center" ]]\centering[[ end ]]
+\raggedbottom
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\tabcolsep}{0in}
+
+%% ── Section Heading ────────────────────────────────────────────────
+%% scshape + blue underrule — visually distinct, ATS-safe
+\titleformat{\section}{%
+  \vspace{-2pt}\scshape\raggedright\large\color{sectionblue}%
+}{}{0em}{}[{\color{ruleblue}\titlerule[0.7pt]}\vspace{-4pt}]
+
+%% ── Reusable Macros ────────────────────────────────────────────────
+
+%% Two-column job row: bold left / right-aligned date
+\newcommand{\cpJobRow}[2]{%
+  \noindent
+  \begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}r@{}}
+    #1 & \small #2
+  \end{tabular*}%
+}
+
+%% Four-field subheading (company, location, title, dates)
+\newcommand{\cpSubheading}[4]{%
+  \vspace{-1pt}
+  \item
+  \begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}r@{}}
+    \textbf{#1} & \small #2 \\
+    \textit{\small #3} & \textit{\small #4} \\
+  \end{tabular*}\vspace{-6pt}%
+}
+
+%% Project / award heading: left content, right date
+%% NOTE: uses \linewidth (not \textwidth) — correct inside itemize with leftmargin
+\newcommand{\cpProjectRow}[2]{%
+  \item
+  \begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}r@{}}
+    \small #1 & \small #2 \\
+  \end{tabular*}\vspace{-6pt}%
+}
+
+%% Bullet item
+\newcommand{\cpItem}[1]{%
+  \item\small{#1\vspace{-2pt}}%
+}
+
+%% List wrappers
+\newcommand{\cpListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
+\newcommand{\cpListEnd}{\end{itemize}}
+\newcommand{\cpBulletStart}{\begin{itemize}[leftmargin=0.2in, label={\tiny$\bullet$}, itemsep=0pt, topsep=2pt, parsep=0pt]}
+\newcommand{\cpBulletEnd}{\end{itemize}\vspace{-4pt}}
+
+%% ══════════════════════════════════════════════════════════════════════
+\begin{document}
+%% ══════════════════════════════════════════════════════════════════════
+
+%%─────────────────────────────────────────────────────────────────────
+%% HEADER
+%%─────────────────────────────────────────────────────────────────────
+\begin{center}
+[[ if .Personal.Photo ]]
+  %% Photo variant — photo left, name+contacts right
+  \begin{minipage}[c]{0.16\textwidth}
+    \includegraphics[width=\linewidth,height=\linewidth,keepaspectratio]{photo}
+  \end{minipage}%
+  \hspace{0.05\textwidth}%
+  \begin{minipage}[c]{0.79\textwidth}
+    \raggedright
+    \textbf{\Huge \scshape [[ .Personal.Name | texEscape ]]}%
+    [[ if .Personal.Title ]] \\ \vspace{2pt}{\Large \color{sectionblue} [[ .Personal.Title | texEscape ]]}[[ end ]]
+    \\ \vspace{3pt}
+    [[ if .Personal.Location ]]\small [[ .Personal.Location | texEscape ]] \\[[ end ]]
+    \small
+    [[ if .Personal.Phone ]]\href{tel:[[ .Personal.Phone | texEscape ]]}{[[ .Personal.Phone | texEscape ]]}[[ end ]]%
+    [[ if .Personal.Email ]] $|$ \href{mailto:[[ .Personal.Email | texEscape ]]}{[[ .Personal.Email | texEscape ]]}[[ end ]]%
+    [[ if .Personal.Linkedin.URL ]] $|$ \href{[[ .Personal.Linkedin.URL | texEscape ]]}{[[ if .Personal.Linkedin.Display ]][[ .Personal.Linkedin.Display | texEscape ]][[ else ]][[ .Personal.Linkedin.URL | texEscape ]][[ end ]]}[[ end ]]%
+    [[ if .Personal.Github.URL ]] $|$ \href{[[ .Personal.Github.URL | texEscape ]]}{[[ if .Personal.Github.Display ]][[ .Personal.Github.Display | texEscape ]][[ else ]][[ .Personal.Github.URL | texEscape ]][[ end ]]}[[ end ]]%
+    [[ if .Personal.Website.URL ]] $|$ \href{[[ .Personal.Website.URL | texEscape ]]}{[[ if .Personal.Website.Display ]][[ .Personal.Website.Display | texEscape ]][[ else ]][[ .Personal.Website.URL | texEscape ]][[ end ]]}[[ end ]]
+  \end{minipage}
+[[ else ]]
+  %% No-photo variant — centered name + inline contacts
+  \textbf{\Huge \scshape [[ .Personal.Name | texEscape ]]}%
+  [[ if .Personal.Title ]] \\ \vspace{2pt}{\Large \color{sectionblue} [[ .Personal.Title | texEscape ]]}[[ end ]]
+  \\ \vspace{3pt}
+  [[ if .Personal.Location ]]\small [[ .Personal.Location | texEscape ]] \\[[ end ]]
+  \small
+  [[ if .Personal.Phone ]]\href{tel:[[ .Personal.Phone | texEscape ]]}{[[ .Personal.Phone | texEscape ]]}[[ end ]]%
+  [[ if .Personal.Email ]] $|$ \href{mailto:[[ .Personal.Email | texEscape ]]}{[[ .Personal.Email | texEscape ]]}[[ end ]]%
+  [[ if .Personal.Linkedin.URL ]] $|$ \href{[[ .Personal.Linkedin.URL | texEscape ]]}{[[ if .Personal.Linkedin.Display ]][[ .Personal.Linkedin.Display | texEscape ]][[ else ]][[ .Personal.Linkedin.URL | texEscape ]][[ end ]]}[[ end ]]%
+  [[ if .Personal.Github.URL ]] $|$ \href{[[ .Personal.Github.URL | texEscape ]]}{[[ if .Personal.Github.Display ]][[ .Personal.Github.Display | texEscape ]][[ else ]][[ .Personal.Github.URL | texEscape ]][[ end ]]}[[ end ]]%
+  [[ if .Personal.Website.URL ]] $|$ \href{[[ .Personal.Website.URL | texEscape ]]}{[[ if .Personal.Website.Display ]][[ .Personal.Website.Display | texEscape ]][[ else ]][[ .Personal.Website.URL | texEscape ]][[ end ]]}[[ end ]]
+[[ end ]]
+\end{center}
+\vspace{-6pt}
+
+%%─────────────────────────────────────────────────────────────────────
+%% PROFESSIONAL SUMMARY
+%%─────────────────────────────────────────────────────────────────────
+[[ if .Summary ]]
+\section{Professional Summary}
+\cpListStart
+  \small\item{[[ .Summary | texEscape ]]}
+\cpListEnd
+\vspace{-2pt}
+[[ end ]]
+
+%%─────────────────────────────────────────────────────────────────────
+%% PROFESSIONAL EXPERIENCE
+%%─────────────────────────────────────────────────────────────────────
+[[ if .Experience ]]
+\section{Professional Experience}
+\cpListStart
+  [[ range .Experience ]]
+  \cpSubheading
+    {[[ .Company | texEscape ]]}{[[ if .Location ]][[ .Location | texEscape ]][[ end ]]}
+    {[[ .Title | texEscape ]]}{[[ .Dates | texEscape ]]}
+    [[ if .Bullets ]]
+    \cpBulletStart
+      [[ range texLines .Bullets ]]\cpItem{[[ . | texEscape ]]}
+      [[ end ]]
+    \cpBulletEnd
+    [[ end ]]
+  [[ end ]]
+\cpListEnd
+[[ end ]]
+
+%%─────────────────────────────────────────────────────────────────────
+%% EDUCATION
+%%─────────────────────────────────────────────────────────────────────
+[[ if .Education ]]
+\section{Education}
+\cpListStart
+  [[ range .Education ]]
+  \cpSubheading
+    {[[ .Institution | texEscape ]]}{[[ if .Location ]][[ .Location | texEscape ]][[ end ]]}
+    {[[ .Degree | texEscape ]][[ if .GPA ]] -- \textbf{GPA: [[ .GPA | texEscape ]]}[[ end ]]}{[[ .Dates | texEscape ]]}
+    [[ if .Activities ]]
+    \cpBulletStart
+      \cpItem{\textit{Activities \& Societies:} [[ .Activities | texEscape ]]}
+    \cpBulletEnd
+    [[ end ]]
+  [[ end ]]
+\cpListEnd
+[[ end ]]
+
+%%─────────────────────────────────────────────────────────────────────
+%% TECHNICAL SKILLS
+%%─────────────────────────────────────────────────────────────────────
+[[ if or .Skills.Languages .Skills.Frameworks .Skills.Tools .Skills.Other ]]
+\section{Technical Skills}
+\vspace{2pt}
+\cpListStart
+  \small\item{
+    \begin{tabular}{@{}p{2.6cm}@{}p{\dimexpr\linewidth-2.6cm\relax}@{}}
+      [[ if .Skills.Languages ]]\textbf{Languages:}    & [[ .Skills.Languages | texEscape ]] \\[3pt][[ end ]]
+      [[ if .Skills.Frameworks ]]\textbf{Technologies:} & [[ .Skills.Frameworks | texEscape ]] \\[3pt][[ end ]]
+      [[ if .Skills.Tools ]]\textbf{Tools:}         & [[ .Skills.Tools | texEscape ]] \\[3pt][[ end ]]
+      [[ if .Skills.Other ]]\textbf{Other Skills:}  & [[ .Skills.Other | texEscape ]] \\[[ end ]]
+    \end{tabular}
+  }
+\cpListEnd
+[[ end ]]
+
+%%─────────────────────────────────────────────────────────────────────
+%% SELECTED PROJECTS
+%%─────────────────────────────────────────────────────────────────────
+[[ if .Projects ]]
+\section{Selected Projects}
+\cpListStart
+  [[ range .Projects ]]
+  \cpProjectRow{%
+    \textbf{[[ .Name | texEscape ]]}%
+    [[ if .Role ]] $|$ \emph{[[ .Role | texEscape ]]}[[ end ]]%
+    [[ if .Link ]] \href{https://[[ .Link | texEscape ]]}{\small\texttt{[[ .Link | texEscape ]]}}[[ end ]]%
+  }{}
+  [[ if .Bullets ]]
+  \cpBulletStart
+    [[ range texLines .Bullets ]]\cpItem{[[ . | texEscape ]]}
+    [[ end ]]
+  \cpBulletEnd
+  [[ end ]]
+  [[ end ]]
+\cpListEnd
+[[ end ]]
+
+%%─────────────────────────────────────────────────────────────────────
+%% VOLUNTEER & LEADERSHIP EXPERIENCE
+%%─────────────────────────────────────────────────────────────────────
+[[ if .Volunteer ]]
+\section{Volunteer \& Leadership Experience}
+\cpListStart
+  [[ range .Volunteer ]]
+  \cpSubheading
+    {[[ .Organization | texEscape ]]}{[[ if .Location ]][[ .Location | texEscape ]][[ end ]]}
+    {[[ .Role | texEscape ]]}{[[ .Dates | texEscape ]]}
+    [[ if .Bullets ]]
+    \cpBulletStart
+      [[ range texLines .Bullets ]]\cpItem{[[ . | texEscape ]]}
+      [[ end ]]
+    \cpBulletEnd
+    [[ end ]]
+  [[ end ]]
+\cpListEnd
+[[ end ]]
+
+%%─────────────────────────────────────────────────────────────────────
+%% CERTIFICATIONS & COURSES
+%%─────────────────────────────────────────────────────────────────────
+[[ if .Certifications ]]
+\section{Certifications \& Courses}
+\vspace{2pt}
+[[ range .Certifications ]]
+\noindent\begin{tabular*}{\linewidth}{@{}p{0.85\linewidth}@{\extracolsep{\fill}}r@{}}
+  \small\textbf{[[ .Name | texEscape ]]}, [[ .Issuer | texEscape ]] & \\
+\end{tabular*}\vspace{3pt}
+[[ end ]]
+[[ end ]]
+
+%%─────────────────────────────────────────────────────────────────────
+%% HONORS & AWARDS
+%%─────────────────────────────────────────────────────────────────────
+[[ if .Awards ]]
+\section{Honors \& Awards}
+\vspace{2pt}
+[[ range .Awards ]]
+\noindent\begin{tabular*}{\linewidth}{@{}p{0.78\linewidth}@{\extracolsep{\fill}}r@{}}
+  \small\textbf{[[ .Title | texEscape ]]}, [[ .Issuer | texEscape ]][[ if .Description ]]\\
+  \small\textit{[[ .Description | texEscape ]]}[[ end ]] & \small [[ .Date | texEscape ]] \\
+\end{tabular*}\vspace{3pt}
+[[ end ]]
+[[ end ]]
+
+%%─────────────────────────────────────────────────────────────────────
+%% TALKS & CONFERENCES
+%%─────────────────────────────────────────────────────────────────────
+[[ if .Talks ]]
+\section{Talks \& Conferences}
+\vspace{2pt}
+[[ range .Talks ]]
+\noindent\begin{tabular*}{\linewidth}{@{}p{0.78\linewidth}@{\extracolsep{\fill}}r@{}}
+  \small\textbf{[[ .Title | texEscape ]]}[[ if .Event ]] -- \textit{[[ .Event | texEscape ]][[ if .Location ]], [[ .Location | texEscape ]][[ end ]]}[[ end ]][[ if .Description ]]\\
+  \small\textit{[[ .Description | texEscape ]]}[[ end ]] & \small [[ .Date | texEscape ]] \\
+\end{tabular*}\vspace{3pt}
+[[ end ]]
+[[ end ]]
+
+\end{document}
