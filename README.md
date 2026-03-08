@@ -13,22 +13,9 @@ Write your biodata, choose a template, and instantly compile it into a professio
 Atstex-Lab acts as a bridge between a streamlined web frontend and the powerful LaTeX typesetting engine.
 
 ```mermaid
-flowchart TB
-    %% Users and Triggers
+flowchart LR
+    %% Entities
     User((User))
-
-    %% Client Tier: Web UI & Dashboard
-    subgraph Client [Browser / Client Tier]
-        direction TB
-
-        subgraph CoreBuilder [CV Builder Modules]
-            Biodata[Biodata Input Form]
-            Editor[LaTeX CV Editor]
-            Preview[PDF.js Live Preview]
-        end
-
-        subgraph Dashboard [Dashboard & Productivity Features]
-            Kanban[Kanban Job Tracker]
     UI[Web Frontend<br/>Tailwind/React]
     GoAPI[Go Backend API]
     DB[(PostgreSQL)]
