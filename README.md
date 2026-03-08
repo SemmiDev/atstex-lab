@@ -14,52 +14,80 @@ Atstex-Lab acts as a bridge between a streamlined web frontend and the powerful 
 
 ```mermaid
 flowchart TB
-    %% Users and external triggers
+    %% Users and Triggers
     User((User))
 
-    %% Frontend Tier
+    %% Client Tier: Web UI & Dashboard
     subgraph Client [Browser / Client Tier]
         direction TB
-        UI[Web UI <br/>HTML/JS + Tailwind]
-        Editor[CV Data Editor<br/>Local Storage]
-        PreviewTool[PDF.js<br/>In-Browser Render]
-        AuthUI[OAuth Login]
 
-        UI <--> Editor
-        PreviewTool -.-> UI
+        subgraph CoreBuilder [CV Builder Modules]
+            Biodata[Biodata Input Form]
+            Editor[LaTeX CV Editor]
+            Preview[PDF.js Live Preview]
+        end
+
+        subgraph Dashboard [Dashboard & Productivity Features]
+            Kanban[Kanban Job Tracker]
+            ATS[AI ATS Simulator]
+            CVReview[AI CV Reviewer]
+            CoverLetter[AI Cover Letter Gen]
+        end
+
+        subgraph Account [Account & Setup]
+            AuthUI[Google OAuth Login]
+            SessionMgr[Active Sessions & Profile]
+            Publish[Public Profile Settings]
+            Subscription[Pro Subscriptions]
+            Feedback[User Feedback]
+        end
+
+        AuthUI -.-> Dashboard
+        AuthUI -.-> CoreBuilder
     end
 
-    %% External Services
-    subgraph External [External APIs & Services]
+    %% External APIs
+    subgraph External [External APIs & Providers]
         direction LR
         GoogleAuth[Google OAuth Provider]
         OpenAI[AI Models<br/>OpenAI/Gemini/Anthropic]
     end
 
     %% Backend Server Tier
-    subgraph Server [Go Backend API Tier]
+    subgraph Server [Go Backend API Gateway]
         direction TB
-        Router[HTTP Router &<br/>Middleware]
+        Router[HTTP Router & Chi Middleware]
 
-        subgraph Services [Business Logic]
-            AuthSvc[Auth & Session<br/>Management]
-            ProfileSvc[CV Profile<br/>Manager]
-            AIEngine[AI Extraction Interface<br/>PDF -> Text -> JSON]
-            TemplateSvc[LaTeX Template<br/>Injection & Routing]
+        subgraph Services [Business Logic Micro-Services]
+            direction LR
+            AuthSvc[Auth/Session Manager]
+            ProfileSvc[CV Profile CRUD]
+            KanbanSvc[Job Applications API]
+            FeedbackSvc[Feedback API]
+            PublicSvc[Public vanity /u/ URLs]
+
+            subgraph AIEngines [AI Orchestration]
+                AIExtract[PDF -> JSON Extractor]
+                AIAts[ATS Simulation Engine]
+                AIReview[CV Critique Engine]
+                AILetter[Cover Letter Engine]
+            end
+
+            TemplateSvc[LaTeX Template API]
         end
 
-        subgraph Security [Security Layer]
-            Sanitizer[Input Sanitizer<br/>Go String Escaping]
-            Limits[OS Resource Limits<br/>Timeouts & Memory]
+        subgraph Security [Compiler Security Layer]
+            Sanitizer[Go String Escaping & HTML Sanitizer]
+            Limits[OS Resource Limits: Timeouts/Memory]
         end
 
-        Compiler[Compilation Engine<br/>File I/O Coordinator]
+        Compiler[Go Compilation Coordinator]
 
-        %% Internal routing
-        Router --> AuthSvc
-        Router --> ProfileSvc
-        Router --> AIEngine
+        %% API Routing
+        Router --> AuthSvc & ProfileSvc & KanbanSvc & FeedbackSvc & PublicSvc
+        Router --> AIEngines
         Router --> TemplateSvc
+
         TemplateSvc --> Sanitizer
         Sanitizer --> Compiler
         Compiler --> Limits
@@ -68,14 +96,14 @@ flowchart TB
     %% Storage & Execution Infrastructure
     subgraph Infrastructure [Docker Infrastructure]
         direction TB
-        DB[(PostgreSQL Database<br/>Sessions & CV Data)]
+        DB[(PostgreSQL Database)]
 
         subgraph Sandbox [Temporal Execution Sandbox]
-            TempDir[/tmp/workspace<br/>Isolated Directory/]
-            ImageDump[Temp Photo.jpg/png]
-            TexSource[Generated document.tex]
+            TempDir[/tmp/workspace<br/>Isolated Mount/]
+            ImageDump[photo.jpg/png]
+            TexSource[document.tex]
 
-            Tectonic([Tectonic TeX Engine<br/>Alpine/Cache Pre-loaded])
+            Tectonic([Tectonic TeX Engine<br/>Alpine Pre-cached])
 
             ImageDump -.-> Tectonic
             TexSource -.-> Tectonic
@@ -83,32 +111,46 @@ flowchart TB
     end
 
     %% Data Flow Connections
-    User == Fills Form / Uploads Photo ==> UI
-    User == Signs In ==> AuthUI
-    User == Uploads Resume PDF ==> UI
+    User == Interacts ==> Client
 
+    %% Auth Flows
     AuthUI <-->|OAuth Tokens| GoogleAuth
-    AuthUI <-->|Session Cookies| Router
+    AuthUI <-->|Set Cookies| Router
+    SessionMgr <--> Router
+    AuthSvc <--> DB
 
-    UI == Syncs Biodata JSON ==> Router
-    UI == Manual Compile Request ==> Router
-    UI == Extract PDF Request ==> Router
+    %% Builder Flows
+    Biodata == Syncs JSON ==> Router
+    Editor == Manual Compile ==> Router
+    Biodata == Extract PDF ==> Router
+    ProfileSvc <--> DB
 
-    AuthSvc <-->|Validates/Stores| DB
-    ProfileSvc <-->|Saves/Loads JSON| DB
+    %% Dashboard Flows
+    Kanban <-->|REST| Router
+    KanbanSvc <--> DB
+    Feedback <-->|REST| Router
+    FeedbackSvc <--> DB
+    Publish <-->|REST| Router
+    PublicSvc <--> DB
 
-    AIEngine <-->|Sends Prompt & Text<br/>Receives JSON Resume| OpenAI
+    %% AI Integrations
+    ATS <--> |Request| Router
+    CVReview <--> |Request| Router
+    CoverLetter <--> |Request| Router
 
-    Compiler == Writes Payload ==> TempDir
+    AIEngines <-->|Sends Prompts & Context<br/>Receives JSON / Markdown| OpenAI
+
+    %% Compilation Flows
+    Compiler == Writes Biodata Payload ==> TempDir
     Compiler == Writes Base64 Photo ==> ImageDump
-    Compiler == Writes TeX Template ==> TexSource
+    Compiler == Writes Master TeX ==> TexSource
 
     Limits == Executes Command<br/>with restricted privs ==> Tectonic
     Tectonic == Produces document.pdf ==> TempDir
     TempDir == Reads PDF Bytes ==> Compiler
 
     Compiler == Streams PDF Response ==> Router
-    Router == Returns Application/PDF ==> PreviewTool
+    Router == Returns Application/PDF ==> Preview
 
     %% Styling Elements
     classDef primary fill:#ff4794,stroke:#000,stroke-width:2px,color:#fff,font-weight:bold;
@@ -117,9 +159,11 @@ flowchart TB
     classDef external fill:#f3f4f6,stroke:#000,stroke-width:2px,color:#000,stroke-dasharray: 5 5;
     classDef secure fill:#ffbd45,stroke:#000,stroke-width:2px,color:#000;
     classDef sandbox fill:#e2e8f0,stroke:#64748b,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef feature fill:#a8a2ff,stroke:#000,stroke-width:2px,color:#000;
 
-    class UI,Editor,PreviewTool,AuthUI primary;
-    class Router,AuthSvc,ProfileSvc,AIEngine,TemplateSvc,Compiler secondary;
+    class Biodata,Editor,Preview,AuthUI primary;
+    class Kanban,ATS,CVReview,CoverLetter,SessionMgr,Publish,Subscription,Feedback feature;
+    class Router,AuthSvc,ProfileSvc,AIEngines,TemplateSvc,Compiler,KanbanSvc,FeedbackSvc,PublicSvc,AIExtract,AIAts,AIReview,AILetter secondary;
     class DB,Tectonic database;
     class GoogleAuth,OpenAI external;
     class Sanitizer,Limits secure;
