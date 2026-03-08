@@ -13,69 +13,63 @@ Atstex-Lab acts as a bridge between a streamlined web frontend and the powerful 
 ```mermaid
 flowchart TB
     %% Entities
-    User((User))
+    User((User / Admin))
+    Viewer((Public Viewer))
 
     subgraph Client [Browser / Client Tier]
-        direction LR
-        UI[Web Frontend<br/>Tailwind / HTML / JS]
-
-        subgraph Features [Platform Features]
-            direction TB
-            Builder[LaTeX CV Editor]
-            ATS[AI ATS Simulator]
-            Cover[AI Cover Letter Gen]
-            Kanban[Job Tracker]
-        end
-        UI <--> Features
+        UI[Web UI<br/>Go Templates, Tailwind, JS]
     end
 
     subgraph Server [Go Backend API Tier]
         direction TB
-        Gateway[HTTP Router & Auth]
+        Router[Chi Router & Middleware<br/>Auth, Session, Rate Limits]
 
-        subgraph Services [Business Logic]
+        subgraph CoreLogic [Core Features & Services]
             direction LR
-            TemplateSvc[LaTeX Templates]
-            AISvc[AI Extraction / Generation]
-            ProfileSvc[User Profile/Data CRUD]
+            Editor[CV Builder & Templates]
+            AITools[AI Suite<br/>ATS, Cover Letter, Critique]
+            UserSys[User, Admin & Billing]
+            Tracker[Job Application Kanban]
         end
-        Gateway <--> Services
+        Router <--> CoreLogic
+    end
+
+    subgraph Sandbox [Temporal Sandbox]
+        direction TB
+        Sanitizer[Input Sanitizer]
+        Engines([LaTeX Engines<br/>Tectonic, pdfLaTeX, XeLaTeX])
+        Sanitizer --> Engines
     end
 
     %% External & DB
     DB[(PostgreSQL)]
-    AI_API[OpenAI / Gemini]
-
-    %% Sandbox Subgraph
-    subgraph Sandbox [Temporal Sandbox]
-        direction TB
-        Sanitizer[Input Sanitizer]
-        Tectonic([Tectonic Compiler])
-        Sanitizer --> Tectonic
-    end
+    AI_API[AI Providers<br/>OpenAI, Gemini]
 
     %% Data Flow
-    User <-->|Reacts & Inputs| Client
-    Client <-->|REST API JSON| Gateway
+    User <-->|Uses App| Client
+    Viewer -.->|Views Portfolios| Client
+    Client <-->|REST API & HTML| Router
 
-    Services <--> DB
-    AISvc <-->|Prompts| AI_API
+    CoreLogic <-->|Read / Write| DB
+    CoreLogic <-->|Prompts| AI_API
 
-    TemplateSvc -->|Injects Data| Sanitizer
-    Tectonic -.->|Returns PDF Bytes| Gateway
+    Editor -->|Injects Safe Payload| Sanitizer
+    Engines -.->|Returns PDF| Router
 
-    %% Styling Elements
+    %% Styling
     classDef primary fill:#ff4794,stroke:#000,stroke-width:2px,color:#fff,font-weight:bold;
     classDef secondary fill:#475eff,stroke:#000,stroke-width:2px,color:#fff;
     classDef database fill:#5eeb8f,stroke:#000,stroke-width:2px,color:#000;
     classDef external fill:#f3f4f6,stroke:#000,stroke-width:2px,color:#000,stroke-dasharray: 5 5;
     classDef sandbox fill:#e2e8f0,stroke:#64748b,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef user fill:#fff,stroke:#000,stroke-width:2px,color:#000;
 
-    class UI,Builder,ATS,Cover,Kanban primary;
-    class Gateway,TemplateSvc,AISvc,ProfileSvc secondary;
+    class UI,Editor,AITools,Tracker,UserSys primary;
+    class Router secondary;
     class DB database;
     class AI_API external;
-    class Sanitizer,Tectonic sandbox;
+    class Sanitizer,Engines sandbox;
+    class User,Viewer user;
 ```
 
 ### How it Works
