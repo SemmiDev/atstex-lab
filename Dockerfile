@@ -48,7 +48,9 @@ RUN echo '\documentclass{article}' > /tmp/dummy.tex && \
     echo '\usepackage{enumitem,xcolor,graphicx,hyperref,microtype,titlesec}' >> /tmp/dummy.tex && \
     echo '\usepackage{multicol,etoolbox,latexsym,marvosym,verbatim}' >> /tmp/dummy.tex && \
     echo '\usepackage{helvet,mathptmx,palatino,courier,lmodern}' >> /tmp/dummy.tex && \
-    echo '\begin{document}Hello\end{document}' >> /tmp/dummy.tex && \
+    echo '\usepackage{amsmath,amssymb,amsfonts,amsthm}' >> /tmp/dummy.tex && \
+    echo '\usepackage{fontspec}' >> /tmp/dummy.tex && \
+    echo '\begin{document}Hello — World\end{document}' >> /tmp/dummy.tex && \
     tectonic /tmp/dummy.tex && \
     rm -f /tmp/dummy.*
 
