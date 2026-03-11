@@ -32,6 +32,24 @@
     --transition: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+[data-theme="dark"] {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --surface-alt: #0f3460;
+    --surface-dark: #1a1a2e;
+    --border: #e94560;
+    --text: #eeeeee;
+    --text-muted: #aaaaaa;
+    --accent: #e94560;
+    --accent2: #7b68ee;
+    --accent3: #00d4aa;
+    --accent4: #f5a623;
+
+    --shadow-sm: 4px 4px 0px rgba(233, 69, 96, 0.4);
+    --shadow-md: 8px 8px 0px rgba(233, 69, 96, 0.4);
+    --shadow-lg: 12px 12px 0px rgba(233, 69, 96, 0.4);
+}
+
 body {
     margin: 0;
     background: var(--bg);

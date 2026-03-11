@@ -36,6 +36,21 @@
   /* Signature brutalist hard shadow */
 }
 
+[data-theme="dark"] {
+  --bg: #1a1a2e;
+  --surface: #16213e;
+  --surface2: #0f3460;
+  --border: #e94560;
+  --border2: #e94560;
+  --text: #eeeeee;
+  --muted: #aaaaaa;
+  --accent: #e94560;
+  --accent2: #7b68ee;
+  --error: #ff4757;
+  --warn: #f5a623;
+  --shadow: 4px 4px 0px rgba(233, 69, 96, 0.4);
+}
+
 /* Body layout is now controlled by Tailwind utilities on the <body> tag.
    Keep only editor-specific body resets here. */
 
