@@ -504,6 +504,14 @@ async function fetchTemplates() {
       opt.textContent = tpl.description || tpl.name;
       templateSel.appendChild(opt);
     }
+
+    // Check if Gallery View pre-selected a template
+    const galleryPick = localStorage.getItem("gallery_selected_template");
+    if (galleryPick) {
+      localStorage.removeItem("gallery_selected_template");
+      templateSel.value = galleryPick;
+      templateSel.dispatchEvent(new Event("change"));
+    }
   } catch (err) {
     console.error("Failed to fetch templates:", err);
   }

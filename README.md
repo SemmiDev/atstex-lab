@@ -1,8 +1,6 @@
 # ATSTEX-LAB
 
-A modern, privacy-first LaTeX CV builder designed to help you generate beautiful, ATS-friendly resumes directly from your browser.
-
-Write your biodata, choose a template, and instantly compile it into a professional PDF.
+A modern LaTeX CV builder designed to help you generate beautiful, ATS-friendly resumes. Write your biodata, choose a template, and instantly compile it into a professional PDF.
 
 ---
 

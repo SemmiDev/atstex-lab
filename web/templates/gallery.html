@@ -1,0 +1,162 @@
+{{define "gallery"}}
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATSTEXLAB — Galeri Template CV</title>
+  <meta name="description" content="Lihat semua template CV LaTeX Anda secara bersamaan. Bandingkan dan pilih yang terbaik untuk CV Anda.">
+  <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&display=swap"
+    rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/editor.css" />
+  <link rel="stylesheet" href="/static/css/gallery.css" />
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body class="flex flex-col md:flex-row h-dvh w-full bg-bg font-ui text-text overflow-hidden">
+
+  <!-- Mobile Header overlay toggle -->
+  <div class="md:hidden flex items-center justify-between p-4 bg-surface border-b-[4px] border-border z-40">
+    <div class="font-disp font-extrabold text-2xl">ATSTEX<em class="text-accent italic">LAB</em></div>
+    <button id="sidebar-toggle" class="text-3xl"><i class="ph ph-list"></i></button>
+  </div>
+
+  <!-- The Sidebar -->
+  <aside id="sidebar"
+    class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
+    <div class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
+      <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
+      <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Tutup Sidebar"><i class="ph-bold ph-caret-left"></i></button>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4 pb-24 md:pb-4">
+      <a href="/"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Beranda</span></a>
+      <a href="/input"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a>
+      <a href="/editor"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
+      <a href="/gallery"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i
+          class="ph ph-images-square text-2xl"></i> <span class="sidebar-nav-text">Galeri</span></a>
+      <a href="/cv-review"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">Review CV</span></a>
+      <a href="/ats-simulator"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-robot text-2xl"></i> <span class="sidebar-nav-text">Simulator ATS</span></a>
+      <a href="/cover-letter"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Surat Lamaran</span></a>
+      <a href="/kanban"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-columns text-2xl"></i> <span class="sidebar-nav-text">Kanban</span></a>
+      <a href="/profile"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profil</span></a>
+      <a href="/publish"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publikasi</span></a>
+      <a href="/subscription"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-crown text-2xl"></i> <span class="sidebar-nav-text">Langganan</span></a>
+      <a href="/feedback"
+        class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+          class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Saran & Masukan</span></a>
+    </nav>
+
+    {{if .User}}
+    <div class="p-4 border-t-[4px] border-border bg-bg sidebar-profile-block">
+      <a href="/profile"
+        class="flex items-center gap-3 p-2 bg-surface border-[3px] border-border shadow-[4px_4px_0_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#000] transition-all">
+        <img src="{{.User.Picture}}" alt="Profile" class="w-10 h-10 border-2 border-border object-cover">
+        <div class="flex flex-col overflow-hidden">
+          <span class="font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{.User.Name}}</span>
+          <form action="/auth/logout" method="POST" class="m-0">
+            <button type="submit" class="text-error text-xs font-bold uppercase tracking-wider outline-none">Keluar <i
+                class="ph-bold ph-sign-out"></i></button>
+          </form>
+        </div>
+      </a>
+    </div>
+    {{end}}
+  </aside>
+
+  <!-- Overlay for mobile clicking -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+  <!-- Main Content -->
+  <main class="flex-1 min-h-0 overflow-y-auto bg-bg flex flex-col h-full relative">
+
+    <!-- Gallery Header -->
+    <div class="gallery-header">
+      <h1><i class="ph ph-images-square"></i> Galeri Template</h1>
+      <span class="gallery-subtitle">Lihat semua template dengan biodata Anda, lalu pilih yang terbaik</span>
+      <button class="btn btn-primary" id="btn-generate">
+        <span class="spinner" aria-hidden="true"></span>
+        <span class="btn-label"><i class="ph-bold ph-arrows-clockwise"></i> Refresh Semua</span>
+      </button>
+    </div>
+
+    <!-- Gallery Grid -->
+    <div class="gallery-scroll">
+      <div class="gallery-grid" id="gallery-grid">
+        <!-- Cards injected by JS -->
+        <div class="gallery-empty">
+          <span class="empty-icon">🎨</span>
+          <p>Tekan <strong>Refresh Semua</strong> untuk melihat biodata Anda di semua template secara bersamaan.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="gallery-statusbar">
+      <span class="status-dot" id="gallery-status-dot"></span>
+      <span id="gallery-status-text">Siap</span>
+      <span style="margin-left:auto" id="gallery-status-elapsed"></span>
+    </div>
+
+  </main>
+
+  <script type="module" src="/static/js/gallery.js"></script>
+  <script src="/static/js/sidebar.js"></script>
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const collapseBtn = document.getElementById('sidebar-collapse');
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        sidebar.classList.add('open');
+        overlay.classList.add('open');
+      });
+    }
+
+    if (overlay) {
+      overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+      });
+    }
+
+    if (collapseBtn) {
+      collapseBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+      });
+    }
+  </script>
+</body>
+
+</html>
+{{end}}

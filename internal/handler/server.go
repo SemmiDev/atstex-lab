@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"html"
@@ -1133,4 +1134,112 @@ func (s *Server) handleKanbanPage() http.HandlerFunc {
 			http.Error(w, "internal error", http.StatusInternalServerError)
 		}
 	}
+}
+
+// ── Gallery (Multi-Template Preview) ──────────────────────────
+
+// handleGalleryPage renders the template gallery page.
+func (s *Server) handleGalleryPage() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+		if err := s.tmpl.ExecuteTemplate(w, "gallery", map[string]interface{}{"User": user}); err != nil {
+			s.reqLog(r).Error("template error", "err", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+		}
+	}
+}
+
+// galleryCompileRequest is the JSON body for POST /api/gallery/compile.
+type galleryCompileRequest struct {
+	cvtemplate.CVData
+	Settings *cvtemplate.PageSettings `json:"settings,omitempty"`
+}
+
+// galleryCompileResult holds the result for one template compilation.
+type galleryCompileResult struct {
+	Name      string `json:"name"`
+	PDFBase64 string `json:"pdf_base64,omitempty"`
+	Error     string `json:"error,omitempty"`
+}
+
+// handleGalleryCompile compiles the user's biodata against all templates in parallel.
+func (s *Server) handleGalleryCompile() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req galleryCompileRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			s.respondErrMsg(w, r, "invalid request body: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		compiler.SanitizeCVData(&req.CVData)
+
+		ps := cvtemplate.DefaultPageSettings()
+		if req.Settings != nil {
+			ps = *req.Settings
+		}
+
+		tpls, err := cvtemplate.List()
+		if err != nil {
+			s.respondErrMsg(w, r, "failed to list templates", http.StatusInternalServerError)
+			return
+		}
+
+		type indexedResult struct {
+			idx    int
+			result galleryCompileResult
+		}
+
+		ch := make(chan indexedResult, len(tpls))
+
+		for i, tpl := range tpls {
+			go func(idx int, name string) {
+				res := galleryCompileResult{Name: name}
+
+				source, renderErr := cvtemplate.Render(name, req.CVData, ps)
+				if renderErr != nil {
+					res.Error = "render: " + renderErr.Error()
+					ch <- indexedResult{idx, res}
+					return
+				}
+
+				opts := compiler.Options{
+					Engine:  compiler.EngineTectonic,
+					Timeout: 30 * time.Second,
+				}
+
+				// Extract photo for compilation if present.
+				if req.CVData.Personal.Photo != "" {
+					opts.PhotoBase64 = req.CVData.Personal.Photo
+				}
+
+				result, compileErr := compiler.Compile(r.Context(), []byte(source), opts)
+				if compileErr != nil {
+					errMsg := compileErr.Error()
+					if result != nil && result.Log != "" {
+						errMsg += "\n" + result.Log
+					}
+					res.Error = errMsg
+					ch <- indexedResult{idx, res}
+					return
+				}
+
+				res.PDFBase64 = "data:application/pdf;base64," + base64Encode(result.PDF)
+				ch <- indexedResult{idx, res}
+			}(i, tpl.Name)
+		}
+
+		results := make([]galleryCompileResult, len(tpls))
+		for range tpls {
+			ir := <-ch
+			results[ir.idx] = ir.result
+		}
+
+		s.encode(w, r, http.StatusOK, results)
+	}
+}
+
+// base64Encode encodes bytes to base64 string.
+func base64Encode(data []byte) string {
+	return base64.StdEncoding.EncodeToString(data)
 }
