@@ -3,6 +3,14 @@ import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
 
+// ── User-scoped localStorage keys ─────────────────────────────
+function _galleryUid() {
+  return document.body.dataset.userId || "anonymous";
+}
+function _glsKey(base) {
+  return `${base}_${_galleryUid()}`;
+}
+
 // ── DOM refs ──────────────────────────────────────────────────
 const galleryGrid = document.getElementById("gallery-grid");
 const btnGenerate = document.getElementById("btn-generate");
@@ -94,7 +102,7 @@ function showCardError(container, msg) {
 
 // ── Generate all previews ─────────────────────────────────────
 async function generateAll() {
-  const cvDataStr = localStorage.getItem("cv_data") || "{}";
+  const cvDataStr = localStorage.getItem(_glsKey("cv_data")) || "{}";
   let reqBody = {};
   try {
     reqBody = JSON.parse(cvDataStr);
@@ -102,7 +110,7 @@ async function generateAll() {
 
   // Include page settings
   try {
-    const savedSettings = JSON.parse(localStorage.getItem("page_settings") || "null");
+    const savedSettings = JSON.parse(localStorage.getItem(_glsKey("page_settings")) || "null");
     if (savedSettings) reqBody.settings = savedSettings;
   } catch (_) {}
 
@@ -194,7 +202,7 @@ galleryGrid.addEventListener("click", (e) => {
   if (!templateName) return;
 
   // Store the selected template for the editor to pick up
-  localStorage.setItem("gallery_selected_template", templateName);
+  localStorage.setItem(_glsKey("gallery_selected_template"), templateName);
   window.location.href = "/editor";
 });
 

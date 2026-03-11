@@ -3,6 +3,14 @@ import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
 
+// ── User-scoped localStorage keys ─────────────────────────────
+function _editorUid() {
+  return document.body.dataset.userId || "anonymous";
+}
+function _lsKey(base) {
+  return `${base}_${_editorUid()}`;
+}
+
 // ── CodeMirror 6 setup ───────────────────────────────────────
 import { EditorView, basicSetup } from "https://esm.sh/codemirror";
 import { EditorState } from "https://esm.sh/@codemirror/state";
@@ -261,7 +269,7 @@ async function compile() {
     compileStep.textContent = "Memproses PDF…";
     const payload = { source, engine: engineSel.value };
     try {
-      const cvDataStr = localStorage.getItem("cv_data");
+      const cvDataStr = localStorage.getItem(_lsKey("cv_data"));
       if (cvDataStr) {
         const cvData = JSON.parse(cvDataStr);
         if (cvData && cvData.personal && cvData.personal.photo) {
@@ -563,9 +571,9 @@ async function fetchTemplates() {
     }
 
     // Check if Gallery View pre-selected a template
-    const galleryPick = localStorage.getItem("gallery_selected_template");
+    const galleryPick = localStorage.getItem(_lsKey("gallery_selected_template"));
     if (galleryPick) {
-      localStorage.removeItem("gallery_selected_template");
+      localStorage.removeItem(_lsKey("gallery_selected_template"));
       selectTemplateCard(galleryPick, galleryPick);
     }
   } catch (err) {
@@ -594,7 +602,7 @@ templateSel.addEventListener("change", async (e) => {
   }
 
   try {
-    const cvDataStr = localStorage.getItem("cv_data") || "{}";
+    const cvDataStr = localStorage.getItem(_lsKey("cv_data")) || "{}";
     let reqBody = {};
     try {
       reqBody = JSON.parse(cvDataStr);
@@ -602,7 +610,7 @@ templateSel.addEventListener("change", async (e) => {
     // Include page settings if any are saved
     try {
       const savedSettings = JSON.parse(
-        localStorage.getItem("page_settings") || "null",
+        localStorage.getItem(_lsKey("page_settings")) || "null",
       );
       if (savedSettings) reqBody.settings = savedSettings;
     } catch (_) {}
@@ -674,7 +682,7 @@ function setPageSettings(s) {
 
 // Restore saved settings from localStorage
 try {
-  const saved = JSON.parse(localStorage.getItem("page_settings") || "null");
+  const saved = JSON.parse(localStorage.getItem(_lsKey("page_settings")) || "null");
   if (saved) setPageSettings(saved);
 } catch (_) {
   /* ignore parse errors */
@@ -689,14 +697,14 @@ if (btnApplySettings) {
     }
 
     const settings = getPageSettings();
-    const cvDataStr = localStorage.getItem("cv_data") || "{}";
+    const cvDataStr = localStorage.getItem(_lsKey("cv_data")) || "{}";
     let cvData = {};
     try {
       cvData = JSON.parse(cvDataStr);
     } catch (_) {}
 
     // Persist settings to localStorage
-    localStorage.setItem("page_settings", JSON.stringify(settings));
+    localStorage.setItem(_lsKey("page_settings"), JSON.stringify(settings));
 
     setStatus("compiling", "Applying page settings…");
     btnApplySettings.disabled = true;
@@ -753,7 +761,7 @@ if (btnResetSettings) {
       footerText: "",
     };
     setPageSettings(defaults);
-    localStorage.removeItem("page_settings");
+    localStorage.removeItem(_lsKey("page_settings"));
   });
 }
 
@@ -787,7 +795,7 @@ async function syncTemplateContent() {
     selectedTemplate !== "example" &&
     selectedTemplate !== ""
   ) {
-    const cvDataStr = localStorage.getItem("cv_data") || "{}";
+    const cvDataStr = localStorage.getItem(_lsKey("cv_data")) || "{}";
     let reqBody = {};
     try {
       reqBody = JSON.parse(cvDataStr);
@@ -796,7 +804,7 @@ async function syncTemplateContent() {
     // Include page settings if any are saved
     try {
       const savedSettings = JSON.parse(
-        localStorage.getItem("page_settings") || "null",
+        localStorage.getItem(_lsKey("page_settings")) || "null",
       );
       if (savedSettings) reqBody.settings = savedSettings;
     } catch (_) {}

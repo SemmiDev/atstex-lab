@@ -30,7 +30,7 @@
     </style>
 </head>
 
-<body class="font-ui text-text">
+<body class="font-ui text-text" {{if .User}}data-user-id="{{.User.ID}}"{{end}}>
     <div class="w-full p-4 flex flex-col gap-6">
 
         <p class="text-base font-medium border-l-[6px] border-accent pl-4">

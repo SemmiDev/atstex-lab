@@ -1,6 +1,14 @@
 // ── Constants & Helpers ───────────────────────────────
-const STORAGE_KEY = "cv_data";
-const ACTIVE_PROFILE_KEY = "cv_active_profile_id";
+// User-scoped localStorage keys: prefix with user ID to isolate per-user data
+function _uid() {
+  return document.body.dataset.userId || "anonymous";
+}
+function STORAGE_KEY() {
+  return `cv_data_${_uid()}`;
+}
+function ACTIVE_PROFILE_KEY() {
+  return `cv_active_profile_id_${_uid()}`;
+}
 
 // Default initial state
 let data = {
@@ -194,7 +202,7 @@ function collectFormData() {
 
 function saveToStorage() {
   collectFormData();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  localStorage.setItem(STORAGE_KEY(), JSON.stringify(data));
   updateCompletenessScore();
 }
 
@@ -293,7 +301,7 @@ function populateForm(newData) {
 }
 
 function loadFromStorage() {
-  const jsonStr = localStorage.getItem(STORAGE_KEY);
+  const jsonStr = localStorage.getItem(STORAGE_KEY());
   if (!jsonStr) return;
   try {
     const parsed = JSON.parse(jsonStr);
@@ -682,7 +690,7 @@ async function loadProfileList() {
   });
 
   // Restore previously active profile
-  const savedId = localStorage.getItem(ACTIVE_PROFILE_KEY);
+  const savedId = localStorage.getItem(ACTIVE_PROFILE_KEY());
   if (savedId && profiles.find((p) => p.id === savedId)) {
     profileSelect.value = savedId;
     activeProfileId = savedId;
@@ -752,7 +760,7 @@ profileSelect.addEventListener("change", async (e) => {
   const id = profileSelect.value;
   if (!id) {
     activeProfileId = null;
-    localStorage.removeItem(ACTIVE_PROFILE_KEY);
+    localStorage.removeItem(ACTIVE_PROFILE_KEY());
     clearForm();
     clearDirty();
     updateButtons();
@@ -760,7 +768,7 @@ profileSelect.addEventListener("change", async (e) => {
   }
 
   activeProfileId = id;
-  localStorage.setItem(ACTIVE_PROFILE_KEY, id);
+  localStorage.setItem(ACTIVE_PROFILE_KEY(), id);
   clearDirty();
   await loadProfileData(id);
   updateButtons();
@@ -794,7 +802,7 @@ btnNewProfile.addEventListener("click", async () => {
     profileSelect.value = profile.id;
 
     activeProfileId = profile.id;
-    localStorage.setItem(ACTIVE_PROFILE_KEY, profile.id);
+    localStorage.setItem(ACTIVE_PROFILE_KEY(), profile.id);
 
     // Clear form for new profile
     clearForm();
@@ -889,7 +897,7 @@ btnDeleteProfile.addEventListener("click", async () => {
     if (selectedOpt) selectedOpt.remove();
 
     activeProfileId = null;
-    localStorage.removeItem(ACTIVE_PROFILE_KEY);
+    localStorage.removeItem(ACTIVE_PROFILE_KEY());
     profileSelect.value = "";
     clearForm();
     saveToStorage();

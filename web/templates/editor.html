@@ -29,7 +29,7 @@
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 
-<body class="flex flex-col md:flex-row h-dvh w-full bg-bg font-ui text-text overflow-hidden">
+<body class="flex flex-col md:flex-row h-dvh w-full bg-bg font-ui text-text overflow-hidden" {{if .User}}data-user-id="{{.User.ID}}"{{end}}>
   <!-- Mobile Header overlay toggle -->
 
   <!-- Mobile Header overlay toggle -->
