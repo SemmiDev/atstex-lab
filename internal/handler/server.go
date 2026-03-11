@@ -1136,6 +1136,19 @@ func (s *Server) handleKanbanPage() http.HandlerFunc {
 	}
 }
 
+// handleAdminAnalytics returns time-series analytics data for charts.
+func (s *Server) handleAdminAnalytics() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		analytics, err := s.repo.AdminGetAnalytics(r.Context())
+		if err != nil {
+			s.reqLog(r).Error("admin analytics error", "err", err)
+			s.respondErrMsg(w, r, "failed to load analytics", http.StatusInternalServerError)
+			return
+		}
+		s.encode(w, r, http.StatusOK, analytics)
+	}
+}
+
 // ── Gallery (Multi-Template Preview) ──────────────────────────
 
 // handleGalleryPage renders the template gallery page.

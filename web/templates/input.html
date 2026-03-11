@@ -136,6 +136,23 @@
                 <p id="cv-status-msg" class="text-xs font-mono text-muted hidden"></p>
             </div>
 
+            <!-- CV Completeness Score Bar -->
+            <div class="card !p-4 !gap-3" id="cv-score-card">
+              <div class="flex items-center justify-between gap-4 flex-wrap">
+                <div class="flex items-center gap-3">
+                  <span style="font-size:1.6rem" id="score-emoji">📝</span>
+                  <div>
+                    <div class="font-bold text-sm uppercase tracking-wider" id="score-title">Kelengkapan CV</div>
+                    <div class="font-mono text-xs text-muted" id="score-hint">Isi biodata untuk melihat skor</div>
+                  </div>
+                </div>
+                <div class="font-mono font-extrabold text-2xl" id="score-pct" style="color:var(--muted)">0%</div>
+              </div>
+              <div style="height:12px;background:var(--bg);border:2px solid var(--border);box-shadow:2px 2px 0 #000;overflow:hidden;">
+                <div id="score-fill" style="height:100%;width:0%;background:var(--muted);transition:width 0.6s cubic-bezier(.4,0,.2,1),background 0.3s;"></div>
+              </div>
+            </div>
+
             <p class="text-lg font-medium border-l-[6px] border-accent pl-4">Isi detail profesional Anda di bawah ini.
                 Jangan lupa menekan tombol simpan jika telah selesai.</p>
 

@@ -100,6 +100,7 @@ func (s *Server) routes() {
 		r.Use(auth.AdminMiddleware())
 		r.Get("/admin", s.handleAdminDashboard())
 		r.Get("/api/admin/stats", s.handleAdminGetStats())
+		r.Get("/api/admin/analytics", s.handleAdminAnalytics())
 		r.Get("/api/admin/users", s.handleAdminListUsers())
 		r.Get("/api/admin/feedbacks", s.handleAdminListFeedbacks())
 		r.Post("/api/admin/feedbacks/{id}/reply", s.handleAdminReplyFeedback())

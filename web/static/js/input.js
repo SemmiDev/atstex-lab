@@ -195,6 +195,7 @@ function collectFormData() {
 function saveToStorage() {
   collectFormData();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  updateCompletenessScore();
 }
 
 function clearForm() {
@@ -287,6 +288,8 @@ function populateForm(newData) {
     const items = data[key] || [];
     items.forEach((itemData) => addItem(key, itemData));
   });
+
+  updateCompletenessScore();
 }
 
 function loadFromStorage() {
@@ -1091,3 +1094,66 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+// ── CV Completeness Score ─────────────────────────────────
+function updateCompletenessScore() {
+  const scoreEl = document.getElementById('score-pct');
+  const fillEl = document.getElementById('score-fill');
+  const hintEl = document.getElementById('score-hint');
+  const emojiEl = document.getElementById('score-emoji');
+  if (!scoreEl || !fillEl) return;
+
+  let score = 0;
+  const p = data.personal || {};
+
+  // Name (10)
+  if (p.name && p.name.trim()) score += 10;
+  // Email (10)
+  if (p.email && p.email.trim()) score += 10;
+  // Title (8)
+  if (p.title && p.title.trim()) score += 8;
+  // Phone (3.5) + Location (3.5)
+  if (p.phone && p.phone.trim()) score += 3.5;
+  if (p.location && p.location.trim()) score += 3.5;
+  // LinkedIn (5)
+  if (p.linkedin && p.linkedin.url && p.linkedin.url.trim()) score += 5;
+  // Summary (15) — must be at least 50 chars
+  if (data.summary && data.summary.trim().length >= 50) score += 15;
+  // Experience (20) — at least 1 with company + title + bullets
+  const exps = data.experience || [];
+  if (exps.some(e => e.company && e.title && e.bullets)) score += 20;
+  // Education (10) — at least 1 with institution + degree
+  const edus = data.education || [];
+  if (edus.some(e => e.institution && e.degree)) score += 10;
+  // Skills (10) — at least 1 category filled
+  const sk = data.skills || {};
+  if (sk.languages || sk.frameworks || sk.tools || sk.other) score += 10;
+  // Optional sections (5) — any 1 item in projects/certs/volunteer/awards/talks
+  const optionals = [...(data.projects||[]), ...(data.certifications||[]), ...(data.volunteer||[]), ...(data.awards||[]), ...(data.talks||[])];
+  if (optionals.length > 0) score += 5;
+
+  score = Math.round(Math.min(100, score));
+
+  // Update DOM
+  scoreEl.textContent = score + '%';
+  fillEl.style.width = score + '%';
+
+  // Color & emoji based on score
+  let color, emoji, hint;
+  if (score === 0) {
+    color = 'var(--muted)'; emoji = '📝'; hint = 'Isi biodata untuk melihat skor';
+  } else if (score < 30) {
+    color = 'var(--error)'; emoji = '🔴'; hint = 'Masih banyak yang perlu dilengkapi';
+  } else if (score < 60) {
+    color = 'var(--warn)'; emoji = '🟡'; hint = 'Lumayan! Tambahkan pengalaman & keahlian';
+  } else if (score < 85) {
+    color = 'var(--accent2)'; emoji = '🔵'; hint = 'Bagus! Lengkapi bagian opsional';
+  } else {
+    color = 'var(--accent)'; emoji = '🎉'; hint = 'Luar biasa! CV Anda sangat lengkap';
+  }
+
+  fillEl.style.background = color;
+  scoreEl.style.color = color;
+  if (hintEl) hintEl.textContent = hint;
+  if (emojiEl) emojiEl.textContent = emoji;
+}

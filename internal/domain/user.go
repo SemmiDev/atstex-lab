@@ -28,11 +28,29 @@ func (u *User) IsAdmin() bool {
 
 // AdminStats holds aggregate dashboard statistics.
 type AdminStats struct {
-	TotalUsers    int   `db:"total_users"     json:"totalUsers"`
-	TotalAdmins   int   `db:"total_admins"    json:"totalAdmins"`
-	TotalAITokens int64 `db:"total_ai_tokens" json:"totalAITokens"`
-	TotalBiodata  int   `db:"total_biodata"   json:"totalBiodata"`
-	TotalSessions int   `db:"total_sessions"  json:"totalSessions"`
+	TotalUsers          int   `db:"total_users"           json:"totalUsers"`
+	TotalAdmins         int   `db:"total_admins"          json:"totalAdmins"`
+	TotalAITokens       int64 `db:"total_ai_tokens"       json:"totalAITokens"`
+	TotalBiodata        int   `db:"total_biodata"         json:"totalBiodata"`
+	TotalSessions       int   `db:"total_sessions"        json:"totalSessions"`
+	TotalCVReviews      int   `db:"total_cv_reviews"      json:"totalCVReviews"`
+	TotalCoverLetters   int   `db:"total_cover_letters"   json:"totalCoverLetters"`
+	TotalATSSimulations int   `db:"total_ats_simulations" json:"totalATSSimulations"`
+	TotalJobApps        int   `db:"total_job_apps"        json:"totalJobApps"`
+}
+
+// AdminDailyCount is a single (date, count) pair used in analytics charts.
+type AdminDailyCount struct {
+	Date  string `db:"date"  json:"date"`
+	Count int    `db:"count" json:"count"`
+}
+
+// AdminAnalytics holds time-series data for charts.
+type AdminAnalytics struct {
+	UserRegistrations []AdminDailyCount `json:"userRegistrations"`
+	CVReviews         []AdminDailyCount `json:"cvReviews"`
+	CoverLetters      []AdminDailyCount `json:"coverLetters"`
+	ATSSimulations    []AdminDailyCount `json:"atsSimulations"`
 }
 
 // AdminUserRow is returned by the admin user listing endpoint.

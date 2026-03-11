@@ -35,11 +35,98 @@
       document.getElementById('stat-ai-tokens').textContent = fmtNum(s.totalAITokens);
       document.getElementById('stat-biodata').textContent = fmtNum(s.totalBiodata);
       document.getElementById('stat-sessions').textContent = fmtNum(s.totalSessions);
+      const el = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = fmtNum(v); };
+      el('stat-cv-reviews', s.totalCVReviews);
+      el('stat-cover-letters', s.totalCoverLetters);
+      el('stat-ats-sims', s.totalATSSimulations);
+      el('stat-job-apps', s.totalJobApps);
     } catch (e) {
       console.error('Failed to load stats:', e);
     }
   }
   loadStats();
+
+  // ── Analytics Charts ───────────────────────────────────────
+  let chartsLoaded = false;
+  async function loadAnalytics() {
+    if (chartsLoaded) return;
+    chartsLoaded = true;
+    try {
+      const res = await fetch('/api/admin/analytics');
+      if (!res.ok) throw new Error('Failed');
+      const data = await res.json();
+
+      const fmtLabel = (iso) => {
+        const d = new Date(iso);
+        return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+      };
+
+      const chartOpts = {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 2.2,
+        devicePixelRatio: 2,
+        plugins: { legend: { labels: { font: { family: "'DM Sans', sans-serif", weight: 700, size: 11 }, usePointStyle: true, padding: 16 } } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { family: "'Fira Code', monospace", size: 9 }, maxRotation: 45, minRotation: 30 } },
+          y: { beginAtZero: true, ticks: { font: { family: "'Fira Code', monospace", size: 10 }, stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.06)' } }
+        }
+      };
+
+      // Chart 1: User Registrations (line)
+      const regCtx = document.getElementById('chart-registrations');
+      if (regCtx) {
+        new Chart(regCtx, {
+          type: 'line',
+          data: {
+            labels: data.userRegistrations.map(d => fmtLabel(d.date)),
+            datasets: [{
+              label: 'Pendaftaran',
+              data: data.userRegistrations.map(d => d.count),
+              borderColor: '#3b82f6',
+              backgroundColor: 'rgba(59,130,246,0.1)',
+              borderWidth: 3,
+              fill: true,
+              tension: 0.35,
+              pointRadius: 2,
+              pointHoverRadius: 6,
+              pointBackgroundColor: '#3b82f6'
+            }]
+          },
+          options: chartOpts
+        });
+      }
+
+      // Chart 2: AI Feature Usage (stacked bar)
+      const aiCtx = document.getElementById('chart-ai-usage');
+      if (aiCtx) {
+        const labels = data.cvReviews.map(d => fmtLabel(d.date));
+        new Chart(aiCtx, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [
+              { label: 'Review CV', data: data.cvReviews.map(d => d.count), backgroundColor: '#5eeb8f', borderWidth: 0, borderRadius: 2 },
+              { label: 'Surat Lamaran', data: data.coverLetters.map(d => d.count), backgroundColor: '#b066ff', borderWidth: 0, borderRadius: 2 },
+              { label: 'Simulasi ATS', data: data.atsSimulations.map(d => d.count), backgroundColor: '#ff8c3a', borderWidth: 0, borderRadius: 2 }
+            ]
+          },
+          options: {
+            ...chartOpts,
+            scales: {
+              ...chartOpts.scales,
+              x: { ...chartOpts.scales.x, stacked: true },
+              y: { ...chartOpts.scales.y, stacked: true }
+            }
+          }
+        });
+      }
+    } catch (e) {
+      chartsLoaded = false;
+      console.error('Failed to load analytics:', e);
+    }
+  }
+  loadAnalytics();
 
   // ── Users Panel ─────────────────────────────────────────────
   let usersLoaded = false;

@@ -56,6 +56,7 @@ type Repository interface {
 	AdminRevokeUserAdmin(ctx context.Context, userID uuid.UUID) error
 	// Admin methods
 	AdminGetStats(ctx context.Context) (*domain.AdminStats, error)
+	AdminGetAnalytics(ctx context.Context) (*domain.AdminAnalytics, error)
 	AdminListUsers(ctx context.Context, params domain.AdminListParams) ([]domain.AdminUserRow, int, error)
 	// CV Review
 	CreateCVReview(ctx context.Context, review *domain.CVReview) error
@@ -307,9 +308,62 @@ func (r *postgresRepo) AdminGetStats(ctx context.Context) (*domain.AdminStats, e
 			(SELECT COUNT(*) FROM users WHERE role = 'admin') AS total_admins,
 			(SELECT COALESCE(SUM(ai_tokens_used), 0) FROM users) AS total_ai_tokens,
 			(SELECT COUNT(*) FROM cv_profiles) AS total_biodata,
-			(SELECT COUNT(*) FROM sessions WHERE expires_at > NOW()) AS total_sessions
+			(SELECT COUNT(*) FROM sessions WHERE expires_at > NOW()) AS total_sessions,
+			(SELECT COUNT(*) FROM cv_reviews) AS total_cv_reviews,
+			(SELECT COUNT(*) FROM cover_letters) AS total_cover_letters,
+			(SELECT COUNT(*) FROM ats_simulations) AS total_ats_simulations,
+			(SELECT COUNT(*) FROM job_applications) AS total_job_apps
 	`)
 	return &stats, err
+}
+
+func (r *postgresRepo) AdminGetAnalytics(ctx context.Context) (*domain.AdminAnalytics, error) {
+	analytics := &domain.AdminAnalytics{}
+
+	// Helper to query a daily count series for the last 30 days.
+	queryDaily := func(table string) ([]domain.AdminDailyCount, error) {
+		var rows []domain.AdminDailyCount
+		q := fmt.Sprintf(`
+			SELECT d::date::text AS date, COALESCE(c.cnt, 0) AS count
+			FROM generate_series(
+				(CURRENT_DATE - INTERVAL '29 days'),
+				CURRENT_DATE,
+				'1 day'
+			) AS d
+			LEFT JOIN (
+				SELECT DATE_TRUNC('day', created_at)::date AS day, COUNT(*) AS cnt
+				FROM %s
+				WHERE created_at >= CURRENT_DATE - INTERVAL '29 days'
+				GROUP BY day
+			) c ON c.day = d::date
+			ORDER BY d
+		`, table)
+		err := r.db.SelectContext(ctx, &rows, q)
+		if rows == nil {
+			rows = []domain.AdminDailyCount{}
+		}
+		return rows, err
+	}
+
+	var err error
+	analytics.UserRegistrations, err = queryDaily("users")
+	if err != nil {
+		return nil, fmt.Errorf("user registrations: %w", err)
+	}
+	analytics.CVReviews, err = queryDaily("cv_reviews")
+	if err != nil {
+		return nil, fmt.Errorf("cv reviews: %w", err)
+	}
+	analytics.CoverLetters, err = queryDaily("cover_letters")
+	if err != nil {
+		return nil, fmt.Errorf("cover letters: %w", err)
+	}
+	analytics.ATSSimulations, err = queryDaily("ats_simulations")
+	if err != nil {
+		return nil, fmt.Errorf("ats simulations: %w", err)
+	}
+
+	return analytics, nil
 }
 
 var allowedSortColumns = map[string]string{
