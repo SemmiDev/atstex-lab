@@ -119,7 +119,7 @@ func Compile(ctx context.Context, source []byte, opts Options) (*Result, error) 
 
 	// Tectonic uses a different invocation and handles multiple passes internally.
 	if engine == EngineTectonic {
-		return compileTectonic(ctx, workDir, srcFile, start, timeout)
+		return compileTectonic(ctx, workDir, srcFile, start, timeout, opts)
 	}
 
 	// Determine number of passes: 2 for full compile, 1 for fast preview.
@@ -181,16 +181,21 @@ func Compile(ctx context.Context, source []byte, opts Options) (*Result, error) 
 
 // compileTectonic handles compilation via the Tectonic engine, which
 // manages its own multi-pass logic internally.
-func compileTectonic(ctx context.Context, workDir, srcFile string, start time.Time, timeout time.Duration) (*Result, error) {
+func compileTectonic(ctx context.Context, workDir, srcFile string, start time.Time, timeout time.Duration, opts Options) (*Result, error) {
 	var logBuf bytes.Buffer
 
-	cmd := exec.CommandContext(ctx,
-		"tectonic",
+	args := []string{
 		"--outdir", workDir,
-		"--keep-logs",
 		"--untrusted",
-		srcFile,
-	)
+	}
+
+	if opts.SinglePass {
+		args = append(args, "--pass", "tex")
+	}
+
+	args = append(args, srcFile)
+
+	cmd := exec.CommandContext(ctx, "tectonic", args...)
 	cmd.Dir = workDir
 	cmd.Stdout = &logBuf
 	cmd.Stderr = &logBuf

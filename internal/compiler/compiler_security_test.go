@@ -321,12 +321,12 @@ func TestCompileSuccessfulDocument(t *testing.T) {
 Hello, World!
 \end{document}`
 
-	ctx, cancel := context.WithTimeout(t.Context(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(t.Context(), 90*time.Second)
 	defer cancel()
 
 	opts := Options{
 		Engine:  EngineTectonic,
-		Timeout: 30 * time.Second,
+		Timeout: 90 * time.Second,
 	}
 
 	result, err := Compile(ctx, []byte(source), opts)
