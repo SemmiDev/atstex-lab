@@ -4,9 +4,9 @@ const dictionary = {
   en: {
     "nav.home": "Home",
     "nav.build": "Build",
-    "hero.title.1": "Pass",
-    "hero.title.2": "the ATS.",
-    "hero.title.3": "Impress the Recruiter.",
+    "hero.title.1": "Craft a Resume",
+    "hero.title.2": "That Stands Out.",
+    "hero.title.3": "Impress Every Recruiter.",
     "hero.subtitle":
       "ATSTEXLAB helps you build a professional, ATS-friendly resume that recruiters actually want to read. Just fill in your details, pick a clean template, and download your PDF.",
     "hero.btn.builder": "Build My Resume",
@@ -53,8 +53,8 @@ const dictionary = {
   id: {
     "nav.home": "Beranda",
     "nav.build": "Buat CV",
-    "hero.title.1": "Tembus",
-    "hero.title.2": "Sistem ATS.",
+    "hero.title.1": "Buat CV",
+    "hero.title.2": "Yang Menonjol.",
     "hero.title.3": "Bikin Rekruter Terkesan.",
     "hero.subtitle":
       "Bikin CV profesional yang ramah ATS tanpa ribet. Cukup isi profil kamu, pilih template yang rapi, dan langsung unduh hasilnya dalam format PDF.",
