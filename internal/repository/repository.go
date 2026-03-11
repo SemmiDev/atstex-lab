@@ -586,22 +586,22 @@ func (r *postgresRepo) CountCoverLettersByDate(ctx context.Context, userID uuid.
 // ── Job Application Tracking ──────────────────────────────────
 
 func (r *postgresRepo) CreateJobApplication(ctx context.Context, j *domain.JobApplication) (*domain.JobApplication, error) {
-	query := `INSERT INTO job_applications (user_id, cv_profile_id, company, job_title, status, notes)
-		VALUES ($1, $2, $3, $4, $5, $6)
-		RETURNING id, user_id, cv_profile_id, company, job_title, status, notes, created_at, updated_at`
+	query := `INSERT INTO job_applications (user_id, cv_profile_id, company, job_title, status, notes, deadline)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		RETURNING id, user_id, cv_profile_id, company, job_title, status, notes, deadline, created_at, updated_at`
 
 	var cvProfileID interface{}
 	if j.CVProfileID != nil {
 		cvProfileID = *j.CVProfileID
 	}
-	err := r.db.GetContext(ctx, j, query, j.UserID, cvProfileID, j.Company, j.JobTitle, j.Status, j.Notes)
+	err := r.db.GetContext(ctx, j, query, j.UserID, cvProfileID, j.Company, j.JobTitle, j.Status, j.Notes, j.Deadline)
 	return j, err
 }
 
 func (r *postgresRepo) GetJobApplicationsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.JobApplication, error) {
 	var apps []domain.JobApplication
 	err := r.db.SelectContext(ctx, &apps,
-		`SELECT id, user_id, cv_profile_id, company, job_title, status, notes, created_at, updated_at
+		`SELECT id, user_id, cv_profile_id, company, job_title, status, notes, deadline, created_at, updated_at
 		 FROM job_applications WHERE user_id = $1 ORDER BY created_at DESC`, userID)
 	if err != nil {
 		return nil, err
@@ -632,10 +632,10 @@ func (r *postgresRepo) UpdateJobApplication(ctx context.Context, app *domain.Job
 	}
 
 	query := `UPDATE job_applications
-			  SET company = $1, job_title = $2, cv_profile_id = $3, notes = $4, updated_at = CURRENT_TIMESTAMP
-			  WHERE id = $5 AND user_id = $6`
+			  SET company = $1, job_title = $2, cv_profile_id = $3, notes = $4, deadline = $5, updated_at = CURRENT_TIMESTAMP
+			  WHERE id = $6 AND user_id = $7`
 
-	_, err := r.db.ExecContext(ctx, query, app.Company, app.JobTitle, cvProfileID, app.Notes, app.ID, app.UserID)
+	_, err := r.db.ExecContext(ctx, query, app.Company, app.JobTitle, cvProfileID, app.Notes, app.Deadline, app.ID, app.UserID)
 	return err
 }
 

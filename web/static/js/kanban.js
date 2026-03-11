@@ -17,12 +17,41 @@ document.addEventListener('DOMContentLoaded', () => {
     addJobBtn.addEventListener('click', () => {
         jobForm.reset();
         document.getElementById('application-id').value = '';
+        document.getElementById('deadline').value = '';
         document.getElementById('modal-title').textContent = 'Tambah Lamaran Pekerjaan';
         showModal();
     });
 
     cancelBtn.addEventListener('click', hideModal);
     document.getElementById('cancel-btn-top')?.addEventListener('click', hideModal);
+
+    // --- Stats Pipeline ---
+    const updateStats = () => {
+        const counts = { Applied: 0, Interview: 0, Offer: 0, Rejected: 0 };
+        applications.forEach(app => {
+            if (counts.hasOwnProperty(app.status)) counts[app.status]++;
+        });
+        document.getElementById('stats-applied').textContent = counts.Applied;
+        document.getElementById('stats-interview').textContent = counts.Interview;
+        document.getElementById('stats-offer').textContent = counts.Offer;
+        document.getElementById('stats-rejected').textContent = counts.Rejected;
+    };
+
+    // --- Helper: check if a date string is overdue ---
+    const isOverdue = (deadline) => {
+        if (!deadline) return false;
+        const deadlineDate = new Date(deadline);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        deadlineDate.setHours(0, 0, 0, 0);
+        return deadlineDate < today;
+    };
+
+    const formatDeadline = (deadline) => {
+        if (!deadline) return '';
+        const d = new Date(deadline);
+        return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    };
 
     // --- Data Fetching ---
     const fetchCVProfiles = async () => {
@@ -42,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error('Failed to fetch applications');
             applications = await response.json();
             renderBoard();
+            updateStats();
         } catch (error) {
             console.error('Error fetching applications:', error);
         }
@@ -61,10 +91,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const createApplicationCard = (app) => {
         const card = document.createElement('div');
         card.className = 'kanban-card';
+        if (isOverdue(app.deadline) && app.status !== 'Rejected' && app.status !== 'Offer') {
+            card.classList.add('overdue');
+        }
         card.dataset.id = app.id;
+
+        let deadlineHtml = '';
+        if (app.deadline) {
+            const overdueClass = isOverdue(app.deadline) && app.status !== 'Rejected' && app.status !== 'Offer' ? 'deadline-overdue' : '';
+            deadlineHtml = `<span class="deadline-label ${overdueClass}"><i class="ph ph-calendar"></i> ${formatDeadline(app.deadline)}</span>`;
+        }
+
         card.innerHTML = `
             <h3>${app.company}</h3>
             <p>${app.job_title}</p>
+            ${deadlineHtml}
             <button class="delete-app-btn" title="Delete"><i class="ph-bold ph-trash"></i></button>
         `;
 
@@ -74,6 +115,13 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('job-title').value = app.job_title;
             document.getElementById('cv-profile').value = app.cv_profile_id || '';
             document.getElementById('notes').value = app.notes || '';
+            // Set deadline value (extract date part from ISO string)
+            if (app.deadline) {
+                const d = new Date(app.deadline);
+                document.getElementById('deadline').value = d.toISOString().split('T')[0];
+            } else {
+                document.getElementById('deadline').value = '';
+            }
             document.getElementById('modal-title').textContent = 'Edit Job Application';
             showModal();
         });
@@ -105,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const jobTitle = document.getElementById('job-title').value;
         const cvProfileId = document.getElementById('cv-profile').value;
         const notes = document.getElementById('notes').value;
+        const deadline = document.getElementById('deadline').value || null;
         const appId = document.getElementById('application-id').value;
 
         if (!company || !jobTitle || !cvProfileId) {
@@ -117,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
             job_title: jobTitle,
             cv_profile_id: cvProfileId,
             notes,
+            deadline,
         };
 
         try {
@@ -143,6 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 applications.push(newApp);
             }
             renderBoard();
+            updateStats();
             hideModal();
         } catch (error) {
             console.error('Error saving application:', error);
@@ -161,10 +212,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update local data and re-render
             const app = applications.find(a => a.id === appId);
             if(app) app.status = newStatus;
-            renderBoard(); // Re-rendering to ensure consistency
+            renderBoard();
+            updateStats();
         } catch (error) {
             console.error('Error updating status:', error);
-            // Revert UI change on failure if implemented optimistically
         }
     };
 
@@ -177,6 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             applications = applications.filter(a => a.id !== appId);
             renderBoard();
+            updateStats();
         } catch (error) {
             console.error('Error deleting application:', error);
             alert('Could not delete application.');

@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -25,6 +26,7 @@ func (s *Server) CreateJobApplication() http.HandlerFunc {
 			Status      string    `json:"status"`
 			Notes       string    `json:"notes"`
 			CVProfileID uuid.UUID `json:"cv_profile_id"`
+			Deadline    *string   `json:"deadline"`
 		}
 
 		var req CreateJobApplicationRequest
@@ -43,6 +45,13 @@ func (s *Server) CreateJobApplication() http.HandlerFunc {
 
 		if req.CVProfileID != uuid.Nil {
 			app.CVProfileID = &req.CVProfileID
+		}
+
+		if req.Deadline != nil && *req.Deadline != "" {
+			t, err := time.Parse("2006-01-02", *req.Deadline)
+			if err == nil {
+				app.Deadline = &t
+			}
 		}
 
 		if app.Status == "" {
@@ -136,6 +145,7 @@ func (s *Server) UpdateJobApplication() http.HandlerFunc {
 			JobTitle    string    `json:"job_title"`
 			Notes       string    `json:"notes"`
 			CVProfileID uuid.UUID `json:"cv_profile_id"`
+			Deadline    *string   `json:"deadline"`
 		}
 
 		var req UpdateJobApplicationRequest
@@ -154,6 +164,13 @@ func (s *Server) UpdateJobApplication() http.HandlerFunc {
 
 		if req.CVProfileID != uuid.Nil {
 			app.CVProfileID = &req.CVProfileID
+		}
+
+		if req.Deadline != nil && *req.Deadline != "" {
+			t, err := time.Parse("2006-01-02", *req.Deadline)
+			if err == nil {
+				app.Deadline = &t
+			}
 		}
 
 		if err := s.repo.UpdateJobApplication(r.Context(), app); err != nil {

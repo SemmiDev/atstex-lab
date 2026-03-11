@@ -100,6 +100,12 @@ CREATE TABLE IF NOT EXISTS job_applications (
 CREATE INDEX IF NOT EXISTS idx_job_applications_user_id ON job_applications(user_id);
 CREATE INDEX IF NOT EXISTS idx_job_applications_cv_profile_id ON job_applications(cv_profile_id);
 
+-- Migration: add deadline column to job_applications
+DO $$ BEGIN
+    ALTER TABLE job_applications ADD COLUMN IF NOT EXISTS deadline DATE;
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;
+
 CREATE TABLE IF NOT EXISTS ats_simulations (
     id UUID PRIMARY KEY DEFAULT uuidv7(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,

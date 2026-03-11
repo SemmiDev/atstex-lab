@@ -21,6 +21,23 @@
         --error: #ff3333;
         --warn: #ffdb33;
         --radius: 0px;
+        --shadow: 4px 4px 0 #000;
+    }
+
+    [data-theme="dark"] {
+        --bg: #1a1a2e;
+        --surface: #16213e;
+        --surface2: #0f3460;
+        --border: #e94560;
+        --text: #eeeeee;
+        --muted: #aaaaaa;
+        --accent: #e94560;
+        --accent2: #7b68ee;
+        --accent3: #00d4aa;
+        --accent4: #f5a623;
+        --error: #ff4757;
+        --warn: #f5a623;
+        --shadow: 4px 4px 0 rgba(233, 69, 96, 0.4);
     }
 }
 

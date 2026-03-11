@@ -14,6 +14,7 @@ type JobApplication struct {
 	JobTitle    string     `db:"job_title"     json:"job_title"`
 	Status      string     `db:"status"        json:"status"`
 	Notes       string     `db:"notes"         json:"notes"`
+	Deadline    *time.Time `db:"deadline"      json:"deadline,omitempty"`
 	CreatedAt   time.Time  `db:"created_at"    json:"created_at"`
 	UpdatedAt   time.Time  `db:"updated_at"    json:"updated_at"`
 }

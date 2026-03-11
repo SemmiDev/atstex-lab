@@ -105,3 +105,108 @@
     color: var(--error);
     background: rgba(255, 51, 51, 0.1);
 }
+
+/* ── Stats Pipeline Funnel ─────────────────────────── */
+.stats-panel {
+    background: var(--surface);
+    border: 3px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+}
+
+.stats-funnel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.stats-stage {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 2px solid var(--border);
+    background: var(--bg);
+    transition: all 0.15s;
+}
+
+.stats-stage[data-stage="Applied"] { border-left: 4px solid var(--accent2); }
+.stats-stage[data-stage="Interview"] { border-left: 4px solid var(--warn); }
+.stats-stage[data-stage="Offer"] { border-left: 4px solid var(--accent3); }
+.stats-stage[data-stage="Rejected"] { border-left: 4px solid var(--error); }
+
+.stats-count {
+    font-family: 'Fira Code', monospace;
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.stats-stage[data-stage="Applied"] .stats-count { color: var(--accent2); }
+.stats-stage[data-stage="Interview"] .stats-count { color: #b8860b; }
+.stats-stage[data-stage="Offer"] .stats-count { color: var(--accent3); }
+.stats-stage[data-stage="Rejected"] .stats-count { color: var(--error); }
+
+.stats-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+}
+
+.stats-arrow {
+    color: var(--muted);
+    font-size: 16px;
+    opacity: 0.5;
+}
+
+/* ── Overdue Card Highlight ────────────────────────── */
+.kanban-card.overdue {
+    border-color: var(--error);
+    background: #fff5f5;
+    box-shadow: 2px 2px 0 var(--error);
+    animation: overduePulse 2s ease-in-out infinite;
+}
+
+[data-theme="dark"] .kanban-card.overdue {
+    background: #3a1a1a;
+}
+
+@keyframes overduePulse {
+    0%, 100% { border-color: var(--error); }
+    50% { border-color: #ff9999; }
+}
+
+.kanban-card.overdue:hover {
+    box-shadow: 4px 4px 0 var(--error);
+}
+
+/* ── Deadline Label on Cards ───────────────────────── */
+.deadline-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-family: 'Fira Code', monospace;
+    font-weight: 600;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+}
+
+.deadline-label.deadline-overdue {
+    color: var(--error);
+    background: #fff0f0;
+    border-color: var(--error);
+    font-weight: 800;
+}
+
+[data-theme="dark"] .deadline-label.deadline-overdue {
+    background: #3a1a1a;
+}
