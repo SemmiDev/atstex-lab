@@ -60,6 +60,10 @@
           <i class="ph-bold ph-chat-circle-text"></i>
           <span>Saran & Masukan</span>
         </button>
+        <button class="sidebar-link" id="dark-mode-toggle">
+          <i class="ph-bold ph-moon"></i>
+          <span class="sidebar-nav-text">Mode Gelap</span>
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -395,6 +399,7 @@
     if (toggleBtn) toggleBtn.addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('open'); });
     if (overlay) overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); });
   </script>
+  <script src="/static/js/dark-mode.js"></script>
 </body>
 
 </html>

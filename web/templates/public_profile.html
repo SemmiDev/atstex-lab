@@ -142,7 +142,10 @@
 <body>
     <nav class="public-nav">
         <a href="/" class="logo">ATSTEX<em>LAB</em></a>
-        <div>
+        <div class="flex items-center gap-3">
+            <button id="dark-mode-toggle" class="download-btn" style="background:var(--surface);color:var(--text);border:2px solid var(--border);padding:0.4rem 0.6rem;">
+                <i class="ph-bold ph-moon text-lg"></i>
+            </button>
             {{if .User}}
             <a href="/input" class="download-btn" style="font-size:0.7rem; padding:0.4rem 0.8rem;">
                 <i class="ph-bold ph-magic-wand"></i> Resume Saya
@@ -396,6 +399,7 @@
         }
     });
     </script>
+    <script src="/static/js/dark-mode.js"></script>
 </body>
 
 </html>
