@@ -1134,3 +1134,95 @@ pre#log-output .warn-line {
   white-space: pre-wrap;
   word-break: break-all;
 }
+
+/* ── Template Picker ─────────────────────────────────── */
+.template-picker-wrap {
+  position: relative;
+}
+
+.template-picker-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  font: 700 13px/1 var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--surface);
+  border: 3px solid var(--border);
+  box-shadow: 3px 3px 0 #000;
+  cursor: pointer;
+  transition: all 0.1s;
+  white-space: nowrap;
+}
+
+.template-picker-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #000;
+}
+
+.template-picker-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #000;
+}
+
+.template-picker-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  background: var(--surface);
+  border: 3px solid var(--border);
+  box-shadow: 6px 6px 0 #000;
+  padding: 12px;
+  min-width: 340px;
+}
+
+.template-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.tpl-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 6px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+  transition: all 0.1s;
+  text-align: center;
+}
+
+.tpl-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 3px 3px 0 #000;
+}
+
+.tpl-card.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 3px 3px 0 #000;
+}
+
+.tpl-card-badge {
+  width: 48px;
+  height: 60px;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 800 18px/1 var(--font-disp);
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.tpl-card-name {
+  font: 700 10px/1.2 var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}

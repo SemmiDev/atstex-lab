@@ -117,12 +117,19 @@
         </select>
       </div>
 
-      <div class="engine-select-wrap" style="margin-left: 10px;">
-        <label for="template">Template</label>
-        <select id="template">
+      <div class="template-picker-wrap" style="margin-left: 10px; position:relative;">
+        <!-- <label for="template">Template</label> -->
+        <select id="template" style="display:none;">
           <option value="">(Kosong)</option>
           <option value="example">Contoh</option>
         </select>
+        <button type="button" id="template-picker-btn" class="template-picker-btn">
+          <span id="template-picker-label">Pilih Template</span>
+          <i class="ph-bold ph-caret-down" style="font-size:14px;"></i>
+        </button>
+        <div id="template-picker-dropdown" class="template-picker-dropdown" style="display:none;">
+          <div id="template-picker-grid" class="template-picker-grid"></div>
+        </div>
       </div>
 
       <button class="btn btn-primary" id="btn-compile" title="Compile (Ctrl+Enter)">

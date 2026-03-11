@@ -124,7 +124,7 @@ func (s *Server) handlePublicProfileDownloadPDF() http.HandlerFunc {
 		templateName := templates[0].Name
 		ps := cvtemplate.DefaultPageSettings()
 
-		rendered, err := cvtemplate.Render(templateName, cvData, ps)
+		rendered, err := cvtemplate.Render(templateName, cvData, ps, true)
 		if err != nil {
 			s.reqLog(r).Error("template render error for PDF", "err", err)
 			http.Error(w, "failed to render template", http.StatusInternalServerError)

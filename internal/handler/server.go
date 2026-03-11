@@ -287,7 +287,7 @@ func (s *Server) handleRenderTemplate() http.HandlerFunc {
 			ps = *req.Settings
 		}
 
-		content, err := cvtemplate.Render(name, req.CVData, ps)
+		content, err := cvtemplate.Render(name, req.CVData, ps, s.isFreeTier(r))
 		if err != nil {
 			s.reqLog(r).Error("template render error", "err", err)
 			s.respondError(w, r, err, http.StatusInternalServerError)
@@ -390,7 +390,7 @@ func (s *Server) handleApplyPageSettings() http.HandlerFunc {
 		// Sanitize all user-supplied fields before template injection.
 		compiler.SanitizeCVData(&req.CVData)
 
-		content, err := cvtemplate.Render(req.Template, req.CVData, req.Settings)
+		content, err := cvtemplate.Render(req.Template, req.CVData, req.Settings, s.isFreeTier(r))
 		if err != nil {
 			s.reqLog(r).Error("page settings render error", "err", err)
 			s.respondError(w, r, err, http.StatusInternalServerError)
@@ -811,6 +811,19 @@ func (s *Server) handleAdminDeleteFeedback() http.HandlerFunc {
 	}
 }
 
+// isFreeTier returns true if the current user has no paid subscription.
+func (s *Server) isFreeTier(r *http.Request) bool {
+	user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+	if user == nil {
+		return true
+	}
+	sub, err := s.repo.GetUserActiveSubscription(r.Context(), user.ID)
+	if err != nil || sub == nil || sub.Plan == nil {
+		return true
+	}
+	return sub.Plan.PriceIDR == 0
+}
+
 // checkSubscriptionLimits checks if a user has exceeded their AI feature limits for the active plan.
 func (s *Server) checkSubscriptionLimits(ctx context.Context, userID uuid.UUID, feature string) error {
 	sub, err := s.repo.GetUserActiveSubscription(ctx, userID)
@@ -1192,6 +1205,8 @@ func (s *Server) handleGalleryCompile() http.HandlerFunc {
 			ps = *req.Settings
 		}
 
+		showWatermark := s.isFreeTier(r)
+
 		tpls, err := cvtemplate.List()
 		if err != nil {
 			s.respondErrMsg(w, r, "failed to list templates", http.StatusInternalServerError)
@@ -1209,7 +1224,7 @@ func (s *Server) handleGalleryCompile() http.HandlerFunc {
 			go func(idx int, name string) {
 				res := galleryCompileResult{Name: name}
 
-				source, renderErr := cvtemplate.Render(name, req.CVData, ps)
+				source, renderErr := cvtemplate.Render(name, req.CVData, ps, showWatermark)
 				if renderErr != nil {
 					res.Error = "render: " + renderErr.Error()
 					ch <- indexedResult{idx, res}

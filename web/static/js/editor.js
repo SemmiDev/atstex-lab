@@ -492,12 +492,51 @@ document.addEventListener("mouseup", () => {
   if (biodataFrameRef) biodataFrameRef.style.pointerEvents = "";
 });
 
-// ── Template Selector ─────────────────────────────────────────
+// ── Template Picker (Visual Cards) ────────────────────────────
+const templateColors = {
+  bay:   '#3b82f6', delta: '#10b981', reef:  '#f59e0b',
+  sea:   '#6366f1', tide:  '#ec4899', wave:  '#14b8a6',
+};
+const pickerBtn    = document.getElementById('template-picker-btn');
+const pickerLabel  = document.getElementById('template-picker-label');
+const pickerDrop   = document.getElementById('template-picker-dropdown');
+const pickerGrid   = document.getElementById('template-picker-grid');
+
+function selectTemplateCard(name, label) {
+  // Update hidden select
+  templateSel.value = name;
+  templateSel.dispatchEvent(new Event('change'));
+  // Update button label
+  pickerLabel.textContent = label || name || 'Pilih Template';
+  // Mark active card
+  pickerGrid.querySelectorAll('.tpl-card').forEach(c => {
+    c.classList.toggle('active', c.dataset.name === name);
+  });
+  // Close
+  pickerDrop.style.display = 'none';
+}
+
+// Toggle dropdown
+if (pickerBtn) {
+  pickerBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    pickerDrop.style.display = pickerDrop.style.display === 'none' ? 'block' : 'none';
+  });
+}
+// Close on outside click
+document.addEventListener('click', (e) => {
+  if (pickerDrop && !pickerDrop.contains(e.target) && e.target !== pickerBtn) {
+    pickerDrop.style.display = 'none';
+  }
+});
+
 async function fetchTemplates() {
   try {
     const res = await fetch("/api/templates");
     if (!res.ok) return;
     const tpls = await res.json();
+
+    // Also keep hidden select in sync for backward compat
     for (const tpl of tpls) {
       const opt = document.createElement("option");
       opt.value = tpl.name;
@@ -505,12 +544,29 @@ async function fetchTemplates() {
       templateSel.appendChild(opt);
     }
 
+    // Build visual cards
+    if (pickerGrid) {
+      pickerGrid.innerHTML = '';
+      for (const tpl of tpls) {
+        const color = templateColors[tpl.name] || '#888';
+        const initial = tpl.name.charAt(0).toUpperCase();
+        const card = document.createElement('div');
+        card.className = 'tpl-card';
+        card.dataset.name = tpl.name;
+        card.innerHTML = `
+          <div class="tpl-card-badge" style="background:${color};">${initial}</div>
+          <div class="tpl-card-name">${tpl.name}</div>
+        `;
+        card.addEventListener('click', () => selectTemplateCard(tpl.name, tpl.name));
+        pickerGrid.appendChild(card);
+      }
+    }
+
     // Check if Gallery View pre-selected a template
     const galleryPick = localStorage.getItem("gallery_selected_template");
     if (galleryPick) {
       localStorage.removeItem("gallery_selected_template");
-      templateSel.value = galleryPick;
-      templateSel.dispatchEvent(new Event("change"));
+      selectTemplateCard(galleryPick, galleryPick);
     }
   } catch (err) {
     console.error("Failed to fetch templates:", err);

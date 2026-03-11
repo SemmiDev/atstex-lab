@@ -277,7 +277,8 @@ func fontPkg(family string) string {
 }
 
 // Render processes the given LaTeX template with the provided CVData and PageSettings.
-func Render(name string, data CVData, ps PageSettings) (string, error) {
+// If showWatermark is true, a subtle "Built with ATSTEXLAB" footer is appended.
+func Render(name string, data CVData, ps PageSettings, showWatermark bool) (string, error) {
 	raw, err := Get(name)
 	if err != nil {
 		return "", err
@@ -311,5 +312,18 @@ func Render(name string, data CVData, ps PageSettings) (string, error) {
 		return "", fmt.Errorf("failed to execute template: %w", err)
 	}
 
-	return buf.String(), nil
+	result := buf.String()
+
+	if showWatermark {
+		// Inject watermark before \end{document}
+		const watermark = `
+% ── ATSTEXLAB Watermark ──
+\AtEndDocument{\vfill\begin{center}\fontsize{7}{8}\selectfont\color{gray}Built with ATSTEXLAB — atstexlab.com\end{center}}
+`
+		if idx := strings.LastIndex(result, `\end{document}`); idx >= 0 {
+			result = result[:idx] + watermark + result[idx:]
+		}
+	}
+
+	return result, nil
 }
