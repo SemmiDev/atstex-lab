@@ -89,6 +89,10 @@ func (s *Server) routes() {
 		r.Get("/ats-simulator", s.handleAtsSimulatorPage())
 		r.Post("/api/ats-simulator", s.handleCreateAtsSimulation())
 		r.Get("/api/ats-simulations", s.handleListMyAtsSimulations())
+		// AI Interview Prep
+		r.Get("/interview-prep", s.handleInterviewPrepPage())
+		r.Post("/api/interview-prep", s.handleCreateInterviewPrep())
+		r.Get("/api/interview-preps", s.handleListMyInterviewPreps())
 		// Gallery (Multi-Template Preview)
 		r.Get("/gallery", s.handleGalleryPage())
 		r.Post("/api/gallery/compile", s.handleGalleryCompile())

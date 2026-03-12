@@ -1,17 +1,15 @@
-{{define "ats-simulator"}}
+{{define "interview-prep"}}
 <!DOCTYPE html>
 <html lang="id">
 
 <head>
     <meta charset="UTF-8">
-    <title>atstex-lab — ATS Simulator</title>
+    <title>atstex-lab — AI Interview Prep</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
     <link rel="stylesheet" href="/static/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- Tesseract.js for OCR -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 
 <body class="flex flex-col md:flex-row h-dvh w-full bg-bg font-ui text-text overflow-hidden">
@@ -32,8 +30,8 @@
             <a href="/input" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a>
             <a href="/editor" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
             <a href="/cv-review" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">Review CV</span></a>
-            <a href="/ats-simulator" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i class="ph ph-robot text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.ats_simulator">Simulator ATS</span></a>
-            <a href="/interview-prep" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-users-three text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.interview_prep">Interview Prep</span></a>
+            <a href="/ats-simulator" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-robot text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.ats_simulator">Simulator ATS</span></a>
+            <a href="/interview-prep" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i class="ph ph-users-three text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.interview_prep">Interview Prep</span></a>
             <a href="/cover-letter" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Surat Lamaran</span></a>
             <a href="/kanban" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-columns text-2xl"></i> <span class="sidebar-nav-text">Kanban</span></a>
             <a href="/profile" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profil</span></a>
@@ -66,17 +64,17 @@
             <!-- Header -->
             <div class="flex flex-col gap-2">
                 <h1 class="text-3xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
-                    <i class="ph-bold ph-robot text-3xl"></i> <span data-i18n="ats.title">Simulator ATS</span>
+                    <i class="ph-bold ph-users-three text-3xl"></i> <span>AI Interview Prep</span>
                 </h1>
-                <p class="font-semibold text-muted" data-i18n="ats.desc">Cocokkan CV Anda dengan Deskripsi Pekerjaan. Tempel teks atau unggah gambar untuk mengekstrak teks.</p>
+                <p class="font-semibold text-muted">Hasilkan pertanyaan wawancara khusus (behavioral, technical, dsb) berdasarkan CV Anda dan Job Description.</p>
             </div>
 
             <!-- Form -->
             <div class="bg-surface border-[3px] border-border p-6 shadow-[4px_4px_0_#000]">
-                <form id="ats-form" class="flex flex-col gap-4">
+                <form id="prep-form" class="flex flex-col gap-4">
                     <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold uppercase tracking-wider text-muted" data-i18n="ats.form.profile">Profil CV</label>
-                        <select id="ats-profile" required class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]">
+                        <label class="text-xs font-bold uppercase tracking-wider text-muted">Profil CV</label>
+                        <select id="prep-profile" required class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]">
                             <option value="">— Pilih profil —</option>
                             {{range .Profiles}}
                             <option value="{{.ID}}">{{.Title}}</option>
@@ -84,39 +82,40 @@
                         </select>
                     </div>
 
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold uppercase tracking-wider text-muted" data-i18n="ats.form.language">Bahasa Simulasi</label>
-                        <select id="ats-lang" class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]">
-                            <option value="en">Inggris</option>
-                            <option value="id" selected>Bahasa Indonesia</option>
-                        </select>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <div class="flex flex-col gap-1 flex-1">
+                            <label class="text-xs font-bold uppercase tracking-wider text-muted">Bahasa</label>
+                            <select id="prep-lang" class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]">
+                                <option value="en">Inggris</option>
+                                <option value="id" selected>Bahasa Indonesia</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1 w-full sm:w-32">
+                            <label class="text-xs font-bold uppercase tracking-wider text-muted">Jumlah Soal</label>
+                            <input type="number" id="prep-count" value="10" min="5" max="20" required class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]">
+                        </div>
                     </div>
 
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-bold uppercase tracking-wider text-muted flex items-center justify-between">
-                            <span data-i18n="ats.form.jobdesc">Deskripsi Pekerjaan</span>
-                            <label class="cursor-pointer text-[10px] bg-accent4 border-[2px] border-border px-2 py-1 flex items-center gap-1 hover:bg-yellow-200">
-                                <i class="ph-bold ph-camera"></i> <span data-i18n="ats.form.upload">Unggah Gambar (OCR)</span>
-                                <input type="file" id="ats-image-upload" accept="image/*" class="hidden">
-                            </label>
+                            <span>Deskripsi Pekerjaan</span>
                         </label>
-                        <textarea id="ats-jobdesc" required rows="6" class="p-4 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)] resize-y" placeholder="Tempel deskripsi pekerjaan (syarat, tanggung jawab, dll) di sini..."></textarea>
-                        <span id="ocr-status" class="text-xs font-bold tracking-wider text-accent ml-1 empty:hidden"></span>
+                        <textarea id="prep-jobdesc" required rows="6" class="p-4 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)] resize-y" placeholder="Tempel detail job description di sini..."></textarea>
                     </div>
 
                     <div class="flex items-center gap-3 mt-2">
-                        <button type="submit" class="btn relative" id="ats-submit-btn">
-                            <i class="ph-bold ph-lightning"></i> <span data-i18n="ats.btn.simulate">Mulai Simulasi</span>
+                        <button type="submit" class="btn relative" id="prep-submit-btn">
+                            <i class="ph-bold ph-lightning"></i> <span>Mulai Persiapan</span>
                         </button>
-                        <span id="ats-errorMessage" class="text-sm font-bold text-error"></span>
+                        <span id="prep-errorMessage" class="text-sm font-bold text-error"></span>
                     </div>
                 </form>
             </div>
 
             <!-- Loading Overlay -->
-            <div id="ats-loading" style="display:none;" class="bg-surface border-[3px] border-border p-8 shadow-[4px_4px_0_#000] text-center">
-                <div style="font-size:2.5rem;animation:bounceUp 1s ease-in-out infinite;">🔍</div>
-                <h3 style="font-weight:800;font-size:1.1rem;text-transform:uppercase;margin:12px 0 8px;" data-i18n="ats.loading">Menganalisis kecocokan CV dengan Pekerjaan...</h3>
+            <div id="prep-loading" style="display:none;" class="bg-surface border-[3px] border-border p-8 shadow-[4px_4px_0_#000] text-center">
+                <div style="font-size:2.5rem;animation:bounceUp 1s ease-in-out infinite;">🤖</div>
+                <h3 style="font-weight:800;font-size:1.1rem;text-transform:uppercase;margin:12px 0 8px;">Menyusun Pertanyaan Wawancara...</h3>
                 <p style="font-family:var(--font-mono);font-size:0.85rem;color:var(--muted);">Proses ini memakan waktu 10-30 detik…</p>
                 <div style="display:flex;justify-content:center;gap:8px;margin-top:16px;">
                     <span style="width:12px;height:12px;border:2px solid var(--border);background:var(--accent);animation:dotPulse 1.4s ease-in-out infinite;"></span>
@@ -126,15 +125,15 @@
             </div>
 
             <!-- Latest Result -->
-            <div id="ats-result" style="display:none;" class="bg-surface border-[3px] border-border p-6 shadow-[4px_4px_0_#000]"></div>
+            <div id="prep-result" style="display:none;" class="bg-surface border-[3px] border-border p-6 shadow-[4px_4px_0_#000]"></div>
 
             <!-- History -->
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-2 mt-8">
                 <h2 class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
-                    <i class="ph-bold ph-clock-counter-clockwise text-3xl"></i> <span data-i18n="ats.history.title">Riwayat Simulasi</span>
+                    <i class="ph-bold ph-clock-counter-clockwise text-3xl"></i> <span>Riwayat Persiapan</span>
                 </h2>
             </div>
-            <div id="ats-history" class="flex flex-col gap-4">
+            <div id="prep-history" class="flex flex-col gap-4">
                 <div class="text-center text-muted font-semibold py-8">Memuat…</div>
             </div>
         </div>
@@ -144,16 +143,9 @@
         @keyframes bounceUp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
         @keyframes dotPulse { 0%, 80%, 100% { transform: scale(1); opacity: 1; } 40% { transform: scale(1.5); opacity: 0.5; } }
 
-        .score-ring { position: relative; width: 90px; height: 90px; flex-shrink: 0; }
-        .score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-        .score-ring circle { fill: none; stroke-width: 6; }
-        .score-ring .bg-circle { stroke: var(--border); opacity: 0.2; }
-        .score-ring .fg-circle { stroke-linecap: butt; transition: stroke-dashoffset 1s ease; }
-        .score-number { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Fira Code', monospace; font-weight: 700; font-size: 1.4rem; }
-        .review-section { margin-top: 12px; }
-        .review-section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-        .review-section-body { font-size: 0.88rem; line-height: 1.7; white-space: pre-wrap; background: var(--bg); border: 2px solid var(--border); padding: 12px 16px; }
-        .keyword-tag { display: inline-block; padding: 2px 8px; border: 2px solid var(--border); background: var(--accent4); font-family: var(--font-mono); font-size: 0.7rem; font-weight: bold; margin: 2px 4px 2px 0; }
+        .review-section { margin-top: 16px; }
+        .review-section-title { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; color: var(--accent); }
+        .review-question { background: var(--bg); border: 2px solid var(--border); padding: 12px 16px; margin-bottom: 8px; font-weight: 600; font-size: 0.95rem; line-height: 1.5; border-radius: 4px; }
     </style>
 
     <script src="/static/js/i18n.js"></script>
@@ -167,54 +159,20 @@
         if (overlay) overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); });
         if (collapseBtn) collapseBtn.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
 
-        // Tesseract OCR Logic
-        const imageUpload = document.getElementById('ats-image-upload');
-        const jobDescTextarea = document.getElementById('ats-jobdesc');
-        const ocrStatus = document.getElementById('ocr-status');
-
-        imageUpload.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            ocrStatus.textContent = '⏳ Mengekstrak teks dari gambar (OCR) ...';
-            jobDescTextarea.disabled = true;
-
-            try {
-                const worker = await Tesseract.createWorker('eng');
-                const ret = await worker.recognize(file);
-                jobDescTextarea.value = ret.data.text;
-                await worker.terminate();
-                ocrStatus.textContent = '✅ Teks berhasil diekstrak!';
-                setTimeout(() => { ocrStatus.textContent = ''; }, 3000);
-            } catch (err) {
-                console.error(err);
-                ocrStatus.textContent = '❌ Ekstraksi teks gagal. Silakan ketik secara manual.';
-            } finally {
-                jobDescTextarea.disabled = false;
-                imageUpload.value = ''; // reset
-            }
-        });
-
         // Form Logic
-        const form = document.getElementById('ats-form');
-        const btn = document.getElementById('ats-submit-btn');
-        const errorEl = document.getElementById('ats-errorMessage');
-        const resultEl = document.getElementById('ats-result');
-        const loadingEl = document.getElementById('ats-loading');
-        const historyEl = document.getElementById('ats-history');
-
-        function getScoreColor(score) {
-            if (score >= 80) return '#22c55e';
-            if (score >= 60) return '#eab308';
-            if (score >= 40) return '#f97316';
-            return '#ef4444';
-        }
+        const form = document.getElementById('prep-form');
+        const btn = document.getElementById('prep-submit-btn');
+        const errorEl = document.getElementById('prep-errorMessage');
+        const resultEl = document.getElementById('prep-result');
+        const loadingEl = document.getElementById('prep-loading');
+        const historyEl = document.getElementById('prep-history');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const profileId = document.getElementById('ats-profile').value;
-            const language = document.getElementById('ats-lang').value;
-            const jobDescription = jobDescTextarea.value;
+            const profileId = document.getElementById('prep-profile').value;
+            const language = document.getElementById('prep-lang').value;
+            const jobDescription = document.getElementById('prep-jobdesc').value;
+            const count = parseInt(document.getElementById('prep-count').value, 10);
 
             btn.disabled = true;
             errorEl.textContent = '';
@@ -222,19 +180,19 @@
             loadingEl.style.display = '';
 
             try {
-                const res = await fetch('/api/ats-simulator', {
+                const res = await fetch('/api/interview-prep', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ profileId, jobDescription, language })
+                    body: JSON.stringify({ profileId, jobDescription, language, count })
                 });
 
                 if (!res.ok) {
                     const data = await res.json();
-                    throw new Error(data.error || 'Simulasi gagal');
+                    throw new Error(data.error || 'Pembuatan pertanyaan gagal');
                 }
 
-                const simulation = await res.json();
-                renderResult(simulation);
+                const prep = await res.json();
+                renderResult(prep);
                 loadHistory(); // Refresh history
             } catch (err) {
                 errorEl.textContent = err.message;
@@ -245,42 +203,40 @@
         });
 
         function renderResult(r) {
-            const circumference = 2 * Math.PI * 38;
-            const offset = circumference - (r.score / 100) * circumference;
-            const color = getScoreColor(r.score);
-            const keywordsHtml = (r.missingKeywords || []).map(k => `<span class="keyword-tag">${escHtml(k)}</span>`).join('');
-
-            resultEl.innerHTML = `
-                <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
-                    <div class="score-ring">
-                        <svg viewBox="0 0 84 84">
-                            <circle class="bg-circle" cx="42" cy="42" r="38"/>
-                            <circle class="fg-circle" cx="42" cy="42" r="38" stroke="${color}" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"/>
-                        </svg>
-                        <div class="score-number" style="color:${color};">${r.score}%</div>
-                    </div>
+            let categories = [];
+            try { categories = typeof r.questions === 'string' ? JSON.parse(r.questions) : r.questions; } catch (err) { console.error('Parse errors', err); }
+            
+            let html = `
+                <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:20px;">
                     <div>
-                        <h3 style="font-size:1.3rem;font-weight:800;text-transform:uppercase;margin:0;">Hasil Kecocokan ATS</h3>
+                        <h3 style="font-size:1.3rem;font-weight:800;text-transform:uppercase;margin:0;">Pertanyaan Wawancara Anda</h3>
                         <span style="font-size:0.75rem;color:var(--muted);">${new Date(r.createdAt).toLocaleString()}</span>
                     </div>
                 </div>
-
-                <div class="review-section">
-                    <div class="review-section-title" style="color:#ef4444;"><i class="ph-bold ph-warning-circle"></i> Kata Kunci yang Hilang</div>
-                    <div class="review-section-body" style="background:var(--bg); border:none; padding:12px 0;">${keywordsHtml || '<span class="text-xs font-bold text-muted uppercase">Tidak ada kata kunci hilang yang krusial</span>'}</div>
-                </div>
-
-                <div class="review-section">
-                    <div class="review-section-title" style="color:var(--accent2);"><i class="ph-bold ph-lightbulb"></i> Rekomendasi</div>
-                    <div class="review-section-body">${escHtml(r.recommendations)}</div>
-                </div>
             `;
+
+            if (Array.isArray(categories)) {
+                categories.forEach(cat => {
+                    if (cat.questions && cat.questions.length > 0) {
+                        html += `
+                            <div class="review-section">
+                                <div class="review-section-title"><i class="ph-bold ph-caret-circle-right"></i> ${escHtml(cat.category)}</div>
+                                ${cat.questions.map(q => `<div class="review-question">${escHtml(q)}</div>`).join('')}
+                            </div>
+                        `;
+                    }
+                });
+            } else {
+                 html += `<div class="text-sm font-bold text-muted uppercase">Gagal membaca format kategori.</div>`;
+            }
+
+            resultEl.innerHTML = html;
             resultEl.style.display = 'block';
         }
 
         async function loadHistory() {
             try {
-                const res = await fetch('/api/ats-simulations');
+                const res = await fetch('/api/interview-preps');
                 if (!res.ok) throw new Error('Failed to load history');
                 const history = await res.json();
                 renderHistory(history || []);
@@ -291,33 +247,40 @@
 
         function renderHistory(history) {
             if (!history.length) {
-                historyEl.innerHTML = '<div class="text-center text-muted font-semibold py-8">Belum ada simulasi. Lakukan percobaan di atas!</div>';
+                historyEl.innerHTML = '<div class="text-center text-muted font-semibold py-8">Belum ada riwayat. Hasilkan pertanyaan pertama Anda!</div>';
                 return;
             }
 
             historyEl.innerHTML = history.map(r => {
-                const color = getScoreColor(r.score);
                 const date = new Date(r.createdAt).toLocaleString();
-                const keywordsHtml = (r.missingKeywords || []).map(k => `<span class="keyword-tag">${escHtml(k)}</span>`).join('');
+                let categories = [];
+                try { categories = typeof r.questions === 'string' ? JSON.parse(r.questions) : r.questions; } catch { }
+
+                let categoriesHtml = '';
+                if (Array.isArray(categories)) {
+                    categories.forEach(cat => {
+                        if (cat.questions && cat.questions.length > 0) {
+                            categoriesHtml += `
+                                <div class="review-section" style="margin-top:10px;">
+                                    <div class="review-section-title" style="font-size:0.75rem;"><i class="ph-bold ph-caret-right"></i> ${escHtml(cat.category)}</div>
+                                    ${cat.questions.map(q => `<div class="review-question" style="font-size:0.85rem;padding:8px 12px;margin-bottom:4px;">${escHtml(q)}</div>`).join('')}
+                                </div>
+                            `;
+                        }
+                    });
+                }
 
                 return `
                 <details class="bg-surface border-[3px] border-border shadow-[4px_4px_0_#000]">
                     <summary style="padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:16px;font-weight:700;">
-                        <span style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:3px solid ${color};font-family:'Fira Code',monospace;font-weight:700;font-size:1rem;color:${color};flex-shrink:0;">${r.score}%</span>
+                        <span style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:3px solid var(--border);border-radius:50%;color:var(--text);font-size:1.2rem;flex-shrink:0;background:var(--accent4);"><i class="ph-bold ph-chats"></i></span>
                         <div style="flex:1;">
                             <div style="font-size:0.95rem;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px;">Job: ${escHtml(r.jobDescription.substring(0, 50))}...</div>
                             <div style="font-size:0.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;">${date}</div>
                         </div>
                     </summary>
                     <div style="padding:0 20px 20px;border-top:2px solid var(--border);">
-                        <div class="review-section">
-                            <div class="review-section-title" style="color:#ef4444;margin-top:16px;"><i class="ph-bold ph-warning-circle"></i> Kata Kunci yang Hilang</div>
-                            <div style="review-section-body" style="padding:12px 0;">${keywordsHtml || '<span class="text-xs font-bold text-muted uppercase">Tidak ada</span>'}</div>
-                        </div>
-                        <div class="review-section">
-                            <div class="review-section-title" style="color:var(--accent2);"><i class="ph-bold ph-lightbulb"></i> Rekomendasi</div>
-                            <div class="review-section-body">${escHtml(r.recommendations)}</div>
-                        </div>
+                        ${categoriesHtml || '<div style="padding:12px 0;">Tidak ada data tersimpan</div>'}
                     </div>
                 </details>`;
             }).join('');

@@ -78,6 +78,11 @@ type Repository interface {
 	GetAtsSimulationsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.AtsSimulation, error)
 	CountAtsSimulationsByDate(ctx context.Context, userID uuid.UUID, start, end time.Time) (int, error)
 
+	// Interview Prep methods
+	CreateInterviewPrep(ctx context.Context, prep *domain.InterviewPrep) error
+	GetInterviewPrepsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.InterviewPrep, error)
+	CountInterviewPrepsByDate(ctx context.Context, userID uuid.UUID, start, end time.Time) (int, error)
+
 	// Subscriptions
 	AdminListSubscriptionPlans(ctx context.Context) ([]domain.SubscriptionPlan, error)
 	AdminCreateSubscriptionPlan(ctx context.Context, plan *domain.SubscriptionPlan) error

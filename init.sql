@@ -159,3 +159,16 @@ INSERT INTO subscription_plans (id, name, price_idr, duration_months, max_cv_pro
 SELECT
     '018e9c40-3333-7000-8000-000000000003'::uuid, 'Pro', 30000, 1, -1, 50, 50, 50, true
 WHERE NOT EXISTS (SELECT 1 FROM subscription_plans WHERE name = 'Pro');
+
+CREATE TABLE IF NOT EXISTS interview_preps (
+    id UUID PRIMARY KEY DEFAULT uuidv7(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    profile_id UUID NOT NULL REFERENCES cv_profiles(id) ON DELETE CASCADE,
+    job_description TEXT NOT NULL DEFAULT '',
+    language VARCHAR(10) NOT NULL DEFAULT 'en',
+    questions JSONB NOT NULL DEFAULT '[]',
+    tokens_used BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_interview_preps_user_id ON interview_preps(user_id);
+CREATE INDEX IF NOT EXISTS idx_interview_preps_profile_id ON interview_preps(profile_id);
