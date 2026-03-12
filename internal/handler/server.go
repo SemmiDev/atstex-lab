@@ -1271,3 +1271,53 @@ func (s *Server) handleGalleryCompile() http.HandlerFunc {
 func base64Encode(data []byte) string {
 	return base64.StdEncoding.EncodeToString(data)
 }
+
+// handleEnhanceBullet rewrites a single set of CV bullet points using AI.
+// POST /api/ai/enhance-bullet
+// Body: { "bullet": "raw text", "language": "en" }
+// Response: { "enhanced": "rewritten text", "tokensUsed": 123 }
+func (s *Server) handleEnhanceBullet() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+		var req struct {
+			Bullet   string `json:"bullet"`
+			Language string `json:"language"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		req.Bullet = strings.TrimSpace(req.Bullet)
+		if req.Bullet == "" {
+			s.respondErrMsg(w, r, "bullet text is required", http.StatusBadRequest)
+			return
+		}
+		if len(req.Bullet) > 4000 {
+			s.respondErrMsg(w, r, "bullet text is too long (max 4000 characters)", http.StatusBadRequest)
+			return
+		}
+
+		lang := req.Language
+		if lang == "" {
+			lang = "en"
+		}
+
+		enhanced, tokensUsed, err := extractor.EnhanceBulletPoint(r.Context(), req.Bullet, lang, s.aiConfig)
+		if err != nil {
+			s.reqLog(r).Error("bullet enhancement error", "err", err)
+			s.respondErrMsg(w, r, "AI enhancement failed: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if tokensUsed > 0 {
+			_ = s.repo.IncrementAITokensUsed(r.Context(), user.ID, tokensUsed)
+		}
+
+		s.encode(w, r, http.StatusOK, map[string]interface{}{
+			"enhanced":   enhanced,
+			"tokensUsed": tokensUsed,
+		})
+	}
+}

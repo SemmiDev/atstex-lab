@@ -93,6 +93,8 @@ func (s *Server) routes() {
 		r.Get("/interview-prep", s.handleInterviewPrepPage())
 		r.Post("/api/interview-prep", s.handleCreateInterviewPrep())
 		r.Get("/api/interview-preps", s.handleListMyInterviewPreps())
+		// AI Bullet Point Enhancer
+		r.Post("/api/ai/enhance-bullet", s.handleEnhanceBullet())
 		// Gallery (Multi-Template Preview)
 		r.Get("/gallery", s.handleGalleryPage())
 		r.Post("/api/gallery/compile", s.handleGalleryCompile())
