@@ -94,6 +94,10 @@ func (s *Server) routes() {
 		r.Post("/api/interview-prep", s.handleCreateInterviewPrep())
 		r.Get("/api/interview-preps", s.handleListMyInterviewPreps())
 		r.Post("/api/interview-prep/critique", s.handleCritiqueInterviewAnswer())
+		// Mock Interview (Live WebSockets)
+		r.Get("/mock-interview", s.handleMockInterviewPage())
+		r.Get("/api/mock-interview/sessions", s.handleListMockInterviewSessions())
+		r.Get("/ws/mock-interview", s.handleMockInterviewWS())
 		// AI Bullet Point Enhancer
 		r.Post("/api/ai/enhance-bullet", s.handleEnhanceBullet())
 		// Gallery (Multi-Template Preview)

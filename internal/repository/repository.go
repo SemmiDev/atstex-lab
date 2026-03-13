@@ -83,6 +83,14 @@ type Repository interface {
 	GetInterviewPrepsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.InterviewPrep, error)
 	CountInterviewPrepsByDate(ctx context.Context, userID uuid.UUID, start, end time.Time) (int, error)
 
+	// Mock Interview Session methods
+	CreateMockInterviewSession(ctx context.Context, s *domain.MockInterviewSession) error
+	UpdateMockInterviewSession(ctx context.Context, s *domain.MockInterviewSession) error
+	GetMockInterviewSession(ctx context.Context, id uuid.UUID) (*domain.MockInterviewSession, error)
+	GetMockInterviewSessionsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.MockInterviewSession, error)
+	EndMockInterviewSession(ctx context.Context, id uuid.UUID, tokensUsed int64, turnCount int, messages json.RawMessage) error
+	CountMockInterviewSessionsByDate(ctx context.Context, userID uuid.UUID, start, end time.Time) (int, error)
+
 	// Subscriptions
 	AdminListSubscriptionPlans(ctx context.Context) ([]domain.SubscriptionPlan, error)
 	AdminCreateSubscriptionPlan(ctx context.Context, plan *domain.SubscriptionPlan) error

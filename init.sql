@@ -172,3 +172,19 @@ CREATE TABLE IF NOT EXISTS interview_preps (
 );
 CREATE INDEX IF NOT EXISTS idx_interview_preps_user_id ON interview_preps(user_id);
 CREATE INDEX IF NOT EXISTS idx_interview_preps_profile_id ON interview_preps(profile_id);
+
+-- Mock Interview Sessions (live AI-driven voice mock interviews)
+CREATE TABLE IF NOT EXISTS mock_interview_sessions (
+    id              UUID PRIMARY KEY DEFAULT uuidv7(),
+    user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    profile_id      UUID NOT NULL REFERENCES cv_profiles(id) ON DELETE CASCADE,
+    job_description TEXT NOT NULL DEFAULT '',
+    language        VARCHAR(10) NOT NULL DEFAULT 'en',
+    messages        JSONB NOT NULL DEFAULT '[]',
+    tokens_used     BIGINT NOT NULL DEFAULT 0,
+    turn_count      INTEGER NOT NULL DEFAULT 0,
+    created_at      TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    ended_at        TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS idx_mock_interview_sessions_user_id    ON mock_interview_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_mock_interview_sessions_profile_id ON mock_interview_sessions(profile_id);

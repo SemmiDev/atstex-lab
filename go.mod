@@ -34,6 +34,7 @@ require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
+	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/lib/pq v1.11.2 // indirect
 	github.com/pkoukk/tiktoken-go v0.1.6 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
@@ -54,4 +55,5 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250122153221-138b5a5a4fd4 // indirect
 	google.golang.org/grpc v1.70.0 // indirect
 	google.golang.org/protobuf v1.36.3 // indirect
+	nhooyr.io/websocket v1.8.7 // indirect
 )

@@ -1,0 +1,703 @@
+{{define "mock-interview"}}
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>atstex-lab — Live Mock Interview</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg" />
+        <link rel="stylesheet" href="/static/css/style.css" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&display=swap"
+            rel="stylesheet"
+        />
+        <script src="https://unpkg.com/@phosphor-icons/web"></script>
+        <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    </head>
+
+    <body class="flex flex-col md:flex-row h-dvh w-full bg-bg font-ui text-text overflow-hidden">
+        <!-- Mobile top bar -->
+        <div class="md:hidden flex items-center justify-between p-4 bg-surface border-b-[4px] border-border z-40">
+            <div class="font-disp font-extrabold text-2xl">ATSTEX<em class="text-accent italic">LAB</em></div>
+            <button id="sidebar-toggle" class="text-3xl"><i class="ph ph-list"></i></button>
+        </div>
+
+        <!-- Sidebar -->
+        <aside
+            id="sidebar"
+            class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col"
+        >
+            <div class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
+                <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
+                <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Close Sidebar"><i class="ph-bold ph-caret-left"></i></button>
+            </div>
+            <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4 pb-24 md:pb-4">
+                <a
+                    href="/"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.home">Beranda</span></a
+                >
+                <a
+                    href="/input"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a
+                >
+                <a
+                    href="/editor"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a
+                >
+                <a href="/gallery"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
+                        class="ph ph-images-square text-2xl"></i> <span class="sidebar-nav-text">Galeri</span></a>
+                <a
+                    href="/cv-review"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">Review CV</span></a
+                >
+                <a
+                    href="/ats-simulator"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-robot text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.ats_simulator">Simulator ATS</span></a
+                >
+                <a
+                    href="/interview-prep"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-users-three text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.interview_prep">Interview Prep</span></a
+                >
+                <a
+                    href="/mock-interview"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"
+                    ><i class="ph ph-microphone text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.mock_interview">Mock Interview</span></a>
+                <a
+                    href="/cover-letter"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Surat Lamaran</span></a
+                >
+                <a
+                    href="/kanban"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-columns text-2xl"></i> <span class="sidebar-nav-text">Kanban</span></a
+                >
+                <a
+                    href="/profile"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profil</span></a
+                >
+                <a
+                    href="/publish"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publikasi</span></a
+                >
+                <a
+                    href="/subscription"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-crown text-2xl"></i> <span class="sidebar-nav-text">Langganan</span></a
+                >
+                <a
+                    href="/feedback"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Saran & Masukan</span></a
+                >
+                <a
+                    href="#"
+                    id="dark-mode-toggle"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-moon text-2xl"></i> <span class="sidebar-nav-text">Mode Gelap</span></a
+                >
+            </nav>
+            {{if .User}}
+            <div class="p-4 border-t-[4px] border-border bg-bg sidebar-profile-block">
+                <a
+                    href="/profile"
+                    class="flex items-center gap-3 p-2 bg-surface border-[3px] border-border shadow-[4px_4px_0_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#000] transition-all"
+                >
+                    <img src="{{.User.Picture}}" alt="Profile" class="w-10 h-10 border-2 border-border object-cover" />
+                    <div class="flex flex-col overflow-hidden">
+                        <span class="font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{.User.Name}}</span>
+                        <form action="/auth/logout" method="POST" class="m-0">
+                            <button type="submit" class="text-error text-xs font-bold uppercase tracking-wider outline-none">
+                                Keluar <i class="ph-bold ph-sign-out"></i>
+                            </button>
+                        </form>
+                    </div>
+                </a>
+            </div>
+            {{end}}
+        </aside>
+
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+        <!-- Main content -->
+        <main class="flex-1 min-h-0 overflow-y-auto bg-bg relative p-6 md:p-10 flex justify-center">
+            <div class="w-full max-w-4xl flex flex-col gap-8">
+                <!-- Page Header -->
+                <div class="flex flex-col gap-2">
+                    <h1 class="text-3xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
+                        <i class="ph-bold ph-microphone text-3xl"></i>
+                        <span>Live Mock Interview</span>
+                    </h1>
+                    <p class="font-semibold text-muted">
+                        Practice your interviews with an interactive, voice-driven AI interviewer in real-time.
+                    </p>
+                </div>
+
+                <!-- Setup Form -->
+                <div id="setup-view" class="bg-surface border-[3px] border-border p-6 shadow-[4px_4px_0_#000]">
+                    <h2 class="text-xl font-bold uppercase mb-4 border-b-2 border-border pb-2">Session Setup</h2>
+                    <form id="mock-form" class="flex flex-col gap-4">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-bold uppercase tracking-wider text-muted">CV Profile</label>
+                            <select
+                                id="mock-profile"
+                                required
+                                class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]"
+                            >
+                                <option value="">— Select a profile —</option>
+                                {{range .Profiles}}
+                                <option value="{{.ID}}">{{.Title}}</option>
+                                {{end}}
+                            </select>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="flex flex-col gap-1 flex-1">
+                                <label class="text-xs font-bold uppercase tracking-wider text-muted">Language</label>
+                                <select
+                                    id="mock-lang"
+                                    class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]"
+                                >
+                                    <option value="en" selected>English</option>
+                                    <option value="id">Bahasa Indonesia</option>
+                                    <option value="ja">Japanese</option>
+                                    <option value="zh">Chinese</option>
+                                    <option value="ko">Korean</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-bold uppercase tracking-wider text-muted flex items-center justify-between">
+                                <span>Job Description</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-mono text-muted normal-case tracking-normal">OR scan image:</span>
+                                    <label class="btn btn-ghost !px-3 !py-1 !text-xs cursor-pointer">
+                                        <i class="ph-bold ph-image"></i> Scan Image
+                                        <input type="file" id="mock-image-upload" accept="image/png, image/jpeg, image/jpg" style="display: none" />
+                                    </label>
+                                </div>
+                            </label>
+                            <textarea
+                                id="mock-jobdesc"
+                                required
+                                rows="6"
+                                class="p-4 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)] resize-y"
+                                placeholder="Paste the job description here..."
+                            ></textarea>
+                            <div id="mock-ocr-status" class="hidden text-xs font-mono text-accent2 font-bold mb-2 flex items-center gap-2">
+                                <i class="ph ph-spinner animate-spin"></i> Extracting text via OCR...
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 mt-4">
+                            <button type="submit" class="btn relative bg-accent text-white" id="mock-start-btn">
+                                <i class="ph-bold ph-play"></i> <span>Start Session</span>
+                            </button>
+                            <span id="mock-errorMessage" class="text-sm font-bold text-error"></span>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Interview Room (Hidden Initially) -->
+                <div id="interview-view" class="hidden bg-surface border-[3px] border-border p-6 shadow-[4px_4px_0_#000] flex-col gap-6">
+                    <!-- Room Header -->
+                    <div class="flex items-center justify-between border-b-[3px] border-border pb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="relative flex h-3 w-3">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-error"></span>
+                            </div>
+                            <span class="font-bold text-error uppercase tracking-wider text-sm">Live Session Active</span>
+                        </div>
+                        <button id="btn-end-session" class="btn !bg-error !text-white !px-3 !py-1 text-sm border-2 border-black">
+                            <i class="ph-bold ph-stop"></i> End Session
+                        </button>
+                    </div>
+
+                    <!-- Conversation Window -->
+                    <div id="chat-window" class="flex flex-col gap-4 overflow-y-auto max-h-[500px] p-4 bg-bg border-2 border-border font-mono text-sm">
+                        <!-- Messages appended here dynamically -->
+                        <div class="text-center text-muted text-xs italic opacity-70">Session Started. Waiting for AI...</div>
+                    </div>
+
+                    <!-- AI Status Indicator -->
+                    <div id="ai-status" class="hidden items-center gap-2 text-xs font-bold text-accent uppercase tracking-wider">
+                        <i class="ph-bold ph-spinner animate-spin"></i> AI is thinking...
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="flex flex-col items-center gap-4 bg-bg p-4 border-2 border-border mt-2">
+                        <div class="w-full flex justify-between items-center px-4">
+                            <span id="mic-status-text" class="text-xs font-bold text-muted uppercase tracking-wider w-1/3 text-left">Microphone Ready</span>
+
+                            <button id="btn-mic" class="w-16 h-16 rounded-full bg-accent text-white flex items-center justify-center border-4 border-black shadow-[4px_4px_0_#000] hover:-translate-y-1 hover:shadow-[6px_6px_0_#000] active:translate-y-1 active:shadow-[2px_2px_0_#000] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="ph-bold ph-microphone text-3xl pointer-events-none"></i>
+                            </button>
+
+                            <div class="w-1/3 flex justify-end">
+                                <button id="btn-send-manual" class="hidden btn !px-3 !py-2 text-xs bg-accent4">Send Manual Text</button>
+                                <button id="btn-submit-manual-send" class="hidden btn !px-3 !py-2 text-xs bg-accent2 text-white"><i class="ph-bold ph-paper-plane-right"></i> Send</button>
+
+                            </div>
+                        </div>
+
+                        <!-- Manual Text Input (Fallback) -->
+                        <div id="manual-input-container" class="hidden w-full flex gap-2">
+                            <input type="text" id="manual-input" class="flex-1 p-2 border-2 border-border font-mono text-sm" placeholder="Type your answer here..." />
+                            <button id="btn-submit-manual" class="btn !px-4 bg-accent2 text-white"><i class="ph-bold ph-paper-plane-right"></i></button>
+                        </div>
+
+                        <p class="text-xs text-muted font-mono text-center">
+                            Press the microphone button to start recording your answer. Press again to end recording and send.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Session History -->
+                <div class="flex flex-col gap-2 mt-4">
+                    <h2 class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
+                        <i class="ph-bold ph-clock-counter-clockwise text-3xl"></i>
+                        <span>Past Sessions</span>
+                    </h2>
+                </div>
+                <div id="history-view" class="flex flex-col gap-4">
+                    <div class="text-center text-muted font-semibold py-8">Loading…</div>
+                </div>
+            </div>
+        </main>
+
+        <style>
+            .message-bubble {
+                padding: 12px 16px;
+                border: 2px solid var(--border);
+                max-width: 85%;
+                line-height: 1.5;
+            }
+            .msg-ai {
+                align-self: flex-start;
+                background: var(--surface);
+                border-bottom-left-radius: 0;
+            }
+            .msg-user {
+                align-self: flex-end;
+                background: var(--accent4);
+                border-bottom-right-radius: 0;
+            }
+            .animate-spin {
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                100% { transform: rotate(360deg); }
+            }
+        </style>
+
+        <script src="/static/js/i18n.js"></script>
+        <script>
+            // ── Sidebar & Theme ──────────────────────────────────────────────────
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const toggleBtn = document.getElementById('sidebar-toggle');
+            const collapseBtn = document.getElementById('sidebar-collapse');
+            if (toggleBtn) toggleBtn.addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('open'); });
+            if (overlay) overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); });
+            if (collapseBtn) collapseBtn.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
+
+            // ── UI Elements ──────────────────────────────────────────────────────
+            const setupView = document.getElementById('setup-view');
+            const interviewView = document.getElementById('interview-view');
+            const historyView = document.getElementById('history-view');
+
+            // Setup Forms
+            const form = document.getElementById('mock-form');
+            const imageUpload = document.getElementById('mock-image-upload');
+            const ocrStatus = document.getElementById('mock-ocr-status');
+            const jobDescInput = document.getElementById('mock-jobdesc');
+            const errorEl = document.getElementById('mock-errorMessage');
+
+            // Interview Room Elements
+            const chatWindow = document.getElementById('chat-window');
+            const aiStatus = document.getElementById('ai-status');
+            const btnEndSession = document.getElementById('btn-end-session');
+            const btnMic = document.getElementById('btn-mic');
+            const micStatusText = document.getElementById('mic-status-text');
+            const btnSendManual = document.getElementById('btn-send-manual');
+            const btnSubmitManualSend = document.getElementById('btn-submit-manual-send');
+            const manualInputContainer = document.getElementById('manual-input-container');
+            const manualInput = document.getElementById('manual-input');
+            const btnSubmitManual = document.getElementById('btn-submit-manual');
+
+            // ── State Variables ──────────────────────────────────────────────────
+            let ws = null;
+            let isRecording = false;
+            let recognition = null;
+            let currentTranscript = "";
+            let finalTranscriptBuffer = "";
+            let currentTurnId = 0;
+            let sessionId = null;
+
+            // ── Print History ────────────────────────────────────────────────────
+            async function loadHistory() {
+                try {
+                    const res = await fetch('/api/mock-interview/sessions');
+                    if (!res.ok) throw new Error("Failed to load history.");
+                    const sessions = await res.json();
+
+                    if (!sessions || sessions.length === 0) {
+                        historyView.innerHTML = `<div class="text-center text-muted font-mono py-6">No past sessions found.</div>`;
+                        return;
+                    }
+
+                    historyView.innerHTML = sessions.map(s => {
+                        const date = new Date(s.createdAt).toLocaleDateString([], {
+                            year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'
+                        });
+                        return `
+                            <div class="bg-surface border-2 border-border p-4 mb-2 flex justify-between items-center shadow-[3px_3px_0_#000]">
+                                <div>
+                                    <div class="font-bold text-sm uppercase">${s.language} Interview</div>
+                                    <div class="text-xs font-mono text-muted mt-1">${date} &bull; ${s.turnCount || 0} turns</div>
+                                </div>
+                                <div class="text-xs font-bold px-2 py-1 bg-accent4 border border-black">${s.endedAt ? 'Completed' : 'Ended Abruptly'}</div>
+                            </div>
+                        `;
+                    }).join('');
+                } catch (e) {
+                    console.error(e);
+                    historyView.innerHTML = `<div class="text-center text-error font-bold font-mono py-6">Failed to load history</div>`;
+                }
+            }
+            loadHistory();
+
+            // ── OCR ──────────────────────────────────────────────────────────────
+            imageUpload.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                ocrStatus.classList.remove('hidden');
+                jobDescInput.disabled = true;
+                try {
+                    const result = await Tesseract.recognize(file, 'eng');
+                    jobDescInput.value = result.data.text;
+                } catch (err) {
+                    alert('OCR failed. Please try typing manually.');
+                } finally {
+                    ocrStatus.classList.add('hidden');
+                    jobDescInput.disabled = false;
+                    imageUpload.value = '';
+                }
+            });
+
+            // ── Speech Synthesis (TTS) ───────────────────────────────────────────
+            function speakText(text, langCode) {
+                if (!('speechSynthesis' in window)) return;
+
+                // cancel any ongoing speech
+                window.speechSynthesis.cancel();
+
+                const utt = new SpeechSynthesisUtterance(text);
+
+                // Try to match language
+                if (langCode === 'id') utt.lang = 'id-ID';
+                else if (langCode === 'ja') utt.lang = 'ja-JP';
+                else if (langCode === 'zh') utt.lang = 'zh-CN';
+                else if (langCode === 'ko') utt.lang = 'ko-KR';
+                else utt.lang = 'en-US';
+
+                // Try to grab a non-local voice if possible (Google voices sound better)
+                const voices = window.speechSynthesis.getVoices();
+                if (voices.length > 0) {
+                    const targetLang = utt.lang.split('-')[0];
+                    const preferredVoice = voices.find(v => v.lang.startsWith(targetLang) && (v.name.includes("Google") || !v.localService));
+                    if (preferredVoice) {
+                        utt.voice = preferredVoice;
+                    } else {
+                        const fallback = voices.find(v => v.lang.startsWith(targetLang));
+                        if (fallback) utt.voice = fallback;
+                    }
+                }
+
+                utt.rate = 1.0;
+                window.speechSynthesis.speak(utt);
+            }
+
+            // Safari/Chrome voices load async
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+            }
+
+            // ── Speech Recognition ───────────────────────────────────────────────
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+
+                recognition.onstart = () => {
+                    isRecording = true;
+                    btnMic.innerHTML = '<i class="ph-bold ph-stop text-3xl pointer-events-none"></i>';
+                    btnMic.classList.replace('bg-accent', 'bg-error');
+                    btnMic.classList.add('animate-pulse');
+                    micStatusText.innerText = "Listening...";
+                    micStatusText.classList.add('text-error');
+                    btnSendManual.classList.add('hidden');
+                    manualInputContainer.classList.add('hidden');
+                    btnSubmitManualSend.classList.remove('hidden');
+
+                    finalTranscriptBuffer = "";
+                    currentTranscript = "";
+                };
+
+                recognition.onresult = (event) => {
+                    let interim = "";
+                    let final = "";
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const t = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) final += t;
+                        else interim += t;
+                    }
+                    if (final) {
+                        finalTranscriptBuffer += " " + final.trim();
+                        currentTranscript = finalTranscriptBuffer.trim();
+                    } else if (interim) {
+                        currentTranscript = (finalTranscriptBuffer + " " + interim).trim();
+                    }
+                    micStatusText.innerText = currentTranscript || "Listening...";
+                };
+
+                recognition.onend = () => {
+                    // This handles cases where speech reco stops on its own (silence timeout)
+                    // or when we manually stop it.
+                    if (isRecording) {
+                        // User didn't manually stop it, maybe a timeout. Restart or keep buffer.
+                        // For simplicity, we'll keep buffer but let them click again or push Send.
+                        isRecording = false;
+                        resetMicUI();
+                    }
+                };
+
+                recognition.onerror = (e) => {
+                    console.error("Speech reco error:", e.error);
+                    if (e.error !== 'no-speech') {
+                         alert("Microphone error: " + e.error);
+                    }
+                    isRecording = false;
+                    resetMicUI();
+                };
+            } else {
+                // Fallback if Speech API not available
+                btnMic.disabled = true;
+                btnMic.title = "Microphone not supported in this browser.";
+                btnSendManual.classList.remove('hidden');
+            }
+
+            function resetMicUI() {
+                btnMic.innerHTML = '<i class="ph-bold ph-microphone text-3xl pointer-events-none"></i>';
+                btnMic.classList.replace('bg-error', 'bg-accent');
+                btnMic.classList.remove('animate-pulse');
+                if (currentTranscript) {
+                    micStatusText.innerText = "Transcript ready to send";
+                    btnSubmitManualSend.classList.remove('hidden');
+                } else {
+                    micStatusText.innerText = "Microphone Ready";
+                    micStatusText.classList.remove('text-error');
+                    btnSendManual.classList.remove('hidden');
+                    btnSubmitManualSend.classList.add('hidden');
+                }
+            }
+
+            // ── UI Helpers ───────────────────────────────────────────────────────
+            function appendMessage(role, text) {
+                const div = document.createElement('div');
+                div.className = `message-bubble ${role === 'ai' ? 'msg-ai' : 'msg-user'}`;
+
+                // Add tag
+                const tag = document.createElement('div');
+                tag.className = 'text-[10px] uppercase font-bold text-muted mb-1';
+                tag.innerText = role === 'ai' ? 'AI Interviewer' : 'You';
+
+                const content = document.createElement('div');
+                content.innerText = text;
+
+                div.appendChild(tag);
+                div.appendChild(content);
+                chatWindow.appendChild(div);
+
+                // scroll to bottom
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }
+
+            // ── WebSocket Logic ──────────────────────────────────────────────────
+            btnMic.addEventListener('click', () => {
+                if (isRecording) {
+                    // Stop listening manually.
+                    isRecording = false;
+                    recognition.stop();
+                    resetMicUI();
+
+                    // We DO NOT auto submit here. Let user see transcript and press send.
+                    if (currentTranscript.trim()) {
+                        micStatusText.innerText = "Press Send to submit.";
+                    }
+                } else {
+                    if (!ws) return;
+                    // Start new recording block
+                    const lang = document.getElementById('mock-lang').value;
+                    if (lang === 'id') recognition.lang = 'id-ID';
+                    else if (lang === 'ja') recognition.lang = 'ja-JP';
+                    else if (lang === 'zh') recognition.lang = 'zh-CN';
+                    else if (lang === 'ko') recognition.lang = 'ko-KR';
+                    else recognition.lang = 'en-US';
+
+                    window.speechSynthesis.cancel(); // stop AI talking if we start speaking
+                    recognition.start();
+                }
+            });
+
+            btnSubmitManualSend.addEventListener('click', () => {
+                 if (currentTranscript.trim()) {
+                     sendUserMessage(currentTranscript.trim());
+                     currentTranscript = "";
+                     finalTranscriptBuffer = "";
+                     resetMicUI();
+                 }
+            });
+
+            btnSendManual.addEventListener('click', () => {
+                btnSendManual.classList.add('hidden');
+                manualInputContainer.classList.remove('hidden');
+                manualInput.focus();
+            });
+
+            btnSubmitManual.addEventListener('click', () => {
+                const txt = manualInput.value.trim();
+                if (txt !== "") {
+                    sendUserMessage(txt);
+                    manualInput.value = "";
+                    manualInputContainer.classList.add('hidden');
+                    btnSendManual.classList.remove('hidden');
+                }
+            });
+
+            manualInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') btnSubmitManual.click();
+            });
+
+            function sendUserMessage(text) {
+                if (!ws) return;
+                appendMessage('user', text);
+                ws.send(JSON.stringify({ type: "user_message", text: text }));
+
+                aiStatus.classList.remove('hidden');
+                aiStatus.classList.add('flex');
+
+                micStatusText.innerText = "Sent. Waiting for reply...";
+            }
+
+            btnEndSession.addEventListener('click', () => {
+                if (ws) {
+                    ws.send(JSON.stringify({ type: "end_session" }));
+                    setTimeout(() => closeSession(), 500);
+                } else {
+                    closeSession();
+                }
+            });
+
+            function closeSession() {
+                if (ws) {
+                    ws.close();
+                    ws = null;
+                }
+                if (isRecording && recognition) recognition.stop();
+                window.speechSynthesis.cancel();
+
+                setupView.classList.remove('hidden');
+                interviewView.classList.add('hidden');
+                interviewView.classList.remove('flex');
+
+                loadHistory(); // Refresh history
+            }
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                errorEl.innerText = "";
+
+                const profileId = document.getElementById('mock-profile').value;
+                const lang = document.getElementById('mock-lang').value;
+                const jobDesc = document.getElementById('mock-jobdesc').value;
+
+                // Encode to avoid URL limits on large base64, usually just btoa is fine
+                let jdPayload = btoa(unescape(encodeURIComponent(jobDesc)));
+
+                // Update UI state
+                setupView.classList.add('hidden');
+                interviewView.classList.remove('hidden');
+                interviewView.classList.add('flex');
+                chatWindow.innerHTML = '<div class="text-center text-muted text-xs italic opacity-70">Connecting to AI...</div>';
+                aiStatus.classList.add('hidden');
+
+                // Establish connection
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${protocol}//${window.location.host}/ws/mock-interview?profileId=${profileId}&language=${lang}&jobDescription=${jdPayload}`;
+
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = () => {
+                    chatWindow.innerHTML = '<div class="text-center text-muted text-xs italic opacity-70">Session Started. Waiting for AI to initialize...</div>';
+                };
+
+                ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+
+                        if (data.type === 'ai_message') {
+                            aiStatus.classList.remove('flex');
+                            aiStatus.classList.add('hidden');
+
+                            // Remove connection text if it's the first message
+                            if (chatWindow.innerHTML.includes("Waiting for AI")) {
+                                chatWindow.innerHTML = '';
+                            }
+
+                            appendMessage('ai', data.text);
+                            speakText(data.text, lang);
+                            micStatusText.innerText = "Microphone Ready";
+                        }
+                        else if (data.type === 'ai_thinking') {
+                            aiStatus.classList.remove('hidden');
+                            aiStatus.classList.add('flex');
+                        }
+                        else if (data.type === 'error') {
+                            alert("Server error: " + data.error);
+                            closeSession();
+                        }
+                        else if (data.type === 'session_ended') {
+                            alert("Session concluded.");
+                            closeSession();
+                        }
+                    } catch (err) {
+                        console.error('WS parse error:', err);
+                    }
+                };
+
+                ws.onclose = () => {
+                    if (setupView.classList.contains('hidden')) {
+                        closeSession();
+                    }
+                };
+
+                ws.onerror = (err) => {
+                    console.error("WS Error:", err);
+                    alert("WebSocket connection error. Make sure you are logged in and your CV is populated.");
+                    closeSession();
+                };
+            });
+        </script>
+    </body>
+</html>
+{{end}}
