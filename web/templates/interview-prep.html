@@ -3,7 +3,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <title>atstex-lab — AI Interview Prep</title>
+        <title>atstex-lab — Persiapan Wawancara AI</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg" />
         <link rel="stylesheet" href="/static/css/style.css" />
@@ -139,11 +139,10 @@
                 <div class="flex flex-col gap-2">
                     <h1 class="text-3xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
                         <i class="ph-bold ph-users-three text-3xl"></i>
-                        <span>AI Interview Prep</span>
+                        <span>Persiapan Wawancara AI</span>
                     </h1>
                     <p class="font-semibold text-muted">
-                        Generate tailored interview questions (behavioral, technical, etc.) based on your CV and job description. Then practice your answers
-                        live with the <strong>Voice Interview Bot</strong>.
+                        Hasilkan pertanyaan wawancara (manajerial, teknis, dll.) yang disesuaikan berdasarkan CV dan deskripsi pekerjaan Anda. Lalu latih jawaban Anda secara langsung dengan <strong>Bot Wawancara Suara</strong>.
                     </p>
                 </div>
 
@@ -176,11 +175,10 @@
                     </div>
                     <div style="flex: 1; min-width: 200px">
                         <p style="font-weight: 800; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.04em; color: #fff; margin: 0 0 2px">
-                            New: Voice Interview Mode
+                            Baru: Mode Wawancara Suara
                         </p>
                         <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.85); margin: 0; font-family: var(--font-mono)">
-                            Generate questions first, then click <strong>"Start Voice Interview"</strong> — the AI reads each question aloud, listens to your
-                            spoken answer, and gives real-time feedback.
+                            Buat pertanyaan terlebih dahulu, lalu klik <strong>"Mulai Wawancara Suara"</strong> — AI membacakan setiap pertanyaan, mendengarkan jawaban lisan Anda, dan memberikan umpan balik secara real-time.
                         </p>
                     </div>
                     <div
@@ -204,13 +202,13 @@
                 <div class="bg-surface border-[3px] border-border p-6 shadow-[4px_4px_0_#000]">
                     <form id="prep-form" class="flex flex-col gap-4">
                         <div class="flex flex-col gap-1">
-                            <label class="text-xs font-bold uppercase tracking-wider text-muted">CV Profile</label>
+                            <label class="text-xs font-bold uppercase tracking-wider text-muted">Profil CV</label>
                             <select
                                 id="prep-profile"
                                 required
                                 class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]"
                             >
-                                <option value="">— Select a profile —</option>
+                                <option value="">— Pilih profil —</option>
                                 {{range .Profiles}}
                                 <option value="{{.ID}}">{{.Title}}</option>
                                 {{end}}
@@ -218,7 +216,7 @@
                         </div>
                         <div class="flex flex-col sm:flex-row gap-4">
                             <div class="flex flex-col gap-1 flex-1">
-                                <label class="text-xs font-bold uppercase tracking-wider text-muted">Language</label>
+                                <label class="text-xs font-bold uppercase tracking-wider text-muted">Bahasa</label>
                                 <select
                                     id="prep-lang"
                                     class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]"
@@ -231,7 +229,7 @@
                                 </select>
                             </div>
                             <div class="flex flex-col gap-1 w-full sm:w-32">
-                                <label class="text-xs font-bold uppercase tracking-wider text-muted">Question Count</label>
+                                <label class="text-xs font-bold uppercase tracking-wider text-muted">Jumlah Pertanyaan</label>
                                 <input
                                     type="number"
                                     id="prep-count"
@@ -245,11 +243,11 @@
                         </div>
                         <div class="flex flex-col gap-1">
                             <label class="text-xs font-bold uppercase tracking-wider text-muted flex items-center justify-between">
-                                <span>Job Description</span>
+                                <span>Deskripsi Pekerjaan</span>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-mono text-muted normal-case tracking-normal">OR scan image:</span>
+                                    <span class="text-xs font-mono text-muted normal-case tracking-normal">ATAU pindai gambar:</span>
                                     <label class="btn btn-ghost !px-3 !py-1 !text-xs cursor-pointer">
-                                        <i class="ph-bold ph-image"></i> Scan Image
+                                        <i class="ph-bold ph-image"></i> Pindai Gambar
                                         <input type="file" id="prep-image-upload" accept="image/png, image/jpeg, image/jpg" style="display: none" />
                                     </label>
                                 </div>
@@ -259,15 +257,15 @@
                                 required
                                 rows="6"
                                 class="p-4 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)] resize-y"
-                                placeholder="Paste the job description here..."
+                                placeholder="Tempel deskripsi pekerjaan di sini..."
                             ></textarea>
                             <div id="prep-ocr-status" class="hidden text-xs font-mono text-accent2 font-bold mb-2 flex items-center gap-2">
-                                <i class="ph ph-spinner animate-spin"></i> Extracting text via OCR...
+                                <i class="ph ph-spinner animate-spin"></i> Mengekstrak teks via OCR...
                             </div>
                         </div>
                         <div class="flex items-center gap-3 mt-2">
                             <button type="submit" class="btn relative" id="prep-submit-btn">
-                                <i class="ph-bold ph-lightning"></i> <span>Generate Questions</span>
+                                <i class="ph-bold ph-lightning"></i> <span>Hasilkan Pertanyaan</span>
                             </button>
                             <span id="prep-errorMessage" class="text-sm font-bold text-error"></span>
                         </div>
@@ -277,8 +275,8 @@
                 <!-- Loading -->
                 <div id="prep-loading" style="display: none" class="bg-surface border-[3px] border-border p-8 shadow-[4px_4px_0_#000] text-center">
                     <div style="font-size: 2.5rem; animation: bounceUp 1s ease-in-out infinite">🤖</div>
-                    <h3 style="font-weight: 800; font-size: 1.1rem; text-transform: uppercase; margin: 12px 0 8px">Generating Interview Questions...</h3>
-                    <p style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted)">This may take 10–30 seconds…</p>
+                    <h3 style="font-weight: 800; font-size: 1.1rem; text-transform: uppercase; margin: 12px 0 8px">Menghasilkan Pertanyaan Wawancara...</h3>
+                    <p style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted)">Ini mungkin memakan waktu 10–30 detik…</p>
                     <div style="display: flex; justify-content: center; gap: 8px; margin-top: 16px">
                         <span
                             style="
@@ -317,11 +315,11 @@
                 <div class="flex flex-col gap-2 mt-4">
                     <h2 class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
                         <i class="ph-bold ph-clock-counter-clockwise text-3xl"></i>
-                        <span>Session History</span>
+                        <span>Riwayat Sesi</span>
                     </h2>
                 </div>
                 <div id="prep-history" class="flex flex-col gap-4">
-                    <div class="text-center text-muted font-semibold py-8">Loading…</div>
+                    <div class="text-center text-muted font-semibold py-8">Memuat…</div>
                 </div>
             </div>
         </main>
@@ -357,7 +355,7 @@
                             "
                         >
                             <i class="ph-bold ph-microphone" style="color: var(--accent)"></i>
-                            Voice Interview Session
+                            Sesi Wawancara Suara
                         </h2>
                         <p
                             id="vi-progress-text"
@@ -502,7 +500,7 @@
                                     letter-spacing: 0.04em;
                                     color: #e53e3e;
                                 "
-                                >Recording</span
+                                >Merekam</span
                             >
                         </div>
                     </div>
@@ -518,10 +516,10 @@
                             word-break: break-word;
                         "
                     >
-                        <span style="color: var(--muted); font-style: italic">Click the microphone button below to start recording your answer…</span>
+                        <span style="color: var(--muted); font-style: italic">Klik tombol mikrofon di bawah untuk mulai merekam jawaban Anda...</span>
                     </div>
                     <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px">
-                        <span id="vi-word-count" style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--muted); font-weight: 600">0 words</span>
+                        <span id="vi-word-count" style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--muted); font-weight: 600">0 kata</span>
                         <button
                             id="vi-clear-btn"
                             onclick="clearTranscript()"
@@ -564,7 +562,7 @@
                             transition: all 0.15s;
                             flex-shrink: 0;
                         "
-                        title="Click to record / stop"
+                        title="Klik untuk merekam / berhenti"
                     >
                         <i class="ph-bold ph-microphone" style="font-size: 2.2rem; pointer-events: none"></i>
                     </button>
@@ -584,7 +582,7 @@
                             Ready — click mic to start
                         </p>
                         <p style="font-size: 0.7rem; color: var(--muted); font-family: var(--font-mono); margin: 0">
-                            Click once to record · Click again to stop &amp; submit
+                            Klik sekali untuk merekam · Klik lagi untuk berhenti &amp; kumpulkan
                         </p>
                     </div>
                     <div
@@ -592,7 +590,7 @@
                         style="display: none; background: #fff3cd; border: 2px solid #e0a800; padding: 10px 16px; text-align: center; max-width: 420px"
                     >
                         <p style="font-size: 0.8rem; font-weight: 700; color: #7a5800; margin: 0; font-family: var(--font-mono)">
-                            ⚠️ Speech recognition requires <strong>Chrome</strong> or <strong>Edge</strong>. You can still type your answer manually above.
+                            ⚠️ Pengenalan suara memerlukan <strong>Chrome</strong> atau <strong>Edge</strong>. Anda masih dapat mengetik jawaban Anda secara manual.
                         </p>
                     </div>
                 </div>
@@ -609,7 +607,7 @@
                             letter-spacing: 0.08em;
                             color: var(--muted);
                         "
-                        >AI Critique</span
+                        >Kritik AI</span
                     >
                     <div style="flex: 1; height: 2px; background: var(--border)"></div>
                 </div>
@@ -678,7 +676,7 @@
                                 text-transform: uppercase;
                                 letter-spacing: 0.03em;
                             "
-                            >skip without answering →</span
+                            >lewati tanpa menjawab →</span
                         >
                     </div>
                 </div>
@@ -820,7 +818,7 @@
                     jobDescInput.value = existing ? existing + '\n\n' + extracted : extracted;
                 } catch (err) {
                     console.error('OCR Error:', err);
-                    errorEl.textContent = 'OCR failed to read the image.';
+                    errorEl.textContent = 'OCR gagal membaca gambar.';
                 } finally {
                     ocrStatus.classList.add('hidden');
                     jobDescInput.disabled = false;
@@ -849,7 +847,7 @@
                     });
                     if (!res.ok) {
                         const d = await res.json();
-                        throw new Error(d.error || 'Failed to generate questions');
+                        throw new Error(d.error || 'Gagal menghasilkan pertanyaan');
                     }
                     const prep = await res.json();
                     renderResult(prep);
@@ -876,12 +874,12 @@
 
                 let html =
                     '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">' +
-                    '<div><h3 style="font-size:1.3rem;font-weight:800;text-transform:uppercase;margin:0;">Your Interview Questions</h3>' +
+                    '<div><h3 style="font-size:1.3rem;font-weight:800;text-transform:uppercase;margin:0;">Pertanyaan Wawancara Anda</h3>' +
                     '<span style="font-size:0.75rem;color:var(--muted);">' +
                     new Date(r.createdAt).toLocaleString() +
                     '</span></div>' +
                     '<button onclick="openVoiceInterview(currentPrepData)" style="display:flex;align-items:center;gap:8px;padding:12px 22px;border:3px solid var(--border);background:var(--accent);color:#fff;font-weight:800;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;box-shadow:4px 4px 0 #000;font-family:var(--font-mono);">' +
-                    '<i class="ph-bold ph-microphone"></i> Start Voice Interview</button></div>';
+                    '<i class="ph-bold ph-microphone"></i> Mulai Wawancara Suara</button></div>';
 
                 if (Array.isArray(cats)) {
                     cats.forEach((cat) => {
@@ -898,7 +896,7 @@
                     });
                 } else {
                     html +=
-                        '<div style="font-size:0.85rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Could not parse question format.</div>';
+                        '<div style="font-size:0.85rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Tidak dapat mengurai format pertanyaan.</div>';
                 }
                 resultEl.innerHTML = html;
                 resultEl.style.display = 'block';
@@ -910,14 +908,14 @@
                     if (!res.ok) throw new Error('failed');
                     renderHistory((await res.json()) || []);
                 } catch {
-                    historyEl.innerHTML = '<div class="text-center text-error font-semibold py-8">Failed to load history.</div>';
+                    historyEl.innerHTML = '<div class="text-center text-error font-semibold py-8">Gagal memuat riwayat.</div>';
                 }
             }
 
             function renderHistory(list) {
                 if (!list.length) {
                     historyEl.innerHTML =
-                        '<div class="text-center text-muted font-semibold py-8">No history yet \u2014 generate your first session above!</div>';
+                        '<div class="text-center text-muted font-semibold py-8">Belum ada riwayat \u2014 buat sesi pertama Anda di atas!</div>';
                     return;
                 }
                 historyEl.innerHTML = list
@@ -956,9 +954,9 @@
                             '</div></div>' +
                             '<button onclick="event.preventDefault();openVoiceInterview(window._prepHistory[' +
                             i +
-                            '])" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:2px solid var(--border);background:var(--accent);color:#fff;font-weight:700;font-size:0.75rem;text-transform:uppercase;cursor:pointer;box-shadow:2px 2px 0 #000;font-family:var(--font-mono);flex-shrink:0;"><i class="ph-bold ph-microphone"></i> Practice</button>' +
+                            '])" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:2px solid var(--border);background:var(--accent);color:#fff;font-weight:700;font-size:0.75rem;text-transform:uppercase;cursor:pointer;box-shadow:2px 2px 0 #000;font-family:var(--font-mono);flex-shrink:0;"><i class="ph-bold ph-microphone"></i> Latihan</button>' +
                             '</summary><div style="padding:0 20px 20px;border-top:2px solid var(--border);">' +
-                            (cHtml || '<div style="padding:12px 0;color:var(--muted);">No data stored.</div>') +
+                            (cHtml || '<div style="padding:12px 0;color:var(--muted);">Tidak ada data tersimpan.</div>') +
                             '</div></details>'
                         );
                     })
@@ -1018,7 +1016,7 @@
                 (cats || []).forEach((cat) => (cat.questions || []).forEach((q) => viQuestions.push({ category: cat.category, question: q })));
 
                 if (!viQuestions.length) {
-                    alert('No questions found in this session.');
+                    alert('Tidak ada pertanyaan ditemukan di sesi ini.');
                     return;
                 }
 
@@ -1048,13 +1046,13 @@
                 const q = viQuestions[idx];
                 const total = viQuestions.length;
 
-                viProgressText.textContent = 'Question ' + (idx + 1) + ' of ' + total;
+                viProgressText.textContent = 'Pertanyaan ' + (idx + 1) + ' dari ' + total;
                 viProgressBar.style.width = ((idx + 1) / total) * 100 + '%';
                 viCategoryBadge.innerHTML = '<i class="ph-bold ph-tag"></i> ' + escHtml(q.category);
                 viQuestionText.textContent = q.question;
 
                 viTranscriptEl.innerHTML =
-                    '<span style="color:var(--muted);font-style:italic;">Click the microphone button below to start recording your answer\u2026</span>';
+                    '<span style="color:var(--muted);font-style:italic;">Klik tombol mikrofon di bawah untuk mulai merekam jawaban Anda\u2026</span>';
                 viWordCount.textContent = '0 words';
                 viCritiqueEl.style.display = 'none';
                 viCritiqueEl.innerHTML = '';
@@ -1073,10 +1071,10 @@
                     viSkipHintEl.parentNode.appendChild(nextBtn);
                 }
                 if (idx === total - 1) {
-                    nextBtn.innerHTML = '<i class="ph-bold ph-flag-checkered"></i> Finish Session';
+                    nextBtn.innerHTML = '<i class="ph-bold ph-flag-checkered"></i> Akhiri Sesi';
                     nextBtn.onclick = closeVoiceInterview;
                 } else {
-                    nextBtn.innerHTML = 'Next <i class="ph-bold ph-caret-right"></i>';
+                    nextBtn.innerHTML = 'Selanjutnya <i class="ph-bold ph-caret-right"></i>';
                     nextBtn.onclick = () => viNavigate(1);
                 }
 
@@ -1108,7 +1106,7 @@
                 utt.rate = 0.88;
                 utt.pitch = 1;
                 viTtsStatus.innerHTML =
-                    '<i class="ph ph-speaker-high" style="animation:recPulse 1.2s ease-in-out infinite;color:var(--accent2);"></i>\u00a0Speaking\u2026';
+                    '<i class="ph ph-speaker-high" style="animation:recPulse 1.2s ease-in-out infinite;color:var(--accent2);"></i>\u00a0Berbicara\u2026';
                 utt.onend = () => {
                     viTtsStatus.textContent = '';
                 };
@@ -1127,7 +1125,7 @@
             function viStartRecording() {
                 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
                 if (!SR) {
-                    viMicStatus.textContent = 'Not supported \u2014 please use Chrome or Edge';
+                    viMicStatus.textContent = 'Tidak didukung \u2014 harap gunakan Chrome atau Edge';
                     return;
                 }
                 if (viSynth) viSynth.cancel();
@@ -1146,13 +1144,13 @@
                         else interim += t;
                     }
                     const display = escHtml(viTranscript) + (interim ? '<em style="opacity:0.5">' + escHtml(interim) + '</em>' : '');
-                    viTranscriptEl.innerHTML = display || '<span style="color:var(--muted);font-style:italic;">Listening\u2026</span>';
+                    viTranscriptEl.innerHTML = display || '<span style="color:var(--muted);font-style:italic;">Mendengarkan\u2026</span>';
                     const wc = viTranscript.trim().split(/\s+/).filter(Boolean).length;
-                    viWordCount.textContent = wc + ' word' + (wc !== 1 ? 's' : '');
+                    viWordCount.textContent = wc + ' kata';
                 };
 
                 viRecognition.onerror = (ev) => {
-                    if (ev.error !== 'no-speech' && ev.error !== 'aborted') viMicStatus.textContent = 'Mic error: ' + ev.error;
+                    if (ev.error !== 'no-speech' && ev.error !== 'aborted') viMicStatus.textContent = 'Kesalahan mikrofon: ' + ev.error;
                 };
 
                 // Chrome stops recognition after silence; auto-restart while still recording
@@ -1184,13 +1182,13 @@
                 if (andSubmit && viTranscript.trim()) {
                     submitCurrentAnswer();
                 } else if (andSubmit) {
-                    viMicStatus.textContent = 'Nothing recorded \u2014 try again';
+                    viMicStatus.textContent = 'Belum ada yang terekam \u2014 coba lagi';
                 }
             }
 
             function clearTranscript() {
                 viTranscript = '';
-                viTranscriptEl.innerHTML = '<span style="color:var(--muted);font-style:italic;">Cleared \u2014 click the mic to record again\u2026</span>';
+                viTranscriptEl.innerHTML = '<span style="color:var(--muted);font-style:italic;">Dihapus \u2014 klik mikrofon untuk merekam lagi\u2026</span>';
                 viWordCount.textContent = '0 words';
                 viCritiqueEl.style.display = 'none';
                 viManualSubmit.style.display = 'none';
@@ -1205,19 +1203,19 @@
                     viMicBtn.style.cssText = baseStyle.replace('VAR_BORDER', '#e53e3e').replace('VAR_BG', '#e53e3e');
                     viMicBtn.innerHTML = '<i class="ph-bold ph-stop-circle" style="font-size:2.2rem;pointer-events:none;"></i>';
                     viRecordingInd.style.display = 'flex';
-                    viMicStatus.textContent = 'Recording \u2014 click to stop & submit';
+                    viMicStatus.textContent = 'Merekam \u2014 klik untuk berhenti & kumpulkan';
                 } else {
                     viMicBtn.style.cssText = baseStyle.replace('VAR_BORDER', 'var(--border)').replace('VAR_BG', 'var(--accent)');
                     viMicBtn.innerHTML = '<i class="ph-bold ph-microphone" style="font-size:2.2rem;pointer-events:none;"></i>';
                     viRecordingInd.style.display = 'none';
                     if (viTranscript.trim() && !viHasCritique) {
-                        viMicStatus.textContent = 'Answer recorded \u2014 click Analyse below';
+                        viMicStatus.textContent = 'Jawaban direkam \u2014 klik Analisis di bawah';
                         viManualSubmit.style.display = 'flex';
                     } else if (viHasCritique) {
-                        viMicStatus.textContent = 'Critique ready \u2014 navigate when ready';
+                        viMicStatus.textContent = 'Kritik AI siap \u2014 navigasi kapan saja';
                         viManualSubmit.style.display = 'none';
                     } else {
-                        viMicStatus.textContent = 'Ready \u2014 click mic to start';
+                        viMicStatus.textContent = 'Siap \u2014 klik mikrofon untuk mulai';
                         viManualSubmit.style.display = 'none';
                     }
                 }
@@ -1227,7 +1225,7 @@
             async function submitCurrentAnswer() {
                 const answer = viTranscript.trim();
                 if (!answer) {
-                    viMicStatus.textContent = 'Please record an answer first';
+                    viMicStatus.textContent = 'Harap rekam jawaban terlebih dahulu';
                     return;
                 }
 
@@ -1236,8 +1234,8 @@
                 viCritiqueEl.innerHTML =
                     '<div style="display:flex;align-items:center;gap:12px;padding:16px 20px;background:var(--surface);border:3px solid var(--border);box-shadow:4px 4px 0 #000;">' +
                     '<i class="ph ph-spinner animate-spin" style="font-size:1.6rem;color:var(--accent);flex-shrink:0;"></i>' +
-                    '<div><p style="font-weight:800;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 2px;">Analysing your answer\u2026</p>' +
-                    '<p style="font-size:0.75rem;color:var(--muted);font-family:var(--font-mono);margin:0;">Takes 5\u201315 seconds</p></div></div>';
+                    '<div><p style="font-weight:800;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 2px;">Menganalisis jawaban Anda\u2026</p>' +
+                    '<p style="font-size:0.75rem;color:var(--muted);font-family:var(--font-mono);margin:0;">Membutuhkan 5\u201315 detik</p></div></div>';
 
                 try {
                     const res = await fetch('/api/interview-prep/critique', {
@@ -1247,7 +1245,7 @@
                     });
                     if (!res.ok) {
                         const d = await res.json();
-                        throw new Error(d.error || 'Critique failed');
+                        throw new Error(d.error || 'Kritik gagal');
                     }
                     viRenderCritique(await res.json());
                     viHasCritique = true;
@@ -1255,7 +1253,7 @@
                 } catch (err) {
                     viCritiqueEl.innerHTML =
                         '<div style="padding:16px 20px;background:var(--surface);border:3px solid #e53e3e;box-shadow:4px 4px 0 #000;">' +
-                        '<p style="font-weight:800;font-size:0.85rem;text-transform:uppercase;color:#e53e3e;margin:0 0 4px;">Critique failed</p>' +
+                        '<p style="font-weight:800;font-size:0.85rem;text-transform:uppercase;color:#e53e3e;margin:0 0 4px;">Kritik gagal</p>' +
                         '<p style="font-size:0.8rem;font-family:var(--font-mono);color:var(--muted);margin:0;">' +
                         escHtml(err.message) +
                         '</p></div>';
@@ -1266,7 +1264,7 @@
             function viRenderCritique(c) {
                 const score = Math.max(1, Math.min(10, c.score || 0));
                 const col = score >= 8 ? '#5eeb8f' : score >= 6 ? 'var(--accent)' : score >= 4 ? 'var(--accent2)' : '#e53e3e';
-                const label = score >= 9 ? 'Exceptional' : score >= 7 ? 'Strong' : score >= 5 ? 'Adequate' : score >= 3 ? 'Needs Work' : 'Off-mark';
+                const label = score >= 9 ? 'Luar Biasa' : score >= 7 ? 'Kuat' : score >= 5 ? 'Cukup' : score >= 3 ? 'Perlu Perbaikan' : 'Tidak Tepat Sasaran';
 
                 function chips(arr, iconCls, color) {
                     return (arr || [])
@@ -1302,7 +1300,7 @@
                     '</div>' +
                     '<div style="flex:1;min-width:140px;">' +
                     '<p style="font-weight:900;font-size:1rem;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">' +
-                    '<i class="ph-bold ph-robot" style="color:var(--accent);"></i> AI Feedback ' +
+                    '<i class="ph-bold ph-robot" style="color:var(--accent);"></i> Umpan Balik AI ' +
                     '<span style="color:' +
                     col +
                     ';">\u00b7 ' +
@@ -1316,7 +1314,7 @@
                 // Strengths
                 if (c.strengths && c.strengths.length) {
                     html +=
-                        '<div><p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:#5eeb8f;margin:0 0 8px;display:flex;align-items:center;gap:6px;"><i class="ph-bold ph-check-circle"></i> Strengths</p>' +
+                        '<div><p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:#5eeb8f;margin:0 0 8px;display:flex;align-items:center;gap:6px;"><i class="ph-bold ph-check-circle"></i> Kelebihan</p>' +
                         chips(c.strengths, 'ph-bold ph-check', '#5eeb8f') +
                         '</div>';
                 }
@@ -1324,7 +1322,7 @@
                 // Improvements
                 if (c.improvements && c.improvements.length) {
                     html +=
-                        '<div><p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent2);margin:0 0 8px;display:flex;align-items:center;gap:6px;"><i class="ph-bold ph-arrow-circle-up"></i> Areas to Improve</p>' +
+                        '<div><p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent2);margin:0 0 8px;display:flex;align-items:center;gap:6px;"><i class="ph-bold ph-arrow-circle-up"></i> Area Perbaikan</p>' +
                         chips(c.improvements, 'ph-bold ph-arrow-up', 'var(--accent2)') +
                         '</div>';
                 }
@@ -1333,7 +1331,7 @@
                 if (c.suggestedAnswer) {
                     html +=
                         '<div style="background:var(--bg);border:2px solid var(--border);padding:14px 16px;">' +
-                        '<p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent);margin:0 0 8px;display:flex;align-items:center;gap:6px;"><i class="ph-bold ph-lightbulb"></i> Model Answer Outline</p>' +
+                        '<p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent);margin:0 0 8px;display:flex;align-items:center;gap:6px;"><i class="ph-bold ph-lightbulb"></i> Garis Besar Jawaban Model</p>' +
                         '<p style="font-size:0.88rem;font-weight:600;line-height:1.65;margin:0;font-family:var(--font-mono);">' +
                         escHtml(c.suggestedAnswer) +
                         '</p></div>';
@@ -1342,7 +1340,7 @@
                 // Delivery tips
                 if (c.deliveryTips && c.deliveryTips.length) {
                     html +=
-                        '<div><p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent3,#a78bfa);margin:0 0 8px;display:flex;align-items:center;gap:6px;"><i class="ph-bold ph-star"></i> Delivery Tips</p>' +
+                        '<div><p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent3,#a78bfa);margin:0 0 8px;display:flex;align-items:center;gap:6px;"><i class="ph-bold ph-star"></i> Tips Penyampaian</p>' +
                         chips(c.deliveryTips, 'ph-bold ph-star', 'var(--accent3,#a78bfa)') +
                         '</div>';
                 }

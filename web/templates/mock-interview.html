@@ -3,7 +3,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <title>atstex-lab — Live Mock Interview</title>
+        <title>atstex-lab — Mock Interview Langsung</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg" />
         <link rel="stylesheet" href="/static/css/style.css" />
@@ -135,25 +135,25 @@
                 <div class="flex flex-col gap-2">
                     <h1 class="text-3xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
                         <i class="ph-bold ph-microphone text-3xl"></i>
-                        <span>Live Mock Interview</span>
+                        <span>Mock Interview Langsung</span>
                     </h1>
                     <p class="font-semibold text-muted">
-                        Practice your interviews with an interactive, voice-driven AI interviewer in real-time.
+                        Latih wawancara Anda dengan pewawancara AI yang interaktif dan berbasis suara secara real-time.
                     </p>
                 </div>
 
                 <!-- Setup Form -->
                 <div id="setup-view" class="bg-surface border-[3px] border-border p-6 shadow-[4px_4px_0_#000]">
-                    <h2 class="text-xl font-bold uppercase mb-4 border-b-2 border-border pb-2">Session Setup</h2>
+                    <h2 class="text-xl font-bold uppercase mb-4 border-b-2 border-border pb-2">Pengaturan Sesi</h2>
                     <form id="mock-form" class="flex flex-col gap-4">
                         <div class="flex flex-col gap-1">
-                            <label class="text-xs font-bold uppercase tracking-wider text-muted">CV Profile</label>
+                            <label class="text-xs font-bold uppercase tracking-wider text-muted">Profil CV</label>
                             <select
                                 id="mock-profile"
                                 required
                                 class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]"
                             >
-                                <option value="">— Select a profile —</option>
+                                <option value="">— Pilih profil —</option>
                                 {{range .Profiles}}
                                 <option value="{{.ID}}">{{.Title}}</option>
                                 {{end}}
@@ -161,7 +161,7 @@
                         </div>
                         <div class="flex flex-col sm:flex-row gap-4">
                             <div class="flex flex-col gap-1 flex-1">
-                                <label class="text-xs font-bold uppercase tracking-wider text-muted">Language</label>
+                                <label class="text-xs font-bold uppercase tracking-wider text-muted">Bahasa</label>
                                 <select
                                     id="mock-lang"
                                     class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]"
@@ -176,11 +176,11 @@
                         </div>
                         <div class="flex flex-col gap-1">
                             <label class="text-xs font-bold uppercase tracking-wider text-muted flex items-center justify-between">
-                                <span>Job Description</span>
+                                <span>Deskripsi Pekerjaan</span>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs font-mono text-muted normal-case tracking-normal">OR scan image:</span>
+                                    <span class="text-xs font-mono text-muted normal-case tracking-normal">ATAU pindai gambar:</span>
                                     <label class="btn btn-ghost !px-3 !py-1 !text-xs cursor-pointer">
-                                        <i class="ph-bold ph-image"></i> Scan Image
+                                        <i class="ph-bold ph-image"></i> Pindai Gambar
                                         <input type="file" id="mock-image-upload" accept="image/png, image/jpeg, image/jpg" style="display: none" />
                                     </label>
                                 </div>
@@ -190,15 +190,15 @@
                                 required
                                 rows="6"
                                 class="p-4 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)] resize-y"
-                                placeholder="Paste the job description here..."
+                                placeholder="Tempel deskripsi pekerjaan di sini..."
                             ></textarea>
                             <div id="mock-ocr-status" class="hidden text-xs font-mono text-accent2 font-bold mb-2 flex items-center gap-2">
-                                <i class="ph ph-spinner animate-spin"></i> Extracting text via OCR...
+                                <i class="ph ph-spinner animate-spin"></i> Mengekstrak teks via OCR...
                             </div>
                         </div>
                         <div class="flex items-center gap-3 mt-4">
                             <button type="submit" class="btn relative bg-accent text-white" id="mock-start-btn">
-                                <i class="ph-bold ph-play"></i> <span>Start Session</span>
+                                <i class="ph-bold ph-play"></i> <span>Mulai Sesi</span>
                             </button>
                             <span id="mock-errorMessage" class="text-sm font-bold text-error"></span>
                         </div>
@@ -214,48 +214,48 @@
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
                                 <span class="relative inline-flex rounded-full h-3 w-3 bg-error"></span>
                             </div>
-                            <span class="font-bold text-error uppercase tracking-wider text-sm">Live Session Active</span>
+                            <span class="font-bold text-error uppercase tracking-wider text-sm">Sesi Langsung Aktif</span>
                         </div>
                         <button id="btn-end-session" class="btn !bg-error !text-white !px-3 !py-1 text-sm border-2 border-black">
-                            <i class="ph-bold ph-stop"></i> End Session
+                            <i class="ph-bold ph-stop"></i> Akhiri Sesi
                         </button>
                     </div>
 
                     <!-- Conversation Window -->
                     <div id="chat-window" class="flex flex-col gap-4 overflow-y-auto max-h-[500px] p-4 bg-bg border-2 border-border font-mono text-sm">
                         <!-- Messages appended here dynamically -->
-                        <div class="text-center text-muted text-xs italic opacity-70">Session Started. Waiting for AI...</div>
+                        <div class="text-center text-muted text-xs italic opacity-70">Sesi Dimulai. Menunggu AI...</div>
                     </div>
 
                     <!-- AI Status Indicator -->
                     <div id="ai-status" class="hidden items-center gap-2 text-xs font-bold text-accent uppercase tracking-wider">
-                        <i class="ph-bold ph-spinner animate-spin"></i> AI is thinking...
+                        <i class="ph-bold ph-spinner animate-spin"></i> AI sedang berpikir...
                     </div>
 
                     <!-- Controls -->
                     <div class="flex flex-col items-center gap-4 bg-bg p-4 border-2 border-border mt-2">
                         <div class="w-full flex justify-between items-center px-4">
-                            <span id="mic-status-text" class="text-xs font-bold text-muted uppercase tracking-wider w-1/3 text-left">Microphone Ready</span>
+                            <span id="mic-status-text" class="text-xs font-bold text-muted uppercase tracking-wider w-1/3 text-left">Mikrofon Siap</span>
 
                             <button id="btn-mic" class="w-16 h-16 rounded-full bg-accent text-white flex items-center justify-center border-4 border-black shadow-[4px_4px_0_#000] hover:-translate-y-1 hover:shadow-[6px_6px_0_#000] active:translate-y-1 active:shadow-[2px_2px_0_#000] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                                 <i class="ph-bold ph-microphone text-3xl pointer-events-none"></i>
                             </button>
 
                             <div class="w-1/3 flex justify-end">
-                                <button id="btn-send-manual" class="hidden btn !px-3 !py-2 text-xs bg-accent4">Send Manual Text</button>
-                                <button id="btn-submit-manual-send" class="hidden btn !px-3 !py-2 text-xs bg-accent2 text-white"><i class="ph-bold ph-paper-plane-right"></i> Send</button>
+                                <button id="btn-send-manual" class="hidden btn !px-3 !py-2 text-xs bg-accent4">Kirim Teks Manual</button>
+                                <button id="btn-submit-manual-send" class="hidden btn !px-3 !py-2 text-xs bg-accent2 text-white"><i class="ph-bold ph-paper-plane-right"></i> Kirim</button>
 
                             </div>
                         </div>
 
                         <!-- Manual Text Input (Fallback) -->
                         <div id="manual-input-container" class="hidden w-full flex gap-2">
-                            <input type="text" id="manual-input" class="flex-1 p-2 border-2 border-border font-mono text-sm" placeholder="Type your answer here..." />
+                            <input type="text" id="manual-input" class="flex-1 p-2 border-2 border-border font-mono text-sm" placeholder="Ketik jawaban Anda di sini..." />
                             <button id="btn-submit-manual" class="btn !px-4 bg-accent2 text-white"><i class="ph-bold ph-paper-plane-right"></i></button>
                         </div>
 
                         <p class="text-xs text-muted font-mono text-center">
-                            Press the microphone button to start recording your answer. Press again to end recording and send.
+                            Tekan tombol mikrofon untuk mulai merekam jawaban Anda. Tekan lagi untuk mengakhiri rekaman dan kirim.
                         </p>
                     </div>
                 </div>
@@ -264,11 +264,11 @@
                 <div class="flex flex-col gap-2 mt-4">
                     <h2 class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
                         <i class="ph-bold ph-clock-counter-clockwise text-3xl"></i>
-                        <span>Past Sessions</span>
+                        <span>Riwayat Sesi</span>
                     </h2>
                 </div>
                 <div id="history-view" class="flex flex-col gap-4">
-                    <div class="text-center text-muted font-semibold py-8">Loading…</div>
+                    <div class="text-center text-muted font-semibold py-8">Memuat…</div>
                 </div>
             </div>
         </main>
@@ -346,11 +346,11 @@
             async function loadHistory() {
                 try {
                     const res = await fetch('/api/mock-interview/sessions');
-                    if (!res.ok) throw new Error("Failed to load history.");
+                    if (!res.ok) throw new Error("Gagal memuat riwayat.");
                     const sessions = await res.json();
 
                     if (!sessions || sessions.length === 0) {
-                        historyView.innerHTML = `<div class="text-center text-muted font-mono py-6">No past sessions found.</div>`;
+                        historyView.innerHTML = `<div class="text-center text-muted font-mono py-6">Tidak ada riwayat sesi ditemukan.</div>`;
                         return;
                     }
 
@@ -364,7 +364,7 @@
                                     <div class="font-bold text-sm uppercase">${s.language} Interview</div>
                                     <div class="text-xs font-mono text-muted mt-1">${date} &bull; ${s.turnCount || 0} turns</div>
                                 </div>
-                                <div class="text-xs font-bold px-2 py-1 bg-accent4 border border-black">${s.endedAt ? 'Completed' : 'Ended Abruptly'}</div>
+                                <div class="text-xs font-bold px-2 py-1 bg-accent4 border border-black">${s.endedAt ? 'Selesai' : 'Berakhir Tiba-tiba'}</div>
                             </div>
                         `;
                     }).join('');
@@ -385,7 +385,7 @@
                     const result = await Tesseract.recognize(file, 'eng');
                     jobDescInput.value = result.data.text;
                 } catch (err) {
-                    alert('OCR failed. Please try typing manually.');
+                    alert('OCR gagal. Silakan coba ketik secara manual.');
                 } finally {
                     ocrStatus.classList.add('hidden');
                     jobDescInput.disabled = false;
@@ -443,7 +443,7 @@
                     btnMic.innerHTML = '<i class="ph-bold ph-stop text-3xl pointer-events-none"></i>';
                     btnMic.classList.replace('bg-accent', 'bg-error');
                     btnMic.classList.add('animate-pulse');
-                    micStatusText.innerText = "Listening...";
+                    micStatusText.innerText = "Mendengarkan...";
                     micStatusText.classList.add('text-error');
                     btnSendManual.classList.add('hidden');
                     manualInputContainer.classList.add('hidden');
@@ -467,7 +467,7 @@
                     } else if (interim) {
                         currentTranscript = (finalTranscriptBuffer + " " + interim).trim();
                     }
-                    micStatusText.innerText = currentTranscript || "Listening...";
+                    micStatusText.innerText = currentTranscript || "Mendengarkan...";
                 };
 
                 recognition.onend = () => {
@@ -484,7 +484,7 @@
                 recognition.onerror = (e) => {
                     console.error("Speech reco error:", e.error);
                     if (e.error !== 'no-speech') {
-                         alert("Microphone error: " + e.error);
+                         alert("Kesalahan mikrofon: " + e.error);
                     }
                     isRecording = false;
                     resetMicUI();
@@ -492,7 +492,7 @@
             } else {
                 // Fallback if Speech API not available
                 btnMic.disabled = true;
-                btnMic.title = "Microphone not supported in this browser.";
+                btnMic.title = "Mikrofon tidak didukung di peramban ini.";
                 btnSendManual.classList.remove('hidden');
             }
 
@@ -501,10 +501,10 @@
                 btnMic.classList.replace('bg-error', 'bg-accent');
                 btnMic.classList.remove('animate-pulse');
                 if (currentTranscript) {
-                    micStatusText.innerText = "Transcript ready to send";
+                    micStatusText.innerText = "Transkrip siap dikirim";
                     btnSubmitManualSend.classList.remove('hidden');
                 } else {
-                    micStatusText.innerText = "Microphone Ready";
+                    micStatusText.innerText = "Mikrofon Siap";
                     micStatusText.classList.remove('text-error');
                     btnSendManual.classList.remove('hidden');
                     btnSubmitManualSend.classList.add('hidden');
@@ -519,7 +519,7 @@
                 // Add tag
                 const tag = document.createElement('div');
                 tag.className = 'text-[10px] uppercase font-bold text-muted mb-1';
-                tag.innerText = role === 'ai' ? 'AI Interviewer' : 'You';
+                tag.innerText = role === 'ai' ? 'Pewawancara AI' : 'Anda';
 
                 const content = document.createElement('div');
                 content.innerText = text;
@@ -542,7 +542,7 @@
 
                     // We DO NOT auto submit here. Let user see transcript and press send.
                     if (currentTranscript.trim()) {
-                        micStatusText.innerText = "Press Send to submit.";
+                        micStatusText.innerText = "Tekan Kirim untuk mengumpulkan.";
                     }
                 } else {
                     if (!ws) return;
@@ -596,7 +596,7 @@
                 aiStatus.classList.remove('hidden');
                 aiStatus.classList.add('flex');
 
-                micStatusText.innerText = "Sent. Waiting for reply...";
+                micStatusText.innerText = "Terkirim. Menunggu balasan...";
             }
 
             btnEndSession.addEventListener('click', () => {
@@ -638,7 +638,7 @@
                 setupView.classList.add('hidden');
                 interviewView.classList.remove('hidden');
                 interviewView.classList.add('flex');
-                chatWindow.innerHTML = '<div class="text-center text-muted text-xs italic opacity-70">Connecting to AI...</div>';
+                chatWindow.innerHTML = '<div class=\"text-center text-muted text-xs italic opacity-70\">Menghubungkan ke AI...</div>';
                 aiStatus.classList.add('hidden');
 
                 // Establish connection
@@ -648,7 +648,7 @@
                 ws = new WebSocket(wsUrl);
 
                 ws.onopen = () => {
-                    chatWindow.innerHTML = '<div class="text-center text-muted text-xs italic opacity-70">Session Started. Waiting for AI to initialize...</div>';
+                    chatWindow.innerHTML = '<div class="text-center text-muted text-xs italic opacity-70">Sesi Dimulai. Menunggu AI... initialize...</div>';
                 };
 
                 ws.onmessage = (event) => {
@@ -666,18 +666,18 @@
 
                             appendMessage('ai', data.text);
                             speakText(data.text, lang);
-                            micStatusText.innerText = "Microphone Ready";
+                            micStatusText.innerText = "Mikrofon Siap";
                         }
                         else if (data.type === 'ai_thinking') {
                             aiStatus.classList.remove('hidden');
                             aiStatus.classList.add('flex');
                         }
                         else if (data.type === 'error') {
-                            alert("Server error: " + data.error);
+                            alert("Kesalahan server: " + data.error);
                             closeSession();
                         }
                         else if (data.type === 'session_ended') {
-                            alert("Session concluded.");
+                            alert("Sesi berakhir.");
                             closeSession();
                         }
                     } catch (err) {
@@ -693,7 +693,7 @@
 
                 ws.onerror = (err) => {
                     console.error("WS Error:", err);
-                    alert("WebSocket connection error. Make sure you are logged in and your CV is populated.");
+                    alert("Kesalahan koneksi WebSocket. Pastikan Anda sudah login dan CV Anda sudah diisi.");
                     closeSession();
                 };
             });
