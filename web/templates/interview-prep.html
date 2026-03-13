@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="/static/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Load Tesseract.js for browser-side OCR -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </head>
 
 <body class="flex flex-col md:flex-row h-dvh w-full bg-bg font-ui text-text overflow-hidden">
@@ -99,8 +101,18 @@
                     <div class="flex flex-col gap-1">
                         <label class="text-xs font-bold uppercase tracking-wider text-muted flex items-center justify-between">
                             <span>Deskripsi Pekerjaan</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-mono text-muted normal-case tracking-normal">ATAU Gambar OCR:</span>
+                                <label class="btn btn-ghost !px-3 !py-1 !text-xs cursor-pointer">
+                                    <i class="ph-bold ph-image"></i> Pindai Gambar
+                                    <input type="file" id="prep-image-upload" accept="image/png, image/jpeg, image/jpg" style="display: none;">
+                                </label>
+                            </div>
                         </label>
                         <textarea id="prep-jobdesc" required rows="6" class="p-4 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)] resize-y" placeholder="Tempel detail job description di sini..."></textarea>
+                        <div id="prep-ocr-status" class="hidden text-xs font-mono text-accent2 font-bold mb-2 flex items-center gap-2">
+                            <i class="ph ph-spinner animate-spin"></i> Mengekstrak teks via OCR...
+                        </div>
                     </div>
 
                     <div class="flex items-center gap-3 mt-2">
@@ -142,6 +154,8 @@
     <style>
         @keyframes bounceUp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
         @keyframes dotPulse { 0%, 80%, 100% { transform: scale(1); opacity: 1; } 40% { transform: scale(1.5); opacity: 0.5; } }
+        .animate-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
         .review-section { margin-top: 16px; }
         .review-section-title { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; color: var(--accent); }
@@ -166,6 +180,40 @@
         const resultEl = document.getElementById('prep-result');
         const loadingEl = document.getElementById('prep-loading');
         const historyEl = document.getElementById('prep-history');
+
+        const imageUpload = document.getElementById('prep-image-upload');
+        const ocrStatus = document.getElementById('prep-ocr-status');
+        const jobDescInput = document.getElementById('prep-jobdesc');
+
+        imageUpload.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            ocrStatus.classList.remove('hidden');
+            jobDescInput.disabled = true;
+            btn.disabled = true;
+
+            try {
+                // Initialize Tesseract worker
+                const worker = await Tesseract.createWorker('eng');
+                const result = await worker.recognize(file);
+                await worker.terminate();
+
+                // Append parsed text
+                const extractedText = result.data.text.trim();
+                const existing = jobDescInput.value.trim();
+                jobDescInput.value = existing ? existing + "\n\n" + extractedText : extractedText;
+
+            } catch (err) {
+                console.error("OCR Error:", err);
+                errorEl.textContent = "OCR gagal membaca gambar.";
+            } finally {
+                ocrStatus.classList.add('hidden');
+                jobDescInput.disabled = false;
+                btn.disabled = false;
+                e.target.value = ''; // Reset input
+            }
+        });
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();

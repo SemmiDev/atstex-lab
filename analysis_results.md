@@ -1,109 +1,42 @@
-# Promising Features for ATSTEX-LAB
+# ATSTEX-LAB: Highly Promising Missing Features
 
-Prioritized by **implementation effort** and **user impact**, grouped into tiers. Each feature notes what existing infrastructure it builds on.
-
-> [!TIP]
-> Features marked with ⚡ can be built **entirely in the frontend** (JS/CSS only, no backend changes). Features marked with 🤖 leverage your existing AI provider integration.
+Based on the `KNOWLEDGE_GRAPH.md` and the core problem ATSTEX-LAB is solving (streamlining the job application process with AI-powered LaTeX CVs and preparation tools), here is a list of highly promising, missing features that would add extreme value and completely solve the user's problem.
 
 ---
 
-## 🟢 Tier 1 — Quick Wins (1-2 days each)
+### 1. Auto-Tailored CV Generator (The "Holy Grail")
+**Problem Context:** Currently, users evaluate their ATS score via `/ats-simulator`, but they still have to go back and manually tweak their CV biodata to include the missing keywords to improve their score.
+**The Feature:** Given a **Base CV Profile** and a **Job Description**, an AI tool that automatically duplicates the profile and rewrites the *Summary* and *Experience Bullet Points* to naturally incorporate the missing ATS keywords from the job description.
+**Why it's killer:** It turns a 30-minute manual keyword optimization process into a 1-click operation. Users get a perfectly tailored `.tex` ready for export for every single application.
 
-### 1. ⚡ Dark Mode Toggle
-**Impact**: High (developer/power-user favorite)
-Add a dark theme using CSS custom properties you already define in `:root`. Toggle persisted via `localStorage`. Your design system (`--bg`, `--surface`, `--accent`, etc.) makes this straightforward — just swap the values.
+### 2. Chrome Extension (Job Board Integration)
+**Problem Context:** Users find jobs on LinkedIn/JobStreet, copy the description, switch tabs to ATSTEX-LAB, paste it, and run the simulator or cover-letter tool.
+**The Feature:** A browser extension that communicates with the ATSTEX-LAB backend. When browsing a job on LinkedIn, a single click extracts the job description from the DOM, runs the `/api/ats-simulator` against the user's default CV, and displays the Match Score & Missing Keywords directly inside a floating widget on LinkedIn.
+**Why it's killer:** Keeps ATSTEX-LAB top-of-mind during the actual job searching process. Eliminates all friction.
 
-### 2. ⚡ CV Completeness Score Bar
-**Impact**: Medium-High (gamification → more biodata filled → better CVs)
-A visual progress bar on the `/input` page showing "Your CV is 65% complete". Score calculated client-side from filled JSONB fields (name, email, experience count, skills, etc.). Encourages users to fill optional sections.
+### 3. Smart Multilingual CV Auto-Translation
+**Problem Context:** The AI can generate cover letters, review CVs, and prep for interviews in `en`, `id`, `ja`, `zh`, `ko`. However, the *CV Profile (biodata)* itself remains in one static language. 
+**The Feature:** Added to the CV Profile editor, an "Auto-Translate" button that takes the entire `CVData` JSON (Experience, Skills, Projects, Summary) and uses the AI engine to accurately translate it into another language, saving it as a new distinct profile entirely (e.g., "Software Engineer - Japanese Version").
+**Why it's killer:** Job seekers often apply to multinational roles. Translating detailed technical experience manually is incredibly tedious. 
 
-### 3. ⚡ Template Preview Thumbnails in Editor Dropdown
-**Impact**: Medium
-Replace the plain `<select>` dropdown on the editor page with a visual picker showing small static preview images for each template (bay, delta, reef, sea, tide, wave). Uses the Gallery infrastructure you just built.
+### 4. Cold Outreach & Networking Pitch Generator
+**Problem Context:** While you have `/cover-letter`, many modern tech jobs are landed by messaging recruiters or hiring managers directly on LinkedIn or via cold email, which require fundamentally different structures than a formal cover letter.
+**The Feature:** Based on the CV + a target Company or Job Description, generate concise, punchy "Cold LinkedIn Messages" or "Networking Emails" that focus strictly on value-prop and brevity.
+**Why it's killer:** Aligns perfectly with aggressive modern job-hunting strategies where formal cover letters are ignored.
 
-### 4. ⚡ Export Biodata as JSON / Import from JSON
-**Impact**: Medium (portability, backup)
-Add "Export" and "Import" buttons on `/input`. Export serializes `localStorage`'s `cv_data` to a [.json](file:///Users/sammidev/Developments/atstex-lab/package.json) file download. Import lets users drag-drop a JSON file to restore their data. Zero backend changes.
+### 5. LinkedIn Profile URL Importer
+**Problem Context:** Right now, users can populate biodata manually or via PDF extraction (`/api/extract-pdf`).
+**The Feature:** A tool that accepts a LinkedIn URL, scrapes the public profile data (or accepts a LinkedIn PDF export), and maps it perfectly into the `CVData` structure.
+**Why it's killer:** It completely removes the initial barrier to entry for new users. Setting up a comprehensive CV profile goes from taking 15 minutes to taking 15 seconds.
 
-### 5. Compilation History Log
-**Impact**: Medium
-Store last N compilations (timestamp, template, elapsed, success/fail) in a PostgreSQL table. Show a small "History" panel in the editor. Builds on existing [compile](file:///Users/sammidev/Developments/atstex-lab/internal/handler/server.go#28-33) handler — just add a DB insert after successful compilation.
-
----
-
-## 🟡 Tier 2 — Medium Effort (3-5 days each)
-
-### 6. 🤖 AI Interview Prep
-**Impact**: Very High (unique differentiator)
-You already have the user's CV (`CVProfile.Biodata`) and job description (from `AtsSimulation.JobDescription`). Add a new page `/interview-prep` that sends both to your AI provider with a prompt to generate 8-10 tailored interview questions (behavioral + technical). New domain model `InterviewPrep`, new handler, new HTML page.
-
-### 7. 🤖 AI Bullet Point Enhancer
-**Impact**: High (directly improves CV quality)
-On the `/input` page, add a small ✨ button next to each experience bullet textarea. Clicking it sends the raw bullet to AI with a prompt like "Rewrite this bullet point using strong action verbs and quantifiable metrics." Returns an improved version the user can accept or reject. Reuses your existing `extractor.AIConfig`.
-
-### 8. PDF Watermark-Free Export (Freemium Gate)
-**Impact**: High (monetization lever)
-For free-tier users, add a subtle "Built with ATSTEXLAB" watermark to compiled PDFs. Pro users get clean exports. Implement by conditionally injecting a LaTeX footer line in `cvtemplate.Render()` based on subscription tier passed from the handler.
-
-### 9. Application Deadline Tracking + Status Stats
-**Impact**: Medium-High
-Extend [JobApplication](file:///Users/sammidev/Developments/atstex-lab/internal/domain/job_application.go#9-20) with a `deadline` column (`DATE`). Show overdue applications in red on the Kanban board. Add a stats panel at the top: "12 Applied → 4 Interviews → 1 Offer" pipeline funnel. Builds on existing [job_application.go](file:///Users/sammidev/Developments/atstex-lab/internal/domain/job_application.go) and [kanban.js](file:///Users/sammidev/Developments/atstex-lab/web/static/js/kanban.js).
-
-### 10. CV Version History / Snapshots
-**Impact**: Medium-High (peace of mind)
-Every time the user saves a CV profile, also store a snapshot in a `cv_profile_versions` table (profile_id, biodata JSONB, created_at). Add a "Version History" drawer on `/input` that lists snapshots and lets them restore any version. Prevents accidental data loss.
-
-### 11. Template Color Customization
-**Impact**: Medium (personalization)
-Expose a "Primary Color" picker in the Page Settings panel. The chosen hex color gets passed to `cvtemplate.Render()` as part of [PageSettings](file:///Users/sammidev/Developments/atstex-lab/internal/cvtemplate/cvtemplate.go#145-159) and injected into the LaTeX template via `\definecolor`. Your templates already use `[[ ]]` Go template delimiters, so adding `[[ .Settings.PrimaryColor ]]` is simple.
+### 6. Interactive Mock Interview Voice Bot
+**Problem Context:** The `/interview-prep` generates text-based questions, but practicing verbally is what actually helps candidates improve.
+**The Feature:** Upgrading the current interview prep to leverage the browser's Web Speech API. The AI speaks the generated question out loud, listens to the user's spoken answer via microphone, transcribes it, and provides an immediate real-time AI critique of their spoken answer.
+**Why it's killer:** True end-to-end interview simulation that provides actual behavioral feedback on delivery, not just a static list of questions.
 
 ---
-
-## 🔴 Tier 3 — Larger Effort (1-2 weeks each)
-
-### 12. 🤖 Smart Content Auto-Complete
-**Impact**: Very High (AI-powered writing assistant)
-In-line AI suggestions while typing experience bullets. User types partial text, presses Tab, and AI completes the sentence. Requires a streaming endpoint (`SSE` or `WebSocket`) that calls Gemini/OpenAI with the partial text + job title context. Most complex AI feature but highest engagement potential.
-
-### 13. LinkedIn Import via Paste
-**Impact**: High (saves 15-30 min of manual entry)
-Add a "Paste LinkedIn Profile" modal on `/input`. User pastes their LinkedIn profile URL or raw text. Send it to AI with structured extraction prompt (similar to your existing PDF extraction). Maps LinkedIn sections → [CVData](file:///Users/sammidev/Developments/atstex-lab/internal/cvtemplate/cvtemplate.go#131-143) fields. Reuses `extractor.ExtractBiodata` with a modified prompt.
-
-### 14. Email Notifications (Resend Integration)
-**Impact**: Medium-High (re-engagement)
-Integrate Resend (or SMTP) for:
-- "Your application to X has been 'Applied' for 7+ days — time to follow up?"
-- "Your subscription expires in 3 days"
-- Weekly digest: "You have 3 pending applications"
-Requires a background cron job (can use Go's `time.Ticker` or an external scheduler).
-
-### 15. Multi-Language CV Content (i18n Templates)
-**Impact**: Medium (international users)
-Auto-translate static CV section headers ("Experience" → "Pengalaman", "Education" → "Pendidikan") based on a language selector. The LaTeX templates already use Go template functions — add a `t` function that looks up translations from a map.
-
-### 16. Comprehensive Admin Analytics Dashboard
-**Impact**: High (business intelligence)
-Extend [AdminStats](file:///Users/sammidev/Developments/atstex-lab/internal/domain/user.go#30-37) with: daily active users, compilations per day, most popular templates, AI token burn rate vs. subscription revenue, error rates. Use Chart.js or similar on the admin page. Requires new repository queries with `DATE_TRUNC` aggregations.
-
----
-
-## 📊 Priority Matrix
-
-| Feature | Effort | Impact | ROI |
-|---------|--------|--------|-----|
-| Dark Mode | ⚡ Easy | ⭐⭐⭐ | 🔥🔥🔥 |
-| CV Completeness Score | ⚡ Easy | ⭐⭐⭐ | 🔥🔥🔥 |
-| AI Interview Prep | 🟡 Medium | ⭐⭐⭐⭐⭐ | 🔥🔥🔥🔥 |
-| AI Bullet Enhancer | 🟡 Medium | ⭐⭐⭐⭐ | 🔥🔥🔥🔥 |
-| JSON Export/Import | ⚡ Easy | ⭐⭐ | 🔥🔥🔥 |
-| CV Version History | 🟡 Medium | ⭐⭐⭐ | 🔥🔥🔥 |
-| Kanban Stats + Deadlines | 🟡 Medium | ⭐⭐⭐ | 🔥🔥🔥 |
-| PDF Watermark Gate | 🟡 Medium | ⭐⭐⭐⭐ | 🔥🔥🔥🔥 |
-| Template Color Picker | 🟡 Medium | ⭐⭐ | 🔥🔥 |
-| LinkedIn Import | 🔴 Hard | ⭐⭐⭐⭐ | 🔥🔥🔥 |
-| Smart Auto-Complete | 🔴 Hard | ⭐⭐⭐⭐⭐ | 🔥🔥🔥 |
-| Admin Analytics | 🔴 Hard | ⭐⭐⭐ | 🔥🔥 |
-
----
-
-> **My recommendation**: Start with **Dark Mode** + **CV Completeness Score** (both pure frontend, ship in a day), then tackle **AI Interview Prep** and **AI Bullet Enhancer** as your next high-impact features — they directly leverage your existing AI infrastructure and create real differentiation.
+### Summary
+If prioritizing for immediate impact and subscription value (Pro Tier):
+1. **Auto-Tailored CV Generator** (Highest value to get past ATS automatically)
+2. **Chrome Extension** (Highest value for daily workflow engagement)
+3. **LinkedIn Profile Importer** (Highest value for onboarding acquisition)
