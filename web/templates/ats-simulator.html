@@ -115,6 +115,9 @@
                         <button type="submit" class="btn relative" id="ats-submit-btn">
                             <i class="ph-bold ph-lightning"></i> <span data-i18n="ats.btn.simulate">Mulai Simulasi</span>
                         </button>
+                        <button type="button" class="btn btn-outline relative flex items-center gap-2 border-[3px] border-black text-black font-bold px-4 py-2 shadow-[3px_3px_0_#000] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_#000] transition-all bg-accent3" id="ats-tailor-btn">
+                            <i class="ph-bold ph-magic-wand"></i> <span data-i18n="ats.btn.tailor">Auto-Tailor CV (AI)</span>
+                        </button>
                         <span id="ats-errorMessage" class="text-sm font-bold text-error"></span>
                     </div>
                 </form>
@@ -248,6 +251,73 @@
             } finally {
                 btn.disabled = false;
                 loadingEl.style.display = 'none';
+            }
+        });
+
+        const tailorBtn = document.getElementById('ats-tailor-btn');
+        tailorBtn.addEventListener('click', async () => {
+            const profileId = document.getElementById('ats-profile').value;
+            const language = document.getElementById('ats-lang').value;
+            const jobDescription = jobDescTextarea.value;
+
+            if (!profileId) {
+                errorEl.textContent = 'Silakan pilih profil CV terlebih dahulu.';
+                return;
+            }
+            if (!jobDescription) {
+                errorEl.textContent = 'Deskripsi Pekerjaan wajib diisi.';
+                return;
+            }
+
+            tailorBtn.disabled = true;
+            btn.disabled = true; // disable simulate button as well
+            errorEl.textContent = '';
+            resultEl.style.display = 'none';
+            
+            // show specific loading state for tailoring
+            loadingEl.querySelector('h3').textContent = 'AI sedang merombak CV Anda...';
+            loadingEl.style.display = '';
+
+            try {
+                const res = await fetch(`/api/cv-profiles/${profileId}/auto-tailor`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ jobDescription, language })
+                });
+
+                if (!res.ok) {
+                    const data = await res.json();
+                    throw new Error(data.error || 'Gagal membuat CV Auto-Tailored');
+                }
+
+                const newProfile = await res.json();
+                
+                // Show success message and offer redirect
+                resultEl.innerHTML = `
+                    <div style="text-align:center;">
+                        <div style="font-size:3rem; margin-bottom:10px;">✨</div>
+                        <h3 style="font-size:1.3rem;font-weight:800;text-transform:uppercase;color:var(--accent);">Sukses! CV Berhasil Disesuaikan</h3>
+                        <p style="margin:10px 0;">Profil baru <strong>${escHtml(newProfile.title)}</strong> telah dibuat.</p>
+                        <div style="margin-top:20px; display:flex; justify-content:center; gap:10px;">
+                            <a href="/editor" class="btn btn-outline" style="border:3px solid black; padding:8px 16px; font-weight:bold; box-shadow:3px 3px 0 #000; display:inline-flex; align-items:center; gap:8px;">
+                                <i class="ph-bold ph-pencil-simple"></i> Lanjut ke Editor
+                            </a>
+                            <a href="/input" class="btn btn-outline" style="border:3px solid black; padding:8px 16px; font-weight:bold; box-shadow:3px 3px 0 #000; display:inline-flex; align-items:center; gap:8px;">
+                                <i class="ph-bold ph-file-text"></i> Lihat di Biodata
+                            </a>
+                        </div>
+                    </div>
+                `;
+                resultEl.style.display = 'block';
+
+            } catch (err) {
+                errorEl.textContent = err.message;
+            } finally {
+                tailorBtn.disabled = false;
+                btn.disabled = false;
+                loadingEl.style.display = 'none';
+                // Reset loading text for simulation
+                loadingEl.querySelector('h3').textContent = 'Menganalisis kecocokan CV dengan Pekerjaan...';
             }
         });
 

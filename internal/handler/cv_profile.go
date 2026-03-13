@@ -9,6 +9,7 @@ import (
 
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/domain"
+	"github.com/semmidev/atstex-lab/internal/extractor"
 )
 
 // ListCVProfiles returns all CV profiles for the authenticated user.
@@ -189,5 +190,96 @@ func (s *Server) handleDeleteCVProfile() http.HandlerFunc {
 		}
 
 		s.encode(w, r, http.StatusOK, map[string]string{"status": "deleted"})
+	}
+}
+
+// AutoTailorCVProfile duplicates an existing profile and uses AI to rewrite parts of it based on a job description.
+func (s *Server) handleAutoTailorCVProfile() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+		id, err := uuid.Parse(chi.URLParam(r, "id"))
+		if err != nil {
+			s.respondErrMsg(w, r, "invalid profile id", http.StatusBadRequest)
+			return
+		}
+
+		var req struct {
+			JobDescription string `json:"jobDescription"`
+			Language       string `json:"language"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		if req.JobDescription == "" {
+			s.respondErrMsg(w, r, "job description is required", http.StatusBadRequest)
+			return
+		}
+
+		lang := req.Language
+		if lang == "" {
+			lang = "en"
+		}
+
+		// 1. Verify ownership of the base profile
+		baseProfile, err := s.repo.GetCVProfile(r.Context(), id)
+		if err != nil {
+			s.respondErrMsg(w, r, "profile not found", http.StatusNotFound)
+			return
+		}
+		if baseProfile.UserID != user.ID {
+			s.respondErrMsg(w, r, "forbidden", http.StatusForbidden)
+			return
+		}
+		//nolint:goconst // string 'null' is used here only to check for empty json
+		if len(baseProfile.Biodata) == 0 || string(baseProfile.Biodata) == "null" || string(baseProfile.Biodata) == "{}" {
+			s.respondErrMsg(w, r, "base profile has no biodata — please fill in your biodata first", http.StatusBadRequest)
+			return
+		}
+
+		// 2. Check subscription limits (using ats_simulation limit type or cv_profile)
+		// Auto-tailoring creates a profile AND uses AI. We'll check cv_profile limit.
+		if err := s.checkSubscriptionLimits(r.Context(), user.ID, "cv_profile"); err != nil {
+			s.respondErrMsg(w, r, err.Error(), http.StatusForbidden)
+			return
+		}
+		
+		// 3. Duplicate profile
+		newTitle := baseProfile.Title + " - Auto-Tailored"
+		newProfile, err := s.repo.CreateCVProfile(r.Context(), user.ID, newTitle)
+		if err != nil {
+			s.respondErrMsg(w, r, "failed to duplicate profile", http.StatusInternalServerError)
+			return
+		}
+
+		// 4. Call LLM to rewrite
+		rewrittenJSON, tokensUsed, err := extractor.AutoTailorCV(r.Context(), string(baseProfile.Biodata), req.JobDescription, lang, s.aiConfig)
+		if err != nil {
+			s.reqLog(r).Error("Auto-tailor CV rewriting failed", "err", err)
+			s.respondErrMsg(w, r, "AI rewriting failed: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if tokensUsed > 0 {
+			_ = s.repo.IncrementAITokensUsed(r.Context(), user.ID, tokensUsed)
+		}
+
+		// 5. Save rewritten biodata
+		if err := s.repo.UpdateCVProfileBiodata(r.Context(), newProfile.ID, rewrittenJSON); err != nil {
+			s.reqLog(r).Error("Failed to save rewritten biodata", "err", err)
+			s.respondErrMsg(w, r, "Failed to save rewritten CV", http.StatusInternalServerError)
+			return
+		}
+		
+		// Fetch the final newly generated profile to return
+		finalProfile, err := s.repo.GetCVProfile(r.Context(), newProfile.ID)
+		if err != nil {
+			s.respondErrMsg(w, r, "Failed to load generated profile", http.StatusInternalServerError)
+			return
+		}
+
+		s.encode(w, r, http.StatusCreated, finalProfile)
 	}
 }

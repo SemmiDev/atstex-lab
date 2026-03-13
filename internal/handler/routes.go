@@ -63,6 +63,7 @@ func (s *Server) routes() {
 		r.Put("/api/cv-profiles/{id}/title", s.handleUpdateCVProfileTitle())
 		r.Delete("/api/cv-profiles/{id}", s.handleDeleteCVProfile())
 		r.Put("/api/cv-profiles/{id}/visibility", s.handleToggleProfileVisibility())
+		r.Post("/api/cv-profiles/{id}/auto-tailor", s.handleAutoTailorCVProfile())
 		// Public profile API
 		r.Put("/api/username", s.handleSetUsername())
 		r.Get("/api/username/check", s.handleCheckUsername())

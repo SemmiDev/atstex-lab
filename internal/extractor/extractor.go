@@ -657,6 +657,92 @@ Original bullet point(s):
 	return enhanced, totalTokens, nil
 }
 
+// AutoTailorCV sends CV biodata JSON and a Job Description to the LLM to rewrite the Summary and Experience sections.
+// Note: It assumes the structure of biodataJSON matches what extractor generates.
+func AutoTailorCV(ctx context.Context, biodataJSON string, jobDesc string, language string, cfg AIConfig) ([]byte, int64, error) {
+	llm, err := newLLM(ctx, cfg)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to create LLM client (%s): %w", cfg.Provider, err)
+	}
+
+	langInstruction := "Respond entirely in English."
+	//nolint:gocritic // ifElseChain is intentional for language routing
+	if strings.EqualFold(language, "id") {
+		langInstruction = "Respond entirely in Bahasa Indonesia."
+	} else if strings.EqualFold(language, "ja") {
+		langInstruction = "Respond entirely in Japanese."
+	} else if strings.EqualFold(language, "zh") {
+		langInstruction = "Respond entirely in Chinese."
+	} else if strings.EqualFold(language, "ko") {
+		langInstruction = "Respond entirely in Korean."
+	}
+
+	prompt := fmt.Sprintf(`You are an expert CV/resume writer and career coach.
+I will provide you with a candidate's existing CV Data (in JSON format) and a target Job Description.
+
+Your task is to duplicate the provided JSON CV Data exactly, but rewrite the following key sections to better match the Job Description:
+1. **summary**: Rewrite the summary to highlight the candidate's most relevant qualifications and align with the keywords and requirements of the Job Description. It should be an impactful professional summary.
+2. **experience**: For each job in the experience array, rewrite the "bullets" to emphasize the skills, keywords, and responsibilities that are relevant to the Job Description. Use strong action verbs and maintain any quantifiable metrics from the original text while blending in the keywords naturally.
+
+DO NOT invent new experiences, jobs, or degrees. ONLY enhance and reframe the existing experiences.
+DO NOT modify the structure of the JSON. Return the exact same schema.
+DO NOT wrap the output in markdown blocks (e.g. no "'''json"). JUST the raw JSON string.
+%s
+
+---
+Job Description:
+%s
+
+---
+CV Data:
+%s
+`, langInstruction, truncateString(jobDesc, 15000), truncateString(biodataJSON, 20000))
+
+	resp, err := llm.GenerateContent(ctx,
+		[]llms.MessageContent{
+			{
+				Role:  llms.ChatMessageTypeHuman,
+				Parts: []llms.ContentPart{llms.TextContent{Text: prompt}},
+			},
+		},
+		llms.WithTemperature(0.4),
+		llms.WithMaxTokens(16384),
+	)
+	if err != nil {
+		return nil, 0, fmt.Errorf("LLM call failed (%s/%s): %w", cfg.Provider, cfg.Model, err)
+	}
+
+	if len(resp.Choices) == 0 {
+		return nil, 0, fmt.Errorf("LLM returned no choices (%s/%s)", cfg.Provider, cfg.Model)
+	}
+
+	var totalTokens int64
+	if info := resp.Choices[0].GenerationInfo; info != nil {
+		totalTokens = extractTotalTokens(info)
+	}
+
+	cleaned := strings.TrimSpace(resp.Choices[0].Content)
+	if strings.HasPrefix(cleaned, "```json") {
+		cleaned = strings.TrimPrefix(cleaned, "```json")
+	} else if strings.HasPrefix(cleaned, "```") {
+		cleaned = strings.TrimPrefix(cleaned, "```")
+	}
+	cleaned = strings.TrimSuffix(cleaned, "```")
+	cleaned = strings.TrimSpace(cleaned)
+
+	var result map[string]any
+	if err := json.Unmarshal([]byte(cleaned), &result); err != nil {
+		return nil, totalTokens, fmt.Errorf("failed to parse AutoTailorCV response as JSON: %w\nraw: %s", err, resp.Choices[0].Content)
+	}
+
+	finalResp, err := json.Marshal(result)
+	if err != nil {
+		return nil, totalTokens, fmt.Errorf("failed to marshal AutoTailorCV response back to JSON: %w", err)
+	}
+
+	return finalResp, totalTokens, nil
+}
+
 func GenerateInterviewQuestions(ctx context.Context, biodataJSON string, jobDesc string, language string, count int, cfg AIConfig) (*domain.InterviewPrepResult, int64, error) {
 	llm, err := newLLM(ctx, cfg)
 	if err != nil {
