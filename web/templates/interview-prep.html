@@ -1,349 +1,1346 @@
 {{define "interview-prep"}}
-<!DOCTYPE html>
-<html lang="id">
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>atstex-lab — AI Interview Prep</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg" />
+        <link rel="stylesheet" href="/static/css/style.css" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&display=swap"
+            rel="stylesheet"
+        />
+        <script src="https://unpkg.com/@phosphor-icons/web"></script>
+        <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    </head>
 
-<head>
-    <meta charset="UTF-8">
-    <title>atstex-lab — AI Interview Prep</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
-    <link rel="stylesheet" href="/static/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- Load Tesseract.js for browser-side OCR -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-</head>
-
-<body class="flex flex-col md:flex-row h-dvh w-full bg-bg font-ui text-text overflow-hidden">
-    <div class="md:hidden flex items-center justify-between p-4 bg-surface border-b-[4px] border-border z-40">
-        <div class="font-disp font-extrabold text-2xl">ATSTEX<em class="text-accent italic">LAB</em></div>
-        <button id="sidebar-toggle" class="text-3xl"><i class="ph ph-list"></i></button>
-    </div>
-
-    <!-- Sidebar is defined similarly to other pages -->
-    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
-        <div class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
-            <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
-            <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Tutup Sidebar"><i class="ph-bold ph-caret-left"></i></button>
+    <body class="flex flex-col md:flex-row h-dvh w-full bg-bg font-ui text-text overflow-hidden">
+        <!-- Mobile top bar -->
+        <div class="md:hidden flex items-center justify-between p-4 bg-surface border-b-[4px] border-border z-40">
+            <div class="font-disp font-extrabold text-2xl">ATSTEX<em class="text-accent italic">LAB</em></div>
+            <button id="sidebar-toggle" class="text-3xl"><i class="ph ph-list"></i></button>
         </div>
 
-        <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4 pb-24 md:pb-4">
-            <a href="/" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.home">Beranda</span></a>
-            <a href="/input" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a>
-            <a href="/editor" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
-            <a href="/cv-review" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">Review CV</span></a>
-            <a href="/ats-simulator" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-robot text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.ats_simulator">Simulator ATS</span></a>
-            <a href="/interview-prep" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i class="ph ph-users-three text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.interview_prep">Interview Prep</span></a>
-            <a href="/cover-letter" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Surat Lamaran</span></a>
-            <a href="/kanban" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-columns text-2xl"></i> <span class="sidebar-nav-text">Kanban</span></a>
-            <a href="/profile" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profil</span></a>
-            <a href="/publish" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publikasi</span></a>
-            <a href="/subscription" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-crown text-2xl"></i> <span class="sidebar-nav-text">Langganan</span></a>
-            <a href="/feedback" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Saran & Masukan</span></a>
-            <a href="#" id="dark-mode-toggle" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-moon text-2xl"></i> <span class="sidebar-nav-text">Mode Gelap</span></a>
-        </nav>
-
-        {{if .User}}
-        <div class="p-4 border-t-[4px] border-border bg-bg sidebar-profile-block">
-            <a href="/profile" class="flex items-center gap-3 p-2 bg-surface border-[3px] border-border shadow-[4px_4px_0_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#000] transition-all">
-                <img src="{{.User.Picture}}" alt="Profile" class="w-10 h-10 border-2 border-border object-cover">
-                <div class="flex flex-col overflow-hidden">
-                    <span class="font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{.User.Name}}</span>
-                    <form action="/auth/logout" method="POST" class="m-0">
-                        <button type="submit" class="text-error text-xs font-bold uppercase tracking-wider outline-none">Keluar <i class="ph-bold ph-sign-out"></i></button>
-                    </form>
-                </div>
-            </a>
-        </div>
-        {{end}}
-    </aside>
-
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
-
-    <main class="flex-1 min-h-0 overflow-y-auto bg-bg relative p-6 md:p-10 flex justify-center">
-        <div class="w-full max-w-3xl flex flex-col gap-8">
-
-            <!-- Header -->
-            <div class="flex flex-col gap-2">
-                <h1 class="text-3xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
-                    <i class="ph-bold ph-users-three text-3xl"></i> <span>AI Interview Prep</span>
-                </h1>
-                <p class="font-semibold text-muted">Hasilkan pertanyaan wawancara khusus (behavioral, technical, dsb) berdasarkan CV Anda dan Job Description.</p>
+        <!-- Sidebar -->
+        <aside
+            id="sidebar"
+            class="fixed md:static inset-y-0 left-0 z-50 w-72 bg-surface text-text border-r-[4px] border-border transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col"
+        >
+            <div class="p-6 border-b-[4px] border-border font-disp font-extrabold text-3xl flex items-center justify-between tracking-tight sidebar-header-row">
+                <span class="sidebar-header-text">ATSTEX<em class="text-accent italic">LAB</em></span>
+                <button id="sidebar-collapse" class="sidebar-toggle-desktop" title="Close Sidebar"><i class="ph-bold ph-caret-left"></i></button>
             </div>
-
-            <!-- Form -->
-            <div class="bg-surface border-[3px] border-border p-6 shadow-[4px_4px_0_#000]">
-                <form id="prep-form" class="flex flex-col gap-4">
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold uppercase tracking-wider text-muted">Profil CV</label>
-                        <select id="prep-profile" required class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]">
-                            <option value="">— Pilih profil —</option>
-                            {{range .Profiles}}
-                            <option value="{{.ID}}">{{.Title}}</option>
-                            {{end}}
-                        </select>
+            <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4 pb-24 md:pb-4">
+                <a
+                    href="/"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.home">Beranda</span></a
+                >
+                <a
+                    href="/input"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a
+                >
+                <a
+                    href="/editor"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a
+                >
+                <a
+                    href="/cv-review"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">Review CV</span></a
+                >
+                <a
+                    href="/ats-simulator"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-robot text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.ats_simulator">Simulator ATS</span></a
+                >
+                <a
+                    href="/interview-prep"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"
+                    ><i class="ph ph-users-three text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.interview_prep">Interview Prep</span></a
+                >
+                <a
+                    href="/cover-letter"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Surat Lamaran</span></a
+                >
+                <a
+                    href="/kanban"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-columns text-2xl"></i> <span class="sidebar-nav-text">Kanban</span></a
+                >
+                <a
+                    href="/profile"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profil</span></a
+                >
+                <a
+                    href="/publish"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publikasi</span></a
+                >
+                <a
+                    href="/subscription"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-crown text-2xl"></i> <span class="sidebar-nav-text">Langganan</span></a
+                >
+                <a
+                    href="/feedback"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-chat-circle-text text-2xl"></i> <span class="sidebar-nav-text">Saran & Masukan</span></a
+                >
+                <a
+                    href="#"
+                    id="dark-mode-toggle"
+                    class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"
+                    ><i class="ph ph-moon text-2xl"></i> <span class="sidebar-nav-text">Mode Gelap</span></a
+                >
+            </nav>
+            {{if .User}}
+            <div class="p-4 border-t-[4px] border-border bg-bg sidebar-profile-block">
+                <a
+                    href="/profile"
+                    class="flex items-center gap-3 p-2 bg-surface border-[3px] border-border shadow-[4px_4px_0_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#000] transition-all"
+                >
+                    <img src="{{.User.Picture}}" alt="Profile" class="w-10 h-10 border-2 border-border object-cover" />
+                    <div class="flex flex-col overflow-hidden">
+                        <span class="font-bold whitespace-nowrap overflow-hidden text-ellipsis">{{.User.Name}}</span>
+                        <form action="/auth/logout" method="POST" class="m-0">
+                            <button type="submit" class="text-error text-xs font-bold uppercase tracking-wider outline-none">
+                                Keluar <i class="ph-bold ph-sign-out"></i>
+                            </button>
+                        </form>
                     </div>
+                </a>
+            </div>
+            {{end}}
+        </aside>
 
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="flex flex-col gap-1 flex-1">
-                            <label class="text-xs font-bold uppercase tracking-wider text-muted">Bahasa</label>
-                            <select id="prep-lang" class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]">
-                                <option value="en">Inggris</option>
-                                <option value="id" selected>Bahasa Indonesia</option>
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+        <!-- Main content -->
+        <main class="flex-1 min-h-0 overflow-y-auto bg-bg relative p-6 md:p-10 flex justify-center">
+            <div class="w-full max-w-3xl flex flex-col gap-8">
+                <!-- Page Header -->
+                <div class="flex flex-col gap-2">
+                    <h1 class="text-3xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
+                        <i class="ph-bold ph-users-three text-3xl"></i>
+                        <span>AI Interview Prep</span>
+                    </h1>
+                    <p class="font-semibold text-muted">
+                        Generate tailored interview questions (behavioral, technical, etc.) based on your CV and job description. Then practice your answers
+                        live with the <strong>Voice Interview Bot</strong>.
+                    </p>
+                </div>
+
+                <!-- Voice Bot Banner -->
+                <div
+                    style="
+                        background: var(--accent);
+                        border: 3px solid var(--border);
+                        padding: 16px 20px;
+                        box-shadow: 4px 4px 0 #000;
+                        display: flex;
+                        align-items: center;
+                        gap: 16px;
+                        flex-wrap: wrap;
+                    "
+                >
+                    <div
+                        style="
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            width: 48px;
+                            height: 48px;
+                            border: 3px solid rgba(0, 0, 0, 0.3);
+                            background: rgba(0, 0, 0, 0.15);
+                            flex-shrink: 0;
+                        "
+                    >
+                        <i class="ph-bold ph-microphone" style="font-size: 1.5rem; color: #fff"></i>
+                    </div>
+                    <div style="flex: 1; min-width: 200px">
+                        <p style="font-weight: 800; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.04em; color: #fff; margin: 0 0 2px">
+                            New: Voice Interview Mode
+                        </p>
+                        <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.85); margin: 0; font-family: var(--font-mono)">
+                            Generate questions first, then click <strong>"Start Voice Interview"</strong> — the AI reads each question aloud, listens to your
+                            spoken answer, and gives real-time feedback.
+                        </p>
+                    </div>
+                    <div
+                        style="
+                            display: flex;
+                            align-items: center;
+                            gap: 6px;
+                            background: rgba(0, 0, 0, 0.2);
+                            border: 2px solid rgba(0, 0, 0, 0.3);
+                            padding: 6px 12px;
+                        "
+                    >
+                        <i class="ph-bold ph-check-circle" style="color: #fff; font-size: 1rem"></i>
+                        <span style="font-size: 0.75rem; font-weight: 700; color: #fff; font-family: var(--font-mono); text-transform: uppercase"
+                            >Chrome &amp; Edge</span
+                        >
+                    </div>
+                </div>
+
+                <!-- Generation Form -->
+                <div class="bg-surface border-[3px] border-border p-6 shadow-[4px_4px_0_#000]">
+                    <form id="prep-form" class="flex flex-col gap-4">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-bold uppercase tracking-wider text-muted">CV Profile</label>
+                            <select
+                                id="prep-profile"
+                                required
+                                class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]"
+                            >
+                                <option value="">— Select a profile —</option>
+                                {{range .Profiles}}
+                                <option value="{{.ID}}">{{.Title}}</option>
+                                {{end}}
                             </select>
                         </div>
-                        <div class="flex flex-col gap-1 w-full sm:w-32">
-                            <label class="text-xs font-bold uppercase tracking-wider text-muted">Jumlah Soal</label>
-                            <input type="number" id="prep-count" value="10" min="5" max="20" required class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]">
-                        </div>
-                    </div>
-
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold uppercase tracking-wider text-muted flex items-center justify-between">
-                            <span>Deskripsi Pekerjaan</span>
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs font-mono text-muted normal-case tracking-normal">ATAU Gambar OCR:</span>
-                                <label class="btn btn-ghost !px-3 !py-1 !text-xs cursor-pointer">
-                                    <i class="ph-bold ph-image"></i> Pindai Gambar
-                                    <input type="file" id="prep-image-upload" accept="image/png, image/jpeg, image/jpg" style="display: none;">
-                                </label>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="flex flex-col gap-1 flex-1">
+                                <label class="text-xs font-bold uppercase tracking-wider text-muted">Language</label>
+                                <select
+                                    id="prep-lang"
+                                    class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]"
+                                >
+                                    <option value="en" selected>English</option>
+                                    <option value="id">Bahasa Indonesia</option>
+                                    <option value="ja">Japanese</option>
+                                    <option value="zh">Chinese</option>
+                                    <option value="ko">Korean</option>
+                                </select>
                             </div>
-                        </label>
-                        <textarea id="prep-jobdesc" required rows="6" class="p-4 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)] resize-y" placeholder="Tempel detail job description di sini..."></textarea>
-                        <div id="prep-ocr-status" class="hidden text-xs font-mono text-accent2 font-bold mb-2 flex items-center gap-2">
-                            <i class="ph ph-spinner animate-spin"></i> Mengekstrak teks via OCR...
+                            <div class="flex flex-col gap-1 w-full sm:w-32">
+                                <label class="text-xs font-bold uppercase tracking-wider text-muted">Question Count</label>
+                                <input
+                                    type="number"
+                                    id="prep-count"
+                                    value="10"
+                                    min="5"
+                                    max="20"
+                                    required
+                                    class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]"
+                                />
+                            </div>
                         </div>
-                    </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-bold uppercase tracking-wider text-muted flex items-center justify-between">
+                                <span>Job Description</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-mono text-muted normal-case tracking-normal">OR scan image:</span>
+                                    <label class="btn btn-ghost !px-3 !py-1 !text-xs cursor-pointer">
+                                        <i class="ph-bold ph-image"></i> Scan Image
+                                        <input type="file" id="prep-image-upload" accept="image/png, image/jpeg, image/jpg" style="display: none" />
+                                    </label>
+                                </div>
+                            </label>
+                            <textarea
+                                id="prep-jobdesc"
+                                required
+                                rows="6"
+                                class="p-4 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)] resize-y"
+                                placeholder="Paste the job description here..."
+                            ></textarea>
+                            <div id="prep-ocr-status" class="hidden text-xs font-mono text-accent2 font-bold mb-2 flex items-center gap-2">
+                                <i class="ph ph-spinner animate-spin"></i> Extracting text via OCR...
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 mt-2">
+                            <button type="submit" class="btn relative" id="prep-submit-btn">
+                                <i class="ph-bold ph-lightning"></i> <span>Generate Questions</span>
+                            </button>
+                            <span id="prep-errorMessage" class="text-sm font-bold text-error"></span>
+                        </div>
+                    </form>
+                </div>
 
-                    <div class="flex items-center gap-3 mt-2">
-                        <button type="submit" class="btn relative" id="prep-submit-btn">
-                            <i class="ph-bold ph-lightning"></i> <span>Mulai Persiapan</span>
-                        </button>
-                        <span id="prep-errorMessage" class="text-sm font-bold text-error"></span>
+                <!-- Loading -->
+                <div id="prep-loading" style="display: none" class="bg-surface border-[3px] border-border p-8 shadow-[4px_4px_0_#000] text-center">
+                    <div style="font-size: 2.5rem; animation: bounceUp 1s ease-in-out infinite">🤖</div>
+                    <h3 style="font-weight: 800; font-size: 1.1rem; text-transform: uppercase; margin: 12px 0 8px">Generating Interview Questions...</h3>
+                    <p style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted)">This may take 10–30 seconds…</p>
+                    <div style="display: flex; justify-content: center; gap: 8px; margin-top: 16px">
+                        <span
+                            style="
+                                width: 12px;
+                                height: 12px;
+                                border: 2px solid var(--border);
+                                background: var(--accent);
+                                animation: dotPulse 1.4s ease-in-out infinite;
+                            "
+                        ></span>
+                        <span
+                            style="
+                                width: 12px;
+                                height: 12px;
+                                border: 2px solid var(--border);
+                                background: var(--accent2);
+                                animation: dotPulse 1.4s ease-in-out 0.2s infinite;
+                            "
+                        ></span>
+                        <span
+                            style="
+                                width: 12px;
+                                height: 12px;
+                                border: 2px solid var(--border);
+                                background: var(--accent3, #5eeb8f);
+                                animation: dotPulse 1.4s ease-in-out 0.4s infinite;
+                            "
+                        ></span>
                     </div>
-                </form>
-            </div>
+                </div>
 
-            <!-- Loading Overlay -->
-            <div id="prep-loading" style="display:none;" class="bg-surface border-[3px] border-border p-8 shadow-[4px_4px_0_#000] text-center">
-                <div style="font-size:2.5rem;animation:bounceUp 1s ease-in-out infinite;">🤖</div>
-                <h3 style="font-weight:800;font-size:1.1rem;text-transform:uppercase;margin:12px 0 8px;">Menyusun Pertanyaan Wawancara...</h3>
-                <p style="font-family:var(--font-mono);font-size:0.85rem;color:var(--muted);">Proses ini memakan waktu 10-30 detik…</p>
-                <div style="display:flex;justify-content:center;gap:8px;margin-top:16px;">
-                    <span style="width:12px;height:12px;border:2px solid var(--border);background:var(--accent);animation:dotPulse 1.4s ease-in-out infinite;"></span>
-                    <span style="width:12px;height:12px;border:2px solid var(--border);background:var(--accent2);animation:dotPulse 1.4s ease-in-out 0.2s infinite;"></span>
-                    <span style="width:12px;height:12px;border:2px solid var(--border);background:var(--accent3, #5eeb8f);animation:dotPulse 1.4s ease-in-out 0.4s infinite;"></span>
+                <!-- Latest result -->
+                <div id="prep-result" style="display: none" class="bg-surface border-[3px] border-border p-6 shadow-[4px_4px_0_#000]"></div>
+
+                <!-- History section -->
+                <div class="flex flex-col gap-2 mt-4">
+                    <h2 class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
+                        <i class="ph-bold ph-clock-counter-clockwise text-3xl"></i>
+                        <span>Session History</span>
+                    </h2>
+                </div>
+                <div id="prep-history" class="flex flex-col gap-4">
+                    <div class="text-center text-muted font-semibold py-8">Loading…</div>
                 </div>
             </div>
+        </main>
 
-            <!-- Latest Result -->
-            <div id="prep-result" style="display:none;" class="bg-surface border-[3px] border-border p-6 shadow-[4px_4px_0_#000]"></div>
+        <!-- ═══════════════════════════════════════════════════════════
+         VOICE INTERVIEW MODAL — full-screen overlay
+         ═══════════════════════════════════════════════════════════ -->
+        <div id="vi-modal" style="display: none; position: fixed; inset: 0; z-index: 200; background: var(--bg); overflow-y: auto">
+            <div style="max-width: 720px; margin: 0 auto; padding: 20px 20px 40px; display: flex; flex-direction: column; gap: 18px; min-height: 100vh">
+                <!-- Modal Header -->
+                <div
+                    style="
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        border-bottom: 4px solid var(--border);
+                        padding-bottom: 16px;
+                        gap: 12px;
+                        flex-wrap: wrap;
+                    "
+                >
+                    <div>
+                        <h2
+                            style="
+                                font-weight: 900;
+                                font-size: 1.3rem;
+                                text-transform: uppercase;
+                                letter-spacing: 0.06em;
+                                margin: 0;
+                                display: flex;
+                                align-items: center;
+                                gap: 10px;
+                            "
+                        >
+                            <i class="ph-bold ph-microphone" style="color: var(--accent)"></i>
+                            Voice Interview Session
+                        </h2>
+                        <p
+                            id="vi-progress-text"
+                            style="
+                                font-family: var(--font-mono);
+                                font-size: 0.78rem;
+                                color: var(--muted);
+                                margin: 4px 0 0;
+                                font-weight: 600;
+                                letter-spacing: 0.03em;
+                            "
+                        >
+                            Question 0 of 0
+                        </p>
+                    </div>
+                    <button
+                        onclick="closeVoiceInterview()"
+                        style="
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            padding: 10px 18px;
+                            border: 3px solid var(--border);
+                            background: var(--surface);
+                            font-weight: 800;
+                            font-size: 0.8rem;
+                            text-transform: uppercase;
+                            letter-spacing: 0.04em;
+                            cursor: pointer;
+                            box-shadow: 3px 3px 0 #000;
+                            font-family: var(--font-mono);
+                        "
+                    >
+                        <i class="ph-bold ph-x-circle"></i> End Session
+                    </button>
+                </div>
 
-            <!-- History -->
-            <div class="flex flex-col gap-2 mt-8">
-                <h2 class="text-2xl font-extrabold uppercase tracking-wide border-b-[3px] border-border pb-2 flex items-center gap-3">
-                    <i class="ph-bold ph-clock-counter-clockwise text-3xl"></i> <span>Riwayat Persiapan</span>
-                </h2>
-            </div>
-            <div id="prep-history" class="flex flex-col gap-4">
-                <div class="text-center text-muted font-semibold py-8">Memuat…</div>
+                <!-- Progress Bar -->
+                <div style="height: 8px; background: var(--border); border: 2px solid var(--border); overflow: hidden">
+                    <div id="vi-progress-bar" style="height: 100%; background: var(--accent); width: 0%; transition: width 0.4s ease"></div>
+                </div>
+
+                <!-- Question Card -->
+                <div style="background: var(--surface); border: 3px solid var(--border); padding: 22px 24px; box-shadow: 5px 5px 0 #000">
+                    <div
+                        id="vi-category-badge"
+                        style="
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 6px;
+                            padding: 4px 12px;
+                            border: 2px solid var(--border);
+                            background: var(--accent4);
+                            font-size: 0.7rem;
+                            font-weight: 800;
+                            text-transform: uppercase;
+                            letter-spacing: 0.06em;
+                            font-family: var(--font-mono);
+                            margin-bottom: 14px;
+                        "
+                    >
+                        <i class="ph-bold ph-tag"></i> Category
+                    </div>
+                    <p id="vi-question-text" style="font-size: 1.15rem; font-weight: 700; line-height: 1.65; margin: 0; color: var(--text)">
+                        Loading question…
+                    </p>
+                </div>
+
+                <!-- TTS Controls -->
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+                    <button
+                        id="vi-speak-btn"
+                        onclick="speakCurrentQuestion()"
+                        style="
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            padding: 10px 20px;
+                            border: 3px solid var(--border);
+                            background: var(--surface);
+                            font-weight: 800;
+                            font-size: 0.8rem;
+                            text-transform: uppercase;
+                            letter-spacing: 0.04em;
+                            cursor: pointer;
+                            box-shadow: 3px 3px 0 #000;
+                            font-family: var(--font-mono);
+                            transition: all 0.1s;
+                        "
+                    >
+                        <i class="ph-bold ph-speaker-high" style="font-size: 1.1rem; color: var(--accent2)"></i> Read Question Aloud
+                    </button>
+                    <span
+                        id="vi-tts-status"
+                        style="
+                            font-size: 0.78rem;
+                            font-family: var(--font-mono);
+                            font-weight: 700;
+                            color: var(--accent2);
+                            display: flex;
+                            align-items: center;
+                            gap: 6px;
+                        "
+                    ></span>
+                </div>
+
+                <!-- Answer Area -->
+                <div style="background: var(--surface); border: 3px solid var(--border); padding: 20px; box-shadow: 4px 4px 0 #000">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px">
+                        <h4
+                            style="
+                                font-weight: 900;
+                                font-size: 0.8rem;
+                                text-transform: uppercase;
+                                letter-spacing: 0.06em;
+                                margin: 0;
+                                display: flex;
+                                align-items: center;
+                                gap: 6px;
+                            "
+                        >
+                            <i class="ph-bold ph-chat-text" style="color: var(--accent)"></i> Your Spoken Answer
+                        </h4>
+                        <div
+                            id="vi-recording-indicator"
+                            style="
+                                display: none;
+                                align-items: center;
+                                gap: 7px;
+                                padding: 4px 12px;
+                                background: rgba(229, 62, 62, 0.12);
+                                border: 2px solid #e53e3e;
+                            "
+                        >
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #e53e3e; animation: recPulse 1s ease-in-out infinite"></span>
+                            <span
+                                style="
+                                    font-size: 0.72rem;
+                                    font-weight: 800;
+                                    font-family: var(--font-mono);
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.04em;
+                                    color: #e53e3e;
+                                "
+                                >Recording</span
+                            >
+                        </div>
+                    </div>
+                    <div
+                        id="vi-transcript"
+                        style="
+                            font-family: var(--font-mono);
+                            font-size: 0.9rem;
+                            line-height: 1.7;
+                            min-height: 90px;
+                            color: var(--text);
+                            white-space: pre-wrap;
+                            word-break: break-word;
+                        "
+                    >
+                        <span style="color: var(--muted); font-style: italic">Click the microphone button below to start recording your answer…</span>
+                    </div>
+                    <div style="margin-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px">
+                        <span id="vi-word-count" style="font-size: 0.72rem; font-family: var(--font-mono); color: var(--muted); font-weight: 600">0 words</span>
+                        <button
+                            id="vi-clear-btn"
+                            onclick="clearTranscript()"
+                            style="
+                                font-size: 0.72rem;
+                                font-family: var(--font-mono);
+                                font-weight: 700;
+                                text-transform: uppercase;
+                                letter-spacing: 0.04em;
+                                color: var(--muted);
+                                background: none;
+                                border: none;
+                                cursor: pointer;
+                                padding: 2px 6px;
+                                text-decoration: underline;
+                            "
+                        >
+                            Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Microphone Button -->
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 10px 0">
+                    <button
+                        id="vi-mic-btn"
+                        onclick="toggleRecording()"
+                        style="
+                            width: 88px;
+                            height: 88px;
+                            border-radius: 50%;
+                            border: 4px solid var(--border);
+                            background: var(--accent);
+                            color: #fff;
+                            cursor: pointer;
+                            box-shadow: 5px 5px 0 #000;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            transition: all 0.15s;
+                            flex-shrink: 0;
+                        "
+                        title="Click to record / stop"
+                    >
+                        <i class="ph-bold ph-microphone" style="font-size: 2.2rem; pointer-events: none"></i>
+                    </button>
+                    <div style="text-align: center">
+                        <p
+                            id="vi-mic-status"
+                            style="
+                                font-family: var(--font-mono);
+                                font-size: 0.82rem;
+                                font-weight: 700;
+                                text-transform: uppercase;
+                                letter-spacing: 0.04em;
+                                color: var(--text);
+                                margin: 0 0 4px;
+                            "
+                        >
+                            Ready — click mic to start
+                        </p>
+                        <p style="font-size: 0.7rem; color: var(--muted); font-family: var(--font-mono); margin: 0">
+                            Click once to record · Click again to stop &amp; submit
+                        </p>
+                    </div>
+                    <div
+                        id="vi-browser-warn"
+                        style="display: none; background: #fff3cd; border: 2px solid #e0a800; padding: 10px 16px; text-align: center; max-width: 420px"
+                    >
+                        <p style="font-size: 0.8rem; font-weight: 700; color: #7a5800; margin: 0; font-family: var(--font-mono)">
+                            ⚠️ Speech recognition requires <strong>Chrome</strong> or <strong>Edge</strong>. You can still type your answer manually above.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div style="display: flex; align-items: center; gap: 12px">
+                    <div style="flex: 1; height: 2px; background: var(--border)"></div>
+                    <span
+                        style="
+                            font-size: 0.72rem;
+                            font-family: var(--font-mono);
+                            font-weight: 800;
+                            text-transform: uppercase;
+                            letter-spacing: 0.08em;
+                            color: var(--muted);
+                        "
+                        >AI Critique</span
+                    >
+                    <div style="flex: 1; height: 2px; background: var(--border)"></div>
+                </div>
+
+                <!-- AI Critique Panel -->
+                <div id="vi-critique" style="display: none"></div>
+
+                <!-- Submit Answer Manually (if empty) -->
+                <div id="vi-manual-submit" style="display: none; justify-content: center">
+                    <button
+                        onclick="submitCurrentAnswer()"
+                        style="
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            padding: 12px 28px;
+                            border: 3px solid var(--border);
+                            background: var(--accent2);
+                            color: #fff;
+                            font-weight: 800;
+                            font-size: 0.85rem;
+                            text-transform: uppercase;
+                            letter-spacing: 0.04em;
+                            cursor: pointer;
+                            box-shadow: 4px 4px 0 #000;
+                            font-family: var(--font-mono);
+                        "
+                    >
+                        <i class="ph-bold ph-sparkle"></i> Analyse My Answer
+                    </button>
+                </div>
+
+                <!-- Navigation -->
+                <div style="display: flex; gap: 12px; justify-content: space-between; padding-top: 4px; border-top: 3px solid var(--border); margin-top: 4px">
+                    <button
+                        id="vi-prev-btn"
+                        onclick="viNavigate(-1)"
+                        disabled
+                        style="
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            padding: 12px 22px;
+                            border: 3px solid var(--border);
+                            background: var(--surface);
+                            font-weight: 800;
+                            font-size: 0.85rem;
+                            text-transform: uppercase;
+                            letter-spacing: 0.04em;
+                            cursor: pointer;
+                            box-shadow: 3px 3px 0 #000;
+                            font-family: var(--font-mono);
+                            opacity: 0.4;
+                        "
+                    >
+                        <i class="ph-bold ph-caret-left"></i> Previous
+                    </button>
+                    <div style="display: flex; align-items: center; gap: 8px">
+                        <span
+                            id="vi-skip-hint"
+                            style="
+                                font-size: 0.7rem;
+                                font-family: var(--font-mono);
+                                color: var(--muted);
+                                font-weight: 600;
+                                text-transform: uppercase;
+                                letter-spacing: 0.03em;
+                            "
+                            >skip without answering →</span
+                        >
+                    </div>
+                </div>
             </div>
         </div>
-    </main>
-
-    <style>
-        @keyframes bounceUp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-        @keyframes dotPulse { 0%, 80%, 100% { transform: scale(1); opacity: 1; } 40% { transform: scale(1.5); opacity: 0.5; } }
-        .animate-spin { animation: spin 1s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-
-        .review-section { margin-top: 16px; }
-        .review-section-title { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; color: var(--accent); }
-        .review-question { background: var(--bg); border: 2px solid var(--border); padding: 12px 16px; margin-bottom: 8px; font-weight: 600; font-size: 0.95rem; line-height: 1.5; border-radius: 4px; }
-    </style>
-
-    <script src="/static/js/i18n.js"></script>
-    <script>
-        // Sidebar logic
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
-        const toggleBtn = document.getElementById('sidebar-toggle');
-        const collapseBtn = document.getElementById('sidebar-collapse');
-        if (toggleBtn) toggleBtn.addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('open'); });
-        if (overlay) overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); });
-        if (collapseBtn) collapseBtn.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
-
-        // Form Logic
-        const form = document.getElementById('prep-form');
-        const btn = document.getElementById('prep-submit-btn');
-        const errorEl = document.getElementById('prep-errorMessage');
-        const resultEl = document.getElementById('prep-result');
-        const loadingEl = document.getElementById('prep-loading');
-        const historyEl = document.getElementById('prep-history');
-
-        const imageUpload = document.getElementById('prep-image-upload');
-        const ocrStatus = document.getElementById('prep-ocr-status');
-        const jobDescInput = document.getElementById('prep-jobdesc');
-
-        imageUpload.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            ocrStatus.classList.remove('hidden');
-            jobDescInput.disabled = true;
-            btn.disabled = true;
-
-            try {
-                // Initialize Tesseract worker
-                const worker = await Tesseract.createWorker('eng');
-                const result = await worker.recognize(file);
-                await worker.terminate();
-
-                // Append parsed text
-                const extractedText = result.data.text.trim();
-                const existing = jobDescInput.value.trim();
-                jobDescInput.value = existing ? existing + "\n\n" + extractedText : extractedText;
-
-            } catch (err) {
-                console.error("OCR Error:", err);
-                errorEl.textContent = "OCR gagal membaca gambar.";
-            } finally {
-                ocrStatus.classList.add('hidden');
-                jobDescInput.disabled = false;
-                btn.disabled = false;
-                e.target.value = ''; // Reset input
+        <style>
+            @keyframes bounceUp {
+                0%,
+                100% {
+                    transform: translateY(0);
+                }
+                50% {
+                    transform: translateY(-12px);
+                }
             }
-        });
+            @keyframes dotPulse {
+                0%,
+                80%,
+                100% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+                40% {
+                    transform: scale(1.5);
+                    opacity: 0.5;
+                }
+            }
+            @keyframes recPulse {
+                0%,
+                100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.3;
+                }
+            }
+            @keyframes spin {
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+            .animate-spin {
+                animation: spin 1s linear infinite;
+            }
+            .review-section {
+                margin-top: 16px;
+            }
+            .review-section-title {
+                font-size: 0.85rem;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 8px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: var(--accent);
+            }
+            .review-question {
+                background: var(--bg);
+                border: 2px solid var(--border);
+                padding: 12px 16px;
+                margin-bottom: 8px;
+                font-weight: 600;
+                font-size: 0.95rem;
+                line-height: 1.5;
+            }
+            .vi-chip {
+                background: var(--bg);
+                border: 2px solid var(--border);
+                padding: 8px 12px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                line-height: 1.5;
+                display: flex;
+                align-items: flex-start;
+                gap: 8px;
+                margin-bottom: 6px;
+            }
+            #vi-mic-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 7px 7px 0 #000;
+            }
+            #vi-mic-btn:active {
+                transform: translateY(1px);
+                box-shadow: 2px 2px 0 #000;
+            }
+            #vi-prev-btn:not([disabled]):hover {
+                transform: translateY(-1px);
+                box-shadow: 5px 5px 0 #000;
+            }
+        </style>
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const profileId = document.getElementById('prep-profile').value;
-            const language = document.getElementById('prep-lang').value;
-            const jobDescription = document.getElementById('prep-jobdesc').value;
-            const count = parseInt(document.getElementById('prep-count').value, 10);
-
-            btn.disabled = true;
-            errorEl.textContent = '';
-            resultEl.style.display = 'none';
-            loadingEl.style.display = '';
-
-            try {
-                const res = await fetch('/api/interview-prep', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ profileId, jobDescription, language, count })
+        <script src="/static/js/i18n.js"></script>
+        <script>
+            // ── Sidebar ──────────────────────────────────────────────────
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const toggleBtn = document.getElementById('sidebar-toggle');
+            const collapseBtn = document.getElementById('sidebar-collapse');
+            if (toggleBtn)
+                toggleBtn.addEventListener('click', () => {
+                    sidebar.classList.add('open');
+                    overlay.classList.add('open');
+                });
+            if (overlay)
+                overlay.addEventListener('click', () => {
+                    sidebar.classList.remove('open');
+                    overlay.classList.remove('open');
+                });
+            if (collapseBtn)
+                collapseBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
                 });
 
-                if (!res.ok) {
-                    const data = await res.json();
-                    throw new Error(data.error || 'Pembuatan pertanyaan gagal');
+            // ── Question generation form ─────────────────────────────────
+            const form = document.getElementById('prep-form');
+            const btn = document.getElementById('prep-submit-btn');
+            const errorEl = document.getElementById('prep-errorMessage');
+            const resultEl = document.getElementById('prep-result');
+            const loadingEl = document.getElementById('prep-loading');
+            const historyEl = document.getElementById('prep-history');
+            const imageUpload = document.getElementById('prep-image-upload');
+            const ocrStatus = document.getElementById('prep-ocr-status');
+            const jobDescInput = document.getElementById('prep-jobdesc');
+
+            imageUpload.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                ocrStatus.classList.remove('hidden');
+                jobDescInput.disabled = true;
+                btn.disabled = true;
+                try {
+                    const worker = await Tesseract.createWorker('eng');
+                    const result = await worker.recognize(file);
+                    await worker.terminate();
+                    const extracted = result.data.text.trim();
+                    const existing = jobDescInput.value.trim();
+                    jobDescInput.value = existing ? existing + '\n\n' + extracted : extracted;
+                } catch (err) {
+                    console.error('OCR Error:', err);
+                    errorEl.textContent = 'OCR failed to read the image.';
+                } finally {
+                    ocrStatus.classList.add('hidden');
+                    jobDescInput.disabled = false;
+                    btn.disabled = false;
+                    e.target.value = '';
+                }
+            });
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const profileId = document.getElementById('prep-profile').value;
+                const language = document.getElementById('prep-lang').value;
+                const jobDescription = jobDescInput.value;
+                const count = parseInt(document.getElementById('prep-count').value, 10);
+
+                btn.disabled = true;
+                errorEl.textContent = '';
+                resultEl.style.display = 'none';
+                loadingEl.style.display = '';
+
+                try {
+                    const res = await fetch('/api/interview-prep', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ profileId, jobDescription, language, count }),
+                    });
+                    if (!res.ok) {
+                        const d = await res.json();
+                        throw new Error(d.error || 'Failed to generate questions');
+                    }
+                    const prep = await res.json();
+                    renderResult(prep);
+                    loadHistory();
+                } catch (err) {
+                    errorEl.textContent = err.message;
+                } finally {
+                    btn.disabled = false;
+                    loadingEl.style.display = 'none';
+                }
+            });
+
+            // currentPrepData holds the last generated prep for the voice bot button
+            let currentPrepData = null;
+
+            function renderResult(r) {
+                currentPrepData = r;
+                let cats = [];
+                try {
+                    cats = typeof r.questions === 'string' ? JSON.parse(r.questions) : r.questions;
+                } catch (err) {
+                    console.error(err);
                 }
 
-                const prep = await res.json();
-                renderResult(prep);
-                loadHistory(); // Refresh history
-            } catch (err) {
-                errorEl.textContent = err.message;
-            } finally {
-                btn.disabled = false;
-                loadingEl.style.display = 'none';
-            }
-        });
+                let html =
+                    '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px;">' +
+                    '<div><h3 style="font-size:1.3rem;font-weight:800;text-transform:uppercase;margin:0;">Your Interview Questions</h3>' +
+                    '<span style="font-size:0.75rem;color:var(--muted);">' +
+                    new Date(r.createdAt).toLocaleString() +
+                    '</span></div>' +
+                    '<button onclick="openVoiceInterview(currentPrepData)" style="display:flex;align-items:center;gap:8px;padding:12px 22px;border:3px solid var(--border);background:var(--accent);color:#fff;font-weight:800;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;box-shadow:4px 4px 0 #000;font-family:var(--font-mono);">' +
+                    '<i class="ph-bold ph-microphone"></i> Start Voice Interview</button></div>';
 
-        function renderResult(r) {
-            let categories = [];
-            try { categories = typeof r.questions === 'string' ? JSON.parse(r.questions) : r.questions; } catch (err) { console.error('Parse errors', err); }
-            
-            let html = `
-                <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:20px;">
-                    <div>
-                        <h3 style="font-size:1.3rem;font-weight:800;text-transform:uppercase;margin:0;">Pertanyaan Wawancara Anda</h3>
-                        <span style="font-size:0.75rem;color:var(--muted);">${new Date(r.createdAt).toLocaleString()}</span>
-                    </div>
-                </div>
-            `;
-
-            if (Array.isArray(categories)) {
-                categories.forEach(cat => {
-                    if (cat.questions && cat.questions.length > 0) {
-                        html += `
-                            <div class="review-section">
-                                <div class="review-section-title"><i class="ph-bold ph-caret-circle-right"></i> ${escHtml(cat.category)}</div>
-                                ${cat.questions.map(q => `<div class="review-question">${escHtml(q)}</div>`).join('')}
-                            </div>
-                        `;
-                    }
-                });
-            } else {
-                 html += `<div class="text-sm font-bold text-muted uppercase">Gagal membaca format kategori.</div>`;
-            }
-
-            resultEl.innerHTML = html;
-            resultEl.style.display = 'block';
-        }
-
-        async function loadHistory() {
-            try {
-                const res = await fetch('/api/interview-preps');
-                if (!res.ok) throw new Error('Failed to load history');
-                const history = await res.json();
-                renderHistory(history || []);
-            } catch (e) {
-                historyEl.innerHTML = '<div class="text-center text-error font-semibold py-8">Gagal memuat riwayat.</div>';
-            }
-        }
-
-        function renderHistory(history) {
-            if (!history.length) {
-                historyEl.innerHTML = '<div class="text-center text-muted font-semibold py-8">Belum ada riwayat. Hasilkan pertanyaan pertama Anda!</div>';
-                return;
-            }
-
-            historyEl.innerHTML = history.map(r => {
-                const date = new Date(r.createdAt).toLocaleString();
-                let categories = [];
-                try { categories = typeof r.questions === 'string' ? JSON.parse(r.questions) : r.questions; } catch { }
-
-                let categoriesHtml = '';
-                if (Array.isArray(categories)) {
-                    categories.forEach(cat => {
+                if (Array.isArray(cats)) {
+                    cats.forEach((cat) => {
                         if (cat.questions && cat.questions.length > 0) {
-                            categoriesHtml += `
-                                <div class="review-section" style="margin-top:10px;">
-                                    <div class="review-section-title" style="font-size:0.75rem;"><i class="ph-bold ph-caret-right"></i> ${escHtml(cat.category)}</div>
-                                    ${cat.questions.map(q => `<div class="review-question" style="font-size:0.85rem;padding:8px 12px;margin-bottom:4px;">${escHtml(q)}</div>`).join('')}
-                                </div>
-                            `;
+                            html +=
+                                '<div class="review-section"><div class="review-section-title"><i class="ph-bold ph-caret-circle-right"></i> ' +
+                                escHtml(cat.category) +
+                                '</div>';
+                            cat.questions.forEach((q) => {
+                                html += '<div class="review-question">' + escHtml(q) + '</div>';
+                            });
+                            html += '</div>';
                         }
                     });
+                } else {
+                    html +=
+                        '<div style="font-size:0.85rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Could not parse question format.</div>';
+                }
+                resultEl.innerHTML = html;
+                resultEl.style.display = 'block';
+            }
+
+            async function loadHistory() {
+                try {
+                    const res = await fetch('/api/interview-preps');
+                    if (!res.ok) throw new Error('failed');
+                    renderHistory((await res.json()) || []);
+                } catch {
+                    historyEl.innerHTML = '<div class="text-center text-error font-semibold py-8">Failed to load history.</div>';
+                }
+            }
+
+            function renderHistory(list) {
+                if (!list.length) {
+                    historyEl.innerHTML =
+                        '<div class="text-center text-muted font-semibold py-8">No history yet \u2014 generate your first session above!</div>';
+                    return;
+                }
+                historyEl.innerHTML = list
+                    .map((r, i) => {
+                        const date = new Date(r.createdAt).toLocaleString();
+                        let cats = [];
+                        try {
+                            cats = typeof r.questions === 'string' ? JSON.parse(r.questions) : r.questions;
+                        } catch {}
+                        let cHtml = '';
+                        (cats || []).forEach((cat) => {
+                            if (cat.questions && cat.questions.length > 0) {
+                                cHtml +=
+                                    '<div class="review-section" style="margin-top:10px;"><div class="review-section-title" style="font-size:0.75rem;"><i class="ph-bold ph-caret-right"></i> ' +
+                                    escHtml(cat.category) +
+                                    '</div>';
+                                cat.questions.forEach((q) => {
+                                    cHtml +=
+                                        '<div class="review-question" style="font-size:0.85rem;padding:8px 12px;margin-bottom:4px;">' + escHtml(q) + '</div>';
+                                });
+                                cHtml += '</div>';
+                            }
+                        });
+                        // Store prep data in a global map keyed by index to avoid JSON serialisation issues in onclick
+                        window._prepHistory = window._prepHistory || {};
+                        window._prepHistory[i] = r;
+                        return (
+                            '<details class="bg-surface border-[3px] border-border shadow-[4px_4px_0_#000]">' +
+                            '<summary style="padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:16px;font-weight:700;list-style:none;">' +
+                            '<span style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:3px solid var(--border);border-radius:50%;font-size:1.2rem;flex-shrink:0;background:var(--accent4);"><i class="ph-bold ph-chats"></i></span>' +
+                            '<div style="flex:1;min-width:0;"><div style="font-size:0.95rem;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px;">' +
+                            escHtml(r.jobDescription.substring(0, 60)) +
+                            '\u2026</div>' +
+                            '<div style="font-size:0.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;">' +
+                            date +
+                            '</div></div>' +
+                            '<button onclick="event.preventDefault();openVoiceInterview(window._prepHistory[' +
+                            i +
+                            '])" style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:2px solid var(--border);background:var(--accent);color:#fff;font-weight:700;font-size:0.75rem;text-transform:uppercase;cursor:pointer;box-shadow:2px 2px 0 #000;font-family:var(--font-mono);flex-shrink:0;"><i class="ph-bold ph-microphone"></i> Practice</button>' +
+                            '</summary><div style="padding:0 20px 20px;border-top:2px solid var(--border);">' +
+                            (cHtml || '<div style="padding:12px 0;color:var(--muted);">No data stored.</div>') +
+                            '</div></details>'
+                        );
+                    })
+                    .join('');
+            }
+
+            function escHtml(str) {
+                if (!str) return '';
+                const el = document.createElement('span');
+                el.textContent = str;
+                return el.innerHTML;
+            }
+
+            loadHistory();
+
+            // =============================================================
+            //  VOICE INTERVIEW BOT
+            // =============================================================
+
+            // State
+            let viQuestions = [];
+            let viCurrent = 0;
+            let viLang = 'en';
+            let viRecognition = null;
+            let viIsRecording = false;
+            let viTranscript = '';
+            let viHasCritique = false;
+            const viSynth = window.speechSynthesis || null;
+            const viLangMap = { en: 'en-US', id: 'id-ID', ja: 'ja-JP', zh: 'zh-CN', ko: 'ko-KR' };
+
+            // DOM refs
+            const viModal = document.getElementById('vi-modal');
+            const viProgressText = document.getElementById('vi-progress-text');
+            const viProgressBar = document.getElementById('vi-progress-bar');
+            const viCategoryBadge = document.getElementById('vi-category-badge');
+            const viQuestionText = document.getElementById('vi-question-text');
+            const viTtsStatus = document.getElementById('vi-tts-status');
+            const viTranscriptEl = document.getElementById('vi-transcript');
+            const viWordCount = document.getElementById('vi-word-count');
+            const viRecordingInd = document.getElementById('vi-recording-indicator');
+            const viMicBtn = document.getElementById('vi-mic-btn');
+            const viMicStatus = document.getElementById('vi-mic-status');
+            const viBrowserWarn = document.getElementById('vi-browser-warn');
+            const viCritiqueEl = document.getElementById('vi-critique');
+            const viManualSubmit = document.getElementById('vi-manual-submit');
+            const viPrevBtn = document.getElementById('vi-prev-btn');
+            const viSkipHintEl = document.getElementById('vi-skip-hint');
+
+            // ── Open / Close ─────────────────────────────────────────────
+            function openVoiceInterview(prepData) {
+                if (!prepData) return;
+                viQuestions = [];
+                let cats = [];
+                try {
+                    cats = typeof prepData.questions === 'string' ? JSON.parse(prepData.questions) : prepData.questions;
+                } catch {}
+                (cats || []).forEach((cat) => (cat.questions || []).forEach((q) => viQuestions.push({ category: cat.category, question: q })));
+
+                if (!viQuestions.length) {
+                    alert('No questions found in this session.');
+                    return;
                 }
 
-                return `
-                <details class="bg-surface border-[3px] border-border shadow-[4px_4px_0_#000]">
-                    <summary style="padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:16px;font-weight:700;">
-                        <span style="display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:3px solid var(--border);border-radius:50%;color:var(--text);font-size:1.2rem;flex-shrink:0;background:var(--accent4);"><i class="ph-bold ph-chats"></i></span>
-                        <div style="flex:1;">
-                            <div style="font-size:0.95rem;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px;">Job: ${escHtml(r.jobDescription.substring(0, 50))}...</div>
-                            <div style="font-size:0.7rem;color:var(--muted);font-weight:600;text-transform:uppercase;">${date}</div>
-                        </div>
-                    </summary>
-                    <div style="padding:0 20px 20px;border-top:2px solid var(--border);">
-                        ${categoriesHtml || '<div style="padding:12px 0;">Tidak ada data tersimpan</div>'}
-                    </div>
-                </details>`;
-            }).join('');
-        }
+                viLang = prepData.language || document.getElementById('prep-lang').value || 'en';
 
-        function escHtml(str) {
-            if (!str) return '';
-            const el = document.createElement('span');
-            el.textContent = str;
-            return el.innerHTML;
-        }
+                const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+                viBrowserWarn.style.display = SR ? 'none' : 'block';
 
-        loadHistory();
-    </script>
-    <script src="/static/js/dark-mode.js"></script>
-</body>
+                viModal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                viLoadQuestion(0);
+            }
+
+            function closeVoiceInterview() {
+                viStopRecording(false);
+                if (viSynth) viSynth.cancel();
+                viModal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+
+            // ── Load question ────────────────────────────────────────────
+            function viLoadQuestion(idx) {
+                viCurrent = idx;
+                viTranscript = '';
+                viHasCritique = false;
+
+                const q = viQuestions[idx];
+                const total = viQuestions.length;
+
+                viProgressText.textContent = 'Question ' + (idx + 1) + ' of ' + total;
+                viProgressBar.style.width = ((idx + 1) / total) * 100 + '%';
+                viCategoryBadge.innerHTML = '<i class="ph-bold ph-tag"></i> ' + escHtml(q.category);
+                viQuestionText.textContent = q.question;
+
+                viTranscriptEl.innerHTML =
+                    '<span style="color:var(--muted);font-style:italic;">Click the microphone button below to start recording your answer\u2026</span>';
+                viWordCount.textContent = '0 words';
+                viCritiqueEl.style.display = 'none';
+                viCritiqueEl.innerHTML = '';
+                viManualSubmit.style.display = 'none';
+
+                viPrevBtn.disabled = idx === 0;
+                viPrevBtn.style.opacity = idx === 0 ? '0.4' : '1';
+
+                // Build / update the Next button
+                let nextBtn = document.getElementById('vi-next-btn');
+                if (!nextBtn) {
+                    nextBtn = document.createElement('button');
+                    nextBtn.id = 'vi-next-btn';
+                    nextBtn.style.cssText =
+                        'display:flex;align-items:center;gap:8px;padding:12px 22px;border:3px solid var(--border);background:var(--accent);color:#fff;font-weight:800;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.04em;cursor:pointer;box-shadow:3px 3px 0 #000;font-family:var(--font-mono);';
+                    viSkipHintEl.parentNode.appendChild(nextBtn);
+                }
+                if (idx === total - 1) {
+                    nextBtn.innerHTML = '<i class="ph-bold ph-flag-checkered"></i> Finish Session';
+                    nextBtn.onclick = closeVoiceInterview;
+                } else {
+                    nextBtn.innerHTML = 'Next <i class="ph-bold ph-caret-right"></i>';
+                    nextBtn.onclick = () => viNavigate(1);
+                }
+
+                viIsRecording = false;
+                viUpdateMicUI(false);
+                setTimeout(() => viSpeak(q.question), 400);
+            }
+
+            // ── Navigation ───────────────────────────────────────────────
+            function viNavigate(dir) {
+                viStopRecording(false);
+                if (viSynth) viSynth.cancel();
+                const next = viCurrent + dir;
+                if (next >= 0 && next < viQuestions.length) viLoadQuestion(next);
+            }
+
+            // ── TTS ──────────────────────────────────────────────────────
+            function speakCurrentQuestion() {
+                if (!viSynth) return;
+                viSynth.cancel();
+                viSpeak(viQuestions[viCurrent].question);
+            }
+
+            function viSpeak(text) {
+                if (!viSynth) return;
+                viSynth.cancel();
+                const utt = new SpeechSynthesisUtterance(text);
+                utt.lang = viLangMap[viLang] || 'en-US';
+                utt.rate = 0.88;
+                utt.pitch = 1;
+                viTtsStatus.innerHTML =
+                    '<i class="ph ph-speaker-high" style="animation:recPulse 1.2s ease-in-out infinite;color:var(--accent2);"></i>\u00a0Speaking\u2026';
+                utt.onend = () => {
+                    viTtsStatus.textContent = '';
+                };
+                utt.onerror = () => {
+                    viTtsStatus.textContent = '';
+                };
+                viSynth.speak(utt);
+            }
+
+            // ── STT ──────────────────────────────────────────────────────
+            function toggleRecording() {
+                if (viIsRecording) viStopRecording(true);
+                else viStartRecording();
+            }
+
+            function viStartRecording() {
+                const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SR) {
+                    viMicStatus.textContent = 'Not supported \u2014 please use Chrome or Edge';
+                    return;
+                }
+                if (viSynth) viSynth.cancel();
+
+                viRecognition = new SR();
+                viRecognition.lang = viLangMap[viLang] || 'en-US';
+                viRecognition.continuous = true;
+                viRecognition.interimResults = true;
+                viRecognition.maxAlternatives = 1;
+
+                viRecognition.onresult = (event) => {
+                    let interim = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const t = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) viTranscript += t + ' ';
+                        else interim += t;
+                    }
+                    const display = escHtml(viTranscript) + (interim ? '<em style="opacity:0.5">' + escHtml(interim) + '</em>' : '');
+                    viTranscriptEl.innerHTML = display || '<span style="color:var(--muted);font-style:italic;">Listening\u2026</span>';
+                    const wc = viTranscript.trim().split(/\s+/).filter(Boolean).length;
+                    viWordCount.textContent = wc + ' word' + (wc !== 1 ? 's' : '');
+                };
+
+                viRecognition.onerror = (ev) => {
+                    if (ev.error !== 'no-speech' && ev.error !== 'aborted') viMicStatus.textContent = 'Mic error: ' + ev.error;
+                };
+
+                // Chrome stops recognition after silence; auto-restart while still recording
+                viRecognition.onend = () => {
+                    if (viIsRecording) {
+                        try {
+                            viRecognition.start();
+                        } catch (_) {
+                            /* already started */
+                        }
+                    }
+                };
+
+                viIsRecording = true;
+                viRecognition.start();
+                viUpdateMicUI(true);
+            }
+
+            function viStopRecording(andSubmit) {
+                viIsRecording = false;
+                if (viRecognition) {
+                    viRecognition.onend = null;
+                    try {
+                        viRecognition.stop();
+                    } catch (_) {}
+                    viRecognition = null;
+                }
+                viUpdateMicUI(false);
+                if (andSubmit && viTranscript.trim()) {
+                    submitCurrentAnswer();
+                } else if (andSubmit) {
+                    viMicStatus.textContent = 'Nothing recorded \u2014 try again';
+                }
+            }
+
+            function clearTranscript() {
+                viTranscript = '';
+                viTranscriptEl.innerHTML = '<span style="color:var(--muted);font-style:italic;">Cleared \u2014 click the mic to record again\u2026</span>';
+                viWordCount.textContent = '0 words';
+                viCritiqueEl.style.display = 'none';
+                viManualSubmit.style.display = 'none';
+                viHasCritique = false;
+            }
+
+            // ── Mic UI ───────────────────────────────────────────────────
+            function viUpdateMicUI(recording) {
+                const baseStyle =
+                    'width:88px;height:88px;border-radius:50%;border:4px solid VAR_BORDER;background:VAR_BG;color:#fff;cursor:pointer;box-shadow:5px 5px 0 #000;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;';
+                if (recording) {
+                    viMicBtn.style.cssText = baseStyle.replace('VAR_BORDER', '#e53e3e').replace('VAR_BG', '#e53e3e');
+                    viMicBtn.innerHTML = '<i class="ph-bold ph-stop-circle" style="font-size:2.2rem;pointer-events:none;"></i>';
+                    viRecordingInd.style.display = 'flex';
+                    viMicStatus.textContent = 'Recording \u2014 click to stop & submit';
+                } else {
+                    viMicBtn.style.cssText = baseStyle.replace('VAR_BORDER', 'var(--border)').replace('VAR_BG', 'var(--accent)');
+                    viMicBtn.innerHTML = '<i class="ph-bold ph-microphone" style="font-size:2.2rem;pointer-events:none;"></i>';
+                    viRecordingInd.style.display = 'none';
+                    if (viTranscript.trim() && !viHasCritique) {
+                        viMicStatus.textContent = 'Answer recorded \u2014 click Analyse below';
+                        viManualSubmit.style.display = 'flex';
+                    } else if (viHasCritique) {
+                        viMicStatus.textContent = 'Critique ready \u2014 navigate when ready';
+                        viManualSubmit.style.display = 'none';
+                    } else {
+                        viMicStatus.textContent = 'Ready \u2014 click mic to start';
+                        viManualSubmit.style.display = 'none';
+                    }
+                }
+            }
+
+            // ── Submit answer for AI critique ────────────────────────────
+            async function submitCurrentAnswer() {
+                const answer = viTranscript.trim();
+                if (!answer) {
+                    viMicStatus.textContent = 'Please record an answer first';
+                    return;
+                }
+
+                viManualSubmit.style.display = 'none';
+                viCritiqueEl.style.display = 'block';
+                viCritiqueEl.innerHTML =
+                    '<div style="display:flex;align-items:center;gap:12px;padding:16px 20px;background:var(--surface);border:3px solid var(--border);box-shadow:4px 4px 0 #000;">' +
+                    '<i class="ph ph-spinner animate-spin" style="font-size:1.6rem;color:var(--accent);flex-shrink:0;"></i>' +
+                    '<div><p style="font-weight:800;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 2px;">Analysing your answer\u2026</p>' +
+                    '<p style="font-size:0.75rem;color:var(--muted);font-family:var(--font-mono);margin:0;">Takes 5\u201315 seconds</p></div></div>';
+
+                try {
+                    const res = await fetch('/api/interview-prep/critique', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ question: viQuestions[viCurrent].question, answer, language: viLang }),
+                    });
+                    if (!res.ok) {
+                        const d = await res.json();
+                        throw new Error(d.error || 'Critique failed');
+                    }
+                    viRenderCritique(await res.json());
+                    viHasCritique = true;
+                    viUpdateMicUI(false);
+                } catch (err) {
+                    viCritiqueEl.innerHTML =
+                        '<div style="padding:16px 20px;background:var(--surface);border:3px solid #e53e3e;box-shadow:4px 4px 0 #000;">' +
+                        '<p style="font-weight:800;font-size:0.85rem;text-transform:uppercase;color:#e53e3e;margin:0 0 4px;">Critique failed</p>' +
+                        '<p style="font-size:0.8rem;font-family:var(--font-mono);color:var(--muted);margin:0;">' +
+                        escHtml(err.message) +
+                        '</p></div>';
+                }
+            }
+
+            // ── Render AI critique card ──────────────────────────────────
+            function viRenderCritique(c) {
+                const score = Math.max(1, Math.min(10, c.score || 0));
+                const col = score >= 8 ? '#5eeb8f' : score >= 6 ? 'var(--accent)' : score >= 4 ? 'var(--accent2)' : '#e53e3e';
+                const label = score >= 9 ? 'Exceptional' : score >= 7 ? 'Strong' : score >= 5 ? 'Adequate' : score >= 3 ? 'Needs Work' : 'Off-mark';
+
+                function chips(arr, iconCls, color) {
+                    return (arr || [])
+                        .map(
+                            (t) =>
+                                '<div class="vi-chip"><i class="' +
+                                iconCls +
+                                '" style="color:' +
+                                color +
+                                ';flex-shrink:0;margin-top:2px;"></i>' +
+                                escHtml(t) +
+                                '</div>',
+                        )
+                        .join('');
+                }
+
+                const bars = Array.from(
+                    { length: 10 },
+                    (_, i) =>
+                        '<div style="width:20px;height:9px;border:2px solid var(--border);background:' +
+                        (i < score ? col : 'transparent') +
+                        ';display:inline-block;margin-right:2px;"></div>',
+                ).join('');
+
+                let html =
+                    '<div style="background:var(--surface);border:3px solid var(--border);padding:22px 24px;box-shadow:5px 5px 0 #000;display:flex;flex-direction:column;gap:18px;">' +
+                    // Score header
+                    '<div style="display:flex;align-items:center;gap:18px;border-bottom:2px solid var(--border);padding-bottom:18px;flex-wrap:wrap;">' +
+                    '<div style="display:flex;align-items:center;justify-content:center;width:72px;height:72px;border:3px solid var(--border);background:' +
+                    col +
+                    ';color:#000;font-weight:900;font-size:2rem;box-shadow:4px 4px 0 #000;flex-shrink:0;">' +
+                    score +
+                    '</div>' +
+                    '<div style="flex:1;min-width:140px;">' +
+                    '<p style="font-weight:900;font-size:1rem;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">' +
+                    '<i class="ph-bold ph-robot" style="color:var(--accent);"></i> AI Feedback ' +
+                    '<span style="color:' +
+                    col +
+                    ';">\u00b7 ' +
+                    label +
+                    '</span></p>' +
+                    '<div>' +
+                    bars +
+                    '</div>' +
+                    '</div></div>';
+
+                // Strengths
+                if (c.strengths && c.strengths.length) {
+                    html +=
+                        '<div><p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:#5eeb8f;margin:0 0 8px;display:flex;align-items:center;gap:6px;"><i class="ph-bold ph-check-circle"></i> Strengths</p>' +
+                        chips(c.strengths, 'ph-bold ph-check', '#5eeb8f') +
+                        '</div>';
+                }
+
+                // Improvements
+                if (c.improvements && c.improvements.length) {
+                    html +=
+                        '<div><p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent2);margin:0 0 8px;display:flex;align-items:center;gap:6px;"><i class="ph-bold ph-arrow-circle-up"></i> Areas to Improve</p>' +
+                        chips(c.improvements, 'ph-bold ph-arrow-up', 'var(--accent2)') +
+                        '</div>';
+                }
+
+                // Suggested answer
+                if (c.suggestedAnswer) {
+                    html +=
+                        '<div style="background:var(--bg);border:2px solid var(--border);padding:14px 16px;">' +
+                        '<p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent);margin:0 0 8px;display:flex;align-items:center;gap:6px;"><i class="ph-bold ph-lightbulb"></i> Model Answer Outline</p>' +
+                        '<p style="font-size:0.88rem;font-weight:600;line-height:1.65;margin:0;font-family:var(--font-mono);">' +
+                        escHtml(c.suggestedAnswer) +
+                        '</p></div>';
+                }
+
+                // Delivery tips
+                if (c.deliveryTips && c.deliveryTips.length) {
+                    html +=
+                        '<div><p style="font-size:0.75rem;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent3,#a78bfa);margin:0 0 8px;display:flex;align-items:center;gap:6px;"><i class="ph-bold ph-star"></i> Delivery Tips</p>' +
+                        chips(c.deliveryTips, 'ph-bold ph-star', 'var(--accent3,#a78bfa)') +
+                        '</div>';
+                }
+
+                html += '</div>'; // close outer card
+                viCritiqueEl.innerHTML = html;
+            }
+        </script>
+        <script src="/static/js/dark-mode.js"></script>
+    </body>
 </html>
 {{end}}

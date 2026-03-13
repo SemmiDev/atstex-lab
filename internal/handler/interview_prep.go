@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/semmidev/atstex-lab/internal/auth"
@@ -59,7 +60,7 @@ func (s *Server) handleCreateInterviewPrep() http.HandlerFunc {
 		if lang == "" {
 			lang = "en"
 		}
-		
+
 		count := req.Count
 		if count == 0 {
 			count = 10
@@ -128,5 +129,53 @@ func (s *Server) handleListMyInterviewPreps() http.HandlerFunc {
 		}
 
 		s.encode(w, r, http.StatusOK, preps)
+	}
+}
+
+// handleCritiqueInterviewAnswer receives a single interview question + the candidate's spoken
+// (transcribed) answer and returns structured AI feedback in real time.
+func (s *Server) handleCritiqueInterviewAnswer() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
+
+		var req struct {
+			Question string `json:"question"`
+			Answer   string `json:"answer"`
+			Language string `json:"language"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		req.Question = strings.TrimSpace(req.Question)
+		req.Answer = strings.TrimSpace(req.Answer)
+
+		if req.Question == "" {
+			s.respondErrMsg(w, r, "question is required", http.StatusBadRequest)
+			return
+		}
+		if req.Answer == "" {
+			s.respondErrMsg(w, r, "answer is required — please record your spoken response first", http.StatusBadRequest)
+			return
+		}
+
+		lang := req.Language
+		if lang == "" {
+			lang = "en"
+		}
+
+		critique, tokensUsed, err := extractor.CritiqueInterviewAnswer(r.Context(), req.Question, req.Answer, lang, s.aiConfig)
+		if err != nil {
+			s.reqLog(r).Error("interview answer critique AI error", "err", err)
+			s.respondErrMsg(w, r, "critique generation failed: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if tokensUsed > 0 {
+			_ = s.repo.IncrementAITokensUsed(r.Context(), user.ID, tokensUsed)
+		}
+
+		s.encode(w, r, http.StatusOK, critique)
 	}
 }
