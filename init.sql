@@ -180,6 +180,7 @@ CREATE TABLE IF NOT EXISTS mock_interview_sessions (
     profile_id      UUID NOT NULL REFERENCES cv_profiles(id) ON DELETE CASCADE,
     job_description TEXT NOT NULL DEFAULT '',
     language        VARCHAR(10) NOT NULL DEFAULT 'en',
+    interviewer_style VARCHAR(40) NOT NULL DEFAULT 'balanced',
     messages        JSONB NOT NULL DEFAULT '[]',
     tokens_used     BIGINT NOT NULL DEFAULT 0,
     turn_count      INTEGER NOT NULL DEFAULT 0,
@@ -188,3 +189,9 @@ CREATE TABLE IF NOT EXISTS mock_interview_sessions (
 );
 CREATE INDEX IF NOT EXISTS idx_mock_interview_sessions_user_id    ON mock_interview_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_mock_interview_sessions_profile_id ON mock_interview_sessions(profile_id);
+
+-- Migration: add interviewer_style to mock_interview_sessions
+DO $$ BEGIN
+    ALTER TABLE mock_interview_sessions ADD COLUMN IF NOT EXISTS interviewer_style VARCHAR(40) NOT NULL DEFAULT 'balanced';
+EXCEPTION WHEN OTHERS THEN NULL;
+END $$;

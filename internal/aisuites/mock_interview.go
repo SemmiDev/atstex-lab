@@ -22,6 +22,7 @@ func HandleMockInterviewTurn(
 	biodataJSON string,
 	jobDesc string,
 	language string,
+	interviewerStyle string,
 	cfg AIConfig,
 ) (string, []MockInterviewMessage, int64, error) {
 	llm, err := newLLM(ctx, cfg)
@@ -40,6 +41,20 @@ func HandleMockInterviewTurn(
 		langInstruction = "Conduct the interview entirely in Korean."
 	}
 
+	styleInstruction := "Use a balanced interview style: professional, warm, and appropriately challenging."
+	switch strings.ToLower(strings.TrimSpace(interviewerStyle)) {
+	case "friendly":
+		styleInstruction = "Use a friendly, encouraging interview style. Keep pressure low, ask clear questions, and help the candidate open up with gentle follow-ups."
+	case "strict":
+		styleInstruction = "Use a strict, high-bar interview style. Be direct, skeptical, and concise. Ask tougher follow-ups when answers are vague, and press for specifics, metrics, and trade-offs."
+	case "technical":
+		styleInstruction = "Use a technical interview style. Emphasize systems, problem-solving, and deep reasoning. Ask about architecture, edge cases, trade-offs, and how they would debug or design solutions."
+	case "behavioral":
+		styleInstruction = "Use a behavioral interview style. Emphasize STAR-format questions, collaboration, conflict, leadership, and decision-making. Ask for specific examples and outcomes."
+	default:
+		// balanced
+	}
+
 	// Build the system prompt if we are at the start of the conversation
 	if len(history) == 0 {
 		systemPrompt := fmt.Sprintf(`You are an expert HR Recruiter and Technical Interviewer.
@@ -52,7 +67,8 @@ Guidelines for your responses:
 4. If the candidate answers well, briefly acknowledge it before moving to the next question.
 5. If the candidate's answer is lacking, you may ask a follow-up probing question.
 6. Base your questions on the candidate's CV and the Job Description.
-7. %s
+7. Interviewer style: %s
+8. %s
 
 Candidate CV Data:
 %s
@@ -61,7 +77,7 @@ Job Description:
 %s
 
 Start the interview by greeting the candidate by name (if known from the CV) and asking the first question.`,
-			langInstruction, truncateString(biodataJSON, 5000), truncateString(jobDesc, 5000))
+			styleInstruction, langInstruction, truncateString(biodataJSON, 5000), truncateString(jobDesc, 5000))
 
 		history = append(history, MockInterviewMessage{
 			Role:    "system",

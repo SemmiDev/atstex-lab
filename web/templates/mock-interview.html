@@ -173,6 +173,19 @@
                                     <option value="ko">Korean</option>
                                 </select>
                             </div>
+                            <div class="flex flex-col gap-1 flex-1">
+                                <label class="text-xs font-bold uppercase tracking-wider text-muted">Gaya Pewawancara</label>
+                                <select
+                                    id="mock-interviewer-style"
+                                    class="px-4 py-3 border-[3px] border-border bg-bg font-mono text-sm focus:outline-none focus:border-accent focus:shadow-[3px_3px_0_var(--accent)]"
+                                >
+                                    <option value="balanced" selected>Balanced (Standar)</option>
+                                    <option value="friendly">Friendly (Ramah)</option>
+                                    <option value="strict">Strict (Tegas)</option>
+                                    <option value="technical">Technical (Teknis)</option>
+                                    <option value="behavioral">Behavioral (Perilaku)</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="flex flex-col gap-1">
                             <label class="text-xs font-bold uppercase tracking-wider text-muted flex items-center justify-between">
@@ -629,6 +642,7 @@
 
                 const profileId = document.getElementById('mock-profile').value;
                 const lang = document.getElementById('mock-lang').value;
+                const interviewerStyle = document.getElementById('mock-interviewer-style').value || "balanced";
                 const jobDesc = document.getElementById('mock-jobdesc').value;
 
                 // Encode to avoid URL limits on large base64, usually just btoa is fine
@@ -643,7 +657,7 @@
 
                 // Establish connection
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-                const wsUrl = `${protocol}//${window.location.host}/ws/mock-interview?profileId=${profileId}&language=${lang}&jobDescription=${jdPayload}`;
+                const wsUrl = `${protocol}//${window.location.host}/ws/mock-interview?profileId=${encodeURIComponent(profileId)}&language=${encodeURIComponent(lang)}&interviewerStyle=${encodeURIComponent(interviewerStyle)}&jobDescription=${jdPayload}`;
 
                 ws = new WebSocket(wsUrl);
 

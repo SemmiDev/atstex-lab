@@ -18,8 +18,8 @@ func (r *postgresRepo) CreateMockInterviewSession(ctx context.Context, s *domain
 
 	query := `
 		INSERT INTO mock_interview_sessions
-			(user_id, profile_id, job_description, language, messages, tokens_used, turn_count)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+			(user_id, profile_id, job_description, language, interviewer_style, messages, tokens_used, turn_count)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id, created_at`
 
 	return r.db.QueryRowxContext(ctx, query,
@@ -27,6 +27,7 @@ func (r *postgresRepo) CreateMockInterviewSession(ctx context.Context, s *domain
 		s.ProfileID,
 		s.JobDescription,
 		s.Language,
+		s.InterviewerStyle,
 		msgs,
 		s.TokensUsed,
 		s.TurnCount,
@@ -62,7 +63,7 @@ func (r *postgresRepo) UpdateMockInterviewSession(ctx context.Context, s *domain
 func (r *postgresRepo) GetMockInterviewSession(ctx context.Context, id uuid.UUID) (*domain.MockInterviewSession, error) {
 	var s domain.MockInterviewSession
 	err := r.db.GetContext(ctx, &s,
-		`SELECT id, user_id, profile_id, job_description, language, messages, tokens_used, turn_count, created_at, ended_at
+		`SELECT id, user_id, profile_id, job_description, language, interviewer_style, messages, tokens_used, turn_count, created_at, ended_at
 		 FROM mock_interview_sessions
 		 WHERE id = $1`, id)
 	if err != nil {
@@ -75,7 +76,7 @@ func (r *postgresRepo) GetMockInterviewSession(ctx context.Context, id uuid.UUID
 func (r *postgresRepo) GetMockInterviewSessionsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.MockInterviewSession, error) {
 	var sessions []domain.MockInterviewSession
 	err := r.db.SelectContext(ctx, &sessions,
-		`SELECT id, user_id, profile_id, job_description, language, messages, tokens_used, turn_count, created_at, ended_at
+		`SELECT id, user_id, profile_id, job_description, language, interviewer_style, messages, tokens_used, turn_count, created_at, ended_at
 		 FROM mock_interview_sessions
 		 WHERE user_id = $1
 		 ORDER BY created_at DESC

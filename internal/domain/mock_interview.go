@@ -14,6 +14,7 @@ type MockInterviewSession struct {
 	ProfileID      uuid.UUID       `db:"profile_id"      json:"profileId"`
 	JobDescription string          `db:"job_description" json:"jobDescription"`
 	Language       string          `db:"language"        json:"language"`
+	InterviewerStyle string        `db:"interviewer_style" json:"interviewerStyle"`
 	Messages       json.RawMessage `db:"messages"        json:"messages"`
 	TokensUsed     int64           `db:"tokens_used"     json:"tokensUsed"`
 	TurnCount      int             `db:"turn_count"      json:"turnCount"`

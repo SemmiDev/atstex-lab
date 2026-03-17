@@ -62,6 +62,7 @@ func (s *Server) handleListMockInterviewSessions() http.HandlerFunc {
 //	profileId      – CV profile UUID
 //	language       – interview language code (en / id / ja / zh / ko)
 //	jobDescription – base64-encoded job description (to avoid URL length limits)
+//	interviewerStyle – interviewer profile/style (e.g. balanced, friendly, strict, technical, behavioral)
 func (s *Server) handleMockInterviewWS() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -70,6 +71,7 @@ func (s *Server) handleMockInterviewWS() http.HandlerFunc {
 		profileIDStr := strings.TrimSpace(r.URL.Query().Get("profileId"))
 		language := strings.TrimSpace(r.URL.Query().Get("language"))
 		jobDescription := strings.TrimSpace(r.URL.Query().Get("jobDescription"))
+		interviewerStyle := strings.TrimSpace(r.URL.Query().Get("interviewerStyle"))
 
 		if profileIDStr == "" {
 			http.Error(w, "profileId is required", http.StatusBadRequest)
@@ -84,6 +86,17 @@ func (s *Server) handleMockInterviewWS() http.HandlerFunc {
 
 		if language == "" {
 			language = "en"
+		}
+
+		if interviewerStyle == "" {
+			interviewerStyle = "balanced"
+		}
+		switch strings.ToLower(interviewerStyle) {
+		case "balanced", "friendly", "strict", "technical", "behavioral":
+			// ok
+		default:
+			http.Error(w, "invalid interviewerStyle", http.StatusBadRequest)
+			return
 		}
 
 		// ── 2. Load CV profile ───────────────────────────────────────────────
@@ -117,11 +130,12 @@ func (s *Server) handleMockInterviewWS() http.HandlerFunc {
 
 		// ── 4. Create a DB session record ────────────────────────────────────
 		session := &domain.MockInterviewSession{
-			UserID:         user.ID,
-			ProfileID:      profileID,
-			JobDescription: jobDescription,
-			Language:       language,
-			Messages:       json.RawMessage("[]"),
+			UserID:           user.ID,
+			ProfileID:        profileID,
+			JobDescription:   jobDescription,
+			Language:         language,
+			InterviewerStyle: strings.ToLower(interviewerStyle),
+			Messages:         json.RawMessage("[]"),
 		}
 		if dbErr := s.repo.CreateMockInterviewSession(ctx, session); dbErr != nil {
 			s.reqLog(r).Error("create mock interview session error", "err", dbErr)
@@ -197,6 +211,7 @@ func (s *Server) runMockInterviewLoop(
 		biodataJSON,
 		session.JobDescription,
 		session.Language,
+		session.InterviewerStyle,
 		s.aiConfig,
 	)
 	if err != nil {
@@ -283,6 +298,7 @@ func (s *Server) runMockInterviewLoop(
 				biodataJSON,
 				session.JobDescription,
 				session.Language,
+				session.InterviewerStyle,
 				s.aiConfig,
 			)
 			if err != nil {
