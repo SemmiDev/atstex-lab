@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/semmidev/atstex-lab/internal/aisuites"
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/domain"
-	"github.com/semmidev/atstex-lab/internal/extractor"
 )
 
 // handleInterviewPrepPage renders the AI Interview Prep UI.
@@ -81,7 +81,7 @@ func (s *Server) handleCreateInterviewPrep() http.HandlerFunc {
 			return
 		}
 
-		prepResult, tokensUsed, err := extractor.GenerateInterviewQuestions(r.Context(), string(profile.Biodata), req.JobDescription, lang, count, s.aiConfig)
+		prepResult, tokensUsed, err := aisuites.GenerateInterviewQuestions(r.Context(), string(profile.Biodata), req.JobDescription, lang, count, s.aiConfig)
 		if err != nil {
 			s.reqLog(r).Error("Interview Prep AI generation error", "err", err)
 			s.respondErrMsg(w, r, "Interview generation failed: "+err.Error(), http.StatusInternalServerError)
@@ -165,7 +165,7 @@ func (s *Server) handleCritiqueInterviewAnswer() http.HandlerFunc {
 			lang = "en"
 		}
 
-		critique, tokensUsed, err := extractor.CritiqueInterviewAnswer(r.Context(), req.Question, req.Answer, lang, s.aiConfig)
+		critique, tokensUsed, err := aisuites.CritiqueInterviewAnswer(r.Context(), req.Question, req.Answer, lang, s.aiConfig)
 		if err != nil {
 			s.reqLog(r).Error("interview answer critique AI error", "err", err)
 			s.respondErrMsg(w, r, "critique generation failed: "+err.Error(), http.StatusInternalServerError)

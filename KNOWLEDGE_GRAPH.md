@@ -57,7 +57,7 @@ flowchart TB
         ConfigPkg["config\nenv var loader"]
         DomainPkg["domain\nall entity structs"]
         RepoPkg["repository\nPostgres data layer"]
-        ExtPkg["extractor\nLangChainGo AI wrapper"]
+        ExtPkg["aisuites\nLangChainGo AI wrapper"]
         CVTPkg["cvtemplate\ntemplate list/render/data"]
         CompPkg["compiler\nLaTeX engine runner"]
         MWPkg["middleware\nslog request logger"]
@@ -113,8 +113,8 @@ atstex-lab/
 │   │   ├── job_application.go       # JobApplication
 │   │   ├── subscription.go          # SubscriptionPlan + UserSubscription
 │   │   └── feedback.go              # Feedback
-│   ├── extractor/
-│   │   └── extractor.go             # AIConfig + LLM client factory + 4 AI functions
+│   ├── aisuites/
+│   │   └── extractor.go             # AIConfig + LLM client factory + AI functions
 │   ├── handler/
 │   │   ├── server.go                # Server struct + all page/API handlers (1273 lines)
 │   │   ├── routes.go                # Chi route registration (public/auth/protected/admin)
@@ -325,14 +325,14 @@ graph TD
     main --> repository
     main --> auth
     main --> handler
-    main --> extractor
+    main --> aisuites
 
     handler --> auth
     handler --> domain
     handler --> repository
     handler --> compiler
     handler --> cvtemplate
-    handler --> extractor
+    handler --> aisuites
     handler --> middleware
     handler --> web
 
@@ -343,7 +343,7 @@ graph TD
 
     cvtemplate --> web
 
-    extractor --> cvtemplate
+    aisuites --> cvtemplate
 
     repository --> domain
 
@@ -353,7 +353,7 @@ graph TD
     style handler fill:#475eff,color:#fff
     style domain fill:#5eeb8f,color:#000
     style repository fill:#5eeb8f,color:#000
-    style extractor fill:#f59e0b,color:#000
+    style aisuites fill:#f59e0b,color:#000
     style compiler fill:#ef4444,color:#fff
     style cvtemplate fill:#8b5cf6,color:#fff
 ```
@@ -370,7 +370,7 @@ type Server struct {
     logger     *slog.Logger           // structured JSON logger
     repo       repository.Repository  // interface → postgresRepo implementation
     authConfig *auth.Config           // Google OAuth2 config
-    aiConfig   extractor.AIConfig     // AI provider settings (provider/model/key/baseURL)
+    aiConfig   aisuites.AIConfig     // AI provider settings (provider/model/key/baseURL)
 }
 ```
 
@@ -619,7 +619,7 @@ flowchart LR
 
 ## 10. AI INTEGRATION LAYER
 
-### extractor.AIConfig
+### aisuites.AIConfig
 ```go
 type AIConfig struct {
     Provider string // "openai" (default) | "anthropic" | "ollama" | "gemini"
@@ -638,7 +638,7 @@ type AIConfig struct {
 | `GenerateCoverLetter(ctx, biodataJSON, jobDesc, tone, maxParagraphs, lang, cfg)` | CV + job + tone + paragraphs + language | `string` (cover letter text) | `"cover_letter"` |
 | `GenerateInterviewQuestions(ctx, biodataJSON, jobDesc, lang, count, cfg)` | CV + job + language + count | `InterviewPrepResult{Categories[]}` | _(no quota currently)_ |
 
-### AI Provider Selection (`extractor.newLLM`)
+### AI Provider Selection (`aisuites.newLLM`)
 ```
 Provider = "openai" (default) → openai.New(token, model, [baseURL])
 Provider = "anthropic"        → anthropic.New(token, model)
@@ -653,7 +653,7 @@ LangChainGo (`github.com/tmc/langchaingo`) is used as the unified LLM abstractio
 ```mermaid
 sequenceDiagram
     participant H as Handler
-    participant E as extractor pkg
+    participant E as aisuites pkg
     participant LLM as AI Provider API
     participant DB as PostgreSQL
 
@@ -999,7 +999,7 @@ Browser (ats-simulator page) → POST /api/ats-simulator {profileId, jobDescript
   → handler.handleCreateAtsSimulation
   → GetCVProfile(profileID) → verify UserID ownership
   → checkSubscriptionLimits(userID, "ats_simulation")
-  → extractor.ScoreATS(ctx, biodata, jobDesc, lang, aiConfig)
+  → aisuites.ScoreATS(ctx, biodata, jobDesc, lang, aiConfig)
     → newLLM(ctx, cfg) → LangChainGo client
     → llms.GenerateFromSinglePrompt(systemPrompt + biodataJSON + jobDesc)
     → Parse JSON → ATSCritiqueResult{Score, MissingKeywords, Recommendations}

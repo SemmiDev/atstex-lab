@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/semmidev/atstex-lab/internal/aisuites"
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/domain"
-	"github.com/semmidev/atstex-lab/internal/extractor"
 )
 
 // handleAtsSimulatorPage renders the ATS Simulator UI.
@@ -80,7 +80,7 @@ func (s *Server) handleCreateAtsSimulation() http.HandlerFunc {
 			return
 		}
 
-		simResult, tokensUsed, err := extractor.ScoreATS(r.Context(), string(profile.Biodata), req.JobDescription, lang, s.aiConfig)
+		simResult, tokensUsed, err := aisuites.ScoreATS(r.Context(), string(profile.Biodata), req.JobDescription, lang, s.aiConfig)
 		if err != nil {
 			s.reqLog(r).Error("ATS scoring error", "err", err)
 			s.respondErrMsg(w, r, "ATS scoring failed: "+err.Error(), http.StatusInternalServerError)

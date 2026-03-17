@@ -7,9 +7,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	"github.com/semmidev/atstex-lab/internal/aisuites"
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/domain"
-	"github.com/semmidev/atstex-lab/internal/extractor"
 )
 
 // ListCVProfiles returns all CV profiles for the authenticated user.
@@ -255,7 +255,7 @@ func (s *Server) handleAutoTailorCVProfile() http.HandlerFunc {
 		}
 
 		// 4. Call LLM to rewrite
-		rewrittenJSON, tokensUsed, err := extractor.AutoTailorCV(r.Context(), string(baseProfile.Biodata), req.JobDescription, lang, s.aiConfig)
+		rewrittenJSON, tokensUsed, err := aisuites.AutoTailorCV(r.Context(), string(baseProfile.Biodata), req.JobDescription, lang, s.aiConfig)
 		if err != nil {
 			s.reqLog(r).Error("Auto-tailor CV rewriting failed", "err", err)
 			s.respondErrMsg(w, r, "AI rewriting failed: "+err.Error(), http.StatusInternalServerError)

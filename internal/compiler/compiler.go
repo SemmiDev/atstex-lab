@@ -66,7 +66,7 @@ func Compile(ctx context.Context, source []byte, opts Options) (*Result, error) 
 
 	engine := opts.Engine
 	if engine == "" {
-		engine = EnginePdfLatex
+		engine = EngineTectonic
 	}
 	if _, err := exec.LookPath(string(engine)); err != nil {
 		return nil, fmt.Errorf("engine %q not found in PATH: %w", engine, err)

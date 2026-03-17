@@ -1,4 +1,4 @@
-package extractor
+package aisuites
 
 import (
 	"context"
@@ -60,7 +60,7 @@ Candidate CV Data:
 Job Description:
 %s
 
-Start the interview by greeting the candidate by name (if known from the CV) and asking the first question.`, 
+Start the interview by greeting the candidate by name (if known from the CV) and asking the first question.`,
 			langInstruction, truncateString(biodataJSON, 5000), truncateString(jobDesc, 5000))
 
 		history = append(history, MockInterviewMessage{
@@ -83,7 +83,7 @@ Start the interview by greeting the candidate by name (if known from the CV) and
 		default:
 			role = llms.ChatMessageTypeHuman
 		}
-		
+
 		messages = append(messages, llms.MessageContent{
 			Role:  role,
 			Parts: []llms.ContentPart{llms.TextContent{Text: msg.Content}},
@@ -109,7 +109,7 @@ Start the interview by greeting the candidate by name (if known from the CV) and
 	}
 
 	aiResponse := strings.TrimSpace(resp.Choices[0].Content)
-	
+
 	// Add the AI's response to the history before returning
 	newHistory := append(history, MockInterviewMessage{
 		Role:    "ai",

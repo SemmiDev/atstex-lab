@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/semmidev/atstex-lab/internal/auth"
+	"github.com/semmidev/atstex-lab/internal/aisuites"
 	"github.com/semmidev/atstex-lab/internal/config"
-	"github.com/semmidev/atstex-lab/internal/extractor"
 	"github.com/semmidev/atstex-lab/internal/handler"
 	"github.com/semmidev/atstex-lab/internal/repository"
 	"github.com/semmidev/atstex-lab/web"
@@ -55,7 +55,7 @@ func run(ctx context.Context, cfg *config.AppConfig, logger *slog.Logger) error 
 	}
 
 	// AI
-	aiCfg := extractor.AIConfig{
+	aiCfg := aisuites.AIConfig{
 		Provider: cfg.AIProvider,
 		Model:    cfg.AIModel,
 		APIKey:   cfg.AIAPIKey,

@@ -90,7 +90,7 @@ Clone the repository, then copy the environment variables:
 cp .env.example .env
 ```
 
-*(Optional)* Add your `GOOGLE_CLIENT_ID` and `AI_API_KEY` to enable OAuth login and AI PDF parsing.
+Add your `GOOGLE_CLIENT_ID` and `AI_API_KEY` to enable OAuth login and AI Suites.
 
 ### 2. Run the Stack
 
@@ -100,7 +100,7 @@ Run the makefile command to build the image and start the database:
 make docker-run
 ```
 
-*Note: The first build will take a few minutes as it downloads and pre-caches the massive Tectonic package bundle.*
+_Note: The first build will take a few minutes as it downloads and pre-caches the massive Tectonic package bundle._
 
 ### 3. Open the App
 
@@ -111,19 +111,3 @@ Visit [http://localhost:8080](http://localhost:8080) in your browser!
 - `make docker-logs` - Tail the active output logs.
 - `make docker-down` - Stop the containers safely.
 - `make docker-remove-rebuild` - Nuke the database and container volumes to start fresh.
-
----
-
-## 🛠️ Local Development (Without Docker)
-
-If you'd like to develop natively without Docker containers, ensure you have **Go 1.22+**, **Node.js**, **PostgreSQL**, and a full LaTeX distribution installed on your machine (`mactex` on macOS or `texlive-full` on Linux).
-
-```bash
-# Compile CSS tailwind watchers and boot the Go development server
-npm install
-make run
-
-# Build the standalone binary
-make build
-./atstex-lab
-```

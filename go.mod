@@ -1,6 +1,6 @@
 module github.com/semmidev/atstex-lab
 
-go 1.24.4
+go 1.26.0
 
 require (
 	github.com/go-chi/chi/v5 v5.2.1
@@ -10,6 +10,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/tmc/langchaingo v0.1.14
 	golang.org/x/oauth2 v0.35.0
+	nhooyr.io/websocket v1.8.7
 )
 
 require (
@@ -55,5 +56,4 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250122153221-138b5a5a4fd4 // indirect
 	google.golang.org/grpc v1.70.0 // indirect
 	google.golang.org/protobuf v1.36.3 // indirect
-	nhooyr.io/websocket v1.8.7 // indirect
 )

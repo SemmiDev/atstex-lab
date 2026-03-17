@@ -11,9 +11,9 @@ import (
 	"nhooyr.io/websocket"
 	"nhooyr.io/websocket/wsjson"
 
+	"github.com/semmidev/atstex-lab/internal/aisuites"
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/domain"
-	"github.com/semmidev/atstex-lab/internal/extractor"
 )
 
 // handleMockInterviewPage renders the Mock Interview setup + room UI.
@@ -149,8 +149,8 @@ func (s *Server) runMockInterviewLoop(
 	log := s.logger.With("sessionId", session.ID, "userId", user.ID)
 
 	// Conversation history kept entirely in memory during the session.
-	// The extractor package uses its own message type so we bridge here.
-	var aiHistory []extractor.MockInterviewMessage
+	// The aisuites package uses its own message type so we bridge here.
+	var aiHistory []aisuites.MockInterviewMessage
 	var domainMessages []domain.MockInterviewMessage
 	var totalTokens int64
 
@@ -191,7 +191,7 @@ func (s *Server) runMockInterviewLoop(
 	// ── Turn 0: AI starts the interview ─────────────────────────────────────
 	sendThinking()
 
-	aiText, newHistory, tokens, err := extractor.HandleMockInterviewTurn(
+	aiText, newHistory, tokens, err := aisuites.HandleMockInterviewTurn(
 		ctx,
 		aiHistory, // empty → triggers system prompt + first greeting
 		biodataJSON,
@@ -269,7 +269,7 @@ func (s *Server) runMockInterviewLoop(
 			})
 
 			// Append to AI history as "human" role
-			aiHistory = append(aiHistory, extractor.MockInterviewMessage{
+			aiHistory = append(aiHistory, aisuites.MockInterviewMessage{
 				Role:    "human",
 				Content: userText,
 			})
@@ -277,7 +277,7 @@ func (s *Server) runMockInterviewLoop(
 			// Ask AI for the next response
 			sendThinking()
 
-			aiText, newHistory, tokens, err = extractor.HandleMockInterviewTurn(
+			aiText, newHistory, tokens, err = aisuites.HandleMockInterviewTurn(
 				ctx,
 				aiHistory,
 				biodataJSON,

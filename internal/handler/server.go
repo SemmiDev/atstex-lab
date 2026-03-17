@@ -16,10 +16,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/semmidev/atstex-lab/internal/auth"
+	"github.com/semmidev/atstex-lab/internal/aisuites"
 	"github.com/semmidev/atstex-lab/internal/compiler"
 	"github.com/semmidev/atstex-lab/internal/cvtemplate"
 	"github.com/semmidev/atstex-lab/internal/domain"
-	"github.com/semmidev/atstex-lab/internal/extractor"
 	mw "github.com/semmidev/atstex-lab/internal/middleware"
 	"github.com/semmidev/atstex-lab/internal/repository"
 )
@@ -47,11 +47,11 @@ type Server struct {
 	logger     *slog.Logger
 	repo       repository.Repository
 	authConfig *auth.Config
-	aiConfig   extractor.AIConfig
+	aiConfig   aisuites.AIConfig
 }
 
 // NewServer constructs a Server and sets up its routes.
-func NewServer(tmpl *template.Template, logger *slog.Logger, r repository.Repository, ac *auth.Config, ai extractor.AIConfig) *Server {
+func NewServer(tmpl *template.Template, logger *slog.Logger, r repository.Repository, ac *auth.Config, ai aisuites.AIConfig) *Server {
 	s := &Server{
 		tmpl:       tmpl,
 		logger:     logger,
@@ -439,7 +439,7 @@ func (s *Server) handleExtractPDF() http.HandlerFunc {
 
 		log.Info("extracting biodata from PDF text", "text_len", len(req.Text), "provider", s.aiConfig.Provider, "model", s.aiConfig.Model)
 
-		result, totalTokens, genInfo, err := extractor.ExtractBiodata(r.Context(), req.Text, s.aiConfig)
+		result, totalTokens, genInfo, err := aisuites.ExtractBiodata(r.Context(), req.Text, s.aiConfig)
 		if err != nil {
 			log.Error("extraction failed", "err", err)
 			s.respondErrMsg(w, r, "AI extraction failed: "+err.Error(), http.StatusInternalServerError)
@@ -955,7 +955,7 @@ func (s *Server) handleCreateCVReview() http.HandlerFunc {
 			return
 		}
 
-		critiqueResult, tokensUsed, err := extractor.CritiqueCVProfile(r.Context(), string(profile.Biodata), lang, s.aiConfig)
+		critiqueResult, tokensUsed, err := aisuites.CritiqueCVProfile(r.Context(), string(profile.Biodata), lang, s.aiConfig)
 		if err != nil {
 			s.reqLog(r).Error("AI critique error", "err", err)
 			s.respondErrMsg(w, r, "AI critique failed: "+err.Error(), http.StatusInternalServerError)
@@ -1076,7 +1076,7 @@ func (s *Server) handleGenerateCoverLetter() http.HandlerFunc {
 			return
 		}
 
-		coverLetter, tokensUsed, err := extractor.GenerateCoverLetter(
+		coverLetter, tokensUsed, err := aisuites.GenerateCoverLetter(
 			r.Context(),
 			string(profile.Biodata),
 			req.JobDesc,
@@ -1304,7 +1304,7 @@ func (s *Server) handleEnhanceBullet() http.HandlerFunc {
 			lang = "en"
 		}
 
-		enhanced, tokensUsed, err := extractor.EnhanceBulletPoint(r.Context(), req.Bullet, lang, s.aiConfig)
+		enhanced, tokensUsed, err := aisuites.EnhanceBulletPoint(r.Context(), req.Bullet, lang, s.aiConfig)
 		if err != nil {
 			s.reqLog(r).Error("bullet enhancement error", "err", err)
 			s.respondErrMsg(w, r, "AI enhancement failed: "+err.Error(), http.StatusInternalServerError)
