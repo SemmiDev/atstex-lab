@@ -50,7 +50,7 @@ You MUST organize the questions into exactly the following 7 categories:
 
 Distribute the %d questions across these 7 categories logically based on the role.
 
-Return ONLY valid JSON with this exact structure (no markdown fences, no explanation):
+Return ONLY valid JSON with this exact structure (no markdown fences, no explanation, no trailing commas):
 {
   "categories": [
     {
@@ -82,7 +82,7 @@ CV Data:
 				Parts: []llms.ContentPart{llms.TextContent{Text: prompt}},
 			},
 		},
-		llms.WithTemperature(0.5),
+		llms.WithTemperature(0.2),
 		llms.WithMaxTokens(3000),
 	)
 	if err != nil {

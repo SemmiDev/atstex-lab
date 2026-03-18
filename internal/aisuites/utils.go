@@ -81,5 +81,71 @@ func stripMarkdownFences(s string) string {
 		cleaned = strings.TrimPrefix(cleaned, "```")
 	}
 	cleaned = strings.TrimSuffix(cleaned, "```")
+	cleaned = strings.TrimSpace(cleaned)
+
+	// Robustly extract only the JSON part if there's extra text
+	// Find the first occurrence of { or [
+	start := -1
+	var opener rune
+	var closer rune
+
+	for i, r := range cleaned {
+		if r == '{' {
+			start = i
+			opener = '{'
+			closer = '}'
+			break
+		}
+		if r == '[' {
+			start = i
+			opener = '['
+			closer = ']'
+			break
+		}
+	}
+
+	if start != -1 {
+		// Find the matching closer
+		count := 0
+		end := -1
+		inString := false
+		escaped := false
+
+		for i := start; i < len(cleaned); i++ {
+			char := rune(cleaned[i])
+
+			if inString {
+				if char == '\\' && !escaped {
+					escaped = true
+				} else {
+					if char == '"' && !escaped {
+						inString = false
+					}
+					escaped = false
+				}
+				continue
+			}
+
+			if char == '"' {
+				inString = true
+				continue
+			}
+
+			if char == opener {
+				count++
+			} else if char == closer {
+				count--
+				if count == 0 {
+					end = i
+					break
+				}
+			}
+		}
+
+		if end != -1 {
+			cleaned = cleaned[start : end+1]
+		}
+	}
+
 	return strings.TrimSpace(cleaned)
 }
