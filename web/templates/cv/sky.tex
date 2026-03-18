@@ -70,6 +70,7 @@
 \usepackage{marvosym}
 \usepackage{amssymb}
 \usepackage{verbatim}
+\usepackage{tikz}
 
 %% ── Colour Palette ─────────────────────────────────────────────────
 %% sky: one accent colour, everything else black/dark-grey
@@ -153,9 +154,17 @@
 %%────────────────────────────────────────────────────────────────────
 \begin{center}
 [[ if .Personal.Photo ]]
-  %% Photo variant — photo left, name + contacts right
-  \begin{minipage}[c]{0.16\textwidth}
-    \includegraphics[width=\linewidth,height=\linewidth,keepaspectratio]{photo}
+  %% Photo variant — circular photo left, name + contacts right
+  \begin{minipage}[c]{0.18\textwidth}
+    \centering
+    \begin{tikzpicture}
+      \begin{scope}
+        \clip (0,0) circle (1.3cm);
+        \node[anchor=center] at (0,0)
+          {\includegraphics[width=2.6cm,height=2.6cm]{photo}};
+      \end{scope}
+      \draw[skyblue, line width=1.2pt] (0,0) circle (1.3cm);
+    \end{tikzpicture}
   \end{minipage}%
   \hspace{0.04\textwidth}%
   \begin{minipage}[c]{0.80\textwidth}
