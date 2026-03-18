@@ -1,4 +1,4 @@
-# ATSTEX-LAB — Complete AI Knowledge Graph
+# ATSTEX-LAB — Complete Spec
 
 > **Purpose of this file:** A single-source-of-truth reference for any AI assistant (or new engineer) to instantly understand every layer of the ATSTEX-LAB codebase — architecture, data model, APIs, features, security, deployment, and inter-package relationships.
 
