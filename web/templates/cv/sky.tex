@@ -155,19 +155,19 @@
 \begin{center}
 [[ if .Personal.Photo ]]
   %% Photo variant — circular photo left, name + contacts right
-  \begin{minipage}[c]{0.18\textwidth}
+  \begin{minipage}[c]{0.15\textwidth}
     \centering
     \begin{tikzpicture}
       \begin{scope}
-        \clip (0,0) circle (1.3cm);
+        \clip (0,0) circle (1.2cm);
         \node[anchor=center] at (0,0)
-          {\includegraphics[width=2.6cm,height=2.6cm]{photo}};
+          {\includegraphics[width=2.4cm,height=2.4cm]{photo}};
       \end{scope}
-      \draw[skyblue, line width=1.2pt] (0,0) circle (1.3cm);
+      \draw[skyblue, line width=1.2pt] (0,0) circle (1.2cm);
     \end{tikzpicture}
   \end{minipage}%
-  \hspace{0.04\textwidth}%
-  \begin{minipage}[c]{0.80\textwidth}
+  \hspace{0.03\textwidth}%
+  \begin{minipage}[c]{0.78\textwidth}
     \raggedright
     {\Huge\bfseries\scshape\color{skyblue}[[ .Personal.Name | texEscape ]]}%
     [[ if .Personal.Title ]]\\\vspace{2pt}{\large\color{darkgrey}[[ .Personal.Title | texEscape ]]}[[ end ]]
