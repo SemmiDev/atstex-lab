@@ -68,6 +68,7 @@
 \usepackage{etoolbox}
 \usepackage{latexsym}
 \usepackage{marvosym}
+\usepackage{amssymb}
 \usepackage{verbatim}
 
 %% ── Colour Palette ─────────────────────────────────────────────────
@@ -97,36 +98,36 @@
 %% ── Section Heading ────────────────────────────────────────────────
 %% sky design: UPPERCASE small-caps label in skyblue + 0.8pt rule
 \titleformat{\section}{%
-  \vspace{-3pt}\large\bfseries\scshape\color{skyblue}\raggedright%
+  \vspace{-2pt}\large\bfseries\scshape\color{skyblue}\raggedright%
 }{}{0em}{}[{%
   \color{skyblue}\titlerule[0.8pt]%
-}\vspace{-4pt}]
+}\vspace{-2pt}]
 
-\titlespacing*{\section}{0pt}{8pt}{4pt}
+\titlespacing{\section}{0pt}{10pt}{6pt}
 
 %% ── Reusable Macros ────────────────────────────────────────────────
 
 %% \skySubheading{org}{location}{role/degree}{dates}
 %% Four-field entry used for Experience, Education, Volunteer
 \newcommand{\skySubheading}[4]{%
-  \vspace{-1pt}\item
+  \vspace{2pt}\item
   \begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}r@{}}
     \textbf{\color{darkgrey}#1} & \small\textit{\color{midgrey}#2} \\
     \textit{\small\color{darkgrey}#3} & \textit{\small\color{midgrey}#4} \\
-  \end{tabular*}\vspace{-6pt}%
+  \end{tabular*}\vspace{-2pt}%
 }
 
 %% \skyProjectRow{left content}{right date}
 \newcommand{\skyProjectRow}[2]{%
-  \item
+  \vspace{2pt}\item
   \begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}r@{}}
     \small #1 & \small\textit{\color{midgrey}#2} \\
-  \end{tabular*}\vspace{-6pt}%
+  \end{tabular*}\vspace{-2pt}%
 }
 
 %% Bullet item
 \newcommand{\skyItem}[1]{%
-  \item\small{\color{darkgrey}#1\vspace{-2pt}}%
+  \item {\small\color{darkgrey}#1}\vspace{0pt}%
 }
 
 %% List wrappers
@@ -135,13 +136,13 @@
 \newcommand{\skyBulletStart}{%
   \begin{itemize}[%
     leftmargin=0.20in,%
-    label={\tiny\raisebox{1pt}{\color{skyblue}$\blacksquare$}},%
-    itemsep=0pt,%
-    topsep=2pt,%
-    parsep=0pt%
+    label={\textcolor{skyblue}{\tiny$\blacksquare$}},%
+    itemsep=1pt,%
+    topsep=3pt,%
+    parsep=1pt%
   ]%
 }
-\newcommand{\skyBulletEnd}{\end{itemize}\vspace{-4pt}}
+\newcommand{\skyBulletEnd}{\end{itemize}\vspace{-2pt}}
 
 %% ══════════════════════════════════════════════════════════════════════
 \begin{document}
@@ -162,7 +163,7 @@
     {\Huge\bfseries\scshape\color{skyblue}[[ .Personal.Name | texEscape ]]}%
     [[ if .Personal.Title ]]\\\vspace{2pt}{\large\color{darkgrey}[[ .Personal.Title | texEscape ]]}[[ end ]]
     \\\vspace{3pt}
-    [[ if .Personal.Location ]]\small\color{midgrey}[[ .Personal.Location | texEscape ]]\\[[ end ]]
+    [[ if .Personal.Location ]]{\small\color{midgrey}[[ .Personal.Location | texEscape ]]}\\[[ end ]]
     \small
     [[ if .Personal.Phone ]]\href{tel:[[ .Personal.Phone | texEscape ]]}{\color{darkgrey}[[ .Personal.Phone | texEscape ]]}[[ end ]]%
     [[ if .Personal.Email ]] $|$ \href{mailto:[[ .Personal.Email | texEscape ]]}{\color{darkgrey}[[ .Personal.Email | texEscape ]]}[[ end ]]%
@@ -175,7 +176,7 @@
   {\Huge\bfseries\scshape\color{skyblue}[[ .Personal.Name | texEscape ]]}%
   [[ if .Personal.Title ]]\\\vspace{2pt}{\large\color{darkgrey}[[ .Personal.Title | texEscape ]]}[[ end ]]
   \\\vspace{3pt}
-  [[ if .Personal.Location ]]\small\color{midgrey}[[ .Personal.Location | texEscape ]]\\[[ end ]]
+  [[ if .Personal.Location ]]{\small\color{midgrey}[[ .Personal.Location | texEscape ]]}\\[[ end ]]
   \small
   [[ if .Personal.Phone ]]\href{tel:[[ .Personal.Phone | texEscape ]]}{\color{darkgrey}[[ .Personal.Phone | texEscape ]]}[[ end ]]%
   [[ if .Personal.Email ]] $|$ \href{mailto:[[ .Personal.Email | texEscape ]]}{\color{darkgrey}[[ .Personal.Email | texEscape ]]}[[ end ]]%
@@ -184,7 +185,7 @@
   [[ if .Personal.Website.URL ]] $|$ \href{[[ .Personal.Website.URL | texEscape ]]}{\color{skyblue}[[ if .Personal.Website.Display ]][[ .Personal.Website.Display | texEscape ]][[ else ]][[ .Personal.Website.URL | texEscape ]][[ end ]]}[[ end ]]
 [[ end ]]
 \end{center}
-\vspace{-6pt}
+\vspace{-2pt}
 
 %%────────────────────────────────────────────────────────────────────
 %% PROFESSIONAL SUMMARY
@@ -192,9 +193,9 @@
 [[ if .Summary ]]
 \section{Professional Summary}
 \skyListStart
-  \small\item{\color{darkgrey}[[ .Summary | texEscape ]]}
+  \item {\small\color{darkgrey}[[ .Summary | texEscape ]]}
 \skyListEnd
-\vspace{-2pt}
+\vspace{2pt}
 [[ end ]]
 
 %%────────────────────────────────────────────────────────────────────
@@ -226,7 +227,7 @@
   [[ range .Education ]]
   \skySubheading
     {[[ .Institution | texEscape ]]}{[[ if .Location ]][[ .Location | texEscape ]][[ end ]]}
-    {[[ .Degree | texEscape ]][[ if .GPA ]] \normalfont{--} \textbf{GPA: [[ .GPA | texEscape ]]}[[ end ]]}{[[ .Dates | texEscape ]]}
+    {[[ .Degree | texEscape ]][[ if .GPA ]] {\normalfont --} \textbf{GPA: [[ .GPA | texEscape ]]}[[ end ]]}{[[ .Dates | texEscape ]]}
     [[ if .Activities ]]
     \skyBulletStart
       \skyItem{\textit{Activities \& Societies:} [[ .Activities | texEscape ]]}
@@ -241,14 +242,14 @@
 %%────────────────────────────────────────────────────────────────────
 [[ if or .Skills.Languages .Skills.Frameworks .Skills.Tools .Skills.Other ]]
 \section{Technical Skills}
-\vspace{2pt}
+\vspace{4pt}
 \skyListStart
-  \small\item{
+  \item{
     \begin{tabular}{@{}p{2.8cm}@{}p{\dimexpr\linewidth-2.8cm\relax}@{}}
-      [[ if .Skills.Languages ]]\textbf{\color{darkgrey}Languages:}    & \color{darkgrey}[[ .Skills.Languages | texEscape ]] \\[3pt][[ end ]]
-      [[ if .Skills.Frameworks ]]\textbf{\color{darkgrey}Technologies:} & \color{darkgrey}[[ .Skills.Frameworks | texEscape ]] \\[3pt][[ end ]]
-      [[ if .Skills.Tools ]]\textbf{\color{darkgrey}Tools:}         & \color{darkgrey}[[ .Skills.Tools | texEscape ]] \\[3pt][[ end ]]
-      [[ if .Skills.Other ]]\textbf{\color{darkgrey}Other:}         & \color{darkgrey}[[ .Skills.Other | texEscape ]] \\[[ end ]]
+      [[ if .Skills.Languages ]]\textbf{\color{darkgrey}Languages:}    & {\color{darkgrey}[[ .Skills.Languages | texEscape ]]} \\[5pt][[ end ]]
+      [[ if .Skills.Frameworks ]]\textbf{\color{darkgrey}Technologies:} & {\color{darkgrey}[[ .Skills.Frameworks | texEscape ]]} \\[5pt][[ end ]]
+      [[ if .Skills.Tools ]]\textbf{\color{darkgrey}Tools:}         & {\color{darkgrey}[[ .Skills.Tools | texEscape ]]} \\[5pt][[ end ]]
+      [[ if .Skills.Other ]]\textbf{\color{darkgrey}Other:}         & {\color{darkgrey}[[ .Skills.Other | texEscape ]]} \\[[ end ]]
     \end{tabular}
   }
 \skyListEnd
@@ -263,8 +264,8 @@
   [[ range .Projects ]]
   \skyProjectRow{%
     \textbf{\color{darkgrey}[[ .Name | texEscape ]]}%
-    [[ if .Role ]] $|$ \emph{\color{darkgrey}[[ .Role | texEscape ]]}[[ end ]]%
-    [[ if .Link ]] $|$ \href{https://[[ .Link | texEscape ]]}{\small\color{skyblue}\texttt{[[ .Link | texEscape ]]}}[[ end ]]%
+    [[ if .Role ]] $|$ {\emph{\color{darkgrey}[[ .Role | texEscape ]]}}[[ end ]]%
+    [[ if .Link ]] $|$ \href{https://[[ .Link | texEscape ]]}{{\small\color{skyblue}\texttt{[[ .Link | texEscape ]]}}}[[ end ]]%
   }{}
   [[ if .Bullets ]]
   \skyBulletStart
@@ -301,11 +302,11 @@
 %%────────────────────────────────────────────────────────────────────
 [[ if .Certifications ]]
 \section{Certifications \& Courses}
-\vspace{2pt}
+\vspace{4pt}
 [[ range .Certifications ]]
 \noindent\begin{tabular*}{\linewidth}{@{}p{0.85\linewidth}@{\extracolsep{\fill}}r@{}}
-  \small\textbf{\color{darkgrey}[[ .Name | texEscape ]]}, \color{darkgrey}[[ .Issuer | texEscape ]] & \\
-\end{tabular*}\vspace{4pt}
+  \small\textbf{\color{darkgrey}[[ .Name | texEscape ]]}, {\color{darkgrey}[[ .Issuer | texEscape ]]} & \\
+\end{tabular*}\vspace{6pt}
 [[ end ]]
 [[ end ]]
 
@@ -314,12 +315,12 @@
 %%────────────────────────────────────────────────────────────────────
 [[ if .Awards ]]
 \section{Honors \& Awards}
-\vspace{2pt}
+\vspace{4pt}
 [[ range .Awards ]]
 \noindent\begin{tabular*}{\linewidth}{@{}p{0.78\linewidth}@{\extracolsep{\fill}}r@{}}
-  \small\textbf{\color{darkgrey}[[ .Title | texEscape ]]}, \color{darkgrey}[[ .Issuer | texEscape ]][[ if .Description ]]\\
-  \small\textit{\color{midgrey}[[ .Description | texEscape ]]}[[ end ]] & \small\color{midgrey}[[ .Date | texEscape ]] \\
-\end{tabular*}\vspace{4pt}
+  \small\textbf{\color{darkgrey}[[ .Title | texEscape ]]}, {\color{darkgrey}[[ .Issuer | texEscape ]]}[[ if .Description ]]\\
+  \small\textit{\color{midgrey}[[ .Description | texEscape ]]}[[ end ]] & {\small\color{midgrey}[[ .Date | texEscape ]]} \\
+\end{tabular*}\vspace{6pt}
 [[ end ]]
 [[ end ]]
 
@@ -331,9 +332,9 @@
 \vspace{2pt}
 [[ range .Talks ]]
 \noindent\begin{tabular*}{\linewidth}{@{}p{0.78\linewidth}@{\extracolsep{\fill}}r@{}}
-  \small\textbf{\color{darkgrey}[[ .Title | texEscape ]]}[[ if .Event ]] -- \textit{\color{darkgrey}[[ .Event | texEscape ]][[ if .Location ]], [[ .Location | texEscape ]][[ end ]]}[[ end ]][[ if .Description ]]\\
-  \small\textit{\color{midgrey}[[ .Description | texEscape ]]}[[ end ]] & \small\color{midgrey}[[ .Date | texEscape ]] \\
-\end{tabular*}\vspace{4pt}
+  \small\textbf{\color{darkgrey}[[ .Title | texEscape ]]}[[ if .Event ]] -- \textit{{\color{darkgrey}[[ .Event | texEscape ]][[ if .Location ]], [[ .Location | texEscape ]][[ end ]]}}[[ end ]][[ if .Description ]]\\
+  \small\textit{\color{midgrey}[[ .Description | texEscape ]]}[[ end ]] & {\small\color{midgrey}[[ .Date | texEscape ]]} \\
+\end{tabular*}\vspace{6pt}
 [[ end ]]
 [[ end ]]
 

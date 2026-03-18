@@ -96,6 +96,26 @@
     .feature-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
     .feature-card:hover { transform: translateY(-6px); }
 
+    /* Dark mode toggle — match lang-switch button size */
+    #dark-mode-toggle {
+      padding: 6px 12px !important;
+      font-size: 12px !important;
+      border-width: 3px !important;
+      box-shadow: 2px 2px 0 var(--border, #1a1a1a) !important;
+      line-height: 1 !important;
+    }
+    #dark-mode-toggle:hover {
+      transform: translate(-2px, -2px) !important;
+      box-shadow: 4px 4px 0 var(--border, #1a1a1a) !important;
+    }
+    #dark-mode-toggle:active {
+      transform: translate(1px, 1px) !important;
+      box-shadow: 0 0 0 var(--border, #1a1a1a) !important;
+    }
+    #dark-mode-toggle .ph-bold {
+      font-size: 16px !important;
+    }
+
     /* Video Section Cute Frame */
     .hero-container {
       padding: 4rem 2rem;
