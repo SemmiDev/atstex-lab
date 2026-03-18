@@ -1,0 +1,340 @@
+%% ══════════════════════════════════════════════════════════════════════
+%% ATSTEXLAB — sky
+%% A clean, modern ATS-optimised template with a sky-blue accent system.
+%%
+%% Design principles:
+%%   • 100% ATS-parseable: strict single-column, no floating boxes,
+%%     semantic reading order guaranteed.
+%%   • Photo-aware header: minipage layout when .Personal.Photo is set.
+%%   • Sky-blue accent (skyblue) on name, section titles & rules only —
+%%     body text stays black for maximum OCR / parser fidelity.
+%%   • Subtle left-border accent on section headings via titlesec
+%%     after-code — visually distinct without sacrificing parse order.
+%%   • Compact entry macros borrowed from the best of bay + wave.
+%%   • Every optional block fully guarded — nothing renders when absent.
+%%   • Field names match cvtemplate struct exactly:
+%%       Experience/Education/Volunteer  → .Dates  (not StartDate/EndDate)
+%%       Awards/Talks                    → .Date
+%%       Certifications                  → .Name, .Issuer  (no date)
+%%       Skills                          → .Languages .Frameworks .Tools .Other
+%%       Projects                        → .Name .Role .Link .Bullets
+%%       Volunteer                       → .Organization .Role .Dates .Location .Bullets
+%% ══════════════════════════════════════════════════════════════════════
+
+[[ sprintf "\\documentclass[%s,%s]{%s}" .Settings.FontSize .Settings.PaperSize .Settings.DocumentClass ]]
+
+%% ── Encoding & Language ────────────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+%% ── Page Geometry ──────────────────────────────────────────────────
+\usepackage[
+  top=[[ .Settings.MarginTop ]],
+  bottom=[[ .Settings.MarginBottom ]],
+  left=[[ .Settings.MarginLeft ]],
+  right=[[ .Settings.MarginRight ]]
+]{geometry}
+
+%% ── Font ───────────────────────────────────────────────────────────
+[[ fontPkg .Settings.FontFamily ]]
+
+%% ── Line Spacing ───────────────────────────────────────────────────
+[[ if ne .Settings.LineSpacing 1.0 ]]\usepackage{setspace}
+[[ fmtSpacing .Settings.LineSpacing ]][[ end ]]
+
+%% ── Header / Footer ────────────────────────────────────────────────
+\usepackage{fancyhdr}
+[[ if or .Settings.HeaderText .Settings.FooterText ]]
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+[[ if .Settings.HeaderText ]]\chead{[[ .Settings.HeaderText | texEscape ]]}[[ end ]]
+[[ if .Settings.FooterText ]]\cfoot{[[ .Settings.FooterText | texEscape ]]}[[ else ]]\cfoot{\thepage}[[ end ]]
+[[ else ]]
+\pagestyle{empty}
+[[ end ]]
+
+%% ── Core Packages ──────────────────────────────────────────────────
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage[usenames,dvipsnames]{xcolor}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{titlesec}
+\usepackage{etoolbox}
+\usepackage{latexsym}
+\usepackage{marvosym}
+\usepackage{verbatim}
+
+%% ── Colour Palette ─────────────────────────────────────────────────
+%% sky: one accent colour, everything else black/dark-grey
+\definecolor{skyblue}{RGB}{26, 115, 191}       %% primary accent
+\definecolor{skylight}{RGB}{232, 244, 253}      %% very faint tint (unused in body, available)
+\definecolor{darkgrey}{RGB}{60, 60, 60}         %% subdued body text
+\definecolor{midgrey}{RGB}{110, 110, 110}       %% dates, locations
+
+%% ── Hyperlinks ─────────────────────────────────────────────────────
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+  colorlinks=false,
+  urlcolor=skyblue,
+  linkcolor=skyblue,
+}
+
+%% ── Global Layout ──────────────────────────────────────────────────
+[[ if eq .Settings.Alignment "left" ]]\raggedright[[ end ]]
+[[ if eq .Settings.Alignment "center" ]]\centering[[ end ]]
+\raggedbottom
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\tabcolsep}{0in}
+\urlstyle{same}
+
+%% ── Section Heading ────────────────────────────────────────────────
+%% sky design: UPPERCASE small-caps label in skyblue + 0.8pt rule
+\titleformat{\section}{%
+  \vspace{-3pt}\large\bfseries\scshape\color{skyblue}\raggedright%
+}{}{0em}{}[{%
+  \color{skyblue}\titlerule[0.8pt]%
+}\vspace{-4pt}]
+
+\titlespacing*{\section}{0pt}{8pt}{4pt}
+
+%% ── Reusable Macros ────────────────────────────────────────────────
+
+%% \skySubheading{org}{location}{role/degree}{dates}
+%% Four-field entry used for Experience, Education, Volunteer
+\newcommand{\skySubheading}[4]{%
+  \vspace{-1pt}\item
+  \begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}r@{}}
+    \textbf{\color{darkgrey}#1} & \small\textit{\color{midgrey}#2} \\
+    \textit{\small\color{darkgrey}#3} & \textit{\small\color{midgrey}#4} \\
+  \end{tabular*}\vspace{-6pt}%
+}
+
+%% \skyProjectRow{left content}{right date}
+\newcommand{\skyProjectRow}[2]{%
+  \item
+  \begin{tabular*}{\linewidth}{@{}l@{\extracolsep{\fill}}r@{}}
+    \small #1 & \small\textit{\color{midgrey}#2} \\
+  \end{tabular*}\vspace{-6pt}%
+}
+
+%% Bullet item
+\newcommand{\skyItem}[1]{%
+  \item\small{\color{darkgrey}#1\vspace{-2pt}}%
+}
+
+%% List wrappers
+\newcommand{\skyListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
+\newcommand{\skyListEnd}{\end{itemize}}
+\newcommand{\skyBulletStart}{%
+  \begin{itemize}[%
+    leftmargin=0.20in,%
+    label={\tiny\raisebox{1pt}{\color{skyblue}$\blacksquare$}},%
+    itemsep=0pt,%
+    topsep=2pt,%
+    parsep=0pt%
+  ]%
+}
+\newcommand{\skyBulletEnd}{\end{itemize}\vspace{-4pt}}
+
+%% ══════════════════════════════════════════════════════════════════════
+\begin{document}
+%% ══════════════════════════════════════════════════════════════════════
+
+%%────────────────────────────────────────────────────────────────────
+%% HEADER
+%%────────────────────────────────────────────────────────────────────
+\begin{center}
+[[ if .Personal.Photo ]]
+  %% Photo variant — photo left, name + contacts right
+  \begin{minipage}[c]{0.16\textwidth}
+    \includegraphics[width=\linewidth,height=\linewidth,keepaspectratio]{photo}
+  \end{minipage}%
+  \hspace{0.04\textwidth}%
+  \begin{minipage}[c]{0.80\textwidth}
+    \raggedright
+    {\Huge\bfseries\scshape\color{skyblue}[[ .Personal.Name | texEscape ]]}%
+    [[ if .Personal.Title ]]\\\vspace{2pt}{\large\color{darkgrey}[[ .Personal.Title | texEscape ]]}[[ end ]]
+    \\\vspace{3pt}
+    [[ if .Personal.Location ]]\small\color{midgrey}[[ .Personal.Location | texEscape ]]\\[[ end ]]
+    \small
+    [[ if .Personal.Phone ]]\href{tel:[[ .Personal.Phone | texEscape ]]}{\color{darkgrey}[[ .Personal.Phone | texEscape ]]}[[ end ]]%
+    [[ if .Personal.Email ]] $|$ \href{mailto:[[ .Personal.Email | texEscape ]]}{\color{darkgrey}[[ .Personal.Email | texEscape ]]}[[ end ]]%
+    [[ if .Personal.Linkedin.URL ]] $|$ \href{[[ .Personal.Linkedin.URL | texEscape ]]}{\color{skyblue}[[ if .Personal.Linkedin.Display ]][[ .Personal.Linkedin.Display | texEscape ]][[ else ]][[ .Personal.Linkedin.URL | texEscape ]][[ end ]]}[[ end ]]%
+    [[ if .Personal.Github.URL ]] $|$ \href{[[ .Personal.Github.URL | texEscape ]]}{\color{skyblue}[[ if .Personal.Github.Display ]][[ .Personal.Github.Display | texEscape ]][[ else ]][[ .Personal.Github.URL | texEscape ]][[ end ]]}[[ end ]]%
+    [[ if .Personal.Website.URL ]] $|$ \href{[[ .Personal.Website.URL | texEscape ]]}{\color{skyblue}[[ if .Personal.Website.Display ]][[ .Personal.Website.Display | texEscape ]][[ else ]][[ .Personal.Website.URL | texEscape ]][[ end ]]}[[ end ]]
+  \end{minipage}
+[[ else ]]
+  %% No-photo variant — centred name + inline contacts
+  {\Huge\bfseries\scshape\color{skyblue}[[ .Personal.Name | texEscape ]]}%
+  [[ if .Personal.Title ]]\\\vspace{2pt}{\large\color{darkgrey}[[ .Personal.Title | texEscape ]]}[[ end ]]
+  \\\vspace{3pt}
+  [[ if .Personal.Location ]]\small\color{midgrey}[[ .Personal.Location | texEscape ]]\\[[ end ]]
+  \small
+  [[ if .Personal.Phone ]]\href{tel:[[ .Personal.Phone | texEscape ]]}{\color{darkgrey}[[ .Personal.Phone | texEscape ]]}[[ end ]]%
+  [[ if .Personal.Email ]] $|$ \href{mailto:[[ .Personal.Email | texEscape ]]}{\color{darkgrey}[[ .Personal.Email | texEscape ]]}[[ end ]]%
+  [[ if .Personal.Linkedin.URL ]] $|$ \href{[[ .Personal.Linkedin.URL | texEscape ]]}{\color{skyblue}[[ if .Personal.Linkedin.Display ]][[ .Personal.Linkedin.Display | texEscape ]][[ else ]][[ .Personal.Linkedin.URL | texEscape ]][[ end ]]}[[ end ]]%
+  [[ if .Personal.Github.URL ]] $|$ \href{[[ .Personal.Github.URL | texEscape ]]}{\color{skyblue}[[ if .Personal.Github.Display ]][[ .Personal.Github.Display | texEscape ]][[ else ]][[ .Personal.Github.URL | texEscape ]][[ end ]]}[[ end ]]%
+  [[ if .Personal.Website.URL ]] $|$ \href{[[ .Personal.Website.URL | texEscape ]]}{\color{skyblue}[[ if .Personal.Website.Display ]][[ .Personal.Website.Display | texEscape ]][[ else ]][[ .Personal.Website.URL | texEscape ]][[ end ]]}[[ end ]]
+[[ end ]]
+\end{center}
+\vspace{-6pt}
+
+%%────────────────────────────────────────────────────────────────────
+%% PROFESSIONAL SUMMARY
+%%────────────────────────────────────────────────────────────────────
+[[ if .Summary ]]
+\section{Professional Summary}
+\skyListStart
+  \small\item{\color{darkgrey}[[ .Summary | texEscape ]]}
+\skyListEnd
+\vspace{-2pt}
+[[ end ]]
+
+%%────────────────────────────────────────────────────────────────────
+%% PROFESSIONAL EXPERIENCE
+%%────────────────────────────────────────────────────────────────────
+[[ if .Experience ]]
+\section{Professional Experience}
+\skyListStart
+  [[ range .Experience ]]
+  \skySubheading
+    {[[ .Company | texEscape ]]}{[[ if .Location ]][[ .Location | texEscape ]][[ end ]]}
+    {[[ .Title | texEscape ]]}{[[ .Dates | texEscape ]]}
+    [[ if .Bullets ]]
+    \skyBulletStart
+      [[ range texLines .Bullets ]]\skyItem{[[ . | texEscape ]]}
+      [[ end ]]
+    \skyBulletEnd
+    [[ end ]]
+  [[ end ]]
+\skyListEnd
+[[ end ]]
+
+%%────────────────────────────────────────────────────────────────────
+%% EDUCATION
+%%────────────────────────────────────────────────────────────────────
+[[ if .Education ]]
+\section{Education}
+\skyListStart
+  [[ range .Education ]]
+  \skySubheading
+    {[[ .Institution | texEscape ]]}{[[ if .Location ]][[ .Location | texEscape ]][[ end ]]}
+    {[[ .Degree | texEscape ]][[ if .GPA ]] \normalfont{--} \textbf{GPA: [[ .GPA | texEscape ]]}[[ end ]]}{[[ .Dates | texEscape ]]}
+    [[ if .Activities ]]
+    \skyBulletStart
+      \skyItem{\textit{Activities \& Societies:} [[ .Activities | texEscape ]]}
+    \skyBulletEnd
+    [[ end ]]
+  [[ end ]]
+\skyListEnd
+[[ end ]]
+
+%%────────────────────────────────────────────────────────────────────
+%% TECHNICAL SKILLS
+%%────────────────────────────────────────────────────────────────────
+[[ if or .Skills.Languages .Skills.Frameworks .Skills.Tools .Skills.Other ]]
+\section{Technical Skills}
+\vspace{2pt}
+\skyListStart
+  \small\item{
+    \begin{tabular}{@{}p{2.8cm}@{}p{\dimexpr\linewidth-2.8cm\relax}@{}}
+      [[ if .Skills.Languages ]]\textbf{\color{darkgrey}Languages:}    & \color{darkgrey}[[ .Skills.Languages | texEscape ]] \\[3pt][[ end ]]
+      [[ if .Skills.Frameworks ]]\textbf{\color{darkgrey}Technologies:} & \color{darkgrey}[[ .Skills.Frameworks | texEscape ]] \\[3pt][[ end ]]
+      [[ if .Skills.Tools ]]\textbf{\color{darkgrey}Tools:}         & \color{darkgrey}[[ .Skills.Tools | texEscape ]] \\[3pt][[ end ]]
+      [[ if .Skills.Other ]]\textbf{\color{darkgrey}Other:}         & \color{darkgrey}[[ .Skills.Other | texEscape ]] \\[[ end ]]
+    \end{tabular}
+  }
+\skyListEnd
+[[ end ]]
+
+%%────────────────────────────────────────────────────────────────────
+%% SELECTED PROJECTS
+%%────────────────────────────────────────────────────────────────────
+[[ if .Projects ]]
+\section{Selected Projects}
+\skyListStart
+  [[ range .Projects ]]
+  \skyProjectRow{%
+    \textbf{\color{darkgrey}[[ .Name | texEscape ]]}%
+    [[ if .Role ]] $|$ \emph{\color{darkgrey}[[ .Role | texEscape ]]}[[ end ]]%
+    [[ if .Link ]] $|$ \href{https://[[ .Link | texEscape ]]}{\small\color{skyblue}\texttt{[[ .Link | texEscape ]]}}[[ end ]]%
+  }{}
+  [[ if .Bullets ]]
+  \skyBulletStart
+    [[ range texLines .Bullets ]]\skyItem{[[ . | texEscape ]]}
+    [[ end ]]
+  \skyBulletEnd
+  [[ end ]]
+  [[ end ]]
+\skyListEnd
+[[ end ]]
+
+%%────────────────────────────────────────────────────────────────────
+%% VOLUNTEER & LEADERSHIP EXPERIENCE
+%%────────────────────────────────────────────────────────────────────
+[[ if .Volunteer ]]
+\section{Volunteer \& Leadership Experience}
+\skyListStart
+  [[ range .Volunteer ]]
+  \skySubheading
+    {[[ .Organization | texEscape ]]}{[[ if .Location ]][[ .Location | texEscape ]][[ end ]]}
+    {[[ .Role | texEscape ]]}{[[ .Dates | texEscape ]]}
+    [[ if .Bullets ]]
+    \skyBulletStart
+      [[ range texLines .Bullets ]]\skyItem{[[ . | texEscape ]]}
+      [[ end ]]
+    \skyBulletEnd
+    [[ end ]]
+  [[ end ]]
+\skyListEnd
+[[ end ]]
+
+%%────────────────────────────────────────────────────────────────────
+%% CERTIFICATIONS & COURSES
+%%────────────────────────────────────────────────────────────────────
+[[ if .Certifications ]]
+\section{Certifications \& Courses}
+\vspace{2pt}
+[[ range .Certifications ]]
+\noindent\begin{tabular*}{\linewidth}{@{}p{0.85\linewidth}@{\extracolsep{\fill}}r@{}}
+  \small\textbf{\color{darkgrey}[[ .Name | texEscape ]]}, \color{darkgrey}[[ .Issuer | texEscape ]] & \\
+\end{tabular*}\vspace{4pt}
+[[ end ]]
+[[ end ]]
+
+%%────────────────────────────────────────────────────────────────────
+%% HONORS & AWARDS
+%%────────────────────────────────────────────────────────────────────
+[[ if .Awards ]]
+\section{Honors \& Awards}
+\vspace{2pt}
+[[ range .Awards ]]
+\noindent\begin{tabular*}{\linewidth}{@{}p{0.78\linewidth}@{\extracolsep{\fill}}r@{}}
+  \small\textbf{\color{darkgrey}[[ .Title | texEscape ]]}, \color{darkgrey}[[ .Issuer | texEscape ]][[ if .Description ]]\\
+  \small\textit{\color{midgrey}[[ .Description | texEscape ]]}[[ end ]] & \small\color{midgrey}[[ .Date | texEscape ]] \\
+\end{tabular*}\vspace{4pt}
+[[ end ]]
+[[ end ]]
+
+%%────────────────────────────────────────────────────────────────────
+%% TALKS & CONFERENCES
+%%────────────────────────────────────────────────────────────────────
+[[ if .Talks ]]
+\section{Talks \& Conferences}
+\vspace{2pt}
+[[ range .Talks ]]
+\noindent\begin{tabular*}{\linewidth}{@{}p{0.78\linewidth}@{\extracolsep{\fill}}r@{}}
+  \small\textbf{\color{darkgrey}[[ .Title | texEscape ]]}[[ if .Event ]] -- \textit{\color{darkgrey}[[ .Event | texEscape ]][[ if .Location ]], [[ .Location | texEscape ]][[ end ]]}[[ end ]][[ if .Description ]]\\
+  \small\textit{\color{midgrey}[[ .Description | texEscape ]]}[[ end ]] & \small\color{midgrey}[[ .Date | texEscape ]] \\
+\end{tabular*}\vspace{4pt}
+[[ end ]]
+[[ end ]]
+
+\end{document}
