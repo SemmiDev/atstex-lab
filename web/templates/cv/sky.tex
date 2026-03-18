@@ -242,17 +242,14 @@
 %%────────────────────────────────────────────────────────────────────
 [[ if or .Skills.Languages .Skills.Frameworks .Skills.Tools .Skills.Other ]]
 \section{Technical Skills}
-\vspace{4pt}
-\skyListStart
-  \item{
-    \begin{tabular}{@{}p{2.8cm}@{}p{\dimexpr\linewidth-2.8cm\relax}@{}}
-      [[ if .Skills.Languages ]]\textbf{\color{darkgrey}Languages:}    & {\color{darkgrey}[[ .Skills.Languages | texEscape ]]} \\[5pt][[ end ]]
-      [[ if .Skills.Frameworks ]]\textbf{\color{darkgrey}Technologies:} & {\color{darkgrey}[[ .Skills.Frameworks | texEscape ]]} \\[5pt][[ end ]]
-      [[ if .Skills.Tools ]]\textbf{\color{darkgrey}Tools:}         & {\color{darkgrey}[[ .Skills.Tools | texEscape ]]} \\[5pt][[ end ]]
-      [[ if .Skills.Other ]]\textbf{\color{darkgrey}Other:}         & {\color{darkgrey}[[ .Skills.Other | texEscape ]]} \\[[ end ]]
-    \end{tabular}
-  }
-\skyListEnd
+\vspace{-2pt}
+\begin{tabular}{@{}p{3cm}@{}p{\dimexpr\linewidth-3cm\relax}@{}}
+  [[ if .Skills.Languages ]]\small\textbf{\color{darkgrey}Languages}    & \small{\color{darkgrey}[[ .Skills.Languages | texEscape ]]} \\[3pt][[ end ]]
+  [[ if .Skills.Frameworks ]]\small\textbf{\color{darkgrey}Technologies} & \small{\color{darkgrey}[[ .Skills.Frameworks | texEscape ]]} \\[3pt][[ end ]]
+  [[ if .Skills.Tools ]]\small\textbf{\color{darkgrey}Tools}         & \small{\color{darkgrey}[[ .Skills.Tools | texEscape ]]} \\[3pt][[ end ]]
+  [[ if .Skills.Other ]]\small\textbf{\color{darkgrey}Other}         & \small{\color{darkgrey}[[ .Skills.Other | texEscape ]]} \\[[ end ]]
+\end{tabular}
+\vspace{2pt}
 [[ end ]]
 
 %%────────────────────────────────────────────────────────────────────
