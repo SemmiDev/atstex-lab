@@ -125,10 +125,10 @@ func (s *Server) handleMockInterviewWS() http.HandlerFunc {
 			s.reqLog(r).Error("websocket accept error", "err", err)
 			return
 		}
-		defer conn.Close(websocket.StatusInternalError, "connection closed") //nolint:errcheck
+		defer conn.Close(websocket.StatusInternalError, "connection closed")
 
 		// Use a generous timeout for the whole session lifetime.
-		ctx, cancel := context.WithTimeout(context.Background(), 90*time.Minute)
+		ctx, cancel := context.WithTimeout(r.Context(), 90*time.Minute)
 		defer cancel()
 
 		// ── 4. Create a DB session record ────────────────────────────────────
@@ -173,7 +173,11 @@ func (s *Server) runMockInterviewLoop(
 
 	// helper: persist current state to DB
 	persistSession := func() {
-		msgsJSON, _ := json.Marshal(domainMessages)
+		msgsJSON, err := json.Marshal(domainMessages)
+		if err != nil {
+			log.Error("marshal messages error", "err", err)
+			return
+		}
 		session.Messages = json.RawMessage(msgsJSON)
 		session.TurnCount = len(domainMessages)
 		session.TokensUsed = totalTokens
@@ -247,14 +251,13 @@ func (s *Server) runMockInterviewLoop(
 	for {
 		// Wait for a message from the client
 		var incoming domain.MockInterviewWSMessage
-		if err := wsjson.Read(ctx, conn, &incoming); err != nil {
+		if errRead := wsjson.Read(ctx, conn, &incoming); errRead != nil {
 			// Connection closed by client or timeout — end the session cleanly
 			log.Info("websocket read ended", "err", err)
 			break
 		}
 
 		switch incoming.Type {
-
 		case domain.WSTypePing:
 			_ = wsjson.Write(ctx, conn, domain.MockInterviewWSMessage{Type: domain.WSTypePong})
 			continue
@@ -270,7 +273,7 @@ func (s *Server) runMockInterviewLoop(
 				TurnID:    turnID,
 			})
 			log.Info("mock interview session ended by user", "turns", turnID, "tokens", totalTokens)
-			conn.Close(websocket.StatusNormalClosure, "session ended") //nolint:errcheck
+			conn.Close(websocket.StatusNormalClosure, "session ended")
 			return
 
 		case domain.WSTypeUserMsg:

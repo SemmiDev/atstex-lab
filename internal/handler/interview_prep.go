@@ -78,7 +78,6 @@ func (s *Server) handleCreateInterviewPrep() http.HandlerFunc {
 			middleware.RespondError(w, r, apperrors.NewForbidden())
 			return
 		}
-		//nolint:goconst // string 'null' is used here only to check for empty json
 		if len(profile.Biodata) == 0 || string(profile.Biodata) == "null" || string(profile.Biodata) == "{}" {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("this CV profile has no biodata — please fill in your biodata first"))
 			return

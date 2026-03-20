@@ -25,10 +25,7 @@ func (r *postgresRepo) GetInterviewPrepsByUserID(ctx context.Context, userID uui
 		`SELECT id, user_id, profile_id, job_description, language, questions, tokens_used, created_at
 		 FROM interview_preps WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`, userID)
 	if err != nil {
-		if err != nil {
-			return nil, translatePgError(err, "record", nil)
-		}
-		return nil, nil
+		return nil, translatePgError(err, "record", nil)
 	}
 	if preps == nil {
 		preps = []domain.InterviewPrep{}

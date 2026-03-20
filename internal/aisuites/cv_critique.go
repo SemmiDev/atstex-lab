@@ -24,16 +24,16 @@ func CritiqueCVProfile(ctx context.Context, biodataJSON string, language string,
 		return nil, 0, fmt.Errorf("failed to create LLM client (%s): %w", cfg.Provider, err)
 	}
 
-	langInstruction := "Respond entirely in English."
+	langInstruction := langEnglish
 	//nolint:gocritic // ifElseChain is fine here
 	if strings.EqualFold(language, "id") {
-		langInstruction = "Respond entirely in Bahasa Indonesia."
+		langInstruction = langBahasaIndonesia
 	} else if strings.EqualFold(language, "ja") {
-		langInstruction = "Respond entirely in Japanese."
+		langInstruction = langJapanese
 	} else if strings.EqualFold(language, "zh") {
-		langInstruction = "Respond entirely in Chinese."
+		langInstruction = langChinese
 	} else if strings.EqualFold(language, "ko") {
-		langInstruction = "Respond entirely in Korean."
+		langInstruction = langKorean
 	}
 
 	critiquePrompt := `You are a senior HR consultant and ATS (Applicant Tracking System) expert with 15+ years of experience reviewing resumes.

@@ -17,16 +17,16 @@ func EnhanceBulletPoint(ctx context.Context, rawBullet string, language string, 
 		return "", 0, fmt.Errorf("failed to create LLM client (%s): %w", cfg.Provider, err)
 	}
 
-	langInstruction := "Respond in English."
+	langInstruction := langEnglish
 	//nolint:gocritic // ifElseChain is intentional for language routing
 	if strings.EqualFold(language, "id") {
-		langInstruction = "Respond entirely in Bahasa Indonesia."
+		langInstruction = langBahasaIndonesia
 	} else if strings.EqualFold(language, "ja") {
-		langInstruction = "Respond entirely in Japanese."
+		langInstruction = langJapanese
 	} else if strings.EqualFold(language, "zh") {
-		langInstruction = "Respond entirely in Chinese."
+		langInstruction = langChinese
 	} else if strings.EqualFold(language, "ko") {
-		langInstruction = "Respond entirely in Korean."
+		langInstruction = langKorean
 	}
 
 	prompt := fmt.Sprintf(`You are an expert CV/resume writer specializing in ATS-optimized resumes.

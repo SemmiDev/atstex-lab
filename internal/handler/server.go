@@ -33,15 +33,6 @@ type compileRequest struct {
 	PhotoBase64 string `json:"photo_base64"`
 }
 
-// compileResponse is the JSON body returned by POST /compile.
-type compileResponse struct {
-	OK      bool   `json:"ok"`
-	Log     string `json:"log"`
-	Elapsed string `json:"elapsed"`
-	Engine  string `json:"engine"`
-	Error   string `json:"error,omitempty"`
-}
-
 // Server holds shared dependencies for HTTP handlers.
 type Server struct {
 	router     chi.Router
@@ -1209,7 +1200,7 @@ func (s *Server) handleGalleryCompile() http.HandlerFunc {
 		ch := make(chan indexedResult, len(tpls))
 
 		for i, tpl := range tpls {
-			go func(idx int, name string) {
+			go func(ctx context.Context, idx int, name string) {
 				res := galleryCompileResult{Name: name}
 
 				source, renderErr := cvtemplate.Render(name, req.CVData, ps, showWatermark)
@@ -1229,7 +1220,7 @@ func (s *Server) handleGalleryCompile() http.HandlerFunc {
 					opts.PhotoBase64 = req.CVData.Personal.Photo
 				}
 
-				result, compileErr := compiler.Compile(r.Context(), []byte(source), opts)
+				result, compileErr := compiler.Compile(ctx, []byte(source), opts)
 				if compileErr != nil {
 					errMsg := compileErr.Error()
 					if result != nil && result.Log != "" {
@@ -1242,7 +1233,7 @@ func (s *Server) handleGalleryCompile() http.HandlerFunc {
 
 				res.PDFBase64 = "data:application/pdf;base64," + base64Encode(result.PDF)
 				ch <- indexedResult{idx, res}
-			}(i, tpl.Name)
+			}(r.Context(), i, tpl.Name)
 		}
 
 		results := make([]galleryCompileResult, len(tpls))
@@ -1261,9 +1252,9 @@ func base64Encode(data []byte) string {
 }
 
 // handleEnhanceBullet rewrites a single set of CV bullet points using AI.
-// POST /api/ai/enhance-bullet
-// Body: { "bullet": "raw text", "language": "en" }
-// Response: { "enhanced": "rewritten text", "tokensUsed": 123 }
+// POST /api/ai/enhance-bullet.
+// Body: { "bullet": "raw text", "language": "en" }.
+// Response: { "enhanced": "rewritten text", "tokensUsed": 123 }.
 func (s *Server) handleEnhanceBullet() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)

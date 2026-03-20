@@ -8,7 +8,7 @@ import (
 	"github.com/tmc/langchaingo/llms"
 )
 
-// MockInterviewMessage represents a single message in the interview conversation
+// MockInterviewMessage represents a single message in the interview conversation.
 type MockInterviewMessage struct {
 	Role    string `json:"role"` // "system", "human", "ai"
 	Content string `json:"content"`
@@ -31,13 +31,14 @@ func HandleMockInterviewTurn(
 	}
 
 	langInstruction := "Conduct the interview entirely in English."
-	if strings.EqualFold(language, "id") {
+	switch {
+	case strings.EqualFold(language, "id"):
 		langInstruction = "Conduct the interview entirely in Bahasa Indonesia."
-	} else if strings.EqualFold(language, "ja") {
+	case strings.EqualFold(language, "ja"):
 		langInstruction = "Conduct the interview entirely in Japanese."
-	} else if strings.EqualFold(language, "zh") {
+	case strings.EqualFold(language, "zh"):
 		langInstruction = "Conduct the interview entirely in Chinese."
-	} else if strings.EqualFold(language, "ko") {
+	case strings.EqualFold(language, "ko"):
 		langInstruction = "Conduct the interview entirely in Korean."
 	}
 
@@ -57,7 +58,7 @@ func HandleMockInterviewTurn(
 
 	// Build the system prompt if we are at the start of the conversation
 	if len(history) == 0 {
-		systemPrompt := fmt.Sprintf(`You are an expert HR Recruiter and Technical Interviewer.
+		sysPrompt := fmt.Sprintf(`You are an expert HR Recruiter and Technical Interviewer.
 You are conducting a live voice mock interview.
 
 Guidelines for your responses:
@@ -81,12 +82,12 @@ Start the interview by greeting the candidate by name (if known from the CV) and
 
 		history = append(history, MockInterviewMessage{
 			Role:    "system",
-			Content: systemPrompt,
+			Content: sysPrompt,
 		})
 	}
 
 	// Convert our history to LangChain message types
-	var messages []llms.MessageContent
+	messages := make([]llms.MessageContent, 0, len(history))
 	for _, msg := range history {
 		var role llms.ChatMessageType
 		switch msg.Role {
@@ -127,10 +128,10 @@ Start the interview by greeting the candidate by name (if known from the CV) and
 	aiResponse := strings.TrimSpace(resp.Choices[0].Content)
 
 	// Add the AI's response to the history before returning
-	newHistory := append(history, MockInterviewMessage{
+	history = append(history, MockInterviewMessage{
 		Role:    "ai",
 		Content: aiResponse,
 	})
 
-	return aiResponse, newHistory, totalTokens, nil
+	return aiResponse, history, totalTokens, nil
 }

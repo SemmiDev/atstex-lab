@@ -31,27 +31,27 @@ func Translate(err error) *problem.Problem {
 	case errors.Is(err, ErrNotFound):
 		status = http.StatusNotFound
 		detail = "Resource not found."
-		code   = "RESOURCE_NOT_FOUND"
+		code = "RESOURCE_NOT_FOUND"
 	case errors.Is(err, ErrConflict):
 		status = http.StatusConflict
 		detail = "Resource already exists."
-		code   = "RESOURCE_CONFLICT"
+		code = "RESOURCE_CONFLICT"
 	case errors.Is(err, ErrInvalidInput):
 		status = http.StatusBadRequest
 		detail = "The request contains invalid data."
-		code   = "INVALID_INPUT"
+		code = "INVALID_INPUT"
 	case errors.Is(err, ErrUnauthorized):
 		status = http.StatusUnauthorized
 		detail = "Invalid credentials."
-		code   = "UNAUTHORIZED"
+		code = "UNAUTHORIZED"
 	case errors.Is(err, ErrForbidden):
 		status = http.StatusForbidden
 		detail = "Permission denied."
-		code   = "FORBIDDEN"
+		code = "FORBIDDEN"
 	default:
 		status = http.StatusInternalServerError
 		detail = "An internal error occurred. Please contact support."
-		code   = "INTERNAL_ERROR"
+		code = "INTERNAL_ERROR"
 	}
 
 	return &problem.Problem{

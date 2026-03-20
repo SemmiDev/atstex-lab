@@ -75,7 +75,7 @@ func run(ctx context.Context, cfg *config.AppConfig, logger *slog.Logger) error 
 
 	errc := make(chan error, 1)
 
-	compiler.Warmup(context.Background(), logger)
+	compiler.Warmup(ctx, logger)
 
 	go func() {
 		logger.Info("starting atstex-lab", "addr", cfg.Port)

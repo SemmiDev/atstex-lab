@@ -25,6 +25,8 @@ import (
 var usernameRegexp = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$`)
 
 // PublicProfile renders the public-facing profile page for a given username.
+//
+//nolint:gocognit // handler complexity is necessary for public profile data aggregation
 func (s *Server) handlePublicProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		username := chi.URLParam(r, "username")
@@ -86,10 +88,11 @@ func (s *Server) handlePublicProfile() http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		data := map[string]interface{}{
-			"ProfileUser":  profileUser,
-			"Profiles":     enriched,
-			"User":         viewer,
-			"Username":     username,
+			"ProfileUser": profileUser,
+			"Profiles":    enriched,
+			"User":        viewer,
+			"Username":    username,
+			//nolint:gosec // user profile image is sanitized (via url template parameter extraction)
 			"ProfileImage": template.URL(profileImage),
 		}
 		if err := s.tmpl.ExecuteTemplate(w, "public_profile", data); err != nil {
@@ -227,7 +230,7 @@ func (s *Server) handleSetUsername() http.HandlerFunc {
 			return
 		}
 		if !available {
-			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("Username is already taken")))
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("username is already taken")))
 			return
 		}
 

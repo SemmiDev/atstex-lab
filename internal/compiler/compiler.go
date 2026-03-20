@@ -8,12 +8,12 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
-	"log/slog"
 )
 
 // Engine represents a LaTeX compilation engine.
@@ -278,6 +278,6 @@ func Warmup(ctx context.Context, logger *slog.Logger) {
 		logger.Warn("compiler warmup failed or timed out", "error", err, "elapsed", time.Since(start))
 		return
 	}
-	
+
 	logger.Info("compiler warmup complete", "elapsed", time.Since(start))
 }

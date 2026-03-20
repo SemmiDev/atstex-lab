@@ -67,10 +67,7 @@ func (r *postgresRepo) GetMockInterviewSession(ctx context.Context, id uuid.UUID
 		 FROM mock_interview_sessions
 		 WHERE id = $1`, id)
 	if err != nil {
-		if err != nil {
-			return nil, translatePgError(err, "record", nil)
-		}
-		return nil, nil
+		return nil, translatePgError(err, "record", nil)
 	}
 	return &s, nil
 }
@@ -85,10 +82,7 @@ func (r *postgresRepo) GetMockInterviewSessionsByUserID(ctx context.Context, use
 		 ORDER BY created_at DESC
 		 LIMIT 20`, userID)
 	if err != nil {
-		if err != nil {
-			return nil, translatePgError(err, "record", nil)
-		}
-		return nil, nil
+		return nil, translatePgError(err, "record", nil)
 	}
 	if sessions == nil {
 		sessions = []domain.MockInterviewSession{}

@@ -9,9 +9,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	// blank import for pgx driver.
 	"github.com/jackc/pgx/v5/pgconn"
-	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/jackc/pgx/v5/stdlib" // blank import for pgx driver
 	"github.com/jmoiron/sqlx"
 	"github.com/semmidev/atstex-lab/internal/apperrors"
 	"github.com/semmidev/atstex-lab/internal/domain"
@@ -839,6 +838,8 @@ func (r *postgresRepo) GetUserSubscriptions(ctx context.Context, userID uuid.UUI
 }
 
 // translatePgError is the subsystem boundary firewall that maps Postgres errors and sql.ErrNoRows to safe domain-level SafeError.
+//
+//nolint:unparam // resource string is intentionally identical for generic repository wrappers
 func translatePgError(err error, resource string, meta map[string]string) error {
 	if err == nil {
 		return nil

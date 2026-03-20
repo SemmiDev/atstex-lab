@@ -39,10 +39,7 @@ func (r *postgresRepo) GetAtsSimulationsByUserID(ctx context.Context, userID uui
 	var simulations []domain.AtsSimulation
 	err := r.db.SelectContext(ctx, &simulations, query, userID)
 	if err != nil {
-		if err != nil {
-			return nil, translatePgError(err, "record", nil)
-		}
-		return nil, nil
+		return nil, translatePgError(err, "record", nil)
 	}
 
 	return simulations, nil

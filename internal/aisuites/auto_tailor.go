@@ -17,16 +17,16 @@ func AutoTailorCV(ctx context.Context, biodataJSON string, jobDesc string, langu
 		return nil, 0, fmt.Errorf("failed to create LLM client (%s): %w", cfg.Provider, err)
 	}
 
-	langInstruction := "Respond entirely in English."
+	langInstruction := langEnglish
 	//nolint:gocritic // ifElseChain is intentional for language routing
 	if strings.EqualFold(language, "id") {
-		langInstruction = "Respond entirely in Bahasa Indonesia."
+		langInstruction = langBahasaIndonesia
 	} else if strings.EqualFold(language, "ja") {
-		langInstruction = "Respond entirely in Japanese."
+		langInstruction = langJapanese
 	} else if strings.EqualFold(language, "zh") {
-		langInstruction = "Respond entirely in Chinese."
+		langInstruction = langChinese
 	} else if strings.EqualFold(language, "ko") {
-		langInstruction = "Respond entirely in Korean."
+		langInstruction = langKorean
 	}
 
 	prompt := fmt.Sprintf(`You are an expert CV/resume writer and career coach.
@@ -75,8 +75,8 @@ CV Data:
 
 	cleaned := stripMarkdownFences(resp.Choices[0].Content)
 	var result map[string]any
-	if err := json.Unmarshal([]byte(cleaned), &result); err != nil {
-		return nil, totalTokens, fmt.Errorf("failed to parse AutoTailorCV response as JSON: %w\nraw: %s", err, resp.Choices[0].Content)
+	if errUnmarshal := json.Unmarshal([]byte(cleaned), &result); errUnmarshal != nil {
+		return nil, totalTokens, fmt.Errorf("failed to parse AutoTailorCV response as JSON: %w\nraw: %s", errUnmarshal, resp.Choices[0].Content)
 	}
 
 	finalResp, err := json.Marshal(result)

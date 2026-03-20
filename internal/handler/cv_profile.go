@@ -211,7 +211,7 @@ func (s *Server) handleAutoTailorCVProfile() http.HandlerFunc {
 			JobDescription string `json:"jobDescription"`
 			Language       string `json:"language"`
 		}
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		if errDecode := json.NewDecoder(r.Body).Decode(&req); errDecode != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
@@ -236,7 +236,6 @@ func (s *Server) handleAutoTailorCVProfile() http.HandlerFunc {
 			middleware.RespondError(w, r, apperrors.NewForbidden())
 			return
 		}
-		//nolint:goconst // string 'null' is used here only to check for empty json
 		if len(baseProfile.Biodata) == 0 || string(baseProfile.Biodata) == "null" || string(baseProfile.Biodata) == "{}" {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("base profile has no biodata — please fill in your biodata first"))
 			return
@@ -244,7 +243,7 @@ func (s *Server) handleAutoTailorCVProfile() http.HandlerFunc {
 
 		// 2. Check subscription limits (using ats_simulation limit type or cv_profile)
 		// Auto-tailoring creates a profile AND uses AI. We'll check cv_profile limit.
-		if err := s.checkSubscriptionLimits(r.Context(), user.ID, "cv_profile"); err != nil {
+		if errLimit := s.checkSubscriptionLimits(r.Context(), user.ID, "cv_profile"); errLimit != nil {
 			middleware.RespondError(w, r, apperrors.NewForbidden())
 			return
 		}
@@ -270,16 +269,16 @@ func (s *Server) handleAutoTailorCVProfile() http.HandlerFunc {
 		}
 
 		// 5. Save rewritten biodata
-		if err := s.repo.UpdateCVProfileBiodata(r.Context(), newProfile.ID, rewrittenJSON); err != nil {
-			s.reqLog(r).Error("Failed to save rewritten biodata", "err", err)
-			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("Failed to save rewritten CV")))
+		if errUpdate := s.repo.UpdateCVProfileBiodata(r.Context(), newProfile.ID, rewrittenJSON); errUpdate != nil {
+			s.reqLog(r).Error("Failed to save rewritten biodata", "err", errUpdate)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to save rewritten CV")))
 			return
 		}
 
 		// Fetch the final newly generated profile to return
 		finalProfile, err := s.repo.GetCVProfile(r.Context(), newProfile.ID)
 		if err != nil {
-			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("Failed to load generated profile")))
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to load generated profile")))
 			return
 		}
 

@@ -5,6 +5,14 @@ import (
 	"strings"
 )
 
+const (
+	langEnglish         = "Respond entirely in English."
+	langBahasaIndonesia = "Respond entirely in Bahasa Indonesia."
+	langJapanese        = "Respond entirely in Japanese."
+	langChinese         = "Respond entirely in Chinese."
+	langKorean          = "Respond entirely in Korean."
+)
+
 // toInt64 converts various numeric types to int64.
 func toInt64(v any) (int64, bool) {
 	switch t := v.(type) {
@@ -105,47 +113,51 @@ func stripMarkdownFences(s string) string {
 	}
 
 	if start != -1 {
-		// Find the matching closer
-		count := 0
-		end := -1
-		inString := false
-		escaped := false
-
-		for i := start; i < len(cleaned); i++ {
-			char := rune(cleaned[i])
-
-			if inString {
-				if char == '\\' && !escaped {
-					escaped = true
-				} else {
-					if char == '"' && !escaped {
-						inString = false
-					}
-					escaped = false
-				}
-				continue
-			}
-
-			if char == '"' {
-				inString = true
-				continue
-			}
-
-			if char == opener {
-				count++
-			} else if char == closer {
-				count--
-				if count == 0 {
-					end = i
-					break
-				}
-			}
-		}
-
-		if end != -1 {
-			cleaned = cleaned[start : end+1]
-		}
+		cleaned = extractJSONBlock(cleaned, start, opener, closer)
 	}
 
 	return strings.TrimSpace(cleaned)
+}
+
+func extractJSONBlock(cleaned string, start int, opener, closer rune) string {
+	count := 0
+	end := -1
+	inString := false
+	escaped := false
+
+	for i := start; i < len(cleaned); i++ {
+		char := rune(cleaned[i])
+
+		if inString {
+			if char == '\\' && !escaped {
+				escaped = true
+			} else {
+				if char == '"' && !escaped {
+					inString = false
+				}
+				escaped = false
+			}
+			continue
+		}
+
+		if char == '"' {
+			inString = true
+			continue
+		}
+
+		if char == opener {
+			count++
+		} else if char == closer {
+			count--
+			if count == 0 {
+				end = i
+				break
+			}
+		}
+	}
+
+	if end != -1 {
+		return cleaned[start : end+1]
+	}
+	return cleaned
 }

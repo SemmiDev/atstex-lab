@@ -9,17 +9,17 @@ import (
 
 // MockInterviewSession stores a complete live mock interview session.
 type MockInterviewSession struct {
-	ID             uuid.UUID       `db:"id"              json:"id"`
-	UserID         uuid.UUID       `db:"user_id"         json:"userId"`
-	ProfileID      uuid.UUID       `db:"profile_id"      json:"profileId"`
-	JobDescription string          `db:"job_description" json:"jobDescription"`
-	Language       string          `db:"language"        json:"language"`
-	InterviewerStyle string        `db:"interviewer_style" json:"interviewerStyle"`
-	Messages       json.RawMessage `db:"messages"        json:"messages"`
-	TokensUsed     int64           `db:"tokens_used"     json:"tokensUsed"`
-	TurnCount      int             `db:"turn_count"      json:"turnCount"`
-	CreatedAt      time.Time       `db:"created_at"      json:"createdAt"`
-	EndedAt        *time.Time      `db:"ended_at"        json:"endedAt"`
+	ID               uuid.UUID       `db:"id"                json:"id"`
+	UserID           uuid.UUID       `db:"user_id"           json:"userId"`
+	ProfileID        uuid.UUID       `db:"profile_id"        json:"profileId"`
+	JobDescription   string          `db:"job_description"   json:"jobDescription"`
+	Language         string          `db:"language"          json:"language"`
+	InterviewerStyle string          `db:"interviewer_style" json:"interviewerStyle"`
+	Messages         json.RawMessage `db:"messages"          json:"messages"`
+	TokensUsed       int64           `db:"tokens_used"       json:"tokensUsed"`
+	TurnCount        int             `db:"turn_count"        json:"turnCount"`
+	CreatedAt        time.Time       `db:"created_at"        json:"createdAt"`
+	EndedAt          *time.Time      `db:"ended_at"          json:"endedAt"`
 }
 
 // MockInterviewMessage is a single message in the interview conversation.
