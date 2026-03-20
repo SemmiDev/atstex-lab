@@ -8,6 +8,7 @@ require (
 	github.com/jackc/pgx/v5 v5.8.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
+	github.com/semmidev/problem v1.1.0
 	github.com/tmc/langchaingo v0.1.14
 	golang.org/x/oauth2 v0.35.0
 	nhooyr.io/websocket v1.8.7
