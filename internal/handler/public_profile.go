@@ -3,7 +3,9 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"html/template"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -58,12 +60,25 @@ func (s *Server) handlePublicProfile() http.HandlerFunc {
 			Bio map[string]interface{}
 		}
 		var enriched []profileWithBiodata
+		profileImage := ""
 		for _, p := range profiles {
 			bio := map[string]interface{}{}
 			if len(p.Biodata) > 2 { // not "{}"
 				_ = json.Unmarshal(p.Biodata, &bio)
 			}
 			enriched = append(enriched, profileWithBiodata{CVProfile: p, Bio: bio})
+
+			if profileImage == "" {
+				if personal, ok := bio["personal"].(map[string]interface{}); ok {
+					if img, ok := personal["photo"].(string); ok && img != "" {
+						profileImage = img
+					}
+				}
+			}
+		}
+
+		if profileImage == "" {
+			profileImage = "https://ui-avatars.com/api/?name=" + url.QueryEscape(profileUser.Name) + "&background=random"
 		}
 
 		// The viewer may or may not be logged in
@@ -71,10 +86,11 @@ func (s *Server) handlePublicProfile() http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		data := map[string]interface{}{
-			"ProfileUser": profileUser,
-			"Profiles":    enriched,
-			"User":        viewer,
-			"Username":    username,
+			"ProfileUser":  profileUser,
+			"Profiles":     enriched,
+			"User":         viewer,
+			"Username":     username,
+			"ProfileImage": template.URL(profileImage),
 		}
 		if err := s.tmpl.ExecuteTemplate(w, "public_profile", data); err != nil {
 			s.reqLog(r).Error("template error", "err", err)
