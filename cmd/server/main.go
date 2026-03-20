@@ -12,8 +12,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/aisuites"
+	"github.com/semmidev/atstex-lab/internal/auth"
+	"github.com/semmidev/atstex-lab/internal/compiler"
 	"github.com/semmidev/atstex-lab/internal/config"
 	"github.com/semmidev/atstex-lab/internal/handler"
 	"github.com/semmidev/atstex-lab/internal/repository"
@@ -73,6 +74,8 @@ func run(ctx context.Context, cfg *config.AppConfig, logger *slog.Logger) error 
 	}
 
 	errc := make(chan error, 1)
+
+	compiler.Warmup(context.Background(), logger)
 
 	go func() {
 		logger.Info("starting atstex-lab", "addr", cfg.Port)

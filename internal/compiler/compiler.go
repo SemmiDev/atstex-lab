@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"log/slog"
 )
 
 // Engine represents a LaTeX compilation engine.
@@ -24,7 +25,7 @@ const (
 	EngineLuaLatex Engine = "lualatex"
 	EngineTectonic Engine = "tectonic"
 
-	defaultTimeout = 30 * time.Second
+	defaultTimeout = 120 * time.Second
 	maxSourceBytes = 512 * 1024 // 512 KB
 )
 
@@ -247,4 +248,36 @@ func cleanLog(raw string) string {
 		out = append(out, line)
 	}
 	return strings.Join(out, "\n")
+}
+
+// Warmup runs a compilation of a dummy template containing all commonly used LaTeX packages.
+// This ensures that the LaTeX engine (especially Tectonic) downloads all required
+// packages on server startup, rather than during a user's first compile request which might timeout.
+func Warmup(ctx context.Context, logger *slog.Logger) {
+	logger.Info("warming up LaTeX compiler caches (may take a few minutes on first run)...")
+
+	dummySource := `\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{geometry,setspace,fancyhdr,array,tabularx,booktabs,longtable}
+\usepackage{enumitem,xcolor,graphicx,hyperref,microtype,titlesec}
+\usepackage{multicol,etoolbox,latexsym,marvosym,verbatim,tikz}
+\usepackage{helvet,mathptmx,palatino,courier,lmodern}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{fontspec}
+\begin{document}Hello — World\end{document}`
+
+	opts := DefaultOptions()
+	opts.Engine = EngineTectonic
+	opts.Timeout = 5 * time.Minute // Give Tectonic ample time to download packages
+
+	start := time.Now()
+	_, err := Compile(ctx, []byte(dummySource), opts)
+	if err != nil {
+		logger.Warn("compiler warmup failed or timed out", "error", err, "elapsed", time.Since(start))
+		return
+	}
+	
+	logger.Info("compiler warmup complete", "elapsed", time.Since(start))
 }
