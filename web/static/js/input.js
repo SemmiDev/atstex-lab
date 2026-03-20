@@ -756,7 +756,7 @@ btnNewProfile.addEventListener('click', async () => {
 
     if (!res.ok) {
       const errBody = await res.json().catch(() => ({}));
-      throw new Error(errBody.error || 'Failed to create profile');
+      throw new Error((errBody.detail || errBody.error) || 'Failed to create profile');
     }
     const profile = await res.json();
 
@@ -802,7 +802,7 @@ if (btnRenameProfile) {
 
       if (!res.ok) {
         const errBody = await res.json().catch(() => ({}));
-        throw new Error(errBody.error || 'Gagal mengubah nama profil');
+        throw new Error((errBody.detail || errBody.error) || 'Gagal mengubah nama profil');
       }
 
       // Update UI
@@ -996,7 +996,7 @@ if (btnUploadPdf && pdfUploadInput) {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || 'AI extraction failed — please try again');
+        throw new Error((errData.detail || errData.error) || 'AI extraction failed — please try again');
       }
 
       updateExtractStep('✅ Applying extracted data to form...');
@@ -1209,7 +1209,7 @@ async function enhanceBulletPoint(textarea, btn) {
 
     if (!res.ok) {
       const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.error || 'AI enhancement failed — please try again');
+      throw new Error((errData.detail || errData.error) || 'AI enhancement failed — please try again');
     }
 
     const data = await res.json();

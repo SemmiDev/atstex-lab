@@ -2,12 +2,15 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/google/uuid"
 	"github.com/semmidev/atstex-lab/internal/aisuites"
+	"github.com/semmidev/atstex-lab/internal/apperrors"
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/domain"
+	"github.com/semmidev/atstex-lab/internal/middleware"
 )
 
 // handleAtsSimulatorPage renders the ATS Simulator UI.
@@ -39,18 +42,18 @@ func (s *Server) handleCreateAtsSimulation() http.HandlerFunc {
 			Language       string `json:"language"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
 
 		profileID, err := uuid.Parse(req.ProfileID)
 		if err != nil {
-			s.respondErrMsg(w, r, "invalid profile ID", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid profile ID"))
 			return
 		}
 
 		if req.JobDescription == "" {
-			s.respondErrMsg(w, r, "job description is required", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("job description is required"))
 			return
 		}
 
@@ -61,29 +64,29 @@ func (s *Server) handleCreateAtsSimulation() http.HandlerFunc {
 
 		profile, err := s.repo.GetCVProfile(r.Context(), profileID)
 		if err != nil {
-			s.respondErrMsg(w, r, "profile not found", http.StatusNotFound)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("profile not found")))
 			return
 		}
 		if profile.UserID != user.ID {
-			s.respondErrMsg(w, r, "forbidden", http.StatusForbidden)
+			middleware.RespondError(w, r, apperrors.NewForbidden())
 			return
 		}
 		//nolint:goconst // string 'null' is used here only to check for empty json
 		if len(profile.Biodata) == 0 || string(profile.Biodata) == "null" || string(profile.Biodata) == "{}" {
-			s.respondErrMsg(w, r, "this CV profile has no biodata — please fill in your biodata first", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("this CV profile has no biodata — please fill in your biodata first"))
 			return
 		}
 
 		// Check subscription limits
 		if checkErr := s.checkSubscriptionLimits(r.Context(), user.ID, "ats_simulation"); checkErr != nil {
-			s.respondErrMsg(w, r, checkErr.Error(), http.StatusForbidden)
+			middleware.RespondError(w, r, apperrors.NewForbidden())
 			return
 		}
 
 		simResult, tokensUsed, err := aisuites.ScoreATS(r.Context(), string(profile.Biodata), req.JobDescription, lang, s.aiConfig)
 		if err != nil {
 			s.reqLog(r).Error("ATS scoring error", "err", err)
-			s.respondErrMsg(w, r, "ATS scoring failed: "+err.Error(), http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("ATS scoring failed: "+err.Error())))
 			return
 		}
 
@@ -107,11 +110,11 @@ func (s *Server) handleCreateAtsSimulation() http.HandlerFunc {
 
 		if err := s.repo.CreateAtsSimulation(r.Context(), sim); err != nil {
 			s.reqLog(r).Error("save ATS simulation error", "err", err)
-			s.respondErrMsg(w, r, "failed to save ATS simulation", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to save ATS simulation")))
 			return
 		}
 
-		s.encode(w, r, http.StatusCreated, sim)
+		middleware.Respond(w, r, http.StatusCreated, sim)
 	}
 }
 
@@ -123,10 +126,10 @@ func (s *Server) handleListMyAtsSimulations() http.HandlerFunc {
 		simulations, err := s.repo.GetAtsSimulationsByUserID(r.Context(), user.ID)
 		if err != nil {
 			s.reqLog(r).Error("list ATS simulations error", "err", err)
-			s.respondErrMsg(w, r, "failed to list ATS simulations", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to list ATS simulations")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, simulations)
+		middleware.Respond(w, r, http.StatusOK, simulations)
 	}
 }

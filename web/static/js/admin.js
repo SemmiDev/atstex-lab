@@ -499,7 +499,7 @@
     try {
       const res = await fetch(`/api/admin/users/${id}/revoke-admin`, { method: 'POST' });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Failed');
+      if (!res.ok) throw new Error((data.detail || data.error) || 'Failed');
       loadUsers();
     } catch (e) {
       alert('Failed to revoke Admin access: ' + e.message);
@@ -734,7 +734,7 @@ Tindakan ini tidak dapat dibatalkan.`)) return;
         });
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error || "Gagal menetapkan paket.");
+          throw new Error((errData.detail || errData.error) || "Gagal menetapkan paket.");
         }
         assignPlanModal.style.display = 'none';
         alert('Berhasil menetapkan paket.');

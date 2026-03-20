@@ -23,7 +23,7 @@ func (r *postgresRepo) CreateAtsSimulation(ctx context.Context, sim *domain.AtsS
 		sim.Recommendations,
 	).Scan(&sim.ID, &sim.CreatedAt)
 	if err != nil {
-		return err
+		return translatePgError(err, "record", nil)
 	}
 	return nil
 }
@@ -39,7 +39,10 @@ func (r *postgresRepo) GetAtsSimulationsByUserID(ctx context.Context, userID uui
 	var simulations []domain.AtsSimulation
 	err := r.db.SelectContext(ctx, &simulations, query, userID)
 	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, translatePgError(err, "record", nil)
+		}
+		return nil, nil
 	}
 
 	return simulations, nil

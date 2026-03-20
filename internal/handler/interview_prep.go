@@ -2,13 +2,16 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
 
 	"github.com/google/uuid"
 	"github.com/semmidev/atstex-lab/internal/aisuites"
+	"github.com/semmidev/atstex-lab/internal/apperrors"
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/domain"
+	"github.com/semmidev/atstex-lab/internal/middleware"
 )
 
 // handleInterviewPrepPage renders the AI Interview Prep UI.
@@ -41,18 +44,18 @@ func (s *Server) handleCreateInterviewPrep() http.HandlerFunc {
 			Count          int    `json:"count"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
 
 		profileID, err := uuid.Parse(req.ProfileID)
 		if err != nil {
-			s.respondErrMsg(w, r, "invalid profile ID", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid profile ID"))
 			return
 		}
 
 		if req.JobDescription == "" {
-			s.respondErrMsg(w, r, "job description is required", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("job description is required"))
 			return
 		}
 
@@ -68,23 +71,23 @@ func (s *Server) handleCreateInterviewPrep() http.HandlerFunc {
 
 		profile, err := s.repo.GetCVProfile(r.Context(), profileID)
 		if err != nil {
-			s.respondErrMsg(w, r, "profile not found", http.StatusNotFound)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("profile not found")))
 			return
 		}
 		if profile.UserID != user.ID {
-			s.respondErrMsg(w, r, "forbidden", http.StatusForbidden)
+			middleware.RespondError(w, r, apperrors.NewForbidden())
 			return
 		}
 		//nolint:goconst // string 'null' is used here only to check for empty json
 		if len(profile.Biodata) == 0 || string(profile.Biodata) == "null" || string(profile.Biodata) == "{}" {
-			s.respondErrMsg(w, r, "this CV profile has no biodata — please fill in your biodata first", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("this CV profile has no biodata — please fill in your biodata first"))
 			return
 		}
 
 		prepResult, tokensUsed, err := aisuites.GenerateInterviewQuestions(r.Context(), string(profile.Biodata), req.JobDescription, lang, count, s.aiConfig)
 		if err != nil {
 			s.reqLog(r).Error("Interview Prep AI generation error", "err", err)
-			s.respondErrMsg(w, r, "Interview generation failed: "+err.Error(), http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("Interview generation failed: "+err.Error())))
 			return
 		}
 
@@ -108,11 +111,11 @@ func (s *Server) handleCreateInterviewPrep() http.HandlerFunc {
 
 		if err := s.repo.CreateInterviewPrep(r.Context(), prep); err != nil {
 			s.reqLog(r).Error("save interview prep error", "err", err)
-			s.respondErrMsg(w, r, "failed to save interview prep", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to save interview prep")))
 			return
 		}
 
-		s.encode(w, r, http.StatusCreated, prep)
+		middleware.Respond(w, r, http.StatusCreated, prep)
 	}
 }
 
@@ -124,11 +127,11 @@ func (s *Server) handleListMyInterviewPreps() http.HandlerFunc {
 		preps, err := s.repo.GetInterviewPrepsByUserID(r.Context(), user.ID)
 		if err != nil {
 			s.reqLog(r).Error("list interview preps error", "err", err)
-			s.respondErrMsg(w, r, "failed to list interview preps", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to list interview preps")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, preps)
+		middleware.Respond(w, r, http.StatusOK, preps)
 	}
 }
 
@@ -144,7 +147,7 @@ func (s *Server) handleCritiqueInterviewAnswer() http.HandlerFunc {
 			Language string `json:"language"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
 
@@ -152,11 +155,11 @@ func (s *Server) handleCritiqueInterviewAnswer() http.HandlerFunc {
 		req.Answer = strings.TrimSpace(req.Answer)
 
 		if req.Question == "" {
-			s.respondErrMsg(w, r, "question is required", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("question is required"))
 			return
 		}
 		if req.Answer == "" {
-			s.respondErrMsg(w, r, "answer is required — please record your spoken response first", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("answer is required — please record your spoken response first"))
 			return
 		}
 
@@ -168,7 +171,7 @@ func (s *Server) handleCritiqueInterviewAnswer() http.HandlerFunc {
 		critique, tokensUsed, err := aisuites.CritiqueInterviewAnswer(r.Context(), req.Question, req.Answer, lang, s.aiConfig)
 		if err != nil {
 			s.reqLog(r).Error("interview answer critique AI error", "err", err)
-			s.respondErrMsg(w, r, "critique generation failed: "+err.Error(), http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("critique generation failed: "+err.Error())))
 			return
 		}
 
@@ -176,6 +179,6 @@ func (s *Server) handleCritiqueInterviewAnswer() http.HandlerFunc {
 			_ = s.repo.IncrementAITokensUsed(r.Context(), user.ID, tokensUsed)
 		}
 
-		s.encode(w, r, http.StatusOK, critique)
+		middleware.Respond(w, r, http.StatusOK, critique)
 	}
 }

@@ -8,7 +8,7 @@ import (
 	chimw "github.com/go-chi/chi/v5/middleware"
 
 	"github.com/semmidev/atstex-lab/internal/auth"
-	mw "github.com/semmidev/atstex-lab/internal/middleware"
+	"github.com/semmidev/atstex-lab/internal/middleware"
 	"github.com/semmidev/atstex-lab/web"
 )
 
@@ -18,7 +18,7 @@ func (s *Server) routes() {
 	// Middleware stack.
 	s.router.Use(chimw.RequestID)
 	s.router.Use(chimw.RealIP)
-	s.router.Use(mw.RequestLogger(s.logger))
+	s.router.Use(middleware.RequestLogger(s.logger))
 	s.router.Use(chimw.Recoverer)
 	s.router.Use(chimw.Timeout(120 * time.Second))
 	s.router.Use(chimw.CleanPath)

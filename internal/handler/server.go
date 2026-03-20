@@ -15,13 +15,15 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/aisuites"
+	"github.com/semmidev/atstex-lab/internal/apperrors"
+	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/compiler"
 	"github.com/semmidev/atstex-lab/internal/cvtemplate"
 	"github.com/semmidev/atstex-lab/internal/domain"
-	mw "github.com/semmidev/atstex-lab/internal/middleware"
+	"github.com/semmidev/atstex-lab/internal/middleware"
 	"github.com/semmidev/atstex-lab/internal/repository"
+	"github.com/semmidev/problem"
 )
 
 // compileRequest is the JSON body expected by POST /compile.
@@ -70,26 +72,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // reqLog returns the per-request logger from context (with request_id and trace_id),
 // falling back to the handler's base logger.
 func (s *Server) reqLog(r *http.Request) *slog.Logger {
-	return mw.GetLogger(r.Context())
-}
-
-// encode is a helper to encode JSON responses.
-func (s *Server) encode(w http.ResponseWriter, r *http.Request, status int, v interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	if err := json.NewEncoder(w).Encode(v); err != nil {
-		s.reqLog(r).Error("failed to encode json response", "err", err)
-	}
-}
-
-// respondError is a helper for returning JSON errors.
-func (s *Server) respondError(w http.ResponseWriter, r *http.Request, err error, status int) {
-	s.encode(w, r, status, compileResponse{OK: false, Error: err.Error()})
-}
-
-// respondErrMsg is a helper for returning custom string JSON errors.
-func (s *Server) respondErrMsg(w http.ResponseWriter, r *http.Request, msg string, status int) {
-	s.encode(w, r, status, compileResponse{OK: false, Error: msg})
+	return middleware.GetLogger(r.Context())
 }
 
 // Home renders the landing page.
@@ -232,10 +215,10 @@ func (s *Server) handleListTemplates() http.HandlerFunc {
 		tpls, err := cvtemplate.List()
 		if err != nil {
 			s.reqLog(r).Error("listing templates error", "err", err)
-			s.respondErrMsg(w, r, "failed to list templates", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to list templates")))
 			return
 		}
-		s.encode(w, r, http.StatusOK, tpls)
+		middleware.Respond(w, r, http.StatusOK, tpls)
 	}
 }
 
@@ -244,12 +227,12 @@ func (s *Server) handleGetTemplate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		name := chi.URLParam(r, "name")
 		if name == "" {
-			s.respondErrMsg(w, r, "name is required", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("name is required"))
 			return
 		}
 		content, err := cvtemplate.Get(name)
 		if err != nil {
-			s.respondError(w, r, err, http.StatusNotFound)
+			middleware.RespondError(w, r, apperrors.NewNotFound("template", err))
 			return
 		}
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -268,14 +251,14 @@ func (s *Server) handleRenderTemplate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		name := chi.URLParam(r, "name")
 		if name == "" {
-			s.respondErrMsg(w, r, "name is required", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("name is required"))
 			return
 		}
 
 		var req renderTemplateRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			s.reqLog(r).Error("invalid request body", "err", err)
-			s.respondErrMsg(w, r, "invalid request body: "+err.Error(), http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body: "+err.Error()))
 			return
 		}
 
@@ -290,7 +273,7 @@ func (s *Server) handleRenderTemplate() http.HandlerFunc {
 		content, err := cvtemplate.Render(name, req.CVData, ps, s.isFreeTier(r))
 		if err != nil {
 			s.reqLog(r).Error("template render error", "err", err)
-			s.respondError(w, r, err, http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(err))
 			return
 		}
 
@@ -304,12 +287,12 @@ func (s *Server) handleCompile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req compileRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
 
 		if len(req.Source) == 0 {
-			s.respondErrMsg(w, r, "source is empty", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("source is empty"))
 			return
 		}
 
@@ -332,16 +315,21 @@ func (s *Server) handleCompile() http.HandlerFunc {
 		result, err := compiler.Compile(r.Context(), []byte(req.Source), opts)
 		if err != nil {
 			s.reqLog(r).Warn("compilation error", "err", err)
-			resp := compileResponse{
-				OK:     false,
-				Error:  err.Error(),
-				Engine: string(engine),
+
+			ext := map[string]any{
+				"engine": string(engine),
 			}
 			if result != nil {
-				resp.Log = result.Log
-				resp.Elapsed = result.Elapsed.Round(time.Millisecond).String()
+				ext["log"] = result.Log
+				ext["elapsed"] = result.Elapsed.Round(time.Millisecond).String()
 			}
-			s.encode(w, r, http.StatusUnprocessableEntity, resp)
+
+			prob := problem.New(problem.UnprocessableEntity,
+				problem.WithDetail("LaTeX compilation failed: "+err.Error()),
+				problem.WithExtensions(ext),
+			)
+			// Return application/problem+json
+			_ = prob.Write(w)
 			return
 		}
 
@@ -378,12 +366,12 @@ func (s *Server) handleApplyPageSettings() http.HandlerFunc {
 		var req pageSettingsRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			s.reqLog(r).Error("invalid request body", "err", err)
-			s.respondErrMsg(w, r, "invalid request body: "+err.Error(), http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body: "+err.Error()))
 			return
 		}
 
 		if req.Template == "" {
-			s.respondErrMsg(w, r, "template name is required", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("template name is required"))
 			return
 		}
 
@@ -393,7 +381,7 @@ func (s *Server) handleApplyPageSettings() http.HandlerFunc {
 		content, err := cvtemplate.Render(req.Template, req.CVData, req.Settings, s.isFreeTier(r))
 		if err != nil {
 			s.reqLog(r).Error("page settings render error", "err", err)
-			s.respondError(w, r, err, http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(err))
 			return
 		}
 
@@ -409,7 +397,7 @@ func (s *Server) handleExtractPDF() http.HandlerFunc {
 
 		if s.aiConfig.APIKey == "" && s.aiConfig.Provider != "ollama" {
 			log.Error("AI API key not configured")
-			s.respondErrMsg(w, r, "AI extraction not configured", http.StatusServiceUnavailable)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("AI extraction not configured")))
 			return
 		}
 
@@ -421,19 +409,19 @@ func (s *Server) handleExtractPDF() http.HandlerFunc {
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			log.Error("invalid request body", "err", err)
-			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
 
 		if len(req.Text) < 50 {
-			s.respondErrMsg(w, r, "PDF text is too short to extract meaningful data", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("PDF text is too short to extract meaningful data"))
 			return
 		}
 
 		const maxChars = 20000
 		if len(req.Text) > maxChars {
 			log.Warn("PDF text exceeds maximum allowed characters", "text_len", len(req.Text), "max_chars", maxChars)
-			s.respondErrMsg(w, r, "PDF text exceeds maximum allowed characters", http.StatusRequestEntityTooLarge)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("PDF text exceeds maximum allowed characters")))
 			return
 		}
 
@@ -442,7 +430,7 @@ func (s *Server) handleExtractPDF() http.HandlerFunc {
 		result, totalTokens, genInfo, err := aisuites.ExtractBiodata(r.Context(), req.Text, s.aiConfig)
 		if err != nil {
 			log.Error("extraction failed", "err", err)
-			s.respondErrMsg(w, r, "AI extraction failed: "+err.Error(), http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("AI extraction failed: "+err.Error())))
 			return
 		}
 
@@ -469,7 +457,7 @@ func (s *Server) handleExtractPDF() http.HandlerFunc {
 			}()
 		}
 
-		s.encode(w, r, http.StatusOK, result)
+		middleware.Respond(w, r, http.StatusOK, result)
 	}
 }
 
@@ -494,10 +482,10 @@ func (s *Server) handleAdminGetStats() http.HandlerFunc {
 		stats, err := s.repo.AdminGetStats(r.Context())
 		if err != nil {
 			s.reqLog(r).Error("admin stats error", "err", err)
-			s.respondErrMsg(w, r, "failed to load stats", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to load stats")))
 			return
 		}
-		s.encode(w, r, http.StatusOK, stats)
+		middleware.Respond(w, r, http.StatusOK, stats)
 	}
 }
 
@@ -525,11 +513,11 @@ func (s *Server) handleAdminListUsers() http.HandlerFunc {
 		rows, total, err := s.repo.AdminListUsers(r.Context(), params)
 		if err != nil {
 			s.reqLog(r).Error("admin list users error", "err", err)
-			s.respondErrMsg(w, r, "failed to list users", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to list users")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, map[string]interface{}{
+		middleware.Respond(w, r, http.StatusOK, map[string]interface{}{
 			"users":   rows,
 			"total":   total,
 			"page":    page,
@@ -565,7 +553,7 @@ func (s *Server) handleCreateFeedback() http.HandlerFunc {
 			Message string `json:"message"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			s.respondErrMsg(w, r, "invalid request body or payload too large", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body or payload too large"))
 			return
 		}
 
@@ -573,17 +561,17 @@ func (s *Server) handleCreateFeedback() http.HandlerFunc {
 		req.Message = strings.TrimSpace(req.Message)
 
 		if req.Subject == "" || req.Message == "" {
-			s.respondErrMsg(w, r, "subject and message are required", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("subject and message are required"))
 			return
 		}
 
 		if len(req.Subject) > 200 {
-			s.respondErrMsg(w, r, "subject must not exceed 200 characters", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("subject must not exceed 200 characters"))
 			return
 		}
 
 		if len(req.Message) > 2000 {
-			s.respondErrMsg(w, r, "message must not exceed 2000 characters", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("message must not exceed 2000 characters"))
 			return
 		}
 
@@ -594,11 +582,11 @@ func (s *Server) handleCreateFeedback() http.HandlerFunc {
 		fb, err := s.repo.CreateFeedback(r.Context(), user.ID, safeSubject, safeMessage)
 		if err != nil {
 			s.reqLog(r).Error("create feedback error", "err", err)
-			s.respondErrMsg(w, r, "failed to create feedback", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to create feedback")))
 			return
 		}
 
-		s.encode(w, r, http.StatusCreated, fb)
+		middleware.Respond(w, r, http.StatusCreated, fb)
 	}
 }
 
@@ -610,11 +598,11 @@ func (s *Server) handleListMyFeedbacks() http.HandlerFunc {
 		feedbacks, err := s.repo.GetFeedbacksByUserID(r.Context(), user.ID)
 		if err != nil {
 			s.reqLog(r).Error("list feedbacks error", "err", err)
-			s.respondErrMsg(w, r, "failed to list feedbacks", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to list feedbacks")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, feedbacks)
+		middleware.Respond(w, r, http.StatusOK, feedbacks)
 	}
 }
 
@@ -640,11 +628,11 @@ func (s *Server) handleAdminListFeedbacks() http.HandlerFunc {
 		rows, total, err := s.repo.AdminListFeedbacks(r.Context(), params)
 		if err != nil {
 			s.reqLog(r).Error("admin list feedbacks error", "err", err)
-			s.respondErrMsg(w, r, "failed to list feedbacks", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to list feedbacks")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, map[string]interface{}{
+		middleware.Respond(w, r, http.StatusOK, map[string]interface{}{
 			"feedbacks": rows,
 			"total":     total,
 			"page":      page,
@@ -659,7 +647,7 @@ func (s *Server) handleAdminReplyFeedback() http.HandlerFunc {
 		idStr := chi.URLParam(r, "id")
 		feedbackID, err := uuid.Parse(idStr)
 		if err != nil {
-			s.respondErrMsg(w, r, "invalid feedback ID", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid feedback ID"))
 			return
 		}
 
@@ -667,21 +655,21 @@ func (s *Server) handleAdminReplyFeedback() http.HandlerFunc {
 			Reply string `json:"reply"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
 		if req.Reply == "" {
-			s.respondErrMsg(w, r, "reply is required", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("reply is required"))
 			return
 		}
 
 		if err := s.repo.AdminReplyFeedback(r.Context(), feedbackID, req.Reply); err != nil {
 			s.reqLog(r).Error("admin reply feedback error", "err", err)
-			s.respondErrMsg(w, r, "failed to reply to feedback", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to reply to feedback")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, map[string]interface{}{"ok": true})
+		middleware.Respond(w, r, http.StatusOK, map[string]interface{}{"ok": true})
 	}
 }
 
@@ -691,17 +679,17 @@ func (s *Server) handleAdminMakeUserAdmin() http.HandlerFunc {
 		idStr := chi.URLParam(r, "id")
 		userID, err := uuid.Parse(idStr)
 		if err != nil {
-			s.respondErrMsg(w, r, "invalid user id", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid user id"))
 			return
 		}
 
 		if err := s.repo.AdminMakeUserAdmin(r.Context(), userID); err != nil {
 			s.reqLog(r).Error("admin make user admin error", "err", err)
-			s.respondErrMsg(w, r, "failed to make user admin", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to make user admin")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, map[string]string{"message": "user updated to admin"})
+		middleware.Respond(w, r, http.StatusOK, map[string]string{"message": "user updated to admin"})
 	}
 }
 
@@ -711,24 +699,24 @@ func (s *Server) handleAdminRevokeUserAdmin() http.HandlerFunc {
 		idStr := chi.URLParam(r, "id")
 		targetUserID, err := uuid.Parse(idStr)
 		if err != nil {
-			s.respondErrMsg(w, r, "invalid user id", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid user id"))
 			return
 		}
 
 		// Prevent admins from revoking their own access
 		currentUser, ok := r.Context().Value(auth.UserContextKey).(*domain.User)
 		if ok && currentUser.ID == targetUserID {
-			s.respondErrMsg(w, r, "cannot revoke your own admin access", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("cannot revoke your own admin access"))
 			return
 		}
 
 		if err := s.repo.AdminRevokeUserAdmin(r.Context(), targetUserID); err != nil {
 			s.reqLog(r).Error("admin revoke user admin error", "err", err)
-			s.respondErrMsg(w, r, "failed to revoke user admin", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to revoke user admin")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, map[string]string{"message": "admin access revoked"})
+		middleware.Respond(w, r, http.StatusOK, map[string]string{"message": "admin access revoked"})
 	}
 }
 
@@ -748,15 +736,15 @@ func (s *Server) handleAdminBlockUser() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID, err := uuid.Parse(chi.URLParam(r, "id"))
 		if err != nil {
-			s.respondErrMsg(w, r, "invalid user ID", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid user ID"))
 			return
 		}
 		if err := s.repo.AdminBlockUser(r.Context(), userID); err != nil {
 			s.reqLog(r).Error("admin block user error", "err", err)
-			s.respondErrMsg(w, r, "failed to block user", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to block user")))
 			return
 		}
-		s.encode(w, r, http.StatusOK, map[string]interface{}{"ok": true})
+		middleware.Respond(w, r, http.StatusOK, map[string]interface{}{"ok": true})
 	}
 }
 
@@ -765,15 +753,15 @@ func (s *Server) handleAdminUnblockUser() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID, err := uuid.Parse(chi.URLParam(r, "id"))
 		if err != nil {
-			s.respondErrMsg(w, r, "invalid user ID", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid user ID"))
 			return
 		}
 		if err := s.repo.AdminUnblockUser(r.Context(), userID); err != nil {
 			s.reqLog(r).Error("admin unblock user error", "err", err)
-			s.respondErrMsg(w, r, "failed to unblock user", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to unblock user")))
 			return
 		}
-		s.encode(w, r, http.StatusOK, map[string]interface{}{"ok": true})
+		middleware.Respond(w, r, http.StatusOK, map[string]interface{}{"ok": true})
 	}
 }
 
@@ -782,15 +770,15 @@ func (s *Server) handleAdminDeleteUser() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID, err := uuid.Parse(chi.URLParam(r, "id"))
 		if err != nil {
-			s.respondErrMsg(w, r, "invalid user ID", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid user ID"))
 			return
 		}
 		if err := s.repo.AdminDeleteUser(r.Context(), userID); err != nil {
 			s.reqLog(r).Error("admin delete user error", "err", err)
-			s.respondErrMsg(w, r, "failed to delete user", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to delete user")))
 			return
 		}
-		s.encode(w, r, http.StatusOK, map[string]interface{}{"ok": true})
+		middleware.Respond(w, r, http.StatusOK, map[string]interface{}{"ok": true})
 	}
 }
 
@@ -799,15 +787,15 @@ func (s *Server) handleAdminDeleteFeedback() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		feedbackID, err := uuid.Parse(chi.URLParam(r, "id"))
 		if err != nil {
-			s.respondErrMsg(w, r, "invalid feedback ID", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid feedback ID"))
 			return
 		}
 		if err := s.repo.AdminDeleteFeedback(r.Context(), feedbackID); err != nil {
 			s.reqLog(r).Error("admin delete feedback error", "err", err)
-			s.respondErrMsg(w, r, "failed to delete feedback", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to delete feedback")))
 			return
 		}
-		s.encode(w, r, http.StatusOK, map[string]interface{}{"ok": true})
+		middleware.Respond(w, r, http.StatusOK, map[string]interface{}{"ok": true})
 	}
 }
 
@@ -920,13 +908,13 @@ func (s *Server) handleCreateCVReview() http.HandlerFunc {
 			Language  string `json:"language"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
 
 		profileID, err := uuid.Parse(req.ProfileID)
 		if err != nil {
-			s.respondErrMsg(w, r, "invalid profile ID", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid profile ID"))
 			return
 		}
 
@@ -937,28 +925,28 @@ func (s *Server) handleCreateCVReview() http.HandlerFunc {
 
 		profile, err := s.repo.GetCVProfile(r.Context(), profileID)
 		if err != nil {
-			s.respondErrMsg(w, r, "profile not found", http.StatusNotFound)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("profile not found")))
 			return
 		}
 		if profile.UserID != user.ID {
-			s.respondErrMsg(w, r, "forbidden", http.StatusForbidden)
+			middleware.RespondError(w, r, apperrors.NewForbidden())
 			return
 		}
 		if len(profile.Biodata) == 0 || string(profile.Biodata) == "null" || string(profile.Biodata) == "{}" {
-			s.respondErrMsg(w, r, "this CV profile has no biodata — please fill in your biodata first", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("this CV profile has no biodata — please fill in your biodata first"))
 			return
 		}
 
 		// Check subscription limits
 		if checkErr := s.checkSubscriptionLimits(r.Context(), user.ID, "cv_review"); checkErr != nil {
-			s.respondErrMsg(w, r, checkErr.Error(), http.StatusForbidden)
+			middleware.RespondError(w, r, apperrors.NewForbidden())
 			return
 		}
 
 		critiqueResult, tokensUsed, err := aisuites.CritiqueCVProfile(r.Context(), string(profile.Biodata), lang, s.aiConfig)
 		if err != nil {
 			s.reqLog(r).Error("AI critique error", "err", err)
-			s.respondErrMsg(w, r, "AI critique failed: "+err.Error(), http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("AI critique failed: "+err.Error())))
 			return
 		}
 
@@ -979,11 +967,11 @@ func (s *Server) handleCreateCVReview() http.HandlerFunc {
 		}
 		if err := s.repo.CreateCVReview(r.Context(), review); err != nil {
 			s.reqLog(r).Error("save cv review error", "err", err)
-			s.respondErrMsg(w, r, "failed to save review", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to save review")))
 			return
 		}
 
-		s.encode(w, r, http.StatusCreated, review)
+		middleware.Respond(w, r, http.StatusCreated, review)
 	}
 }
 
@@ -995,11 +983,11 @@ func (s *Server) handleListMyCVReviews() http.HandlerFunc {
 		reviews, err := s.repo.GetCVReviewsByUserID(r.Context(), user.ID)
 		if err != nil {
 			s.reqLog(r).Error("list cv reviews error", "err", err)
-			s.respondErrMsg(w, r, "failed to list reviews", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to list reviews")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, reviews)
+		middleware.Respond(w, r, http.StatusOK, reviews)
 	}
 }
 
@@ -1036,18 +1024,18 @@ func (s *Server) handleGenerateCoverLetter() http.HandlerFunc {
 			Language      string `json:"language"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
 
 		profileID, err := uuid.Parse(req.ProfileID)
 		if err != nil {
-			s.respondErrMsg(w, r, "invalid profile ID", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid profile ID"))
 			return
 		}
 
 		if req.JobDesc == "" {
-			s.respondErrMsg(w, r, "job description is required", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("job description is required"))
 			return
 		}
 
@@ -1058,21 +1046,21 @@ func (s *Server) handleGenerateCoverLetter() http.HandlerFunc {
 
 		profile, err := s.repo.GetCVProfile(r.Context(), profileID)
 		if err != nil {
-			s.respondErrMsg(w, r, "profile not found", http.StatusNotFound)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("profile not found")))
 			return
 		}
 		if profile.UserID != user.ID {
-			s.respondErrMsg(w, r, "forbidden", http.StatusForbidden)
+			middleware.RespondError(w, r, apperrors.NewForbidden())
 			return
 		}
 		if len(profile.Biodata) == 0 || string(profile.Biodata) == "null" || string(profile.Biodata) == "{}" {
-			s.respondErrMsg(w, r, "this CV profile has no biodata — please fill in your biodata first", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("this CV profile has no biodata — please fill in your biodata first"))
 			return
 		}
 
 		// Check subscription limits
 		if checkErr := s.checkSubscriptionLimits(r.Context(), user.ID, "cover_letter"); checkErr != nil {
-			s.respondErrMsg(w, r, checkErr.Error(), http.StatusForbidden)
+			middleware.RespondError(w, r, apperrors.NewForbidden())
 			return
 		}
 
@@ -1087,7 +1075,7 @@ func (s *Server) handleGenerateCoverLetter() http.HandlerFunc {
 		)
 		if err != nil {
 			s.reqLog(r).Error("AI cover letter generator error", "err", err)
-			s.respondErrMsg(w, r, "AI generation failed: "+err.Error(), http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("AI generation failed: "+err.Error())))
 			return
 		}
 
@@ -1107,11 +1095,11 @@ func (s *Server) handleGenerateCoverLetter() http.HandlerFunc {
 
 		if err := s.repo.CreateCoverLetter(r.Context(), cl); err != nil {
 			s.reqLog(r).Error("save cover letter error", "err", err)
-			s.respondErrMsg(w, r, "failed to save cover letter", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to save cover letter")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, map[string]interface{}{
+		middleware.Respond(w, r, http.StatusOK, map[string]interface{}{
 			"coverLetter": coverLetter,
 			"tokensUsed":  tokensUsed,
 			"id":          cl.ID,
@@ -1127,11 +1115,11 @@ func (s *Server) handleListMyCoverLetters() http.HandlerFunc {
 		letters, err := s.repo.GetCoverLettersByUserID(r.Context(), user.ID)
 		if err != nil {
 			s.reqLog(r).Error("list cover letters error", "err", err)
-			s.respondErrMsg(w, r, "failed to list cover letters", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to list cover letters")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, letters)
+		middleware.Respond(w, r, http.StatusOK, letters)
 	}
 }
 
@@ -1155,10 +1143,10 @@ func (s *Server) handleAdminAnalytics() http.HandlerFunc {
 		analytics, err := s.repo.AdminGetAnalytics(r.Context())
 		if err != nil {
 			s.reqLog(r).Error("admin analytics error", "err", err)
-			s.respondErrMsg(w, r, "failed to load analytics", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to load analytics")))
 			return
 		}
-		s.encode(w, r, http.StatusOK, analytics)
+		middleware.Respond(w, r, http.StatusOK, analytics)
 	}
 }
 
@@ -1194,7 +1182,7 @@ func (s *Server) handleGalleryCompile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req galleryCompileRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			s.respondErrMsg(w, r, "invalid request body: "+err.Error(), http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body: "+err.Error()))
 			return
 		}
 
@@ -1209,7 +1197,7 @@ func (s *Server) handleGalleryCompile() http.HandlerFunc {
 
 		tpls, err := cvtemplate.List()
 		if err != nil {
-			s.respondErrMsg(w, r, "failed to list templates", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to list templates")))
 			return
 		}
 
@@ -1263,7 +1251,7 @@ func (s *Server) handleGalleryCompile() http.HandlerFunc {
 			results[ir.idx] = ir.result
 		}
 
-		s.encode(w, r, http.StatusOK, results)
+		middleware.Respond(w, r, http.StatusOK, results)
 	}
 }
 
@@ -1285,17 +1273,17 @@ func (s *Server) handleEnhanceBullet() http.HandlerFunc {
 			Language string `json:"language"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
 
 		req.Bullet = strings.TrimSpace(req.Bullet)
 		if req.Bullet == "" {
-			s.respondErrMsg(w, r, "bullet text is required", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("bullet text is required"))
 			return
 		}
 		if len(req.Bullet) > 4000 {
-			s.respondErrMsg(w, r, "bullet text is too long (max 4000 characters)", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("bullet text is too long (max 4000 characters)"))
 			return
 		}
 
@@ -1307,7 +1295,7 @@ func (s *Server) handleEnhanceBullet() http.HandlerFunc {
 		enhanced, tokensUsed, err := aisuites.EnhanceBulletPoint(r.Context(), req.Bullet, lang, s.aiConfig)
 		if err != nil {
 			s.reqLog(r).Error("bullet enhancement error", "err", err)
-			s.respondErrMsg(w, r, "AI enhancement failed: "+err.Error(), http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("AI enhancement failed: "+err.Error())))
 			return
 		}
 
@@ -1315,7 +1303,7 @@ func (s *Server) handleEnhanceBullet() http.HandlerFunc {
 			_ = s.repo.IncrementAITokensUsed(r.Context(), user.ID, tokensUsed)
 		}
 
-		s.encode(w, r, http.StatusOK, map[string]interface{}{
+		middleware.Respond(w, r, http.StatusOK, map[string]interface{}{
 			"enhanced":   enhanced,
 			"tokensUsed": tokensUsed,
 		})

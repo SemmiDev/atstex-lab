@@ -10,8 +10,10 @@ import (
 
 	"github.com/google/uuid"
 	// blank import for pgx driver.
+	"github.com/jackc/pgx/v5/pgconn"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
+	"github.com/semmidev/atstex-lab/internal/apperrors"
 	"github.com/semmidev/atstex-lab/internal/domain"
 )
 
@@ -161,7 +163,10 @@ func (r *postgresRepo) UpsertUser(ctx context.Context, googleID, email, name, pi
 	`
 	var u domain.User
 	err := r.db.GetContext(ctx, &u, query, googleID, email, name, picture)
-	return &u, err
+	if err != nil {
+		return &u, translatePgError(err, "record", nil)
+	}
+	return &u, nil
 }
 
 func (r *postgresRepo) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error) {
@@ -171,17 +176,20 @@ func (r *postgresRepo) GetUser(ctx context.Context, id uuid.UUID) (*domain.User,
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
-	return &u, err
+	if err != nil {
+		return &u, translatePgError(err, "record", nil)
+	}
+	return &u, nil
 }
 
 func (r *postgresRepo) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM users WHERE id = $1`, id)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) SoftDeleteUser(ctx context.Context, id uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE users SET is_blocked = true, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, id)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) CreateSession(ctx context.Context, userID uuid.UUID, token, ipAddress, userAgent string, expiresAt time.Time) error {
@@ -189,7 +197,7 @@ func (r *postgresRepo) CreateSession(ctx context.Context, userID uuid.UUID, toke
 		INSERT INTO sessions (user_id, token, ip_address, user_agent, expires_at)
 		VALUES ($1, $2, $3, $4, $5)
 	`, userID, token, ipAddress, userAgent, expiresAt)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) GetSession(ctx context.Context, token string) (*domain.Session, error) {
@@ -199,7 +207,10 @@ func (r *postgresRepo) GetSession(ctx context.Context, token string) (*domain.Se
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
-	return &sess, err
+	if err != nil {
+		return &sess, translatePgError(err, "record", nil)
+	}
+	return &sess, nil
 }
 
 func (r *postgresRepo) GetSessionsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.Session, error) {
@@ -214,7 +225,7 @@ func (r *postgresRepo) GetSessionsByUserID(ctx context.Context, userID uuid.UUID
 
 func (r *postgresRepo) DeleteSession(ctx context.Context, token string) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM sessions WHERE token = $1`, token)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 // ── CV Profile CRUD ────────────────────────────────────────────
@@ -225,7 +236,10 @@ func (r *postgresRepo) CreateCVProfile(ctx context.Context, userID uuid.UUID, ti
 	query := `INSERT INTO cv_profiles (user_id, title) VALUES ($1, $2) RETURNING ` + cvProfileColumns
 	var p domain.CVProfile
 	err := r.db.GetContext(ctx, &p, query, userID, title)
-	return &p, err
+	if err != nil {
+		return &p, translatePgError(err, "record", nil)
+	}
+	return &p, nil
 }
 
 func (r *postgresRepo) GetCVProfile(ctx context.Context, id uuid.UUID) (*domain.CVProfile, error) {
@@ -235,7 +249,10 @@ func (r *postgresRepo) GetCVProfile(ctx context.Context, id uuid.UUID) (*domain.
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
-	return &p, err
+	if err != nil {
+		return &p, translatePgError(err, "record", nil)
+	}
+	return &p, nil
 }
 
 func (r *postgresRepo) GetCVProfilesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVProfile, error) {
@@ -250,24 +267,24 @@ func (r *postgresRepo) GetCVProfilesByUserID(ctx context.Context, userID uuid.UU
 
 func (r *postgresRepo) UpdateCVProfileBiodata(ctx context.Context, id uuid.UUID, biodata json.RawMessage) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE cv_profiles SET biodata = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, biodata, id)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) UpdateCVProfileTitle(ctx context.Context, id uuid.UUID, title string) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE cv_profiles SET title = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, title, id)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) DeleteCVProfile(ctx context.Context, id uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM cv_profiles WHERE id = $1`, id)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 // ── Public Profile Methods ─────────────────────────────────────
 
 func (r *postgresRepo) SetUsername(ctx context.Context, userID uuid.UUID, username string) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE users SET username = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, username, userID)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) GetUserByUsername(ctx context.Context, username string) (*domain.User, error) {
@@ -277,7 +294,10 @@ func (r *postgresRepo) GetUserByUsername(ctx context.Context, username string) (
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
-	return &u, err
+	if err != nil {
+		return &u, translatePgError(err, "record", nil)
+	}
+	return &u, nil
 }
 
 func (r *postgresRepo) CheckUsernameAvailable(ctx context.Context, username string) (bool, error) {
@@ -291,7 +311,7 @@ func (r *postgresRepo) CheckUsernameAvailable(ctx context.Context, username stri
 
 func (r *postgresRepo) UpdateCVProfileVisibility(ctx context.Context, profileID uuid.UUID, isPublic bool) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE cv_profiles SET is_public = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, isPublic, profileID)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) GetPublicCVProfilesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVProfile, error) {
@@ -308,7 +328,7 @@ func (r *postgresRepo) GetPublicCVProfilesByUserID(ctx context.Context, userID u
 
 func (r *postgresRepo) IncrementAITokensUsed(ctx context.Context, userID uuid.UUID, chars int64) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE users SET ai_tokens_used = ai_tokens_used + $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID, chars)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 // ── Admin Queries ──────────────────────────────────────────────
@@ -327,7 +347,10 @@ func (r *postgresRepo) AdminGetStats(ctx context.Context) (*domain.AdminStats, e
 			(SELECT COUNT(*) FROM ats_simulations) AS total_ats_simulations,
 			(SELECT COUNT(*) FROM job_applications) AS total_job_apps
 	`)
-	return &stats, err
+	if err != nil {
+		return &stats, translatePgError(err, "record", nil)
+	}
+	return &stats, nil
 }
 
 func (r *postgresRepo) AdminGetAnalytics(ctx context.Context) (*domain.AdminAnalytics, error) {
@@ -440,7 +463,10 @@ func (r *postgresRepo) CreateFeedback(ctx context.Context, userID uuid.UUID, sub
 	query := `INSERT INTO feedbacks (user_id, subject, message) VALUES ($1, $2, $3) RETURNING id, user_id, subject, message, admin_reply, replied_at, created_at`
 	var f domain.Feedback
 	err := r.db.GetContext(ctx, &f, query, userID, subject, message)
-	return &f, err
+	if err != nil {
+		return &f, translatePgError(err, "record", nil)
+	}
+	return &f, nil
 }
 
 func (r *postgresRepo) GetFeedbacksByUserID(ctx context.Context, userID uuid.UUID) ([]domain.Feedback, error) {
@@ -494,39 +520,39 @@ func (r *postgresRepo) AdminListFeedbacks(ctx context.Context, params domain.Fee
 
 func (r *postgresRepo) AdminReplyFeedback(ctx context.Context, feedbackID uuid.UUID, reply string) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE feedbacks SET admin_reply = $1, replied_at = CURRENT_TIMESTAMP WHERE id = $2`, reply, feedbackID)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) AdminDeleteFeedback(ctx context.Context, feedbackID uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM feedbacks WHERE id = $1`, feedbackID)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 // ── Admin User Management ──────────────────────────────────────
 
 func (r *postgresRepo) AdminBlockUser(ctx context.Context, userID uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE users SET is_blocked = true, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) AdminUnblockUser(ctx context.Context, userID uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE users SET is_blocked = false, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) AdminMakeUserAdmin(ctx context.Context, userID uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE users SET role = 'admin', updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) AdminRevokeUserAdmin(ctx context.Context, userID uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE users SET role = 'user', updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) AdminDeleteUser(ctx context.Context, userID uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM users WHERE id = $1`, userID)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 // ── CV Reviews ────────────────────────────────────────────────
@@ -560,7 +586,10 @@ func (r *postgresRepo) CountCVReviewsByDate(ctx context.Context, userID uuid.UUI
 	err := r.db.GetContext(ctx, &count,
 		`SELECT COUNT(*) FROM cv_reviews WHERE user_id = $1 AND created_at >= $2 AND created_at <= $3`,
 		userID, start, end)
-	return count, err
+	if err != nil {
+		return count, translatePgError(err, "record", nil)
+	}
+	return count, nil
 }
 
 // ── Cover Letters ──────────────────────────────────────────────
@@ -593,7 +622,10 @@ func (r *postgresRepo) CountCoverLettersByDate(ctx context.Context, userID uuid.
 	err := r.db.GetContext(ctx, &count,
 		`SELECT COUNT(*) FROM cover_letters WHERE user_id = $1 AND created_at >= $2 AND created_at <= $3`,
 		userID, start, end)
-	return count, err
+	if err != nil {
+		return count, translatePgError(err, "record", nil)
+	}
+	return count, nil
 }
 
 // ── Job Application Tracking ──────────────────────────────────
@@ -608,7 +640,10 @@ func (r *postgresRepo) CreateJobApplication(ctx context.Context, j *domain.JobAp
 		cvProfileID = *j.CVProfileID
 	}
 	err := r.db.GetContext(ctx, j, query, j.UserID, cvProfileID, j.Company, j.JobTitle, j.Status, j.Notes, j.Deadline)
-	return j, err
+	if err != nil {
+		return j, translatePgError(err, "record", nil)
+	}
+	return j, nil
 }
 
 func (r *postgresRepo) GetJobApplicationsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.JobApplication, error) {
@@ -630,12 +665,15 @@ func (r *postgresRepo) CountAtsSimulationsByDate(ctx context.Context, userID uui
 	err := r.db.GetContext(ctx, &count,
 		`SELECT COUNT(*) FROM ats_simulations WHERE user_id = $1 AND created_at >= $2 AND created_at <= $3`,
 		userID, start, end)
-	return count, err
+	if err != nil {
+		return count, translatePgError(err, "record", nil)
+	}
+	return count, nil
 }
 
 func (r *postgresRepo) UpdateJobApplicationStatus(ctx context.Context, id uuid.UUID, status string) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE job_applications SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, status, id)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) UpdateJobApplication(ctx context.Context, app *domain.JobApplication) error {
@@ -649,12 +687,12 @@ func (r *postgresRepo) UpdateJobApplication(ctx context.Context, app *domain.Job
 			  WHERE id = $6 AND user_id = $7`
 
 	_, err := r.db.ExecContext(ctx, query, app.Company, app.JobTitle, cvProfileID, app.Notes, app.Deadline, app.ID, app.UserID)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) DeleteJobApplication(ctx context.Context, id uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM job_applications WHERE id = $1`, id)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 // ── Subscriptions ──────────────────────────────────────────────
@@ -689,7 +727,10 @@ func (r *postgresRepo) GetFreeSubscriptionPlan(ctx context.Context) (*domain.Sub
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
-	return &plan, err
+	if err != nil {
+		return &plan, translatePgError(err, "record", nil)
+	}
+	return &plan, nil
 }
 
 func (r *postgresRepo) AdminCreateSubscriptionPlan(ctx context.Context, plan *domain.SubscriptionPlan) error {
@@ -708,24 +749,24 @@ func (r *postgresRepo) AdminUpdateSubscriptionPlan(ctx context.Context, plan *do
 	_, err := r.db.ExecContext(ctx, query,
 		plan.Name, plan.PriceIDR, plan.DurationMonths, plan.MaxCVProfiles, plan.MaxCVReviews, plan.MaxATSSimulations, plan.MaxCoverLetters, plan.ID,
 	)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) AdminToggleSubscriptionPlan(ctx context.Context, id uuid.UUID, isActive bool) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE subscription_plans SET is_active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, isActive, id)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) AdminDeleteSubscriptionPlan(ctx context.Context, id uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM subscription_plans WHERE id = $1`, id)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) AdminAssignSubscription(ctx context.Context, userID, planID uuid.UUID, months int) error {
 	query := `INSERT INTO user_subscriptions (user_id, plan_id, start_date, end_date)
 		VALUES ($1, $2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + ($3 * interval '1 month'))`
 	_, err := r.db.ExecContext(ctx, query, userID, planID, months)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) GetUserActiveSubscription(ctx context.Context, userID uuid.UUID) (*domain.UserSubscription, error) {
@@ -795,4 +836,27 @@ func (r *postgresRepo) GetUserSubscriptions(ctx context.Context, userID uuid.UUI
 		subscriptions = append(subscriptions, us)
 	}
 	return subscriptions, nil
+}
+
+// translatePgError is the subsystem boundary firewall that maps Postgres errors and sql.ErrNoRows to safe domain-level SafeError.
+func translatePgError(err error, resource string, meta map[string]string) error {
+	if err == nil {
+		return nil
+	}
+	if errors.Is(err, sql.ErrNoRows) {
+		return apperrors.NewNotFound(resource, err)
+	}
+
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		switch pgErr.Code {
+		case "23505": // unique_violation
+			return apperrors.NewConflict(resource, err, meta)
+		case "23503": // foreign_key_violation
+			return apperrors.NewInvalidInput("referenced " + resource + " does not exist")
+		case "23502": // not_null_violation
+			return apperrors.NewInvalidInput("missing required field")
+		}
+	}
+	return apperrors.NewInternal(fmt.Errorf("%s repo: %w", resource, err))
 }

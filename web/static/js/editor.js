@@ -303,10 +303,10 @@ async function compile() {
       btnDownload.disabled = false;
     } else {
       const data = await res.json();
-      const errMsg = data.log || data.error || "Unknown error";
+      const errMsg = data.log || (data.detail || data.error) || "Unknown error";
       showLog(errMsg, false);
       showPreviewError(errMsg);
-      setStatus("error", data.error || "Compilation failed");
+      setStatus("error", (data.detail || data.error) || "Compilation failed");
     }
   } catch (err) {
     showLog(String(err), false);
@@ -718,7 +718,7 @@ if (btnApplySettings) {
 
       if (!res.ok) {
         const err = await res.json();
-        setStatus("error", err.error || "Failed to apply settings");
+        setStatus("error", (err.detail || err.error) || "Failed to apply settings");
         return;
       }
 

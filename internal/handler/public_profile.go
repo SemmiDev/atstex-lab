@@ -11,10 +11,12 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	"github.com/semmidev/atstex-lab/internal/apperrors"
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/compiler"
 	"github.com/semmidev/atstex-lab/internal/cvtemplate"
 	"github.com/semmidev/atstex-lab/internal/domain"
+	"github.com/semmidev/atstex-lab/internal/middleware"
 	"github.com/semmidev/atstex-lab/internal/repository"
 )
 
@@ -184,20 +186,20 @@ func (s *Server) handleSetUsername() http.HandlerFunc {
 			Username string `json:"username"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
 
 		username := strings.TrimSpace(strings.ToLower(body.Username))
 
 		if !usernameRegexp.MatchString(username) {
-			s.respondErrMsg(w, r, "Username must be 3-30 characters, lowercase alphanumeric and hyphens only, cannot start or end with a hyphen", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("Username must be 3-30 characters, lowercase alphanumeric and hyphens only, cannot start or end with a hyphen"))
 			return
 		}
 
 		// Check if the user already has this username (no-op)
 		if user.Username != nil && *user.Username == username {
-			s.encode(w, r, http.StatusOK, map[string]interface{}{"status": "ok", "username": username})
+			middleware.Respond(w, r, http.StatusOK, map[string]interface{}{"status": "ok", "username": username})
 			return
 		}
 
@@ -205,21 +207,21 @@ func (s *Server) handleSetUsername() http.HandlerFunc {
 		available, err := s.repo.CheckUsernameAvailable(r.Context(), username)
 		if err != nil {
 			s.reqLog(r).Error("failed to check username availability", "err", err)
-			s.respondErrMsg(w, r, "internal error", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("internal error")))
 			return
 		}
 		if !available {
-			s.respondErrMsg(w, r, "Username is already taken", http.StatusConflict)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("Username is already taken")))
 			return
 		}
 
 		if err := s.repo.SetUsername(r.Context(), user.ID, username); err != nil {
 			s.reqLog(r).Error("failed to set username", "err", err)
-			s.respondErrMsg(w, r, "failed to save username", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to save username")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, map[string]interface{}{"status": "ok", "username": username})
+		middleware.Respond(w, r, http.StatusOK, map[string]interface{}{"status": "ok", "username": username})
 	}
 }
 
@@ -230,7 +232,7 @@ func (s *Server) handleCheckUsername() http.HandlerFunc {
 		q := strings.TrimSpace(strings.ToLower(r.URL.Query().Get("q")))
 
 		if !usernameRegexp.MatchString(q) {
-			s.encode(w, r, http.StatusOK, map[string]interface{}{
+			middleware.Respond(w, r, http.StatusOK, map[string]interface{}{
 				"available": false,
 				"reason":    "Invalid format. Use 3-30 lowercase letters, numbers, and hyphens.",
 			})
@@ -239,14 +241,14 @@ func (s *Server) handleCheckUsername() http.HandlerFunc {
 
 		// If the user already owns this username, it's available for them
 		if user.Username != nil && strings.EqualFold(*user.Username, q) {
-			s.encode(w, r, http.StatusOK, map[string]interface{}{"available": true})
+			middleware.Respond(w, r, http.StatusOK, map[string]interface{}{"available": true})
 			return
 		}
 
 		available, err := s.repo.CheckUsernameAvailable(r.Context(), q)
 		if err != nil {
 			s.reqLog(r).Error("failed to check username", "err", err)
-			s.respondErrMsg(w, r, "internal error", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("internal error")))
 			return
 		}
 
@@ -254,7 +256,7 @@ func (s *Server) handleCheckUsername() http.HandlerFunc {
 		if !available {
 			reason = "Username is already taken"
 		}
-		s.encode(w, r, http.StatusOK, map[string]interface{}{
+		middleware.Respond(w, r, http.StatusOK, map[string]interface{}{
 			"available": available,
 			"reason":    reason,
 		})
@@ -268,17 +270,17 @@ func (s *Server) handleToggleProfileVisibility() http.HandlerFunc {
 
 		id, err := uuid.Parse(chi.URLParam(r, "id"))
 		if err != nil {
-			s.respondErrMsg(w, r, "invalid profile id", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid profile id"))
 			return
 		}
 
 		profile, err := s.repo.GetCVProfile(r.Context(), id)
 		if err != nil {
-			s.respondErrMsg(w, r, "profile not found", http.StatusNotFound)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("profile not found")))
 			return
 		}
 		if profile.UserID != user.ID {
-			s.respondErrMsg(w, r, "forbidden", http.StatusForbidden)
+			middleware.RespondError(w, r, apperrors.NewForbidden())
 			return
 		}
 
@@ -286,17 +288,17 @@ func (s *Server) handleToggleProfileVisibility() http.HandlerFunc {
 			IsPublic bool `json:"is_public"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
 
 		if err := s.repo.UpdateCVProfileVisibility(r.Context(), id, body.IsPublic); err != nil {
 			s.reqLog(r).Error("failed to update profile visibility", "err", err)
-			s.respondErrMsg(w, r, "failed to update visibility", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to update visibility")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, map[string]interface{}{
+		middleware.Respond(w, r, http.StatusOK, map[string]interface{}{
 			"status":    "ok",
 			"is_public": body.IsPublic,
 		})

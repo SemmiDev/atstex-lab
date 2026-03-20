@@ -56,7 +56,7 @@ func (r *postgresRepo) UpdateMockInterviewSession(ctx context.Context, s *domain
 		s.EndedAt,
 		s.ID,
 	)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 // GetMockInterviewSession fetches a single session by ID.
@@ -67,7 +67,10 @@ func (r *postgresRepo) GetMockInterviewSession(ctx context.Context, id uuid.UUID
 		 FROM mock_interview_sessions
 		 WHERE id = $1`, id)
 	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, translatePgError(err, "record", nil)
+		}
+		return nil, nil
 	}
 	return &s, nil
 }
@@ -82,7 +85,10 @@ func (r *postgresRepo) GetMockInterviewSessionsByUserID(ctx context.Context, use
 		 ORDER BY created_at DESC
 		 LIMIT 20`, userID)
 	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, translatePgError(err, "record", nil)
+		}
+		return nil, nil
 	}
 	if sessions == nil {
 		sessions = []domain.MockInterviewSession{}
@@ -107,7 +113,7 @@ func (r *postgresRepo) EndMockInterviewSession(ctx context.Context, id uuid.UUID
 		 WHERE id = $5`,
 		now, tokensUsed, turnCount, msgs, id,
 	)
-	return err
+	return translatePgError(err, "record", nil)
 }
 
 // CountMockInterviewSessionsByDate counts sessions for rate-limiting purposes.
@@ -117,5 +123,8 @@ func (r *postgresRepo) CountMockInterviewSessionsByDate(ctx context.Context, use
 		`SELECT COUNT(*) FROM mock_interview_sessions
 		 WHERE user_id = $1 AND created_at >= $2 AND created_at <= $3`,
 		userID, start, end)
-	return count, err
+	if err != nil {
+		return count, translatePgError(err, "record", nil)
+	}
+	return count, nil
 }

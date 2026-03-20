@@ -159,7 +159,7 @@ async function generateAll() {
 
     if (!res.ok) {
       const err = await res.json();
-      throw new Error(err.error || "Compilation failed");
+      throw new Error((err.detail || err.error) || "Compilation failed");
     }
 
     const results = await res.json();
@@ -170,8 +170,8 @@ async function generateAll() {
       const btn = document.querySelector(`button[data-template="${result.name}"]`);
       if (!container) continue;
 
-      if (result.error) {
-        showCardError(container, result.error.substring(0, 200));
+      if ((result.detail || result.error)) {
+        showCardError(container, (result.detail || result.error).substring(0, 200));
       } else if (result.pdf_base64) {
         try {
           await renderPDFToCanvas(result.pdf_base64, container);

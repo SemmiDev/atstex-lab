@@ -25,7 +25,10 @@ func (r *postgresRepo) GetInterviewPrepsByUserID(ctx context.Context, userID uui
 		`SELECT id, user_id, profile_id, job_description, language, questions, tokens_used, created_at
 		 FROM interview_preps WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`, userID)
 	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, translatePgError(err, "record", nil)
+		}
+		return nil, nil
 	}
 	if preps == nil {
 		preps = []domain.InterviewPrep{}
@@ -39,5 +42,8 @@ func (r *postgresRepo) CountInterviewPrepsByDate(ctx context.Context, userID uui
 	err := r.db.GetContext(ctx, &count,
 		`SELECT COUNT(*) FROM interview_preps WHERE user_id = $1 AND created_at >= $2 AND created_at <= $3`,
 		userID, start, end)
-	return count, err
+	if err != nil {
+		return count, translatePgError(err, "record", nil)
+	}
+	return count, nil
 }

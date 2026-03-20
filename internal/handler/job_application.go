@@ -2,13 +2,16 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"github.com/semmidev/atstex-lab/internal/apperrors"
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/domain"
+	"github.com/semmidev/atstex-lab/internal/middleware"
 )
 
 // CreateJobApplication handles the creation of a new job application.
@@ -16,7 +19,7 @@ func (s *Server) CreateJobApplication() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 		if user == nil {
-			s.respondErrMsg(w, r, "unauthorized", http.StatusUnauthorized)
+			middleware.RespondError(w, r, apperrors.NewUnauthorized(errors.New("unauthorized")))
 			return
 		}
 
@@ -31,7 +34,7 @@ func (s *Server) CreateJobApplication() http.HandlerFunc {
 
 		var req CreateJobApplicationRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
 
@@ -60,11 +63,11 @@ func (s *Server) CreateJobApplication() http.HandlerFunc {
 
 		newApp, err := s.repo.CreateJobApplication(r.Context(), app)
 		if err != nil {
-			s.respondErrMsg(w, r, "failed to create job application", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to create job application")))
 			return
 		}
 
-		s.encode(w, r, http.StatusCreated, newApp)
+		middleware.Respond(w, r, http.StatusCreated, newApp)
 	}
 }
 
@@ -73,17 +76,17 @@ func (s *Server) GetJobApplications() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 		if user == nil {
-			s.respondErrMsg(w, r, "unauthorized", http.StatusUnauthorized)
+			middleware.RespondError(w, r, apperrors.NewUnauthorized(errors.New("unauthorized")))
 			return
 		}
 
 		apps, err := s.repo.GetJobApplicationsByUserID(r.Context(), user.ID)
 		if err != nil {
-			s.respondErrMsg(w, r, "failed to get job applications", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to get job applications")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, apps)
+		middleware.Respond(w, r, http.StatusOK, apps)
 	}
 }
 
@@ -92,14 +95,14 @@ func (s *Server) UpdateJobApplicationStatus() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 		if user == nil {
-			s.respondErrMsg(w, r, "unauthorized", http.StatusUnauthorized)
+			middleware.RespondError(w, r, apperrors.NewUnauthorized(errors.New("unauthorized")))
 			return
 		}
 
 		idStr := chi.URLParam(r, "id")
 		id, err := uuid.Parse(idStr)
 		if err != nil {
-			s.respondErrMsg(w, r, "invalid application ID", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid application ID"))
 			return
 		}
 
@@ -107,7 +110,7 @@ func (s *Server) UpdateJobApplicationStatus() http.HandlerFunc {
 			Status string `json:"status"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
 
@@ -116,11 +119,11 @@ func (s *Server) UpdateJobApplicationStatus() http.HandlerFunc {
 		// For this implementation, we trust the client-side logic and rely on obscurity.
 
 		if err := s.repo.UpdateJobApplicationStatus(r.Context(), id, payload.Status); err != nil {
-			s.respondErrMsg(w, r, "failed to update job application status", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to update job application status")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, map[string]string{"message": "status updated successfully"})
+		middleware.Respond(w, r, http.StatusOK, map[string]string{"message": "status updated successfully"})
 	}
 }
 
@@ -129,14 +132,14 @@ func (s *Server) UpdateJobApplication() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 		if user == nil {
-			s.respondErrMsg(w, r, "unauthorized", http.StatusUnauthorized)
+			middleware.RespondError(w, r, apperrors.NewUnauthorized(errors.New("unauthorized")))
 			return
 		}
 
 		idStr := chi.URLParam(r, "id")
 		id, err := uuid.Parse(idStr)
 		if err != nil {
-			s.respondErrMsg(w, r, "invalid application ID", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid application ID"))
 			return
 		}
 
@@ -150,7 +153,7 @@ func (s *Server) UpdateJobApplication() http.HandlerFunc {
 
 		var req UpdateJobApplicationRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			s.respondErrMsg(w, r, "invalid request body", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
 
@@ -174,11 +177,11 @@ func (s *Server) UpdateJobApplication() http.HandlerFunc {
 		}
 
 		if err := s.repo.UpdateJobApplication(r.Context(), app); err != nil {
-			s.respondErrMsg(w, r, "failed to update job application", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to update job application")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, map[string]string{"message": "application updated successfully"})
+		middleware.Respond(w, r, http.StatusOK, map[string]string{"message": "application updated successfully"})
 	}
 }
 
@@ -187,21 +190,21 @@ func (s *Server) DeleteJobApplication() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 		if user == nil {
-			s.respondErrMsg(w, r, "unauthorized", http.StatusUnauthorized)
+			middleware.RespondError(w, r, apperrors.NewUnauthorized(errors.New("unauthorized")))
 			return
 		}
 
 		idStr := chi.URLParam(r, "id")
 		id, err := uuid.Parse(idStr)
 		if err != nil {
-			s.respondErrMsg(w, r, "invalid application ID", http.StatusBadRequest)
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid application ID"))
 			return
 		}
 
 		// Optional: check if the application belongs to the user before deleting
 
 		if err := s.repo.DeleteJobApplication(r.Context(), id); err != nil {
-			s.respondErrMsg(w, r, "failed to delete job application", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to delete job application")))
 			return
 		}
 

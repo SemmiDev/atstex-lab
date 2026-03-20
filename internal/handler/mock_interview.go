@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -12,8 +13,10 @@ import (
 	"nhooyr.io/websocket/wsjson"
 
 	"github.com/semmidev/atstex-lab/internal/aisuites"
+	"github.com/semmidev/atstex-lab/internal/apperrors"
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/domain"
+	"github.com/semmidev/atstex-lab/internal/middleware"
 )
 
 // handleMockInterviewPage renders the Mock Interview setup + room UI.
@@ -42,11 +45,11 @@ func (s *Server) handleListMockInterviewSessions() http.HandlerFunc {
 		sessions, err := s.repo.GetMockInterviewSessionsByUserID(r.Context(), user.ID)
 		if err != nil {
 			s.reqLog(r).Error("list mock interview sessions error", "err", err)
-			s.respondErrMsg(w, r, "failed to list sessions", http.StatusInternalServerError)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to list sessions")))
 			return
 		}
 
-		s.encode(w, r, http.StatusOK, sessions)
+		middleware.Respond(w, r, http.StatusOK, sessions)
 	}
 }
 

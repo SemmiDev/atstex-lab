@@ -5,11 +5,14 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
 	"time"
 
 	chimw "github.com/go-chi/chi/v5/middleware"
+	"github.com/semmidev/atstex-lab/internal/apperrors"
 )
 
 type contextKey string
@@ -22,6 +25,38 @@ const (
 	// LoggerKey is the context key for the per-request logger.
 	LoggerKey contextKey = "logger"
 )
+
+// Respond is a helper for successful JSON responses.
+func Respond(w http.ResponseWriter, r *http.Request, status int, v any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	if v != nil {
+		if err := json.NewEncoder(w).Encode(v); err != nil {
+			GetLogger(r.Context()).Error("failed to encode json response", "err", err)
+		}
+	}
+}
+
+// RespondError is the ONLY approved path for writing error responses.
+// It translates any error into an RFC 7807 Problem Details object.
+func RespondError(w http.ResponseWriter, r *http.Request, err error) {
+	prob := apperrors.Translate(err)
+
+	// Log the error
+	logger := GetLogger(r.Context())
+	var safe *apperrors.SafeError
+	if errors.As(err, &safe) {
+		logger.Error("app error", "details", safe.LogString())
+	} else {
+		logger.Error("unhandled error", "err", err)
+	}
+
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(prob.Status)
+	if encodeErr := json.NewEncoder(w).Encode(prob); encodeErr != nil {
+		logger.Error("failed to encode problem response", "err", encodeErr)
+	}
+}
 
 // generateTraceID produces a random 16-byte hex trace ID.
 func generateTraceID() string {
