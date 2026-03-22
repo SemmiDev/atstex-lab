@@ -45,7 +45,6 @@ body {
     font-family: var(--font-ui);
     background: var(--bg);
     color: var(--text);
-    font-size: 15px;
     line-height: 1.6;
     min-height: 100vh;
     display: flex;
