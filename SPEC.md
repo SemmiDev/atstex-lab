@@ -629,7 +629,7 @@ type AIConfig struct {
 }
 ```
 
-### Four AI Functions
+### Five AI Functions
 | Function | Input | Output | Quota Feature Key |
 |----------|-------|--------|-------------------|
 | `ExtractBiodata(ctx, pdfText, cfg)` | Raw PDF text | `CVData` JSON | _(PDF upload, no quota)_ |
@@ -637,6 +637,7 @@ type AIConfig struct {
 | `ScoreATS(ctx, biodataJSON, jobDesc, lang, cfg)` | CV biodata + job description + language | `ATSCritiqueResult{Score, MissingKeywords[], Recommendations}` | `"ats_simulation"` |
 | `GenerateCoverLetter(ctx, biodataJSON, jobDesc, tone, maxParagraphs, lang, cfg)` | CV + job + tone + paragraphs + language | `string` (cover letter text) | `"cover_letter"` |
 | `GenerateInterviewQuestions(ctx, biodataJSON, jobDesc, lang, count, cfg)` | CV + job + language + count | `InterviewPrepResult{Categories[]}` | _(no quota currently)_ |
+| `AutoTailorCV(ctx, biodataJSON, jobDesc, lang, cfg)` | CV biodata + job + language | `CVData` JSON | `"cv_profile"` |
 
 ### AI Provider Selection (`aisuites.newLLM`)
 ```
@@ -762,12 +763,22 @@ All templates are LaTeX `.tex` files embedded in the binary via `web/embed.go`. 
 | `sea.tex` | Template "Sea" style |
 | `tide.tex` | Template "Tide" style |
 | `wave.tex` | Template "Wave" style |
+| `sky.tex`  | Template "Sky" style  |
 
 Each template uses `[[ .Field ]]` syntax to inject `RenderData` (which embeds `CVData` + `PageSettings`). A watermark footer (`Built with ATSTEXLAB — atstexlab.com`) is injected before `\end{document}` when `showWatermark=true` (used for public PDF downloads).
 
 ---
 
 ## 14. FRONTEND TEMPLATES & JAVASCRIPT
+
+### Sidebar Navigation & Layout
+The application features a responsive sidebar navigation present across all primary protected pages (14+ templates). The sidebar items are logically grouped into four categories:
+1. **Utama** (Main): Beranda, Biodata, Editor
+2. **Eksplorasi** (Exploration): Galeri, Kanban
+3. **Fitur AI** (AI Features): Review CV, Simulator ATS, Mock Interview, Interview Prep, Surat Lamaran
+4. **Pengaturan** (Settings): Profil, Publikasi, Langganan, Saran & Masukan, Mode Gelap
+
+The sidebar supports a collapsed state (with a caret toggle icon) for extra horizontal workspace, controlled by a `<script>` block in each template checking for the `#sidebar-collapse` button and toggling the `collapsed` CSS class on the `<aside id="sidebar">` element.
 
 ### HTML Templates (Go `text/template`, embedded via `web/embed.go`)
 | Template Name | File | Description |
@@ -1074,8 +1085,32 @@ mindmap
       sea.tex
       tide.tex
       wave.tex
+      sky.tex
 ```
 
 ---
 
 *This knowledge graph was auto-generated from full static analysis of the ATSTEX-LAB codebase. Update this file whenever significant architectural changes are made.*
+
+---
+
+## 17. ERROR HANDLING ARCHITECTURE
+
+The application uses the `SafeError` architecture (powered by the `github.com/semmidev/problem` library) to ensure RFC 7807 compliant error responses. Internal implementation details reside in `internal/apperrors/errors.go`.
+
+### `SafeError` Struct
+A structural wrapper to safely translate internal technical exceptions into consistent HTTP responses.
+- `Code`: Machine-readable error code (e.g., `RESOURCE_NOT_FOUND`)
+- `HTTPStatus`: Associated status code (e.g., `404`)
+- `UserMsg`: Safe, human-readable message for the client
+- `Internal`: The underlying original error for backend logging
+- `Sentinel`: Sentinel value from standard errors mapping (e.g. `ErrNotFound`)
+
+### Standard Constructors
+The `apperrors` package exposes semantic constructors for all handlers:
+- `NewNotFound(resource, internal)` → 404
+- `NewConflict(resource, internal, meta)` → 409
+- `NewInvalidInput(msg)` → 400
+- `NewUnauthorized(internal)` → 401
+- `NewForbidden()` → 403
+- `NewInternal(internal)` → 500
