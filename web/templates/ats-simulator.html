@@ -28,12 +28,15 @@
         </div>
 
         <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4 pb-24 md:pb-4">
+            <div class="px-4 py-2 mt-2 text-xs font-bold text-muted uppercase tracking-wider">Utama</div>
             <a href="/" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.home">Beranda</span></a>
             <a href="/input" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-file-text text-2xl"></i> <span class="sidebar-nav-text">Biodata</span></a>
             <a href="/editor" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
+            <div class="px-4 py-2 mt-4 text-xs font-bold text-muted uppercase tracking-wider">Eksplorasi</div>
             <a href="/gallery"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-images-square text-2xl"></i> <span class="sidebar-nav-text">Galeri</span></a>
+            <div class="px-4 py-2 mt-4 text-xs font-bold text-muted uppercase tracking-wider">Fitur AI</div>
             <a href="/cv-review" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">Review CV</span></a>
             <a href="/ats-simulator" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase bg-accent text-white border-[3px] border-black shadow-[3px_3px_0px_#000]"><i class="ph ph-robot text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.ats_simulator">Simulator ATS</span></a>
             <a
@@ -43,6 +46,7 @@
 <a href="/interview-prep" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-users-three text-2xl"></i> <span class="sidebar-nav-text" data-i18n="nav.interview_prep">Interview Prep</span></a>
                             <a href="/cover-letter" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-envelope-simple-open text-2xl"></i> <span class="sidebar-nav-text">Surat Lamaran</span></a>
             <a href="/kanban" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-columns text-2xl"></i> <span class="sidebar-nav-text">Kanban</span></a>
+            <div class="px-4 py-2 mt-4 text-xs font-bold text-muted uppercase tracking-wider">Pengaturan</div>
             <a href="/profile" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profil</span></a>
             <a href="/publish" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-globe text-2xl"></i> <span class="sidebar-nav-text">Publikasi</span></a>
             <a href="/subscription" class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i class="ph ph-crown text-2xl"></i> <span class="sidebar-nav-text">Langganan</span></a>
@@ -52,6 +56,7 @@
 
         {{if .User}}
         <div class="p-4 border-t-[4px] border-border bg-bg sidebar-profile-block">
+            <div class="px-4 py-2 mt-4 text-xs font-bold text-muted uppercase tracking-wider">Pengaturan</div>
             <a href="/profile" class="flex items-center gap-3 p-2 bg-surface border-[3px] border-border shadow-[4px_4px_0_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#000] transition-all">
                 <img src="{{.User.Picture}}" alt="Profile" class="w-10 h-10 border-2 border-border object-cover">
                 <div class="flex flex-col overflow-hidden">

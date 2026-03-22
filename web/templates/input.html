@@ -46,6 +46,7 @@
         </div>
 
         <nav class="flex-1 overflow-y-auto flex flex-col gap-2 p-4 pb-24 md:pb-4">
+            <div class="px-4 py-2 mt-2 text-xs font-bold text-muted uppercase tracking-wider">Utama</div>
             <a href="/"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-house text-2xl"></i> <span class="sidebar-nav-text">Beranda</span></a>
@@ -55,10 +56,12 @@
             <a href="/editor"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-code text-2xl"></i> <span class="sidebar-nav-text">Editor</span></a>
+            <div class="px-4 py-2 mt-4 text-xs font-bold text-muted uppercase tracking-wider">Eksplorasi</div>
             <a href="/gallery"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-images-square text-2xl"></i> <span class="sidebar-nav-text">Galeri</span></a>
-                    <a href="/cv-review"
+                    <div class="px-4 py-2 mt-4 text-xs font-bold text-muted uppercase tracking-wider">Fitur AI</div>
+            <a href="/cv-review"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-brain text-2xl"></i> <span class="sidebar-nav-text">Review CV</span></a>
             <a href="/ats-simulator"
@@ -78,6 +81,7 @@
             <a href="/kanban"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-columns text-2xl"></i> <span class="sidebar-nav-text">Kanban</span></a>
+            <div class="px-4 py-2 mt-4 text-xs font-bold text-muted uppercase tracking-wider">Pengaturan</div>
             <a href="/profile"
                 class="flex items-center gap-4 px-4 py-3 font-mono font-bold uppercase hover:bg-accent4 border-[3px] border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000] hover:-translate-y-0.5 transition-all"><i
                     class="ph ph-user text-2xl"></i> <span class="sidebar-nav-text">Profil</span></a>
@@ -95,6 +99,7 @@
 
         {{if .User}}
         <div class="p-4 border-t-[4px] border-border bg-bg sidebar-profile-block">
+            <div class="px-4 py-2 mt-4 text-xs font-bold text-muted uppercase tracking-wider">Pengaturan</div>
             <a href="/profile"
                 class="flex items-center gap-3 p-2 bg-surface border-[3px] border-border shadow-[4px_4px_0_#000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_#000] transition-all">
                 <img src="{{.User.Picture}}" alt="Profile" class="w-10 h-10 border-2 border-border object-cover">
@@ -478,8 +483,11 @@
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
         const toggleBtn = document.getElementById('sidebar-toggle');
+        const collapseBtn = document.getElementById('sidebar-collapse');
+
         if (toggleBtn) toggleBtn.addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('open'); });
         if (overlay) overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); });
+        if (collapseBtn) collapseBtn.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
     </script>
     <script src="/static/js/dark-mode.js"></script>
 </body>
