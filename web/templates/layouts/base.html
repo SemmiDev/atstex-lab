@@ -1,0 +1,14 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    {{template "head" .}}
+</head>
+<body class="font-ui text-text bg-bg" {{if .BodyData}} {{.BodyData}} {{end}}>
+    {{template "content" .}}
+    
+    {{block "scripts" .}}{{end}}
+    <script src="/static/js/dark-mode.js"></script>
+</body>
+</html>
+{{end}}

@@ -122,7 +122,7 @@ func buildTemplates() (*template.Template, error) {
 		},
 	}
 
-	tmpl, err := template.New("").Funcs(funcMap).ParseFS(web.TemplateFS, "templates/*.html")
+	tmpl, err := template.New("").Funcs(funcMap).ParseFS(web.TemplateFS, "templates/*.html", "templates/layouts/*.html", "templates/partials/*.html")
 	if err != nil {
 		return nil, fmt.Errorf("parse templates: %w", err)
 	}

@@ -3,27 +3,9 @@
 <html lang="id">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {{template "head" .}}
   <title>ATSTEXLAB — Admin Dashboard</title>
-  <meta name="description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV aman dan open-source untuk pencari kerja.">
-  <meta name="keywords" content="Pembuat CV ATS, CV LaTeX, pembuat CV, CV siap rekruter, privasi data, ATSTEXLAB">
-  <meta name="author" content="ATSTEXLAB">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="ATSTEXLAB — Admin Dashboard">
-  <meta property="og:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV aman dan open-source.">
-  <meta property="og:image" content="/static/cv-favicon.svg">
-  <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:title" content="ATSTEXLAB — Admin Dashboard">
-  <meta property="twitter:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV aman dan open-source.">
-  <meta property="twitter:image" content="/static/cv-favicon.svg">
-  <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
-  <link rel="stylesheet" href="/static/css/style.css">
   <link rel="stylesheet" href="/static/css/admin.css">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&display=swap"
-    rel="stylesheet">
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
 
@@ -37,52 +19,7 @@
   <div class="admin-layout flex-1">
 
     <!-- ── SIDEBAR ──────────────────────────────────────────── -->
-    <aside id="sidebar" class="admin-sidebar fixed md:static inset-y-0 left-0 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-200">
-      <div class="sidebar-brand">
-        ATSTEX<em>LAB</em>
-        <span class="sidebar-badge">ADMIN</span>
-      </div>
-
-      <nav class="sidebar-nav pb-24 md:pb-4">
-        <button class="sidebar-link active" data-panel="dashboard">
-          <i class="ph-bold ph-chart-pie-slice"></i>
-          <span>Dasbor</span>
-        </button>
-        <button class="sidebar-link" data-panel="users">
-          <i class="ph-bold ph-users-three"></i>
-          <span>Pengguna</span>
-        </button>
-        <button class="sidebar-link" data-panel="subscriptions">
-          <i class="ph-bold ph-crown"></i>
-          <span>Paket Langganan</span>
-        </button>
-        <button class="sidebar-link" data-panel="feedback">
-          <i class="ph-bold ph-chat-circle-text"></i>
-          <span>Saran & Masukan</span>
-        </button>
-        <button class="sidebar-link" id="dark-mode-toggle">
-          <i class="ph-bold ph-moon"></i>
-          <span class="sidebar-nav-text">Mode Gelap</span>
-        </button>
-      </nav>
-
-      <div class="sidebar-footer">
-        <div class="sidebar-user">
-          {{if .User}}
-          <img src="{{.User.Picture}}" alt="" class="sidebar-avatar">
-          <div>
-            <div class="sidebar-user-name">{{.User.Name}}</div>
-            <div class="sidebar-user-email break-all">{{.User.Email}}</div>
-          </div>
-          {{end}}
-        </div>
-        <div class="sidebar-actions">
-          <form action="/auth/logout" method="POST" style="display:inline;width:100%;">
-            <button type="submit" class="sidebar-action-btn" style="width:100%;"><i class="ph-bold ph-sign-out"></i> Logout</button>
-          </form>
-        </div>
-      </div>
-    </aside>
+    {{template "sidebar_admin" .}}
 
     <!-- Overlay for mobile clicking -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>

@@ -1,0 +1,53 @@
+{{define "app"}}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    {{template "head" .}}
+</head>
+<body class="flex flex-col md:flex-row h-dvh w-full bg-bg font-ui text-text overflow-hidden" {{if .BodyData}} {{.BodyData}} {{end}}>
+    <!-- Mobile Header overlay toggle -->
+    <div class="md:hidden flex items-center justify-between p-4 bg-surface border-b-[4px] border-border z-40">
+        <div class="font-disp font-extrabold text-2xl">ATSTEX<em class="text-accent italic">LAB</em></div>
+        <button id="sidebar-toggle" class="text-3xl"><i class="ph ph-list"></i></button>
+    </div>
+
+    <!-- The Sidebar -->
+    {{template "sidebar" .}}
+
+    <!-- Overlay for mobile clicking -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+    <!-- Main Content -->
+    {{template "content" .}}
+
+    {{block "scripts" .}}{{end}}
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const toggleBtn = document.getElementById('sidebar-toggle');
+        const collapseBtn = document.getElementById('sidebar-collapse');
+        
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.add('open');
+                overlay.classList.add('open');
+            });
+        }
+        
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('open');
+            });
+        }
+        
+        if (collapseBtn) {
+            collapseBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
+        }
+    </script>
+    <script src="/static/js/dark-mode.js"></script>
+</body>
+</html>
+{{end}}

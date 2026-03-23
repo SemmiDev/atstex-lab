@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-//go:embed templates/*.html templates/cv/*.tex
+//go:embed templates/*.html templates/layouts/*.html templates/partials/*.html templates/cv/*.tex
 var templateRaw embed.FS
 
 //go:embed static/*

@@ -1,0 +1,23 @@
+{{define "head"}}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{block "title" .}}ATSTEXLAB — Pembuat CV LaTeX Teroptimasi ATS{{end}}</title>
+    <meta name="description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV aman dan open-source untuk pencari kerja.">
+    <meta name="keywords" content="Pembuat CV ATS, CV LaTeX, pembuat CV, CV siap rekruter, privasi data, ATSTEXLAB">
+    <meta name="author" content="ATSTEXLAB">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ATSTEXLAB — Pembuat CV LaTeX Teroptimasi ATS">
+    <meta property="og:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV aman dan open-source.">
+    <meta property="og:image" content="/static/cv-favicon.svg">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="ATSTEXLAB — Pembuat CV LaTeX Teroptimasi ATS">
+    <meta property="twitter:description" content="Buat CV LaTeX profesional dan ramah ATS di browser Anda. Pembuat CV aman dan open-source.">
+    <meta property="twitter:image" content="/static/cv-favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=DM+Sans:wght@400;500;700;800&family=DM+Serif+Display:ital@0;1&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    {{block "head_extra" .}}{{end}}
+{{end}}

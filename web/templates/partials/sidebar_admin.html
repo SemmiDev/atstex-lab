@@ -1,0 +1,48 @@
+{{define "sidebar_admin"}}
+<aside id="sidebar" class="admin-sidebar fixed md:static inset-y-0 left-0 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-200">
+    <div class="sidebar-brand">
+    ATSTEX<em>LAB</em>
+    <span class="sidebar-badge">ADMIN</span>
+    </div>
+
+    <nav class="sidebar-nav pb-24 md:pb-4">
+    <button class="sidebar-link active" data-panel="dashboard">
+        <i class="ph-bold ph-chart-pie-slice"></i>
+        <span>Dasbor</span>
+    </button>
+    <button class="sidebar-link" data-panel="users">
+        <i class="ph-bold ph-users-three"></i>
+        <span>Pengguna</span>
+    </button>
+    <button class="sidebar-link" data-panel="subscriptions">
+        <i class="ph-bold ph-crown"></i>
+        <span>Paket Langganan</span>
+    </button>
+    <button class="sidebar-link" data-panel="feedback">
+        <i class="ph-bold ph-chat-circle-text"></i>
+        <span>Saran & Masukan</span>
+    </button>
+    <button class="sidebar-link" id="dark-mode-toggle">
+        <i class="ph-bold ph-moon"></i>
+        <span class="sidebar-nav-text">Mode Gelap</span>
+    </button>
+    </nav>
+
+    <div class="sidebar-footer">
+    <div class="sidebar-user">
+        {{if .User}}
+        <img src="{{.User.Picture}}" alt="" class="sidebar-avatar">
+        <div>
+        <div class="sidebar-user-name">{{.User.Name}}</div>
+        <div class="sidebar-user-email break-all">{{.User.Email}}</div>
+        </div>
+        {{end}}
+    </div>
+    <div class="sidebar-actions">
+        <form action="/auth/logout" method="POST" style="display:inline;width:100%;">
+        <button type="submit" class="sidebar-action-btn" style="width:100%;"><i class="ph-bold ph-sign-out"></i> Logout</button>
+        </form>
+    </div>
+    </div>
+</aside>
+{{end}}
