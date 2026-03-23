@@ -301,11 +301,14 @@ func (s *Server) handleCompile() http.HandlerFunc {
 			PhotoBase64: req.PhotoBase64,
 		}
 
-		s.reqLog(r).Info("compiling", "engine", engine, "source_len", len(req.Source))
+		middleware.AddEventData(r.Context(), "compile_request", map[string]any{
+			"engine":     engine,
+			"source_len": len(req.Source),
+		})
 
 		result, err := compiler.Compile(r.Context(), []byte(req.Source), opts)
 		if err != nil {
-			s.reqLog(r).Warn("compilation error", "err", err)
+			middleware.AddEventData(r.Context(), "compile_error", err.Error())
 
 			ext := map[string]any{
 				"engine": string(engine),
@@ -324,7 +327,11 @@ func (s *Server) handleCompile() http.HandlerFunc {
 			return
 		}
 
-		s.reqLog(r).Info("compilation succeeded", "engine", engine, "elapsed", result.Elapsed, "pdf_bytes", len(result.PDF))
+		middleware.AddEventData(r.Context(), "compile_success", map[string]any{
+			"engine":    engine,
+			"elapsed":   result.Elapsed,
+			"pdf_bytes": len(result.PDF),
+		})
 
 		w.Header().Set("Content-Type", "application/pdf")
 		w.Header().Set("X-Latex-Log", truncate(result.Log, 8192))
@@ -384,10 +391,8 @@ func (s *Server) handleApplyPageSettings() http.HandlerFunc {
 // ExtractPDF handles POST /api/extract-pdf — receives PDF text and returns structured biodata JSON.
 func (s *Server) handleExtractPDF() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log := s.reqLog(r)
-
 		if s.aiConfig.APIKey == "" && s.aiConfig.Provider != "ollama" {
-			log.Error("AI API key not configured")
+			middleware.AddEventData(r.Context(), "pdf_extraction_error", "AI API key not configured")
 			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("AI extraction not configured")))
 			return
 		}
@@ -399,7 +404,7 @@ func (s *Server) handleExtractPDF() http.HandlerFunc {
 			Text string `json:"text"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			log.Error("invalid request body", "err", err)
+			middleware.AddEventData(r.Context(), "pdf_extraction_error", "invalid request body: "+err.Error())
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
@@ -411,28 +416,36 @@ func (s *Server) handleExtractPDF() http.HandlerFunc {
 
 		const maxChars = 20000
 		if len(req.Text) > maxChars {
-			log.Warn("PDF text exceeds maximum allowed characters", "text_len", len(req.Text), "max_chars", maxChars)
+			middleware.AddEventData(r.Context(), "pdf_extraction_error", map[string]any{
+				"msg":       "PDF text exceeds maximum allowed characters",
+				"text_len":  len(req.Text),
+				"max_chars": maxChars,
+			})
 			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("PDF text exceeds maximum allowed characters")))
 			return
 		}
 
-		log.Info("extracting biodata from PDF text", "text_len", len(req.Text), "provider", s.aiConfig.Provider, "model", s.aiConfig.Model)
+		middleware.AddEventData(r.Context(), "pdf_extraction_started", map[string]any{
+			"text_len": len(req.Text),
+			"provider": s.aiConfig.Provider,
+			"model":    s.aiConfig.Model,
+		})
 
 		result, totalTokens, genInfo, err := aisuites.ExtractBiodata(r.Context(), req.Text, s.aiConfig)
 		if err != nil {
-			log.Error("extraction failed", "err", err)
+			middleware.AddEventData(r.Context(), "pdf_extraction_error", "extraction failed: "+err.Error())
 			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("AI extraction failed: "+err.Error())))
 			return
 		}
 
 		// Log full AI output for easy tracking
 		genInfoJSON, _ := json.Marshal(genInfo)
-		log.Info("extraction succeeded",
-			"provider", s.aiConfig.Provider,
-			"model", s.aiConfig.Model,
-			"tokens", totalTokens,
-			"generation_info", string(genInfoJSON),
-		)
+		middleware.AddEventData(r.Context(), "pdf_extraction_success", map[string]any{
+			"provider":        s.aiConfig.Provider,
+			"model":           s.aiConfig.Model,
+			"tokens":          totalTokens,
+			"generation_info": string(genInfoJSON),
+		})
 
 		// Track AI token usage (use Background context since the request context
 		// will be cancelled after the HTTP response is sent)

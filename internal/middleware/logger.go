@@ -24,6 +24,8 @@ const (
 	TraceIDKey contextKey = "trace_id"
 	// LoggerKey is the context key for the per-request logger.
 	LoggerKey contextKey = "logger"
+	// WideEventKey is the context key for the per-request wide event.
+	WideEventKey contextKey = "wide_event"
 )
 
 // Respond is a helper for successful JSON responses.
@@ -32,7 +34,7 @@ func Respond(w http.ResponseWriter, r *http.Request, status int, v any) {
 	w.WriteHeader(status)
 	if v != nil {
 		if err := json.NewEncoder(w).Encode(v); err != nil {
-			GetLogger(r.Context()).Error("failed to encode json response", "err", err)
+			AddEventData(r.Context(), "json_encode_error", err.Error())
 		}
 	}
 }
@@ -42,19 +44,21 @@ func Respond(w http.ResponseWriter, r *http.Request, status int, v any) {
 func RespondError(w http.ResponseWriter, r *http.Request, err error) {
 	prob := apperrors.Translate(err)
 
-	// Log the error
-	logger := GetLogger(r.Context())
+	// Append error details to the wide event instead of immediately logging
 	var safe *apperrors.SafeError
 	if errors.As(err, &safe) {
-		logger.Error("app error", "details", safe.LogString())
+		AddEventData(r.Context(), "app_error", map[string]any{
+			"details": safe.LogString(),
+			"code":    safe.Code,
+		})
 	} else {
-		logger.Error("unhandled error", "err", err)
+		AddEventData(r.Context(), "unhandled_error", err.Error())
 	}
 
 	w.Header().Set("Content-Type", "application/problem+json")
 	w.WriteHeader(prob.Status)
 	if encodeErr := json.NewEncoder(w).Encode(prob); encodeErr != nil {
-		logger.Error("failed to encode problem response", "err", encodeErr)
+		AddEventData(r.Context(), "problem_encode_error", encodeErr.Error())
 	}
 }
 
@@ -91,11 +95,20 @@ func RequestLogger(base *slog.Logger) func(http.Handler) http.Handler {
 				slog.String("trace_id", traceID),
 			)
 
-			// Inject IDs and logger into context
+			// Initialize wide event
+			we := NewWideEvent()
+
+			safeHeaders := r.Header.Clone()
+			safeHeaders.Del("Authorization")
+			safeHeaders.Del("Cookie")
+			we.Set("http_headers", safeHeaders)
+
+			// Inject IDs, logger, and wide event into context
 			ctx := r.Context()
 			ctx = context.WithValue(ctx, RequestIDKey, requestID)
 			ctx = context.WithValue(ctx, TraceIDKey, traceID)
 			ctx = context.WithValue(ctx, LoggerKey, logger)
+			ctx = context.WithValue(ctx, WideEventKey, we)
 
 			// Wrap the response writer to capture status code and bytes
 			ww := chimw.NewWrapResponseWriter(w, r.ProtoMajor)
@@ -117,16 +130,20 @@ func RequestLogger(base *slog.Logger) func(http.Handler) http.Handler {
 				logFn = logger.Warn
 			}
 
-			logFn("http request",
-				slog.String("method", r.Method),
-				slog.String("path", r.URL.Path),
-				slog.String("query", r.URL.RawQuery),
-				slog.String("remote_addr", r.RemoteAddr),
-				slog.String("user_agent", r.UserAgent()),
-				slog.Int("status", status),
-				slog.Int("bytes", ww.BytesWritten()),
-				slog.Float64("duration_ms", float64(duration.Microseconds())/1000.0),
-			)
+			// Add final metrics to wide event
+			we.Set("http_request", map[string]any{
+				"method":      r.Method,
+				"path":        r.URL.Path,
+				"query":       r.URL.RawQuery,
+				"remote_addr": r.RemoteAddr,
+				"user_agent":  r.UserAgent(),
+			})
+			we.Set("status", status)
+			we.Set("bytes", ww.BytesWritten())
+			we.Set("duration_ms", float64(duration.Microseconds())/1000.0)
+
+			// Emit a single comprehensive log line
+			logFn("http_request_completed", we.LogAttrs()...)
 		})
 	}
 }

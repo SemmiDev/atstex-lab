@@ -875,15 +875,44 @@ btnDeleteProfile.addEventListener('click', async () => {
 
 // Fill Dummy Data
 if (btnFillDummy) {
-  btnFillDummy.addEventListener('click', () => {
+  btnFillDummy.addEventListener('click', async () => {
     if (!activeProfileId) {
       showStatus('Select or create a profile first', true);
       return;
     }
-    populateForm(JSON.parse(JSON.stringify(DUMMY_BIODATA)));
+
+    const originalBtnHtml = btnFillDummy.innerHTML;
+    btnFillDummy.disabled = true;
+    btnFillDummy.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Mengisi...';
+
+    const dummyData = JSON.parse(JSON.stringify(DUMMY_BIODATA));
+
+    try {
+      const name = dummyData.personal.name || 'John Doe';
+      const encodedName = encodeURIComponent(name);
+      // Fetch avatar as image
+      const avatarUrl = `https://ui-avatars.com/api/?name=${encodedName}&size=200&background=random&color=fff&format=png`;
+      const response = await fetch(avatarUrl);
+      if (response.ok) {
+        const blob = await response.blob();
+        const base64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+        dummyData.personal.photo = base64;
+      }
+    } catch (e) {
+      console.warn("Failed to fetch example photo:", e);
+    }
+
+    populateForm(dummyData);
     saveToStorage();
     markDirty();
     showStatus('Filled with example data — Sammi Aldhi Yanto 🚀');
+    
+    btnFillDummy.disabled = false;
+    btnFillDummy.innerHTML = originalBtnHtml;
   });
 }
 
