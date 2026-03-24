@@ -1,7 +1,8 @@
-.PHONY: run build tidy clean css docker-build docker-up docker-down docker-logs docker-run docker-remove-rebuild install-latex
+.PHONY: run build tidy clean css docker-build docker-up docker-down docker-logs docker-run docker-remove-rebuild install-latex migrateup migratedown migrateup1 migratedown1 new_migration
 
 BINARY := atstex-lab
 CMD    := ./cmd/server
+DB_URL := postgres://atstex:password@localhost:5432/atstex?sslmode=disable
 
 ## ── Prerequisites ────────────────────────────────────────────
 ## Go 1.22+           → https://go.dev/dl/
@@ -68,3 +69,19 @@ install-latex:
 		texlive-xetex \
 		texlive-luatex \
 		latexmk
+
+# ── Database Migrations ───────────────────────────────────────
+migrateup:
+	migrate -path db/migration -database "$(DB_URL)" -verbose up
+
+migrateup1:
+	migrate -path db/migration -database "$(DB_URL)" -verbose up 1
+
+migratedown:
+	migrate -path db/migration -database "$(DB_URL)" -verbose down
+
+migratedown1:
+	migrate -path db/migration -database "$(DB_URL)" -verbose down 1
+
+new_migration:
+	migrate create -ext sql -dir db/migration -seq $(name)

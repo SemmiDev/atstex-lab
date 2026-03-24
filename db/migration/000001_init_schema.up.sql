@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
     picture TEXT,
     role VARCHAR(20) NOT NULL DEFAULT 'user',
     ai_tokens_used BIGINT NOT NULL DEFAULT 0,
+    username VARCHAR(50) UNIQUE,
+    is_blocked BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -28,32 +30,22 @@ CREATE TABLE IF NOT EXISTS custom_templates (
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX IF NOT EXISTS idx_custom_templates_user_id ON custom_templates(user_id);
 
-CREATE INDEX idx_sessions_token ON sessions(token);
-CREATE INDEX idx_users_google_id ON users(google_id);
+CREATE INDEX IF NOT EXISTS idx_custom_templates_user_id ON custom_templates(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
+CREATE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id);
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 
 CREATE TABLE IF NOT EXISTS cv_profiles (
     id UUID PRIMARY KEY DEFAULT uuidv7(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     biodata JSONB NOT NULL DEFAULT '{}',
+    is_public BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX idx_cv_profiles_user_id ON cv_profiles(user_id);
-
--- Migration helper: add columns if they don't exist (safe to re-run)
-DO $$ BEGIN
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) NOT NULL DEFAULT 'user';
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS ai_tokens_used BIGINT NOT NULL DEFAULT 0;
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS username VARCHAR(50) UNIQUE;
-    ALTER TABLE users ADD COLUMN IF NOT EXISTS is_blocked BOOLEAN NOT NULL DEFAULT false;
-    ALTER TABLE cv_profiles ADD COLUMN IF NOT EXISTS is_public BOOLEAN NOT NULL DEFAULT false;
-EXCEPTION WHEN OTHERS THEN NULL;
-END $$;
-
-CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_cv_profiles_user_id ON cv_profiles(user_id);
 
 CREATE TABLE IF NOT EXISTS feedbacks (
     id UUID PRIMARY KEY DEFAULT uuidv7(),
@@ -104,17 +96,12 @@ CREATE TABLE IF NOT EXISTS job_applications (
     job_title VARCHAR(255) NOT NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'Applied',
     notes TEXT,
+    deadline DATE,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_job_applications_user_id ON job_applications(user_id);
 CREATE INDEX IF NOT EXISTS idx_job_applications_cv_profile_id ON job_applications(cv_profile_id);
-
--- Migration: add deadline column to job_applications
-DO $$ BEGIN
-    ALTER TABLE job_applications ADD COLUMN IF NOT EXISTS deadline DATE;
-EXCEPTION WHEN OTHERS THEN NULL;
-END $$;
 
 CREATE TABLE IF NOT EXISTS ats_simulations (
     id UUID PRIMARY KEY DEFAULT uuidv7(),
@@ -134,8 +121,8 @@ CREATE TABLE IF NOT EXISTS subscription_plans (
     name VARCHAR(255) NOT NULL,
     price_idr BIGINT NOT NULL,
     duration_months INTEGER NOT NULL DEFAULT 1,
-    max_cv_profiles INTEGER NOT NULL, -- -1 for unlimited
-    max_cv_reviews INTEGER NOT NULL, -- -1 for unlimited
+    max_cv_profiles INTEGER NOT NULL,
+    max_cv_reviews INTEGER NOT NULL,
     max_ats_simulations INTEGER NOT NULL,
     max_cover_letters INTEGER NOT NULL,
     is_active BOOLEAN NOT NULL DEFAULT true,
@@ -151,23 +138,18 @@ CREATE TABLE IF NOT EXISTS user_subscriptions (
     end_date TIMESTAMPTZ NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
-
 CREATE INDEX IF NOT EXISTS idx_user_subscriptions_user_id ON user_subscriptions(user_id);
 
--- Default Subscription Plans
 INSERT INTO subscription_plans (id, name, price_idr, duration_months, max_cv_profiles, max_cv_reviews, max_ats_simulations, max_cover_letters, is_active)
-SELECT
-    '018e9c40-1111-7000-8000-000000000001'::uuid, 'Gratis', 0, 1, 1, 5, 5, 10, true
+SELECT '018e9c40-1111-7000-8000-000000000001'::uuid, 'Gratis', 0, 1, 1, 5, 5, 10, true
 WHERE NOT EXISTS (SELECT 1 FROM subscription_plans WHERE name = 'Gratis');
 
 INSERT INTO subscription_plans (id, name, price_idr, duration_months, max_cv_profiles, max_cv_reviews, max_ats_simulations, max_cover_letters, is_active)
-SELECT
-    '018e9c40-2222-7000-8000-000000000002'::uuid, 'Basic', 20000, 1, 3, 10, 10, 10, true
+SELECT '018e9c40-2222-7000-8000-000000000002'::uuid, 'Basic', 20000, 1, 3, 10, 10, 10, true
 WHERE NOT EXISTS (SELECT 1 FROM subscription_plans WHERE name = 'Basic');
 
 INSERT INTO subscription_plans (id, name, price_idr, duration_months, max_cv_profiles, max_cv_reviews, max_ats_simulations, max_cover_letters, is_active)
-SELECT
-    '018e9c40-3333-7000-8000-000000000003'::uuid, 'Pro', 30000, 1, -1, 50, 50, 50, true
+SELECT '018e9c40-3333-7000-8000-000000000003'::uuid, 'Pro', 30000, 1, -1, 50, 50, 50, true
 WHERE NOT EXISTS (SELECT 1 FROM subscription_plans WHERE name = 'Pro');
 
 CREATE TABLE IF NOT EXISTS interview_preps (
@@ -183,7 +165,6 @@ CREATE TABLE IF NOT EXISTS interview_preps (
 CREATE INDEX IF NOT EXISTS idx_interview_preps_user_id ON interview_preps(user_id);
 CREATE INDEX IF NOT EXISTS idx_interview_preps_profile_id ON interview_preps(profile_id);
 
--- Mock Interview Sessions (live AI-driven voice mock interviews)
 CREATE TABLE IF NOT EXISTS mock_interview_sessions (
     id              UUID PRIMARY KEY DEFAULT uuidv7(),
     user_id         UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -199,9 +180,3 @@ CREATE TABLE IF NOT EXISTS mock_interview_sessions (
 );
 CREATE INDEX IF NOT EXISTS idx_mock_interview_sessions_user_id    ON mock_interview_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_mock_interview_sessions_profile_id ON mock_interview_sessions(profile_id);
-
--- Migration: add interviewer_style to mock_interview_sessions
-DO $$ BEGIN
-    ALTER TABLE mock_interview_sessions ADD COLUMN IF NOT EXISTS interviewer_style VARCHAR(40) NOT NULL DEFAULT 'balanced';
-EXCEPTION WHEN OTHERS THEN NULL;
-END $$;

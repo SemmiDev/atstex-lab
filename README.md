@@ -4,7 +4,7 @@ A modern LaTeX CV builder designed to help you generate beautiful, ATS-friendly 
 
 ---
 
-## 🏗️ Architecture & Flow
+## Architecture & Flow
 
 Atstex-Lab acts as a bridge between a streamlined web frontend and the powerful LaTeX typesetting engine.
 
@@ -78,7 +78,7 @@ flowchart TB
 
 ---
 
-## 🚀 Quickstart using Docker
+## Quickstart using Docker
 
 The absolute best way to run ATSTEX-LAB locally is via Docker. This bundles the Go API, PostgreSQL database, and the massive TeX Live compilation engine into a single containerized environment.
 
@@ -102,7 +102,26 @@ make docker-run
 
 _Note: The first build will take a few minutes as it downloads and pre-caches the massive Tectonic package bundle._
 
-### 3. Open the App
+### 3. Run Database Migrations
+
+This project uses [golang-migrate](https://github.com/golang-migrate/migrate) to manage the database schema.
+
+1. **Install golang-migrate CLI**:
+
+   ```bash
+   brew install golang-migrate
+   ```
+
+   _(Or download the binary from their [releases page](https://github.com/golang-migrate/migrate/releases) if not on macOS)._
+
+2. **Run Migrations**:
+   Once your database is running via Docker, execute the migrations:
+
+   ```bash
+   make migrateup
+   ```
+
+### 4. Open the App
 
 Visit [http://localhost:8080](http://localhost:8080) in your browser!
 
@@ -111,3 +130,6 @@ Visit [http://localhost:8080](http://localhost:8080) in your browser!
 - `make docker-logs` - Tail the active output logs.
 - `make docker-down` - Stop the containers safely.
 - `make docker-remove-rebuild` - Nuke the database and container volumes to start fresh.
+- `make migratedown` - Revert all migrations.
+- `make migrateup1` / `make migratedown1` - Run/revert exactly one migration.
+- `make new_migration name=your_migration_name` - Generate new empty up/down migration files.
