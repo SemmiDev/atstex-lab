@@ -79,7 +79,7 @@ func (s *Server) handleCreateAtsSimulation() http.HandlerFunc {
 
 		// Check subscription limits
 		if checkErr := s.checkSubscriptionLimits(r.Context(), user.ID, "ats_simulation"); checkErr != nil {
-			middleware.RespondError(w, r, apperrors.NewForbidden())
+			middleware.RespondError(w, r, apperrors.NewSubscriptionLimit(checkErr.Error()))
 			return
 		}
 

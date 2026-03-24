@@ -10,8 +10,9 @@ var (
 	ErrNotFound     = errors.New("resource not found")
 	ErrConflict     = errors.New("resource already exists")
 	ErrInvalidInput = errors.New("invalid input")
-	ErrUnauthorized = errors.New("unauthorized")
-	ErrForbidden    = errors.New("forbidden")
+	ErrUnauthorized      = errors.New("unauthorized")
+	ErrForbidden         = errors.New("forbidden")
+	ErrSubscriptionLimit = errors.New("subscription limit reached")
 	ErrInternal     = errors.New("internal error")
 )
 
@@ -85,6 +86,15 @@ func NewForbidden() *SafeError {
 		HTTPStatus: http.StatusForbidden,
 		UserMsg:    "You do not have permission to perform this action.",
 		Sentinel:   ErrForbidden,
+	}
+}
+
+func NewSubscriptionLimit(msg string) *SafeError {
+	return &SafeError{
+		Code:       "SUBSCRIPTION_LIMIT_REACHED",
+		HTTPStatus: http.StatusPaymentRequired,
+		UserMsg:    msg,
+		Sentinel:   ErrSubscriptionLimit,
 	}
 }
 

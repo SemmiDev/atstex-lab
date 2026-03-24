@@ -45,8 +45,8 @@ func (s *Server) handleCreateCVProfile() http.HandlerFunc {
 		}
 
 		// Check subscription limits before creating a new profile
-		if err := s.checkSubscriptionLimits(r.Context(), user.ID, "cv_profile"); err != nil {
-			middleware.RespondError(w, r, apperrors.NewForbidden())
+		if errLimit := s.checkSubscriptionLimits(r.Context(), user.ID, "cv_profile"); errLimit != nil {
+			middleware.RespondError(w, r, apperrors.NewSubscriptionLimit(errLimit.Error()))
 			return
 		}
 
@@ -244,7 +244,7 @@ func (s *Server) handleAutoTailorCVProfile() http.HandlerFunc {
 		// 2. Check subscription limits (using ats_simulation limit type or cv_profile)
 		// Auto-tailoring creates a profile AND uses AI. We'll check cv_profile limit.
 		if errLimit := s.checkSubscriptionLimits(r.Context(), user.ID, "cv_profile"); errLimit != nil {
-			middleware.RespondError(w, r, apperrors.NewForbidden())
+			middleware.RespondError(w, r, apperrors.NewSubscriptionLimit(errLimit.Error()))
 			return
 		}
 

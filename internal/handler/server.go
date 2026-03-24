@@ -943,7 +943,7 @@ func (s *Server) handleCreateCVReview() http.HandlerFunc {
 
 		// Check subscription limits
 		if checkErr := s.checkSubscriptionLimits(r.Context(), user.ID, "cv_review"); checkErr != nil {
-			middleware.RespondError(w, r, apperrors.NewForbidden())
+			middleware.RespondError(w, r, apperrors.NewSubscriptionLimit(checkErr.Error()))
 			return
 		}
 
@@ -1064,7 +1064,7 @@ func (s *Server) handleGenerateCoverLetter() http.HandlerFunc {
 
 		// Check subscription limits
 		if checkErr := s.checkSubscriptionLimits(r.Context(), user.ID, "cover_letter"); checkErr != nil {
-			middleware.RespondError(w, r, apperrors.NewForbidden())
+			middleware.RespondError(w, r, apperrors.NewSubscriptionLimit(checkErr.Error()))
 			return
 		}
 
