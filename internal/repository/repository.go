@@ -41,6 +41,12 @@ type Repository interface {
 	CheckUsernameAvailable(ctx context.Context, username string) (bool, error)
 	UpdateCVProfileVisibility(ctx context.Context, profileID uuid.UUID, isPublic bool) error
 	GetPublicCVProfilesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVProfile, error)
+	// Custom Template Builder
+	CreateCustomTemplate(ctx context.Context, t *domain.CustomTemplate) error
+	GetCustomTemplate(ctx context.Context, id uuid.UUID) (*domain.CustomTemplate, error)
+	GetCustomTemplatesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CustomTemplate, error)
+	UpdateCustomTemplate(ctx context.Context, id uuid.UUID, config json.RawMessage) error
+	DeleteCustomTemplate(ctx context.Context, id uuid.UUID) error
 	// AI usage tracking
 	IncrementAITokensUsed(ctx context.Context, userID uuid.UUID, chars int64) error
 	// Feedback methods
@@ -276,6 +282,50 @@ func (r *postgresRepo) UpdateCVProfileTitle(ctx context.Context, id uuid.UUID, t
 
 func (r *postgresRepo) DeleteCVProfile(ctx context.Context, id uuid.UUID) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM cv_profiles WHERE id = $1`, id)
+	return translatePgError(err, "record", nil)
+}
+
+// ── Custom Template CRUD ───────────────────────────────────────
+
+func (r *postgresRepo) CreateCustomTemplate(ctx context.Context, t *domain.CustomTemplate) error {
+	query := `INSERT INTO custom_templates (user_id, name, config) VALUES ($1, $2, $3) RETURNING id, created_at, updated_at`
+	err := r.db.QueryRowxContext(ctx, query, t.UserID, t.Name, t.Config).Scan(&t.ID, &t.CreatedAt, &t.UpdatedAt)
+	return translatePgError(err, "record", nil)
+}
+
+func (r *postgresRepo) GetCustomTemplate(ctx context.Context, id uuid.UUID) (*domain.CustomTemplate, error) {
+	query := `SELECT id, user_id, name, config, created_at, updated_at FROM custom_templates WHERE id = $1`
+	var t domain.CustomTemplate
+	err := r.db.GetContext(ctx, &t, query, id)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, translatePgError(err, "record", nil)
+	}
+	return &t, nil
+}
+
+func (r *postgresRepo) GetCustomTemplatesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CustomTemplate, error) {
+	query := `SELECT id, user_id, name, config, created_at, updated_at FROM custom_templates WHERE user_id = $1 ORDER BY created_at DESC`
+	var templates []domain.CustomTemplate
+	err := r.db.SelectContext(ctx, &templates, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	if templates == nil {
+		templates = []domain.CustomTemplate{}
+	}
+	return templates, nil
+}
+
+func (r *postgresRepo) UpdateCustomTemplate(ctx context.Context, id uuid.UUID, config json.RawMessage) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE custom_templates SET config = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, config, id)
+	return translatePgError(err, "record", nil)
+}
+
+func (r *postgresRepo) DeleteCustomTemplate(ctx context.Context, id uuid.UUID) error {
+	_, err := r.db.ExecContext(ctx, `DELETE FROM custom_templates WHERE id = $1`, id)
 	return translatePgError(err, "record", nil)
 }
 

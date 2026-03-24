@@ -1,0 +1,278 @@
+{{define "builder"}}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    {{template "head" .}}
+    <title>atstex-lab — Custom Builder</title>
+<style>
+/* Builder Workspace Styles */
+.builder-workspace {
+    display: flex;
+    height: calc(100vh - 4rem - 2rem); /* adjusting for header & padding */
+    gap: 1.5rem;
+    overflow: hidden;
+}
+
+/* Left Panel: Tools & Components */
+.builder-sidebar {
+    width: 250px;
+    background: var(--surface);
+    border: 3px solid var(--border);
+    box-shadow: 4px 4px 0 #000;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+.builder-sidebar-header {
+    padding: 1rem;
+    border-bottom: 3px solid var(--border);
+    background: var(--accent3);
+    font-weight: 800;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.component-item {
+    margin: 0.5rem 1rem;
+    padding: 0.75rem;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    box-shadow: 3px 3px 0 #000;
+    cursor: grab;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: transform 0.1s;
+}
+.component-item:active { cursor: grabbing; }
+.component-item:hover { transform: translate(-2px, -2px); }
+
+/* Center Panel: Interactive Canvas */
+.builder-canvas-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 3px solid var(--border);
+    box-shadow: 6px 6px 0 #000;
+    overflow-y: auto;
+}
+.builder-canvas-header {
+    padding: 1rem;
+    border-bottom: 3px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg);
+}
+.canvas-drop-zone {
+    flex: 1;
+    padding: 2rem;
+    background: repeating-linear-gradient(45deg, var(--bg), var(--bg) 10px, var(--surface) 10px, var(--surface) 20px);
+    overflow-y: auto;
+    position: relative;
+    min-height: 500px;
+}
+.dropped-block {
+    background: var(--surface);
+    border: 2px dashed var(--accent);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+.dropped-block-title {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+}
+.block-actions {
+    position: absolute;
+    top: -0.5rem;
+    right: -0.5rem;
+    display: flex;
+    gap: 0.25rem;
+}
+.block-actions button {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 0.2rem;
+}
+
+/* Right Panel: Live Settings/Preview */
+.builder-preview {
+    width: 350px;
+    background: var(--surface);
+    border: 3px solid var(--border);
+    box-shadow: 4px 4px 0 #000;
+    display: flex;
+    flex-direction: column;
+}
+.builder-preview-canvas {
+    flex: 1;
+    background: #e5e5e5;
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#live-pdf-preview {
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--border);
+    box-shadow: 4px 4px 0 #000;
+    background: #fff;
+    display: none;
+}
+</style>
+</head>
+
+<body class="flex flex-col md:flex-row h-dvh w-full bg-bg font-ui text-text overflow-hidden">
+    <!-- Mobile Header -->
+    <div class="md:hidden flex items-center justify-between p-4 bg-surface border-b-[4px] border-border z-40">
+        <div class="font-disp font-extrabold text-2xl">ATSTEX<em class="text-accent italic">LAB</em></div>
+        <button id="sidebar-toggle" class="text-3xl"><i class="ph ph-list"></i></button>
+    </div>
+
+    {{template "sidebar" .}}
+
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+    <main class="flex-1 min-h-0 overflow-y-auto bg-bg relative">
+        <div class="h-full flex flex-col p-6 animate-fade-in-up">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="font-disp font-extrabold text-3xl md:text-4xl text-text uppercase tracking-tight flex items-center gap-3">
+                        <i class="ph-bold ph-paint-brush"></i> Custom Builder
+                    </h1>
+                    <p class="font-mono text-sm text-muted font-bold mt-2">Buat struktur template CV kamu sendiri secara visual.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="btn btn-outline text-sm px-4 py-2" onclick="openLoadModal()"><i class="ph-bold ph-folder-open"></i> Muat</button>
+                    <button class="btn btn-secondary text-sm px-4 py-2" onclick="saveTemplate()"><i class="ph-bold ph-floppy-disk"></i> Simpan</button>
+                    <button class="btn btn-primary text-sm px-4 py-2" onclick="previewPDF()"><i class="ph-bold ph-eye"></i> Tinjau PDF</button>
+                </div>
+            </div>
+
+            <!-- Load Template Modal -->
+            <div id="load-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center">
+                <div class="bg-surface border-[3px] border-border shadow-[8px_8px_0_#000] w-[90%] max-w-lg p-6">
+                    <div class="flex justify-between items-center mb-4 border-b-2 border-border pb-2">
+                        <h2 class="font-disp font-extrabold text-xl uppercase">Muat Template Kustom</h2>
+                        <button onclick="closeLoadModal()" class="text-2xl hover:text-error"><i class="ph-bold ph-x"></i></button>
+                    </div>
+                    <div id="load-modal-content" class="flex flex-col gap-3 max-h-[60vh] overflow-y-auto">
+                        <div class="text-center font-mono text-sm text-muted py-4"><i class="ph-spin ph-spinner text-2xl"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="builder-workspace">
+                
+                <!-- Tools Sidebar -->
+                <div class="builder-sidebar">
+                    <div class="builder-sidebar-header">
+                        <i class="ph-bold ph-puzzle-piece"></i> Komponen
+                    </div>
+                    <div class="p-2 font-mono text-xs text-muted font-bold text-center">Tarik elemen ke kanvas</div>
+                    
+                    <div id="components-list">
+                        <div class="component-item" draggable="true" data-type="header">
+                            <i class="ph-bold ph-identification-card text-accent"></i> Header / Kontak
+                        </div>
+                        <div class="component-item" draggable="true" data-type="summary">
+                            <i class="ph-bold ph-text-align-left text-accent"></i> Ringkasan
+                        </div>
+                        <div class="component-item" draggable="true" data-type="experience">
+                            <i class="ph-bold ph-briefcase text-accent"></i> Pengalaman Kerja
+                        </div>
+                        <div class="component-item" draggable="true" data-type="education">
+                            <i class="ph-bold ph-graduation-cap text-accent"></i> Pendidikan
+                        </div>
+                        <div class="component-item" draggable="true" data-type="skills">
+                            <i class="ph-bold ph-lightning text-accent"></i> Keahlian
+                        </div>
+                        <div class="component-item" draggable="true" data-type="projects">
+                            <i class="ph-bold ph-code text-accent"></i> Proyek
+                        </div>
+                        <div class="component-item" draggable="true" data-type="certifications">
+                            <i class="ph-bold ph-certificate text-accent"></i> Sertifikasi
+                        </div>
+                        <div class="component-item" draggable="true" data-type="languages">
+                            <i class="ph-bold ph-translate text-accent"></i> Bahasa
+                        </div>
+                    </div>
+                    
+                    <div class="builder-sidebar-header mt-auto border-t-[3px]">
+                        <i class="ph-bold ph-layout"></i> Pengaturan
+                    </div>
+                    <div class="p-4 flex flex-col gap-3">
+                        <div>
+                            <label class="font-mono text-xs font-bold block mb-1">Tema Warna</label>
+                            <input type="color" id="theme-color" value="#000000" class="w-full h-10 border-2 border-border cursor-pointer">
+                        </div>
+                        <div>
+                            <label class="font-mono text-xs font-bold block mb-1">Kolom</label>
+                            <select id="layout-columns" class="w-full p-2 border-2 border-border font-mono text-sm font-bold bg-surface">
+                                <option value="1">1 Kolom (Penuh)</option>
+                                <option value="2">2 Kolom (Kiri & Kanan)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Canvas -->
+                <div class="builder-canvas-container">
+                    <div class="builder-canvas-header">
+                        <div class="font-mono font-bold text-sm bg-accent3 px-3 py-1 border-2 border-border shadow-[2px_2px_0_#000]">Struktur Resume</div>
+                        <button class="text-error font-bold text-xs" onclick="clearCanvas()"><i class="ph-bold ph-trash"></i> Bersihkan Kanvas</button>
+                    </div>
+                    <div class="canvas-drop-zone" id="canvas-area">
+                        <!-- Dropzone area -->
+                        <div class="text-center text-muted font-bold font-mono mt-20" id="canvas-placeholder">
+                            <i class="ph-bold ph-download-simple text-4xl mb-2"></i>
+                            <p>Geser komponen ke area ini</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview -->
+                <div class="builder-preview">
+                    <div class="builder-sidebar-header justify-between">
+                        <span><i class="ph-bold ph-file-pdf"></i> Pratinjau Live</span>
+                    </div>
+                    <div class="builder-preview-canvas" id="preview-panel">
+                        <div class="text-center font-mono font-bold text-sm text-muted" id="preview-placeholder">
+                            <p>Klik "Tinjau PDF" untuk merender</p>
+                        </div>
+                        <iframe id="live-pdf-preview" src=""></iframe>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        // Sidebar logic
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const toggleBtn = document.getElementById('sidebar-toggle');
+        const collapseBtn = document.getElementById('sidebar-collapse');
+        if (toggleBtn) toggleBtn.addEventListener('click', () => { sidebar.classList.add('open'); overlay.classList.add('open'); });
+        if (overlay) overlay.addEventListener('click', () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); });
+        if (collapseBtn) collapseBtn.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); });
+    </script>
+    <script src="/static/js/builder.js"></script>
+    <script src="/static/js/dark-mode.js"></script>
+</body>
+</html>
+{{end}}

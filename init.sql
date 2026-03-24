@@ -20,6 +20,16 @@ CREATE TABLE IF NOT EXISTS sessions (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS custom_templates (
+    id UUID PRIMARY KEY DEFAULT uuidv7(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    config JSONB NOT NULL DEFAULT '{}',
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_custom_templates_user_id ON custom_templates(user_id);
+
 CREATE INDEX idx_sessions_token ON sessions(token);
 CREATE INDEX idx_users_google_id ON users(google_id);
 

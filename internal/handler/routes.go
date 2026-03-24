@@ -104,6 +104,12 @@ func (s *Server) routes() {
 		// Gallery (Multi-Template Preview)
 		r.Get("/gallery", s.handleGalleryPage())
 		r.Post("/api/gallery/compile", s.handleGalleryCompile())
+
+		// Custom Template Builder
+		r.Get("/builder", s.handleBuilderPage())
+		r.Post("/api/builder/save", s.handleSaveCustomTemplate())
+		r.Get("/api/builder/load", s.handleLoadCustomTemplates())
+		r.Post("/api/builder/preview", s.handlePreviewCustomTemplate())
 	})
 
 	// Admin routes (requires login + admin role)
