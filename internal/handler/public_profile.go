@@ -86,14 +86,21 @@ func (s *Server) handlePublicProfile() http.HandlerFunc {
 		// The viewer may or may not be logged in
 		viewer, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
+		scheme := "http"
+		if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
+			scheme = "https"
+		}
+		appURL := scheme + "://" + r.Host
+
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		data := map[string]interface{}{
-			"ProfileUser": profileUser,
-			"Profiles":    enriched,
-			"User":        viewer,
-			"Username":    username,
+			"ProfileUser":  profileUser,
+			"Profiles":     enriched,
+			"User":         viewer,
+			"Username":     username,
 			//nolint:gosec // user profile image is sanitized (via url template parameter extraction)
 			"ProfileImage": template.URL(profileImage),
+			"AppURL":       appURL,
 		}
 		if err := s.tmpl.ExecuteTemplate(w, "public_profile", data); err != nil {
 			s.reqLog(r).Error("template error", "err", err)

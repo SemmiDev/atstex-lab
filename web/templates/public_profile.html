@@ -10,15 +10,15 @@
     <meta property="og:title" content="{{.ProfileUser.Name}} — Resume ATSTEX-LAB">
     <meta property="og:description" content="Lihat profil CV profesional {{.ProfileUser.Name}}. Resume LaTeX yang dioptimalkan untuk ATS.">
     <meta property="og:type" content="profile">
-    <meta property="og:url" content="/u/{{.Username}}">
+    <meta property="og:url" content="{{.AppURL}}/u/{{.Username}}">
     <meta name="robots" content="index, follow">
     <meta name="author" content="ATSTEXLAB">
     <meta name="keywords" content="pembuat cv ats, resume latex, pembuat cv, resume {{.ProfileUser.Name}}">
-    <meta property="og:image" content="/static/cv-favicon.svg">
+    <meta property="og:image" content="{{.AppURL}}/static/cv-favicon.svg">
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:title" content="{{.ProfileUser.Name}} — Resume ATSTEX-LAB">
     <meta property="twitter:description" content="Lihat profil CV profesional {{.ProfileUser.Name}}. Resume LaTeX yang dioptimalkan untuk ATS.">
-    <meta property="twitter:image" content="/static/cv-favicon.svg">
+    <meta property="twitter:image" content="{{.AppURL}}/static/cv-favicon.svg">
     <link rel="icon" type="image/svg+xml" href="/static/cv-favicon.svg">
     <link rel="stylesheet" href="/static/css/style.css">
     <link
@@ -163,6 +163,17 @@
         <img src="{{.ProfileImage}}" alt="{{.ProfileUser.Name}}">
         <h1>{{.ProfileUser.Name}}</h1>
         <span class="username">@{{.Username}}</span>
+        <div class="share-buttons" style="display: flex; gap: 0.5rem; margin-top: 0.5rem; justify-content: center; flex-wrap: wrap;">
+            <button onclick="shareLinkedIn()" class="download-btn" style="background:#0a66c2; border-color:#004182; padding:0.4rem 0.8rem;">
+                <i class="ph-bold ph-linkedin-logo"></i> Bagikan
+            </button>
+            <button onclick="shareTwitter()" class="download-btn" style="background:#1da1f2; border-color:#0d8bdc; padding:0.4rem 0.8rem;">
+                <i class="ph-bold ph-twitter-logo"></i> Tweet
+            </button>
+            <button onclick="copyLink()" class="download-btn" style="background:var(--surface); color:var(--text); border-color:var(--border); padding:0.4rem 0.8rem;">
+                <i class="ph-bold ph-link" id="copy-icon"></i> <span id="copy-text">Salin Tautan</span>
+            </button>
+        </div>
     </div>
 
     <div class="profiles-container">
@@ -400,6 +411,31 @@
             body.innerHTML = '<p style="color:var(--muted);font-weight:600;text-align:center;padding:2rem;">Biodata tidak tersedia.</p>';
         }
     });
+
+    // ── Social Sharing ─────────────────────────────────
+    function shareLinkedIn() {
+        const url = encodeURIComponent(window.location.href);
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=600');
+    }
+
+    function shareTwitter() {
+        const url = encodeURIComponent(window.location.href);
+        const text = encodeURIComponent(`Lihat profil CV profesional {{.ProfileUser.Name}} di ATSTEX-LAB! 🚀\n`);
+        window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank', 'width=600,height=600');
+    }
+
+    function copyLink() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            const icon = document.getElementById('copy-icon');
+            const text = document.getElementById('copy-text');
+            icon.classList.replace('ph-link', 'ph-check');
+            text.innerText = 'Tersalin!';
+            setTimeout(() => {
+                icon.classList.replace('ph-check', 'ph-link');
+                text.innerText = 'Salin Tautan';
+            }, 2000);
+        });
+    }
     </script>
     <script src="/static/js/dark-mode.js"></script>
 </body>
