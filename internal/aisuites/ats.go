@@ -69,6 +69,7 @@ CV Data:
 		},
 		llms.WithTemperature(0.2), // keep it analytical
 		llms.WithMaxTokens(1024),
+		llms.WithJSONMode(),
 	)
 	if err != nil {
 		return nil, 0, fmt.Errorf("LLM call failed (%s/%s): %w", cfg.Provider, cfg.Model, err)

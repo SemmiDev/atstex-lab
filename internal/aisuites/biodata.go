@@ -28,6 +28,7 @@ func ExtractBiodata(ctx context.Context, text string, cfg AIConfig) (map[string]
 		},
 		llms.WithTemperature(0.1),
 		llms.WithMaxTokens(16384),
+		llms.WithJSONMode(),
 	)
 	if err != nil {
 		return nil, 0, nil, fmt.Errorf("LLM call failed (%s/%s): %w", cfg.Provider, cfg.Model, err)

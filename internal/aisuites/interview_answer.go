@@ -70,6 +70,7 @@ Return ONLY valid JSON with this exact structure (no markdown fences, no explana
 		},
 		llms.WithTemperature(0.4),
 		llms.WithMaxTokens(1500),
+		llms.WithJSONMode(),
 	)
 	if err != nil {
 		return nil, 0, fmt.Errorf("LLM call failed (%s/%s): %w", cfg.Provider, cfg.Model, err)
