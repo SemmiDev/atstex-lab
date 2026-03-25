@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"context"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -55,6 +56,28 @@ func (s *Server) handlePublicProfile() http.HandlerFunc {
 		if profiles == nil {
 			profiles = []domain.CVProfile{}
 		}
+
+		// Record analytics event
+		ip := r.Header.Get("X-Real-IP")
+		if ip == "" {
+			ip = r.RemoteAddr
+		}
+		ua := r.UserAgent()
+		ref := r.Referer()
+
+		go func(profiles []domain.CVProfile, profileUser *domain.User, ip, ua, ref string) {
+			ctx := context.Background()
+			for _, p := range profiles {
+				_ = s.repo.CreateProfileAnalyticsEvent(ctx, &domain.ProfileAnalyticsEvent{
+					UserID:    profileUser.ID,
+					ProfileID: p.ID,
+					Action:    "view",
+					IPAddress: &ip,
+					UserAgent: &ua,
+					Referer:   &ref,
+				})
+			}
+		}(profiles, profileUser, ip, ua, ref)
 
 		// Parse biodata JSON for each profile into a map for template rendering
 		type profileWithBiodata struct {
@@ -160,13 +183,18 @@ func (s *Server) handlePublicProfileDownloadPDF() http.HandlerFunc {
 		}
 
 		opts := compiler.Options{
-			Engine:  compiler.EnginePdfLatex,
-			Timeout: 60 * time.Second,
+			Engine:      compiler.EngineTectonic,
+			Timeout:     60 * time.Second,
+			PhotoBase64: cvData.Personal.Photo,
 		}
 
 		result, err := compiler.Compile(r.Context(), []byte(rendered), opts)
 		if err != nil {
-			s.reqLog(r).Error("PDF compilation failed", "err", err)
+			var logData string
+			if result != nil {
+				logData = result.Log
+			}
+			s.reqLog(r).Error("PDF compilation failed", "err", err, "log", logData)
 			http.Error(w, "PDF compilation failed", http.StatusInternalServerError)
 			return
 		}
@@ -175,6 +203,25 @@ func (s *Server) handlePublicProfileDownloadPDF() http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/pdf")
 		w.Header().Set("Content-Disposition", `attachment; filename="`+filename+`"`)
 		_, _ = w.Write(result.PDF)
+
+		// Record download event
+		ip := r.Header.Get("X-Real-IP")
+		if ip == "" {
+			ip = r.RemoteAddr
+		}
+		ua := r.UserAgent()
+		ref := r.Referer()
+
+		go func(profileUser *domain.User, profile *domain.CVProfile, ip, ua, ref string) {
+			_ = s.repo.CreateProfileAnalyticsEvent(context.Background(), &domain.ProfileAnalyticsEvent{
+				UserID:    profileUser.ID,
+				ProfileID: profile.ID,
+				Action:    "download_pdf",
+				IPAddress: &ip,
+				UserAgent: &ua,
+				Referer:   &ref,
+			})
+		}(profileUser, profile, ip, ua, ref)
 	}
 }
 

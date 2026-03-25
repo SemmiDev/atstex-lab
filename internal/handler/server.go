@@ -292,7 +292,7 @@ func (s *Server) handleCompile() http.HandlerFunc {
 		case compiler.EnginePdfLatex, compiler.EngineXeLatex, compiler.EngineLuaLatex, compiler.EngineTectonic:
 			// valid
 		default:
-			engine = compiler.EnginePdfLatex
+			engine = compiler.EngineTectonic
 		}
 
 		opts := compiler.Options{

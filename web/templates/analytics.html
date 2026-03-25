@@ -1,0 +1,110 @@
+{{define "analytics"}}
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    {{template "head" .}}
+    <title>atstex-lab — Analytics Dashboard</title>
+</head>
+
+<body class="flex flex-col md:flex-row h-dvh w-full bg-bg font-ui text-text overflow-hidden">
+    <!-- Mobile Header overlay toggle -->
+    <div class="md:hidden flex items-center justify-between p-4 bg-surface border-b-[4px] border-border z-40">
+        <div class="font-disp font-extrabold text-2xl">ATSTEX<em class="text-accent italic">LAB</em></div>
+        <button id="sidebar-toggle" class="text-3xl"><i class="ph ph-list"></i></button>
+    </div>
+
+    <!-- The Sidebar -->
+    {{template "sidebar" .}}
+
+    <!-- Overlay for mobile clicking -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
+
+    <main class="flex-1 min-h-0 overflow-y-auto bg-bg relative p-6 md:p-10 flex justify-center">
+        <div class="w-full max-w-4xl flex flex-col gap-8">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                    <h1 class="font-disp font-extrabold text-3xl md:text-4xl capitalize flex items-center gap-3">
+                        <i class="ph-bold ph-chart-line-up"></i> Analytics Dashboard
+                    </h1>
+                    <p class="font-semibold text-muted font-mono mt-1">Lacak jangkauan profil publik dan unduhan CV Anda</p>
+                </div>
+            </div>
+
+            <!-- Total Metrics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-surface border-[4px] border-border p-6 shadow-[6px_6px_0_#000] flex flex-col gap-2">
+                    <div class="text-muted font-bold tracking-wider uppercase flex items-center gap-2">
+                        <i class="ph-bold ph-eye text-xl"></i> Total Kunjungan Profil
+                    </div>
+                    <div class="font-disp font-extrabold text-6xl text-accent">{{.Metrics.TotalViews}}</div>
+                    <div class="text-sm font-semibold text-muted mt-2">Dihitung sejak profil dibuat.</div>
+                </div>
+
+                <div class="bg-surface border-[4px] border-border p-6 shadow-[6px_6px_0_#000] flex flex-col gap-2">
+                    <div class="text-muted font-bold tracking-wider uppercase flex items-center gap-2">
+                        <i class="ph-bold ph-download-simple text-xl"></i> Total Unduhan PDF
+                    </div>
+                    <div class="font-disp font-extrabold text-6xl text-accent">{{.Metrics.TotalDownloads}}</div>
+                    <div class="text-sm font-semibold text-muted mt-2">Format PDF dari profil publik.</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+                <!-- Views Last 30 Days -->
+                <div class="flex flex-col gap-4">
+                    <h2 class="font-disp font-extrabold text-xl flex items-center gap-2 uppercase tracking-wide border-b-[3px] border-border pb-2">
+                        <i class="ph-bold ph-calendar-blank"></i> Kunjungan 30 Hari Terakhir
+                    </h2>
+                    {{if .Metrics.ViewsLast30Days}}
+                    <div class="bg-surface border-[3px] border-border shadow-[4px_4px_0_#000] p-4 flex flex-col gap-2 max-h-64 overflow-y-auto w-full">
+                        {{range .Metrics.ViewsLast30Days}}
+                        <div class="flex items-center justify-between py-2 border-b-2 border-border/50 last:border-0">
+                            <span class="font-mono font-bold text-sm">{{.Date}}</span>
+                            <span class="font-disp font-extrabold bg-accent text-white px-2 py-0.5 rounded-sm">{{.Count}}</span>
+                        </div>
+                        {{end}}
+                    </div>
+                    {{else}}
+                    <div class="bg-surface border-[3px] border-border border-dashed p-6 text-center text-muted font-semibold">
+                        Belum ada data kunjungan bulan ini.
+                    </div>
+                    {{end}}
+                </div>
+
+                <!-- Top Referers -->
+                <div class="flex flex-col gap-4">
+                    <h2 class="font-disp font-extrabold text-xl flex items-center gap-2 uppercase tracking-wide border-b-[3px] border-border pb-2">
+                        <i class="ph-bold ph-link"></i> Sumber Pengunjung Teratas
+                    </h2>
+                    {{if .Metrics.TopReferers}}
+                    <div class="bg-surface border-[3px] border-border shadow-[4px_4px_0_#000] p-4 flex flex-col gap-2 w-full">
+                        {{range .Metrics.TopReferers}}
+                        <div class="flex items-center justify-between py-2 border-b-2 border-border/50 last:border-0 gap-4">
+                            <span class="font-semibold text-sm truncate max-w-[200px]" title="{{.Referer}}">
+                                {{if or (eq .Referer "") (eq .Referer "Direct")}}
+                                    <span class="text-muted italic">Direct / Tidak Diketahui</span>
+                                {{else}}
+                                    {{.Referer}}
+                                {{end}}
+                            </span>
+                            <span class="font-disp font-extrabold bg-blue-500 text-white px-2 py-0.5 rounded-sm flex-shrink-0">{{.Count}}</span>
+                        </div>
+                        {{end}}
+                    </div>
+                    {{else}}
+                    <div class="bg-surface border-[3px] border-border border-dashed p-6 text-center text-muted font-semibold">
+                        Belum ada data sumber pengunjung.
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="/static/js/dark-mode.js"></script>
+</body>
+
+</html>
+{{end}}

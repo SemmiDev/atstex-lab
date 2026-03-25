@@ -42,6 +42,7 @@ func (s *Server) routes() {
 	s.router.Group(func(r chi.Router) {
 		r.Use(auth.Middleware(s.repo))
 		r.Get("/profile", s.handleProfile())
+		r.Get("/analytics", s.handleAnalyticsPage())
 		r.Get("/subscription", s.handleSubscriptionPage())
 		r.Post("/auth/sessions/{token}/delete", s.handleDeleteSession())
 		r.Get("/input", s.handleInput())

@@ -109,6 +109,10 @@ type Repository interface {
 	GetUserSubscriptions(ctx context.Context, userID uuid.UUID) ([]domain.UserSubscription, error)
 	GetFreeSubscriptionPlan(ctx context.Context) (*domain.SubscriptionPlan, error)
 
+	// Analytics
+	CreateProfileAnalyticsEvent(ctx context.Context, e *domain.ProfileAnalyticsEvent) error
+	GetDashboardMetrics(ctx context.Context, userID uuid.UUID) (*domain.DashboardMetrics, error)
+
 	Close() error
 }
 
@@ -151,6 +155,69 @@ func Connect(ctx context.Context, dsn string) (Repository, error) {
 
 func (r *postgresRepo) Close() error {
 	return r.db.Close()
+}
+
+// ── Profile Analytics ──────────────────────────────────────────
+
+func (r *postgresRepo) CreateProfileAnalyticsEvent(ctx context.Context, e *domain.ProfileAnalyticsEvent) error {
+	query := `INSERT INTO profile_analytics (user_id, profile_id, action, ip_address, user_agent, referer)
+		VALUES ($1, $2, $3, $4, $5, $6)
+		RETURNING id, created_at`
+	return r.db.QueryRowxContext(ctx, query,
+		e.UserID, e.ProfileID, e.Action, e.IPAddress, e.UserAgent, e.Referer,
+	).Scan(&e.ID, &e.CreatedAt)
+}
+
+func (r *postgresRepo) GetDashboardMetrics(ctx context.Context, userID uuid.UUID) (*domain.DashboardMetrics, error) {
+	metrics := &domain.DashboardMetrics{
+		ViewsLast30Days: []domain.DailyAnalytic{},
+		TopReferers:     []domain.RefererCount{},
+	}
+
+	err := r.db.GetContext(ctx, &metrics.TotalViews, `SELECT COUNT(*) FROM profile_analytics WHERE user_id = $1 AND action = 'view'`, userID)
+	if err != nil {
+		return nil, translatePgError(err, "total views", nil)
+	}
+
+	err = r.db.GetContext(ctx, &metrics.TotalDownloads, `SELECT COUNT(*) FROM profile_analytics WHERE user_id = $1 AND action = 'download_pdf'`, userID)
+	if err != nil {
+		return nil, translatePgError(err, "total downloads", nil)
+	}
+
+	queryDaily := `
+		SELECT d::date::text AS date, COALESCE(c.cnt, 0) AS count
+		FROM generate_series(
+			(CURRENT_DATE - INTERVAL '29 days'),
+			CURRENT_DATE,
+			'1 day'
+		) AS d
+		LEFT JOIN (
+			SELECT DATE_TRUNC('day', created_at)::date AS day, COUNT(*) AS cnt
+			FROM profile_analytics
+			WHERE user_id = $1 AND action = 'view' AND created_at >= CURRENT_DATE - INTERVAL '29 days'
+			GROUP BY day
+		) c ON c.day = d::date
+		ORDER BY d
+	`
+	err = r.db.SelectContext(ctx, &metrics.ViewsLast30Days, queryDaily, userID)
+	if err != nil {
+		return nil, translatePgError(err, "daily views", nil)
+	}
+
+	queryReferers := `
+		SELECT COALESCE(referer, 'Direct') AS referer, COUNT(*) as count
+		FROM profile_analytics
+		WHERE user_id = $1 AND action = 'view'
+		GROUP BY referer
+		ORDER BY count DESC
+		LIMIT 5
+	`
+	err = r.db.SelectContext(ctx, &metrics.TopReferers, queryReferers, userID)
+	if err != nil {
+		return nil, translatePgError(err, "top referers", nil)
+	}
+
+	return metrics, nil
 }
 
 const userColumns = `id, google_id, email, name, picture, role, ai_tokens_used, username, is_blocked, created_at, updated_at`
