@@ -1,72 +1,79 @@
-# ── Dockerfile.tectonic ──────────────────────────────────────────────────────
-# Alternative image using Tectonic instead of pdflatex/xelatex/lualatex.
-# Tectonic auto-downloads only the TeX packages each document actually uses,
-# producing an image of ~150–200 MB (vs ~8 GB with full TeX Live).
-#
-# Trade-offs:
-#   ✓  Much smaller image
-#   ✓  No manual package management (auto-fetch from CTAN bundle)
-#   ✓  Single, modern engine with PDF output
-#   ✗  No xelatex / lualatex engine selection
-#   ✗  First compile of a new document is slower (package download)
-#
-# Usage:
-#   docker compose -f compose.yml -f compose.tectonic.yml up -d --build
-# ─────────────────────────────────────────────────────────────────────────────
-
-# ── Stage 1: Build Go binary ────────────────────────────────────────────────
+# ── Stage 1: Build Go binary (FAST + CACHED) ────────────────────────────────
 FROM golang:1.26-alpine AS builder
 
 WORKDIR /build
 
-COPY go.mod go.sum ./
-RUN go mod download
+# Better proxy + deterministic builds
+ENV GOPROXY=https://proxy.golang.org,direct \
+    CGO_ENABLED=0
 
+# Copy deps first (cache friendly)
+COPY go.mod go.sum ./
+
+# 🔥 Use BuildKit cache (BIG WIN)
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go mod download
+
+# Copy source
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+
+# Build binary (also cached)
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    GOOS=linux GOARCH=amd64 \
     go build -ldflags="-s -w" -o atstex-lab ./cmd/server/main.go
 
 
-# ── Stage 2: Runtime with Tectonic ──────────────────────────────────────────
+# ── Stage 2: Runtime with Tectonic (LEAN + STABLE) ──────────────────────────
 FROM alpine:3.21
 
-# Tectonic is available in Alpine community repos
-RUN apk add --no-cache tectonic libstdc++ fontconfig freetype
+# Install only required runtime deps
+RUN apk add --no-cache \
+    tectonic \
+    libstdc++ \
+    fontconfig \
+    freetype \
+    ca-certificates
 
-# Persistent package cache directory
-RUN mkdir -p /var/cache/tectonic && chmod 777 /var/cache/tectonic
+# Cache directory (persist across container runs if mounted)
 ENV XDG_CACHE_HOME=/var/cache/tectonic
+RUN mkdir -p ${XDG_CACHE_HOME} && chmod 777 ${XDG_CACHE_HOME}
 
-# Pre-download the massive Tectonic package bundle during image build
-# so the first user request doesn't timeout after 30s. We include all packages
-# and fonts used by the CV templates here so they get cached inside the image.
-RUN echo '\documentclass{article}' > /tmp/dummy.tex && \
-    echo '\usepackage[T1]{fontenc}' >> /tmp/dummy.tex && \
-    echo '\usepackage[utf8]{inputenc}' >> /tmp/dummy.tex && \
-    echo '\usepackage[english]{babel}' >> /tmp/dummy.tex && \
-    echo '\usepackage{geometry,setspace,fancyhdr,array,tabularx,booktabs,longtable}' >> /tmp/dummy.tex && \
-    echo '\usepackage{enumitem,xcolor,graphicx,hyperref,microtype,titlesec}' >> /tmp/dummy.tex && \
-    echo '\usepackage{multicol,etoolbox,latexsym,marvosym,verbatim,tikz}' >> /tmp/dummy.tex && \
-    echo '\usepackage{helvet,mathptmx,palatino,courier,lmodern}' >> /tmp/dummy.tex && \
-    echo '\usepackage{amsmath,amssymb,amsfonts,amsthm}' >> /tmp/dummy.tex && \
-    echo '\usepackage{fontspec}' >> /tmp/dummy.tex && \
-    echo '\begin{document}Hello — World\end{document}' >> /tmp/dummy.tex && \
-    tectonic /tmp/dummy.tex && \
-    rm -f /tmp/dummy.*
+# 🔥 Prewarm Tectonic cache (but optimized layer)
+RUN <<EOF
+set -e
+cat <<LATEX > /tmp/dummy.tex
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{geometry,setspace,fancyhdr,array,tabularx,booktabs,longtable}
+\usepackage{enumitem,xcolor,graphicx,hyperref,microtype,titlesec}
+\usepackage{multicol,etoolbox,latexsym,marvosym,verbatim,tikz}
+\usepackage{helvet,mathptmx,palatino,courier,lmodern}
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\begin{document}
+Hello World
+\end{document}
+LATEX
+
+tectonic /tmp/dummy.tex
+rm -rf /tmp/*
+EOF
 
 # Non-root user
-RUN adduser -D -u 1001 atstex-lab && \
-    chown -R atstex-lab:atstex-lab /var/cache/tectonic
+RUN adduser -D -u 1001 appuser && \
+    chown -R appuser:appuser ${XDG_CACHE_HOME}
 
-WORKDIR /home/atstex-lab
+WORKDIR /home/appuser
 
+# Copy binary only (NO extra files)
 COPY --from=builder /build/atstex-lab /usr/local/bin/atstex-lab
-COPY .env /home/atstex-lab/.env
 
-USER atstex-lab
+USER appuser
 
 EXPOSE 8080
-
 ENV ADDR=:8080
 
 ENTRYPOINT ["/usr/local/bin/atstex-lab"]
