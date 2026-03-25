@@ -48,7 +48,7 @@ type Options struct {
 // DefaultOptions returns sensible defaults.
 func DefaultOptions() Options {
 	return Options{
-		Engine:  EnginePdfLatex,
+		Engine:  EngineTectonic,
 		Timeout: defaultTimeout,
 	}
 }
