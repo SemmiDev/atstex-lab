@@ -21,9 +21,11 @@ import (
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/compiler"
 	"github.com/semmidev/atstex-lab/internal/cvtemplate"
+	"github.com/semmidev/atstex-lab/internal/dbx"
 	"github.com/semmidev/atstex-lab/internal/domain"
 	"github.com/semmidev/atstex-lab/internal/middleware"
 	"github.com/semmidev/atstex-lab/internal/repository"
+	"github.com/semmidev/atstex-lab/internal/validate"
 	"github.com/semmidev/problem"
 )
 
@@ -42,16 +44,18 @@ type Server struct {
 	repo       repository.Repository
 	authConfig *auth.Config
 	aiConfig   aisuites.AIConfig
+	txm        dbx.TransactionManager
 }
 
 // NewServer constructs a Server and sets up its routes.
-func NewServer(tmpl *template.Template, logger *slog.Logger, r repository.Repository, ac *auth.Config, ai aisuites.AIConfig) *Server {
+func NewServer(tmpl *template.Template, logger *slog.Logger, r repository.Repository, ac *auth.Config, ai aisuites.AIConfig, txm dbx.TransactionManager) *Server {
 	s := &Server{
 		tmpl:       tmpl,
 		logger:     logger,
 		repo:       r,
 		authConfig: ac,
 		aiConfig:   ai,
+		txm:        txm,
 	}
 	s.routes()
 	return s
@@ -554,29 +558,16 @@ func (s *Server) handleCreateFeedback() http.HandlerFunc {
 		r.Body = http.MaxBytesReader(w, r.Body, 10<<10)
 
 		var req struct {
-			Subject string `json:"subject"`
-			Message string `json:"message"`
+			Subject string `json:"subject" validate:"required,max=200"`
+			Message string `json:"message" validate:"required,max=2000"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body or payload too large"))
 			return
 		}
 
-		req.Subject = strings.TrimSpace(req.Subject)
-		req.Message = strings.TrimSpace(req.Message)
-
-		if req.Subject == "" || req.Message == "" {
-			middleware.RespondError(w, r, apperrors.NewInvalidInput("subject and message are required"))
-			return
-		}
-
-		if len(req.Subject) > 200 {
-			middleware.RespondError(w, r, apperrors.NewInvalidInput("subject must not exceed 200 characters"))
-			return
-		}
-
-		if len(req.Message) > 2000 {
-			middleware.RespondError(w, r, apperrors.NewInvalidInput("message must not exceed 2000 characters"))
+		if errs := validate.Struct(req); errs != nil {
+			middleware.RespondError(w, r, apperrors.NewValidationError(errs))
 			return
 		}
 
@@ -657,14 +648,14 @@ func (s *Server) handleAdminReplyFeedback() http.HandlerFunc {
 		}
 
 		var req struct {
-			Reply string `json:"reply"`
+			Reply string `json:"reply" validate:"required"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
-		if req.Reply == "" {
-			middleware.RespondError(w, r, apperrors.NewInvalidInput("reply is required"))
+		if errs := validate.Struct(req); errs != nil {
+			middleware.RespondError(w, r, apperrors.NewValidationError(errs))
 			return
 		}
 

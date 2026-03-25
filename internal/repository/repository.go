@@ -13,6 +13,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib" // blank import for pgx driver
 	"github.com/jmoiron/sqlx"
 	"github.com/semmidev/atstex-lab/internal/apperrors"
+	"github.com/semmidev/atstex-lab/internal/dbx"
 	"github.com/semmidev/atstex-lab/internal/domain"
 )
 
@@ -120,7 +121,13 @@ type postgresRepo struct {
 	db *sqlx.DB
 }
 
-func Connect(ctx context.Context, dsn string) (Repository, error) {
+// DB returns the underlying *sqlx.DB so callers (e.g. main) can
+// construct a dbx.TransactionManager from it.
+func (r *postgresRepo) DB() *sqlx.DB {
+	return r.db
+}
+
+func Connect(ctx context.Context, dsn string) (*postgresRepo, error) {
 	// Beri batas waktu maksimal untuk seluruh proses connect
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
@@ -160,26 +167,28 @@ func (r *postgresRepo) Close() error {
 // ── Profile Analytics ──────────────────────────────────────────
 
 func (r *postgresRepo) CreateProfileAnalyticsEvent(ctx context.Context, e *domain.ProfileAnalyticsEvent) error {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `INSERT INTO profile_analytics (user_id, profile_id, action, ip_address, user_agent, referer)
 		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING id, created_at`
-	return r.db.QueryRowxContext(ctx, query,
+	return exec.QueryRowxContext(ctx, query,
 		e.UserID, e.ProfileID, e.Action, e.IPAddress, e.UserAgent, e.Referer,
 	).Scan(&e.ID, &e.CreatedAt)
 }
 
 func (r *postgresRepo) GetDashboardMetrics(ctx context.Context, userID uuid.UUID) (*domain.DashboardMetrics, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	metrics := &domain.DashboardMetrics{
 		ViewsLast30Days: []domain.DailyAnalytic{},
 		TopReferers:     []domain.RefererCount{},
 	}
 
-	err := r.db.GetContext(ctx, &metrics.TotalViews, `SELECT COUNT(*) FROM profile_analytics WHERE user_id = $1 AND action = 'view'`, userID)
+	err := exec.GetContext(ctx, &metrics.TotalViews, `SELECT COUNT(*) FROM profile_analytics WHERE user_id = $1 AND action = 'view'`, userID)
 	if err != nil {
 		return nil, translatePgError(err, "total views", nil)
 	}
 
-	err = r.db.GetContext(ctx, &metrics.TotalDownloads, `SELECT COUNT(*) FROM profile_analytics WHERE user_id = $1 AND action = 'download_pdf'`, userID)
+	err = exec.GetContext(ctx, &metrics.TotalDownloads, `SELECT COUNT(*) FROM profile_analytics WHERE user_id = $1 AND action = 'download_pdf'`, userID)
 	if err != nil {
 		return nil, translatePgError(err, "total downloads", nil)
 	}
@@ -199,7 +208,7 @@ func (r *postgresRepo) GetDashboardMetrics(ctx context.Context, userID uuid.UUID
 		) c ON c.day = d::date
 		ORDER BY d
 	`
-	err = r.db.SelectContext(ctx, &metrics.ViewsLast30Days, queryDaily, userID)
+	err = exec.SelectContext(ctx, &metrics.ViewsLast30Days, queryDaily, userID)
 	if err != nil {
 		return nil, translatePgError(err, "daily views", nil)
 	}
@@ -212,7 +221,7 @@ func (r *postgresRepo) GetDashboardMetrics(ctx context.Context, userID uuid.UUID
 		ORDER BY count DESC
 		LIMIT 5
 	`
-	err = r.db.SelectContext(ctx, &metrics.TopReferers, queryReferers, userID)
+	err = exec.SelectContext(ctx, &metrics.TopReferers, queryReferers, userID)
 	if err != nil {
 		return nil, translatePgError(err, "top referers", nil)
 	}
@@ -223,6 +232,7 @@ func (r *postgresRepo) GetDashboardMetrics(ctx context.Context, userID uuid.UUID
 const userColumns = `id, google_id, email, name, picture, role, ai_tokens_used, username, is_blocked, created_at, updated_at`
 
 func (r *postgresRepo) UpsertUser(ctx context.Context, googleID, email, name, picture string) (*domain.User, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `
 		INSERT INTO users (google_id, email, name, picture)
 		VALUES ($1, $2, $3, $4)
@@ -234,7 +244,7 @@ func (r *postgresRepo) UpsertUser(ctx context.Context, googleID, email, name, pi
 		RETURNING ` + userColumns + `
 	`
 	var u domain.User
-	err := r.db.GetContext(ctx, &u, query, googleID, email, name, picture)
+	err := exec.GetContext(ctx, &u, query, googleID, email, name, picture)
 	if err != nil {
 		return &u, translatePgError(err, "record", nil)
 	}
@@ -242,9 +252,10 @@ func (r *postgresRepo) UpsertUser(ctx context.Context, googleID, email, name, pi
 }
 
 func (r *postgresRepo) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `SELECT ` + userColumns + ` FROM users WHERE id = $1`
 	var u domain.User
-	err := r.db.GetContext(ctx, &u, query, id)
+	err := exec.GetContext(ctx, &u, query, id)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
@@ -255,17 +266,20 @@ func (r *postgresRepo) GetUser(ctx context.Context, id uuid.UUID) (*domain.User,
 }
 
 func (r *postgresRepo) DeleteUser(ctx context.Context, id uuid.UUID) error {
-	_, err := r.db.ExecContext(ctx, `DELETE FROM users WHERE id = $1`, id)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `DELETE FROM users WHERE id = $1`, id)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) SoftDeleteUser(ctx context.Context, id uuid.UUID) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE users SET is_blocked = true, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, id)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `UPDATE users SET is_blocked = true, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, id)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) CreateSession(ctx context.Context, userID uuid.UUID, token, ipAddress, userAgent string, expiresAt time.Time) error {
-	_, err := r.db.ExecContext(ctx, `
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `
 		INSERT INTO sessions (user_id, token, ip_address, user_agent, expires_at)
 		VALUES ($1, $2, $3, $4, $5)
 	`, userID, token, ipAddress, userAgent, expiresAt)
@@ -273,9 +287,10 @@ func (r *postgresRepo) CreateSession(ctx context.Context, userID uuid.UUID, toke
 }
 
 func (r *postgresRepo) GetSession(ctx context.Context, token string) (*domain.Session, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `SELECT id, user_id, token, ip_address, user_agent, expires_at, created_at FROM sessions WHERE token = $1`
 	var sess domain.Session
-	err := r.db.GetContext(ctx, &sess, query, token)
+	err := exec.GetContext(ctx, &sess, query, token)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
@@ -286,9 +301,10 @@ func (r *postgresRepo) GetSession(ctx context.Context, token string) (*domain.Se
 }
 
 func (r *postgresRepo) GetSessionsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.Session, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `SELECT id, user_id, token, COALESCE(ip_address, '') as ip_address, COALESCE(user_agent, '') as user_agent, expires_at, created_at FROM sessions WHERE user_id = $1 ORDER BY expires_at DESC`
 	var sessions []domain.Session
-	err := r.db.SelectContext(ctx, &sessions, query, userID)
+	err := exec.SelectContext(ctx, &sessions, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -296,7 +312,8 @@ func (r *postgresRepo) GetSessionsByUserID(ctx context.Context, userID uuid.UUID
 }
 
 func (r *postgresRepo) DeleteSession(ctx context.Context, token string) error {
-	_, err := r.db.ExecContext(ctx, `DELETE FROM sessions WHERE token = $1`, token)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `DELETE FROM sessions WHERE token = $1`, token)
 	return translatePgError(err, "record", nil)
 }
 
@@ -305,9 +322,10 @@ func (r *postgresRepo) DeleteSession(ctx context.Context, token string) error {
 const cvProfileColumns = `id, user_id, title, biodata, is_public, created_at, updated_at`
 
 func (r *postgresRepo) CreateCVProfile(ctx context.Context, userID uuid.UUID, title string) (*domain.CVProfile, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `INSERT INTO cv_profiles (user_id, title) VALUES ($1, $2) RETURNING ` + cvProfileColumns
 	var p domain.CVProfile
-	err := r.db.GetContext(ctx, &p, query, userID, title)
+	err := exec.GetContext(ctx, &p, query, userID, title)
 	if err != nil {
 		return &p, translatePgError(err, "record", nil)
 	}
@@ -315,9 +333,10 @@ func (r *postgresRepo) CreateCVProfile(ctx context.Context, userID uuid.UUID, ti
 }
 
 func (r *postgresRepo) GetCVProfile(ctx context.Context, id uuid.UUID) (*domain.CVProfile, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `SELECT ` + cvProfileColumns + ` FROM cv_profiles WHERE id = $1`
 	var p domain.CVProfile
-	err := r.db.GetContext(ctx, &p, query, id)
+	err := exec.GetContext(ctx, &p, query, id)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
@@ -328,9 +347,10 @@ func (r *postgresRepo) GetCVProfile(ctx context.Context, id uuid.UUID) (*domain.
 }
 
 func (r *postgresRepo) GetCVProfilesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVProfile, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `SELECT ` + cvProfileColumns + ` FROM cv_profiles WHERE user_id = $1 ORDER BY created_at ASC`
 	var profiles []domain.CVProfile
-	err := r.db.SelectContext(ctx, &profiles, query, userID)
+	err := exec.SelectContext(ctx, &profiles, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -338,32 +358,37 @@ func (r *postgresRepo) GetCVProfilesByUserID(ctx context.Context, userID uuid.UU
 }
 
 func (r *postgresRepo) UpdateCVProfileBiodata(ctx context.Context, id uuid.UUID, biodata json.RawMessage) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE cv_profiles SET biodata = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, biodata, id)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `UPDATE cv_profiles SET biodata = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, biodata, id)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) UpdateCVProfileTitle(ctx context.Context, id uuid.UUID, title string) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE cv_profiles SET title = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, title, id)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `UPDATE cv_profiles SET title = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, title, id)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) DeleteCVProfile(ctx context.Context, id uuid.UUID) error {
-	_, err := r.db.ExecContext(ctx, `DELETE FROM cv_profiles WHERE id = $1`, id)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `DELETE FROM cv_profiles WHERE id = $1`, id)
 	return translatePgError(err, "record", nil)
 }
 
 // ── Custom Template CRUD ───────────────────────────────────────
 
 func (r *postgresRepo) CreateCustomTemplate(ctx context.Context, t *domain.CustomTemplate) error {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `INSERT INTO custom_templates (user_id, name, config) VALUES ($1, $2, $3) RETURNING id, created_at, updated_at`
-	err := r.db.QueryRowxContext(ctx, query, t.UserID, t.Name, t.Config).Scan(&t.ID, &t.CreatedAt, &t.UpdatedAt)
+	err := exec.QueryRowxContext(ctx, query, t.UserID, t.Name, t.Config).Scan(&t.ID, &t.CreatedAt, &t.UpdatedAt)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) GetCustomTemplate(ctx context.Context, id uuid.UUID) (*domain.CustomTemplate, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `SELECT id, user_id, name, config, created_at, updated_at FROM custom_templates WHERE id = $1`
 	var t domain.CustomTemplate
-	err := r.db.GetContext(ctx, &t, query, id)
+	err := exec.GetContext(ctx, &t, query, id)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
@@ -374,9 +399,10 @@ func (r *postgresRepo) GetCustomTemplate(ctx context.Context, id uuid.UUID) (*do
 }
 
 func (r *postgresRepo) GetCustomTemplatesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CustomTemplate, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `SELECT id, user_id, name, config, created_at, updated_at FROM custom_templates WHERE user_id = $1 ORDER BY created_at DESC`
 	var templates []domain.CustomTemplate
-	err := r.db.SelectContext(ctx, &templates, query, userID)
+	err := exec.SelectContext(ctx, &templates, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -387,26 +413,30 @@ func (r *postgresRepo) GetCustomTemplatesByUserID(ctx context.Context, userID uu
 }
 
 func (r *postgresRepo) UpdateCustomTemplate(ctx context.Context, id uuid.UUID, config json.RawMessage) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE custom_templates SET config = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, config, id)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `UPDATE custom_templates SET config = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, config, id)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) DeleteCustomTemplate(ctx context.Context, id uuid.UUID) error {
-	_, err := r.db.ExecContext(ctx, `DELETE FROM custom_templates WHERE id = $1`, id)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `DELETE FROM custom_templates WHERE id = $1`, id)
 	return translatePgError(err, "record", nil)
 }
 
 // ── Public Profile Methods ─────────────────────────────────────
 
 func (r *postgresRepo) SetUsername(ctx context.Context, userID uuid.UUID, username string) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE users SET username = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, username, userID)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `UPDATE users SET username = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, username, userID)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) GetUserByUsername(ctx context.Context, username string) (*domain.User, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `SELECT ` + userColumns + ` FROM users WHERE LOWER(username) = LOWER($1)`
 	var u domain.User
-	err := r.db.GetContext(ctx, &u, query, username)
+	err := exec.GetContext(ctx, &u, query, username)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
@@ -417,8 +447,9 @@ func (r *postgresRepo) GetUserByUsername(ctx context.Context, username string) (
 }
 
 func (r *postgresRepo) CheckUsernameAvailable(ctx context.Context, username string) (bool, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	var count int
-	err := r.db.GetContext(ctx, &count, `SELECT COUNT(*) FROM users WHERE LOWER(username) = LOWER($1)`, username)
+	err := exec.GetContext(ctx, &count, `SELECT COUNT(*) FROM users WHERE LOWER(username) = LOWER($1)`, username)
 	if err != nil {
 		return false, err
 	}
@@ -426,14 +457,16 @@ func (r *postgresRepo) CheckUsernameAvailable(ctx context.Context, username stri
 }
 
 func (r *postgresRepo) UpdateCVProfileVisibility(ctx context.Context, profileID uuid.UUID, isPublic bool) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE cv_profiles SET is_public = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, isPublic, profileID)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `UPDATE cv_profiles SET is_public = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, isPublic, profileID)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) GetPublicCVProfilesByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVProfile, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `SELECT ` + cvProfileColumns + ` FROM cv_profiles WHERE user_id = $1 AND is_public = true ORDER BY created_at ASC`
 	var profiles []domain.CVProfile
-	err := r.db.SelectContext(ctx, &profiles, query, userID)
+	err := exec.SelectContext(ctx, &profiles, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -443,15 +476,17 @@ func (r *postgresRepo) GetPublicCVProfilesByUserID(ctx context.Context, userID u
 // ── AI Usage Tracking ──────────────────────────────────────────
 
 func (r *postgresRepo) IncrementAITokensUsed(ctx context.Context, userID uuid.UUID, chars int64) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE users SET ai_tokens_used = ai_tokens_used + $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID, chars)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `UPDATE users SET ai_tokens_used = ai_tokens_used + $2, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID, chars)
 	return translatePgError(err, "record", nil)
 }
 
 // ── Admin Queries ──────────────────────────────────────────────
 
 func (r *postgresRepo) AdminGetStats(ctx context.Context) (*domain.AdminStats, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	var stats domain.AdminStats
-	err := r.db.GetContext(ctx, &stats, `
+	err := exec.GetContext(ctx, &stats, `
 		SELECT
 			(SELECT COUNT(*) FROM users) AS total_users,
 			(SELECT COUNT(*) FROM users WHERE role = 'admin') AS total_admins,
@@ -470,6 +505,7 @@ func (r *postgresRepo) AdminGetStats(ctx context.Context) (*domain.AdminStats, e
 }
 
 func (r *postgresRepo) AdminGetAnalytics(ctx context.Context) (*domain.AdminAnalytics, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	analytics := &domain.AdminAnalytics{}
 
 	// Helper to query a daily count series for the last 30 days.
@@ -490,7 +526,7 @@ func (r *postgresRepo) AdminGetAnalytics(ctx context.Context) (*domain.AdminAnal
 			) c ON c.day = d::date
 			ORDER BY d
 		`, table)
-		err := r.db.SelectContext(ctx, &rows, q)
+		err := exec.SelectContext(ctx, &rows, q)
 		if rows == nil {
 			rows = []domain.AdminDailyCount{}
 		}
@@ -528,6 +564,7 @@ var allowedSortColumns = map[string]string{
 }
 
 func (r *postgresRepo) AdminListUsers(ctx context.Context, params domain.AdminListParams) ([]domain.AdminUserRow, int, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	if params.Page < 1 {
 		params.Page = 1
 	}
@@ -549,7 +586,7 @@ func (r *postgresRepo) AdminListUsers(ctx context.Context, params domain.AdminLi
 	// Count total
 	countQuery := `SELECT COUNT(*) FROM users u WHERE ($1 = '' OR u.name ILIKE '%' || $1 || '%' OR u.email ILIKE '%' || $1 || '%')`
 	var total int
-	if err := r.db.GetContext(ctx, &total, countQuery, params.Search); err != nil {
+	if err := exec.GetContext(ctx, &total, countQuery, params.Search); err != nil {
 		return nil, 0, err
 	}
 
@@ -566,7 +603,7 @@ func (r *postgresRepo) AdminListUsers(ctx context.Context, params domain.AdminLi
 	`, sortCol, orderDir)
 
 	var rows []domain.AdminUserRow
-	if err := r.db.SelectContext(ctx, &rows, query, params.Search, params.PerPage, offset); err != nil {
+	if err := exec.SelectContext(ctx, &rows, query, params.Search, params.PerPage, offset); err != nil {
 		return nil, 0, err
 	}
 
@@ -576,9 +613,10 @@ func (r *postgresRepo) AdminListUsers(ctx context.Context, params domain.AdminLi
 // ── Feedback CRUD ──────────────────────────────────────────────
 
 func (r *postgresRepo) CreateFeedback(ctx context.Context, userID uuid.UUID, subject, message string) (*domain.Feedback, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `INSERT INTO feedbacks (user_id, subject, message) VALUES ($1, $2, $3) RETURNING id, user_id, subject, message, admin_reply, replied_at, created_at`
 	var f domain.Feedback
-	err := r.db.GetContext(ctx, &f, query, userID, subject, message)
+	err := exec.GetContext(ctx, &f, query, userID, subject, message)
 	if err != nil {
 		return &f, translatePgError(err, "record", nil)
 	}
@@ -586,9 +624,10 @@ func (r *postgresRepo) CreateFeedback(ctx context.Context, userID uuid.UUID, sub
 }
 
 func (r *postgresRepo) GetFeedbacksByUserID(ctx context.Context, userID uuid.UUID) ([]domain.Feedback, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `SELECT id, user_id, subject, message, admin_reply, replied_at, created_at FROM feedbacks WHERE user_id = $1 ORDER BY created_at DESC`
 	var feedbacks []domain.Feedback
-	err := r.db.SelectContext(ctx, &feedbacks, query, userID)
+	err := exec.SelectContext(ctx, &feedbacks, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -596,6 +635,7 @@ func (r *postgresRepo) GetFeedbacksByUserID(ctx context.Context, userID uuid.UUI
 }
 
 func (r *postgresRepo) AdminListFeedbacks(ctx context.Context, params domain.FeedbackListParams) ([]domain.Feedback, int, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	if params.Page < 1 {
 		params.Page = 1
 	}
@@ -611,7 +651,7 @@ func (r *postgresRepo) AdminListFeedbacks(ctx context.Context, params domain.Fee
 		WHERE ($1 = '' OR f.subject ILIKE '%' || $1 || '%' OR f.message ILIKE '%' || $1 || '%' OR u.name ILIKE '%' || $1 || '%' OR u.email ILIKE '%' || $1 || '%')
 	`
 	var total int
-	if err := r.db.GetContext(ctx, &total, countQuery, params.Search); err != nil {
+	if err := exec.GetContext(ctx, &total, countQuery, params.Search); err != nil {
 		return nil, 0, err
 	}
 
@@ -627,7 +667,7 @@ func (r *postgresRepo) AdminListFeedbacks(ctx context.Context, params domain.Fee
 	`
 
 	var rows []domain.Feedback
-	if err := r.db.SelectContext(ctx, &rows, query, params.Search, params.PerPage, offset); err != nil {
+	if err := exec.SelectContext(ctx, &rows, query, params.Search, params.PerPage, offset); err != nil {
 		return nil, 0, err
 	}
 
@@ -635,57 +675,66 @@ func (r *postgresRepo) AdminListFeedbacks(ctx context.Context, params domain.Fee
 }
 
 func (r *postgresRepo) AdminReplyFeedback(ctx context.Context, feedbackID uuid.UUID, reply string) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE feedbacks SET admin_reply = $1, replied_at = CURRENT_TIMESTAMP WHERE id = $2`, reply, feedbackID)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `UPDATE feedbacks SET admin_reply = $1, replied_at = CURRENT_TIMESTAMP WHERE id = $2`, reply, feedbackID)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) AdminDeleteFeedback(ctx context.Context, feedbackID uuid.UUID) error {
-	_, err := r.db.ExecContext(ctx, `DELETE FROM feedbacks WHERE id = $1`, feedbackID)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `DELETE FROM feedbacks WHERE id = $1`, feedbackID)
 	return translatePgError(err, "record", nil)
 }
 
 // ── Admin User Management ──────────────────────────────────────
 
 func (r *postgresRepo) AdminBlockUser(ctx context.Context, userID uuid.UUID) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE users SET is_blocked = true, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `UPDATE users SET is_blocked = true, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) AdminUnblockUser(ctx context.Context, userID uuid.UUID) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE users SET is_blocked = false, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `UPDATE users SET is_blocked = false, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) AdminMakeUserAdmin(ctx context.Context, userID uuid.UUID) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE users SET role = 'admin', updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `UPDATE users SET role = 'admin', updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) AdminRevokeUserAdmin(ctx context.Context, userID uuid.UUID) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE users SET role = 'user', updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `UPDATE users SET role = 'user', updated_at = CURRENT_TIMESTAMP WHERE id = $1`, userID)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) AdminDeleteUser(ctx context.Context, userID uuid.UUID) error {
-	_, err := r.db.ExecContext(ctx, `DELETE FROM users WHERE id = $1`, userID)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `DELETE FROM users WHERE id = $1`, userID)
 	return translatePgError(err, "record", nil)
 }
 
 // ── CV Reviews ────────────────────────────────────────────────
 
 func (r *postgresRepo) CreateCVReview(ctx context.Context, review *domain.CVReview) error {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `INSERT INTO cv_reviews (user_id, profile_id, profile_title, language, score, strengths, improvements, recommendations, tokens_used)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		RETURNING id, created_at`
-	return r.db.QueryRowxContext(ctx, query,
+	return exec.QueryRowxContext(ctx, query,
 		review.UserID, review.ProfileID, review.ProfileTitle, review.Language,
 		review.Score, review.Strengths, review.Improvements, review.Recommendations, review.TokensUsed,
 	).Scan(&review.ID, &review.CreatedAt)
 }
 
 func (r *postgresRepo) GetCVReviewsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CVReview, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	var reviews []domain.CVReview
-	err := r.db.SelectContext(ctx, &reviews,
+	err := exec.SelectContext(ctx, &reviews,
 		`SELECT id, user_id, profile_id, profile_title, language, score, strengths, improvements, recommendations, tokens_used, created_at
 		 FROM cv_reviews WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`, userID)
 	if err != nil {
@@ -698,8 +747,9 @@ func (r *postgresRepo) GetCVReviewsByUserID(ctx context.Context, userID uuid.UUI
 }
 
 func (r *postgresRepo) CountCVReviewsByDate(ctx context.Context, userID uuid.UUID, start, end time.Time) (int, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	var count int
-	err := r.db.GetContext(ctx, &count,
+	err := exec.GetContext(ctx, &count,
 		`SELECT COUNT(*) FROM cv_reviews WHERE user_id = $1 AND created_at >= $2 AND created_at <= $3`,
 		userID, start, end)
 	if err != nil {
@@ -711,17 +761,19 @@ func (r *postgresRepo) CountCVReviewsByDate(ctx context.Context, userID uuid.UUI
 // ── Cover Letters ──────────────────────────────────────────────
 
 func (r *postgresRepo) CreateCoverLetter(ctx context.Context, cl *domain.CoverLetter) error {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `INSERT INTO cover_letters (user_id, profile_id, profile_title, job_description, cover_letter_text, language, tokens_used)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id, created_at`
-	return r.db.QueryRowxContext(ctx, query,
+	return exec.QueryRowxContext(ctx, query,
 		cl.UserID, cl.ProfileID, cl.ProfileTitle, cl.JobDescription, cl.CoverLetterText, cl.Language, cl.TokensUsed,
 	).Scan(&cl.ID, &cl.CreatedAt)
 }
 
 func (r *postgresRepo) GetCoverLettersByUserID(ctx context.Context, userID uuid.UUID) ([]domain.CoverLetter, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	var letters []domain.CoverLetter
-	err := r.db.SelectContext(ctx, &letters,
+	err := exec.SelectContext(ctx, &letters,
 		`SELECT id, user_id, profile_id, profile_title, job_description, cover_letter_text, language, tokens_used, created_at
 		 FROM cover_letters WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`, userID)
 	if err != nil {
@@ -734,8 +786,9 @@ func (r *postgresRepo) GetCoverLettersByUserID(ctx context.Context, userID uuid.
 }
 
 func (r *postgresRepo) CountCoverLettersByDate(ctx context.Context, userID uuid.UUID, start, end time.Time) (int, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	var count int
-	err := r.db.GetContext(ctx, &count,
+	err := exec.GetContext(ctx, &count,
 		`SELECT COUNT(*) FROM cover_letters WHERE user_id = $1 AND created_at >= $2 AND created_at <= $3`,
 		userID, start, end)
 	if err != nil {
@@ -747,6 +800,7 @@ func (r *postgresRepo) CountCoverLettersByDate(ctx context.Context, userID uuid.
 // ── Job Application Tracking ──────────────────────────────────
 
 func (r *postgresRepo) CreateJobApplication(ctx context.Context, j *domain.JobApplication) (*domain.JobApplication, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `INSERT INTO job_applications (user_id, cv_profile_id, company, job_title, status, notes, deadline)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id, user_id, cv_profile_id, company, job_title, status, notes, deadline, created_at, updated_at`
@@ -755,7 +809,7 @@ func (r *postgresRepo) CreateJobApplication(ctx context.Context, j *domain.JobAp
 	if j.CVProfileID != nil {
 		cvProfileID = *j.CVProfileID
 	}
-	err := r.db.GetContext(ctx, j, query, j.UserID, cvProfileID, j.Company, j.JobTitle, j.Status, j.Notes, j.Deadline)
+	err := exec.GetContext(ctx, j, query, j.UserID, cvProfileID, j.Company, j.JobTitle, j.Status, j.Notes, j.Deadline)
 	if err != nil {
 		return j, translatePgError(err, "record", nil)
 	}
@@ -763,8 +817,9 @@ func (r *postgresRepo) CreateJobApplication(ctx context.Context, j *domain.JobAp
 }
 
 func (r *postgresRepo) GetJobApplicationsByUserID(ctx context.Context, userID uuid.UUID) ([]domain.JobApplication, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	var apps []domain.JobApplication
-	err := r.db.SelectContext(ctx, &apps,
+	err := exec.SelectContext(ctx, &apps,
 		`SELECT id, user_id, cv_profile_id, company, job_title, status, notes, deadline, created_at, updated_at
 		 FROM job_applications WHERE user_id = $1 ORDER BY created_at DESC`, userID)
 	if err != nil {
@@ -777,8 +832,9 @@ func (r *postgresRepo) GetJobApplicationsByUserID(ctx context.Context, userID uu
 }
 
 func (r *postgresRepo) CountAtsSimulationsByDate(ctx context.Context, userID uuid.UUID, start, end time.Time) (int, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	var count int
-	err := r.db.GetContext(ctx, &count,
+	err := exec.GetContext(ctx, &count,
 		`SELECT COUNT(*) FROM ats_simulations WHERE user_id = $1 AND created_at >= $2 AND created_at <= $3`,
 		userID, start, end)
 	if err != nil {
@@ -788,11 +844,13 @@ func (r *postgresRepo) CountAtsSimulationsByDate(ctx context.Context, userID uui
 }
 
 func (r *postgresRepo) UpdateJobApplicationStatus(ctx context.Context, id uuid.UUID, status string) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE job_applications SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, status, id)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `UPDATE job_applications SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, status, id)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) UpdateJobApplication(ctx context.Context, app *domain.JobApplication) error {
+	exec := dbx.GetExecutor(ctx, r.db)
 	var cvProfileID interface{}
 	if app.CVProfileID != nil {
 		cvProfileID = *app.CVProfileID
@@ -802,18 +860,20 @@ func (r *postgresRepo) UpdateJobApplication(ctx context.Context, app *domain.Job
 			  SET company = $1, job_title = $2, cv_profile_id = $3, notes = $4, deadline = $5, updated_at = CURRENT_TIMESTAMP
 			  WHERE id = $6 AND user_id = $7`
 
-	_, err := r.db.ExecContext(ctx, query, app.Company, app.JobTitle, cvProfileID, app.Notes, app.Deadline, app.ID, app.UserID)
+	_, err := exec.ExecContext(ctx, query, app.Company, app.JobTitle, cvProfileID, app.Notes, app.Deadline, app.ID, app.UserID)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) DeleteJobApplication(ctx context.Context, id uuid.UUID) error {
-	_, err := r.db.ExecContext(ctx, `DELETE FROM job_applications WHERE id = $1`, id)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `DELETE FROM job_applications WHERE id = $1`, id)
 	return translatePgError(err, "record", nil)
 }
 
 // ── Subscriptions ──────────────────────────────────────────────
 
 func (r *postgresRepo) AdminListSubscriptionPlans(ctx context.Context) ([]domain.SubscriptionPlan, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	var plans []domain.SubscriptionPlan
 	query := `
 		SELECT
@@ -826,7 +886,7 @@ func (r *postgresRepo) AdminListSubscriptionPlans(ctx context.Context) ([]domain
 		GROUP BY sp.id
 		ORDER BY sp.price_idr ASC
 	`
-	if err := r.db.SelectContext(ctx, &plans, query); err != nil {
+	if err := exec.SelectContext(ctx, &plans, query); err != nil {
 		return nil, err
 	}
 	if plans == nil {
@@ -836,10 +896,11 @@ func (r *postgresRepo) AdminListSubscriptionPlans(ctx context.Context) ([]domain
 }
 
 func (r *postgresRepo) GetFreeSubscriptionPlan(ctx context.Context) (*domain.SubscriptionPlan, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `SELECT id, name, price_idr, duration_months, max_cv_profiles, max_cv_reviews, max_ats_simulations, max_cover_letters, is_active, created_at, updated_at
 		FROM subscription_plans WHERE price_idr = 0 AND is_active = true LIMIT 1`
 	var plan domain.SubscriptionPlan
-	err := r.db.GetContext(ctx, &plan, query)
+	err := exec.GetContext(ctx, &plan, query)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotFound
 	}
@@ -850,42 +911,48 @@ func (r *postgresRepo) GetFreeSubscriptionPlan(ctx context.Context) (*domain.Sub
 }
 
 func (r *postgresRepo) AdminCreateSubscriptionPlan(ctx context.Context, plan *domain.SubscriptionPlan) error {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `INSERT INTO subscription_plans (name, price_idr, duration_months, max_cv_profiles, max_cv_reviews, max_ats_simulations, max_cover_letters, is_active)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id, created_at, updated_at`
-	return r.db.QueryRowxContext(ctx, query,
+	return exec.QueryRowxContext(ctx, query,
 		plan.Name, plan.PriceIDR, plan.DurationMonths, plan.MaxCVProfiles, plan.MaxCVReviews, plan.MaxATSSimulations, plan.MaxCoverLetters, plan.IsActive,
 	).Scan(&plan.ID, &plan.CreatedAt, &plan.UpdatedAt)
 }
 
 func (r *postgresRepo) AdminUpdateSubscriptionPlan(ctx context.Context, plan *domain.SubscriptionPlan) error {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `UPDATE subscription_plans
 		SET name = $1, price_idr = $2, duration_months = $3, max_cv_profiles = $4, max_cv_reviews = $5, max_ats_simulations = $6, max_cover_letters = $7, updated_at = CURRENT_TIMESTAMP
 		WHERE id = $8`
-	_, err := r.db.ExecContext(ctx, query,
+	_, err := exec.ExecContext(ctx, query,
 		plan.Name, plan.PriceIDR, plan.DurationMonths, plan.MaxCVProfiles, plan.MaxCVReviews, plan.MaxATSSimulations, plan.MaxCoverLetters, plan.ID,
 	)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) AdminToggleSubscriptionPlan(ctx context.Context, id uuid.UUID, isActive bool) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE subscription_plans SET is_active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, isActive, id)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `UPDATE subscription_plans SET is_active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, isActive, id)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) AdminDeleteSubscriptionPlan(ctx context.Context, id uuid.UUID) error {
-	_, err := r.db.ExecContext(ctx, `DELETE FROM subscription_plans WHERE id = $1`, id)
+	exec := dbx.GetExecutor(ctx, r.db)
+	_, err := exec.ExecContext(ctx, `DELETE FROM subscription_plans WHERE id = $1`, id)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) AdminAssignSubscription(ctx context.Context, userID, planID uuid.UUID, months int) error {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `INSERT INTO user_subscriptions (user_id, plan_id, start_date, end_date)
 		VALUES ($1, $2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + ($3 * interval '1 month'))`
-	_, err := r.db.ExecContext(ctx, query, userID, planID, months)
+	_, err := exec.ExecContext(ctx, query, userID, planID, months)
 	return translatePgError(err, "record", nil)
 }
 
 func (r *postgresRepo) GetUserActiveSubscription(ctx context.Context, userID uuid.UUID) (*domain.UserSubscription, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `
 		SELECT
 			us.id, us.user_id, us.plan_id, us.start_date, us.end_date, us.created_at,
@@ -901,7 +968,7 @@ func (r *postgresRepo) GetUserActiveSubscription(ctx context.Context, userID uui
 	`
 	var us domain.UserSubscription
 	var sp domain.SubscriptionPlan
-	row := r.db.QueryRowxContext(ctx, query, userID)
+	row := exec.QueryRowxContext(ctx, query, userID)
 	err := row.Scan(
 		&us.ID, &us.UserID, &us.PlanID, &us.StartDate, &us.EndDate, &us.CreatedAt,
 		&sp.ID, &sp.Name, &sp.PriceIDR, &sp.DurationMonths,
@@ -918,6 +985,7 @@ func (r *postgresRepo) GetUserActiveSubscription(ctx context.Context, userID uui
 }
 
 func (r *postgresRepo) GetUserSubscriptions(ctx context.Context, userID uuid.UUID) ([]domain.UserSubscription, error) {
+	exec := dbx.GetExecutor(ctx, r.db)
 	query := `
 		SELECT
 			us.id, us.user_id, us.plan_id, us.start_date, us.end_date, us.created_at,
@@ -930,7 +998,7 @@ func (r *postgresRepo) GetUserSubscriptions(ctx context.Context, userID uuid.UUI
 		WHERE us.user_id = $1
 		ORDER BY us.created_at DESC
 	`
-	rows, err := r.db.QueryxContext(ctx, query, userID)
+	rows, err := exec.QueryxContext(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}

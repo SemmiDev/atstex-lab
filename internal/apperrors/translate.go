@@ -12,12 +12,19 @@ import (
 func Translate(err error) *problem.Problem {
 	var safe *SafeError
 	if errors.As(err, &safe) {
-		return &problem.Problem{
+		p := &problem.Problem{
 			Type:   safe.Code,
 			Title:  http.StatusText(safe.HTTPStatus),
 			Status: safe.HTTPStatus,
 			Detail: safe.UserMsg,
 		}
+		// Embed per-field validation messages as an extension.
+		if len(safe.Fields) > 0 {
+			p.Extensions = map[string]any{
+				"fields": safe.Fields,
+			}
+		}
+		return p
 	}
 
 	// Fall back to sentinel matching

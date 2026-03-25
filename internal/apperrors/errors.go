@@ -7,13 +7,14 @@ import (
 )
 
 var (
-	ErrNotFound     = errors.New("resource not found")
-	ErrConflict     = errors.New("resource already exists")
-	ErrInvalidInput = errors.New("invalid input")
+	ErrNotFound          = errors.New("resource not found")
+	ErrConflict          = errors.New("resource already exists")
+	ErrInvalidInput      = errors.New("invalid input")
+	ErrValidation        = errors.New("validation failed")
 	ErrUnauthorized      = errors.New("unauthorized")
 	ErrForbidden         = errors.New("forbidden")
 	ErrSubscriptionLimit = errors.New("subscription limit reached")
-	ErrInternal     = errors.New("internal error")
+	ErrInternal          = errors.New("internal error")
 )
 
 type SafeError struct {
@@ -23,6 +24,8 @@ type SafeError struct {
 	Internal   error
 	Metadata   map[string]string
 	Sentinel   error
+	// Fields holds per-field validation errors (populated by NewValidationError).
+	Fields map[string]string
 }
 
 func (e *SafeError) Error() string {
@@ -67,6 +70,18 @@ func NewInvalidInput(msg string) *SafeError {
 		HTTPStatus: http.StatusBadRequest,
 		UserMsg:    msg,
 		Sentinel:   ErrInvalidInput,
+	}
+}
+
+// NewValidationError returns a 422 Unprocessable Entity error that carries
+// per-field validation messages produced by validate.Struct().
+func NewValidationError(fields map[string]string) *SafeError {
+	return &SafeError{
+		Code:       "VALIDATION_ERROR",
+		HTTPStatus: http.StatusUnprocessableEntity,
+		UserMsg:    "Data tidak valid",
+		Sentinel:   ErrValidation,
+		Fields:     fields,
 	}
 }
 

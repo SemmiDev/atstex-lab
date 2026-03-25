@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,6 +15,7 @@ import (
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/domain"
 	"github.com/semmidev/atstex-lab/internal/middleware"
+	"github.com/semmidev/atstex-lab/internal/validate"
 )
 
 // ListCVProfiles returns all CV profiles for the authenticated user.
@@ -38,10 +40,14 @@ func (s *Server) handleCreateCVProfile() http.HandlerFunc {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
 		var body struct {
-			Title string `json:"title"`
+			Title string `json:"title" validate:"required,safe_text,max=100"`
 		}
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.Title == "" {
-			middleware.RespondError(w, r, apperrors.NewInvalidInput("title is required"))
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid JSON body"))
+			return
+		}
+		if errs := validate.Struct(body); errs != nil {
+			middleware.RespondError(w, r, apperrors.NewValidationError(errs))
 			return
 		}
 
@@ -150,10 +156,14 @@ func (s *Server) handleUpdateCVProfileTitle() http.HandlerFunc {
 		}
 
 		var body struct {
-			Title string `json:"title"`
+			Title string `json:"title" validate:"required,safe_text,max=100"`
 		}
-		if err := json.NewDecoder(r.Body).Decode(&body); err != nil || body.Title == "" {
-			middleware.RespondError(w, r, apperrors.NewInvalidInput("valid title is required"))
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid JSON body"))
+			return
+		}
+		if errs := validate.Struct(body); errs != nil {
+			middleware.RespondError(w, r, apperrors.NewValidationError(errs))
 			return
 		}
 
@@ -209,16 +219,15 @@ func (s *Server) handleAutoTailorCVProfile() http.HandlerFunc {
 		}
 
 		var req struct {
-			JobDescription string `json:"jobDescription"`
-			Language       string `json:"language"`
+			JobDescription string `json:"jobDescription" validate:"required,min=10,max=5000"`
+			Language       string `json:"language" validate:"omitempty,oneof=en id"`
 		}
 		if errDecode := json.NewDecoder(r.Body).Decode(&req); errDecode != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
 		}
-
-		if req.JobDescription == "" {
-			middleware.RespondError(w, r, apperrors.NewInvalidInput("job description is required"))
+		if errs := validate.Struct(req); errs != nil {
+			middleware.RespondError(w, r, apperrors.NewValidationError(errs))
 			return
 		}
 
@@ -249,15 +258,7 @@ func (s *Server) handleAutoTailorCVProfile() http.HandlerFunc {
 			return
 		}
 
-		// 3. Duplicate profile
-		newTitle := baseProfile.Title + " - Auto-Tailored"
-		newProfile, err := s.repo.CreateCVProfile(r.Context(), user.ID, newTitle)
-		if err != nil {
-			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to duplicate profile")))
-			return
-		}
-
-		// 4. Call LLM to rewrite
+		// 3. Call LLM to rewrite
 		rewrittenJSON, tokensUsed, err := aisuites.AutoTailorCV(r.Context(), string(baseProfile.Biodata), req.JobDescription, lang, s.aiConfig)
 		if err != nil {
 			s.reqLog(r).Error("Auto-tailor CV rewriting failed", "err", err)
@@ -265,14 +266,29 @@ func (s *Server) handleAutoTailorCVProfile() http.HandlerFunc {
 			return
 		}
 
-		if tokensUsed > 0 {
-			_ = s.repo.IncrementAITokensUsed(r.Context(), user.ID, tokensUsed)
-		}
+		// 4. Atomically persist changes
+		var newProfile *domain.CVProfile
+		errTx := s.txm.WithTransaction(r.Context(), func(txCtx context.Context) error {
+			newTitle := baseProfile.Title + " - Auto-Tailored"
+			// Create profile
+			p, err := s.repo.CreateCVProfile(txCtx, user.ID, newTitle)
+			if err != nil {
+				return err
+			}
+			newProfile = p
 
-		// 5. Save rewritten biodata
-		if errUpdate := s.repo.UpdateCVProfileBiodata(r.Context(), newProfile.ID, rewrittenJSON); errUpdate != nil {
-			s.reqLog(r).Error("Failed to save rewritten biodata", "err", errUpdate)
-			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to save rewritten CV")))
+			// Deduct AI tokens
+			if tokensUsed > 0 {
+				_ = s.repo.IncrementAITokensUsed(txCtx, user.ID, tokensUsed)
+			}
+
+			// Save rewritten biodata
+			return s.repo.UpdateCVProfileBiodata(txCtx, p.ID, rewrittenJSON)
+		})
+
+		if errTx != nil {
+			s.reqLog(r).Error("Failed to save rewritten CV transaction", "err", errTx)
+			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("failed to save generated CV automatically")))
 			return
 		}
 

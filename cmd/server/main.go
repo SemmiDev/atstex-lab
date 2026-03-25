@@ -16,8 +16,10 @@ import (
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/compiler"
 	"github.com/semmidev/atstex-lab/internal/config"
+	"github.com/semmidev/atstex-lab/internal/dbx"
 	"github.com/semmidev/atstex-lab/internal/handler"
 	"github.com/semmidev/atstex-lab/internal/repository"
+	"github.com/semmidev/atstex-lab/internal/validate"
 	"github.com/semmidev/atstex-lab/web"
 )
 
@@ -39,12 +41,18 @@ func main() {
 }
 
 func run(ctx context.Context, cfg *config.AppConfig, logger *slog.Logger) error {
+	// Initialise validator with Indonesian translations (singleton, safe to call here).
+	validate.Init()
+
 	// Database
 	repo, err := repository.Connect(ctx, cfg.DatabaseURL)
 	if err != nil {
 		return fmt.Errorf("connect to db: %w", err)
 	}
 	defer repo.Close()
+
+	// Transaction manager — wraps the same DB connection used by the repo.
+	txm := dbx.NewTransactionManager(repo.DB())
 
 	// Auth
 	authConfig := auth.NewConfig(cfg.GoogleClientID, cfg.GoogleClientSecret, cfg.GoogleCallbackURL, repo)
@@ -63,7 +71,7 @@ func run(ctx context.Context, cfg *config.AppConfig, logger *slog.Logger) error 
 		BaseURL:  cfg.AIBaseURL,
 	}
 
-	srv := handler.NewServer(tmpl, logger, repo, authConfig, aiCfg)
+	srv := handler.NewServer(tmpl, logger, repo, authConfig, aiCfg, txm)
 
 	httpSrv := &http.Server{
 		Addr:         ":" + cfg.Port,

@@ -12,6 +12,7 @@ import (
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/domain"
 	"github.com/semmidev/atstex-lab/internal/middleware"
+	"github.com/semmidev/atstex-lab/internal/validate"
 )
 
 // CreateJobApplication handles the creation of a new job application.
@@ -24,17 +25,21 @@ func (s *Server) CreateJobApplication() http.HandlerFunc {
 		}
 
 		type CreateJobApplicationRequest struct {
-			Company     string    `json:"company"`
-			JobTitle    string    `json:"job_title"`
-			Status      string    `json:"status"`
-			Notes       string    `json:"notes"`
-			CVProfileID uuid.UUID `json:"cv_profile_id"`
-			Deadline    *string   `json:"deadline"`
+			Company     string    `json:"company" validate:"required,max=200"`
+			JobTitle    string    `json:"job_title" validate:"required,max=200"`
+			Status      string    `json:"status" validate:"omitempty,max=100"`
+			Notes       string    `json:"notes" validate:"omitempty,max=5000"`
+			CVProfileID uuid.UUID `json:"cv_profile_id" validate:"omitempty"`
+			Deadline    *string   `json:"deadline" validate:"omitempty"`
 		}
 
 		var req CreateJobApplicationRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
+			return
+		}
+		if errs := validate.Struct(req); errs != nil {
+			middleware.RespondError(w, r, apperrors.NewValidationError(errs))
 			return
 		}
 
@@ -107,10 +112,14 @@ func (s *Server) UpdateJobApplicationStatus() http.HandlerFunc {
 		}
 
 		var payload struct {
-			Status string `json:"status"`
+			Status string `json:"status" validate:"required,max=100"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
+			return
+		}
+		if errs := validate.Struct(payload); errs != nil {
+			middleware.RespondError(w, r, apperrors.NewValidationError(errs))
 			return
 		}
 
@@ -144,16 +153,20 @@ func (s *Server) UpdateJobApplication() http.HandlerFunc {
 		}
 
 		type UpdateJobApplicationRequest struct {
-			Company     string    `json:"company"`
-			JobTitle    string    `json:"job_title"`
-			Notes       string    `json:"notes"`
-			CVProfileID uuid.UUID `json:"cv_profile_id"`
-			Deadline    *string   `json:"deadline"`
+			Company     string    `json:"company" validate:"required,max=200"`
+			JobTitle    string    `json:"job_title" validate:"required,max=200"`
+			Notes       string    `json:"notes" validate:"omitempty,max=5000"`
+			CVProfileID uuid.UUID `json:"cv_profile_id" validate:"omitempty"`
+			Deadline    *string   `json:"deadline" validate:"omitempty"`
 		}
 
 		var req UpdateJobApplicationRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
+			return
+		}
+		if errs := validate.Struct(req); errs != nil {
+			middleware.RespondError(w, r, apperrors.NewValidationError(errs))
 			return
 		}
 
