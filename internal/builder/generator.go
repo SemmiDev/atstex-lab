@@ -13,6 +13,7 @@ import (
 type Config struct {
 	ThemeColor string   `json:"theme_color"`
 	Columns    int      `json:"columns"`
+	Language   string   `json:"language"`
 	Layout     []string `json:"layout"`
 }
 
@@ -27,15 +28,16 @@ func Generate(configJSON json.RawMessage, data cvtemplate.CVData) (string, error
 	// Normalize color if absent
 	themeColor := cfg.ThemeColor
 	if themeColor == "" {
-		themeColor = "26, 115, 191" // Default skyblue RGB
+		themeColor = "1A73BF" // Default skyblue hex
 	} else if strings.HasPrefix(themeColor, "#") {
-		// Quick hex to RGB conversion for LaTeX
-		hex := strings.TrimPrefix(themeColor, "#")
-		if len(hex) == 6 {
-			// e.g. RGB {26, 115, 191}
-			// In production would properly convert hex to decimal, but let's just emit raw hex color for xcolor
-			themeColor = hex
+		themeColor = strings.TrimPrefix(themeColor, "#")
+	}
+
+	t := func(en, id string) string {
+		if cfg.Language == "id" {
+			return id
 		}
+		return en
 	}
 
 	blocks := map[string]string{
@@ -86,7 +88,7 @@ func Generate(configJSON json.RawMessage, data cvtemplate.CVData) (string, error
 `,
 		"summary": `
 {{if .Summary}}
-\section{Professional Summary}
+\section{` + t("Professional Summary", "Ringkasan Profesional") + `}
 \skyListStart
   \item {\small\color{darkgrey} {{- texEscape .Summary -}} }
 \skyListEnd
@@ -95,7 +97,7 @@ func Generate(configJSON json.RawMessage, data cvtemplate.CVData) (string, error
 `,
 		"experience": `
 {{if .Experience}}
-\section{Professional Experience}
+\section{` + t("Professional Experience", "Pengalaman Kerja") + `}
 \skyListStart
   {{range .Experience}}
   \skySubheading
@@ -113,7 +115,7 @@ func Generate(configJSON json.RawMessage, data cvtemplate.CVData) (string, error
 `,
 		"education": `
 {{if .Education}}
-\section{Education}
+\section{` + t("Education", "Pendidikan") + `}
 \skyListStart
   {{range .Education}}
   \skySubheading
@@ -130,7 +132,7 @@ func Generate(configJSON json.RawMessage, data cvtemplate.CVData) (string, error
 `,
 		"skills": `
 {{if or .Skills.Languages .Skills.Frameworks .Skills.Tools .Skills.Other}}
-\section{Technical Skills}
+\section{` + t("Technical Skills", "Keahlian Teknis") + `}
 \vspace{-2pt}
 \begin{tabular}{@{}p{3cm}@{}p{\dimexpr\linewidth-3cm\relax}@{}}
   {{if .Skills.Languages}}\small\textbf{\color{darkgrey}Languages}    & \small{\color{darkgrey} {{- texEscape .Skills.Languages -}} } \\[3pt]{{end}}
@@ -143,7 +145,7 @@ func Generate(configJSON json.RawMessage, data cvtemplate.CVData) (string, error
 `,
 		"projects": `
 {{if .Projects}}
-\section{Selected Projects}
+\section{` + t("Projects", "Proyek") + `}
 \skyListStart
   {{range .Projects}}
   \skyProjectRow{%
@@ -163,7 +165,7 @@ func Generate(configJSON json.RawMessage, data cvtemplate.CVData) (string, error
 `,
 		"certifications": `
 {{if .Certifications}}
-\section{Certifications \& Courses}
+\section{` + t("Certifications", "Sertifikasi") + `}
 \vspace{4pt}
 {{range .Certifications}}
 \noindent\begin{tabular*}{\linewidth}{@{}p{0.85\linewidth}@{\extracolsep{\fill}}r@{}}
@@ -174,10 +176,64 @@ func Generate(configJSON json.RawMessage, data cvtemplate.CVData) (string, error
 `,
 		"languages": `
 {{if .Skills.Languages}}
-\section{Bahasa}
+\section{` + t("Languages", "Bahasa") + `}
 \vspace{2pt}
 \small{\color{darkgrey} {{- texEscape .Skills.Languages -}} }
 \vspace{4pt}
+{{end}}
+`,
+		"volunteer": `
+{{if .Volunteer}}
+\section{` + t("Volunteer Experience", "Pengalaman Organisasi") + `}
+\skyListStart
+  {{range .Volunteer}}
+  \skySubheading
+    { {{- texEscape .Organization -}} }{ {{- if .Location -}} {{- texEscape .Location -}} {{- end -}} }
+    { {{- texEscape .Role -}} }{ {{- texEscape .Dates -}} }
+    {{if .Bullets}}
+    \skyBulletStart
+      {{range texLines .Bullets}}\skyItem{ {{- texEscape . -}} }
+      {{end}}
+    \skyBulletEnd
+    {{end}}
+  {{end}}
+\skyListEnd
+{{end}}
+`,
+		"awards": `
+{{if .Awards}}
+\section{` + t("Awards \\& Honors", "Penghargaan") + `}
+\skyListStart
+  {{range .Awards}}
+  \skySubheading
+    { {{- texEscape .Title -}} }{ {{- if .Date -}} {{- texEscape .Date -}} {{- end -}} }
+    { {{- texEscape .Issuer -}} }{}
+    {{if .Description}}
+    \skyBulletStart
+      {{range texLines .Description}}\skyItem{ {{- texEscape . -}} }
+      {{end}}
+    \skyBulletEnd
+    {{end}}
+  {{end}}
+\skyListEnd
+{{end}}
+`,
+		"talks": `
+{{if .Talks}}
+\section{` + t("Talks \\& Presentations", "Seminar / Pembicara") + `}
+\skyListStart
+  {{range .Talks}}
+  \skySubheading
+    { {{- texEscape .Title -}} }{ {{- if .Date -}} {{- texEscape .Date -}} {{- end -}} }
+    { {{- texEscape .Event -}} }{ {{- if .Location -}} {{- texEscape .Location -}} {{- end -}} }
+    {{if .Description}}
+    \skyBulletStart
+      {{range texLines .Description}}\skyItem{ {{- texEscape . -}} }
+      {{end}}
+    \skyBulletEnd
+    {{end}}
+  {{end}}
+\skyListEnd
 {{end}}
 `,
 	}
@@ -207,7 +263,7 @@ func Generate(configJSON json.RawMessage, data cvtemplate.CVData) (string, error
 \usepackage[hidelinks]{hyperref}
 
 % Colors based on sky.tex
-\definecolor{skyblue}{HTML}{1A73BF} % Reusing a solid hex by default or could be dynamic
+\definecolor{skyblue}{HTML}{` + themeColor + `} % Reusing a solid hex by default or could be dynamic
 \definecolor{skylight}{RGB}{232, 244, 253}
 \definecolor{darkgrey}{RGB}{60, 60, 60}
 \definecolor{midgrey}{RGB}{110, 110, 110}

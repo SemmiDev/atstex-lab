@@ -56,6 +56,9 @@ function getBlockLabel(type) {
         case 'projects': return 'Proyek';
         case 'certifications': return 'Sertifikasi';
         case 'languages': return 'Bahasa';
+        case 'volunteer': return 'Peng. Organisasi';
+        case 'awards': return 'Penghargaan';
+        case 'talks': return 'Seminar / Pembicara';
         default: return 'Blok';
     }
 }
@@ -116,6 +119,7 @@ function getTemplateConfig() {
     return {
         theme_color: document.getElementById('theme-color').value,
         columns: parseInt(document.getElementById('layout-columns').value) || 1,
+        language: document.getElementById('layout-language').value || 'id',
         layout: layout
     };
 }
@@ -127,8 +131,12 @@ async function previewPDF() {
         return;
     }
 
-    document.getElementById('preview-placeholder').innerHTML = '<i class="ph-bold ph-spinner ph-spin text-2xl"></i><p class="mt-2">Mempersiapkan PDF...</p>';
-    document.getElementById('live-pdf-preview').style.display = 'none';
+    const loader = document.getElementById('preview-loader');
+    const placeholder = document.getElementById('preview-placeholder');
+    const iframe = document.getElementById('live-pdf-preview');
+
+    loader.classList.remove('hidden');
+    loader.classList.add('flex');
 
     try {
         const res = await fetch('/api/builder/preview', {
@@ -145,13 +153,20 @@ async function previewPDF() {
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
         
-        document.getElementById('live-pdf-preview').src = url;
-        document.getElementById('live-pdf-preview').style.display = 'block';
-        document.getElementById('preview-placeholder').style.display = 'none';
+        iframe.src = url;
+        iframe.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
         
     } catch (err) {
         console.error(err);
-        document.getElementById('preview-placeholder').innerHTML = `<p class="text-error">Gagal memuat pratinjau</p><p class="text-xs text-muted mt-2">${err.message}</p>`;
+        iframe.style.display = 'none';
+        if (placeholder) {
+            placeholder.style.display = 'flex';
+            placeholder.innerHTML = `<i class="ph-bold ph-warning-circle text-error text-4xl mb-4"></i><p class="text-error font-bold mb-2">Gagal memuat pratinjau</p><p class="text-xs text-muted break-all text-center px-4">${err.message}</p>`;
+        }
+    } finally {
+        loader.classList.remove('flex');
+        loader.classList.add('hidden');
     }
 }
 
@@ -250,6 +265,7 @@ function applyTemplate(config, id, name) {
     // Set config
     if (config.theme_color) document.getElementById('theme-color').value = config.theme_color;
     if (config.columns) document.getElementById('layout-columns').value = config.columns;
+    if (config.language) document.getElementById('layout-language').value = config.language;
     
     // Apply blocks
     if (config.layout && config.layout.length > 0) {

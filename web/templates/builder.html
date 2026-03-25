@@ -209,6 +209,15 @@
                         <div class="component-item" draggable="true" data-type="languages">
                             <i class="ph-bold ph-translate text-accent"></i> Bahasa
                         </div>
+                        <div class="component-item" draggable="true" data-type="volunteer">
+                            <i class="ph-bold ph-hands-clapping text-accent"></i> Pengalaman Organisasi
+                        </div>
+                        <div class="component-item" draggable="true" data-type="awards">
+                            <i class="ph-bold ph-medal text-accent"></i> Penghargaan
+                        </div>
+                        <div class="component-item" draggable="true" data-type="talks">
+                            <i class="ph-bold ph-megaphone text-accent"></i> Seminar / Pembicara
+                        </div>
                     </div>
                     
                     <div class="builder-sidebar-header mt-auto border-t-[3px]">
@@ -224,6 +233,13 @@
                             <select id="layout-columns" class="w-full p-2 border-2 border-border font-mono text-sm font-bold bg-surface">
                                 <option value="1">1 Kolom (Penuh)</option>
                                 <option value="2">2 Kolom (Kiri & Kanan)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="font-mono text-xs font-bold block mb-1">Bahasa Bagian</label>
+                            <select id="layout-language" class="w-full p-2 border-2 border-border font-mono text-sm font-bold bg-surface">
+                                <option value="id">Indonesia</option>
+                                <option value="en">English</option>
                             </select>
                         </div>
                     </div>
@@ -249,11 +265,19 @@
                     <div class="builder-sidebar-header justify-between">
                         <span><i class="ph-bold ph-file-pdf"></i> Pratinjau Live</span>
                     </div>
-                    <div class="builder-preview-canvas" id="preview-panel">
+                    <div class="builder-preview-canvas relative" id="preview-panel">
                         <div class="text-center font-mono font-bold text-sm text-muted" id="preview-placeholder">
                             <p>Klik "Tinjau PDF" untuk merender</p>
                         </div>
-                        <iframe id="live-pdf-preview" src=""></iframe>
+                        <!-- PDF Viewer -->
+                        <iframe id="live-pdf-preview" class="w-full h-full border-0" style="display: none;"></iframe>
+                        
+                        <!-- Loading Overlay -->
+                        <div id="preview-loader" class="absolute inset-0 bg-bg/80 backdrop-blur-sm z-20 hidden flex-col items-center justify-center p-6 text-center">
+                            <i class="ph-bold ph-spinner-gap ph-spin text-accent text-5xl mb-4"></i>
+                            <p class="font-mono text-sm font-bold text-text">Menyusun PDF...</p>
+                            <p class="font-mono text-xs text-muted mt-2 max-w-[250px]">Tectonic sedang mengompilasi template kamu. Mohon tunggu sebentar.</p>
+                        </div>
                     </div>
                 </div>
                 
