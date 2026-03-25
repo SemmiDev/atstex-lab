@@ -43,6 +43,7 @@ func GenerateStateOauthCookie(w http.ResponseWriter) string {
 		Value:    state,
 		Expires:  time.Now().Add(10 * time.Minute),
 		HttpOnly: true,
+		Secure:   true,
 		Path:     "/",
 		SameSite: http.SameSiteLaxMode,
 	}
@@ -147,6 +148,7 @@ func clearCookie(w http.ResponseWriter) {
 		Value:    "",
 		Expires:  time.Unix(0, 0),
 		HttpOnly: true,
+		Secure:   true,
 		Path:     "/",
 		SameSite: http.SameSiteLaxMode,
 	})

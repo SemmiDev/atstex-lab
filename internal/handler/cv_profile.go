@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -260,7 +261,7 @@ func (s *Server) handleAutoTailorCVProfile() http.HandlerFunc {
 		rewrittenJSON, tokensUsed, err := aisuites.AutoTailorCV(r.Context(), string(baseProfile.Biodata), req.JobDescription, lang, s.aiConfig)
 		if err != nil {
 			s.reqLog(r).Error("Auto-tailor CV rewriting failed", "err", err)
-			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("AI rewriting failed: "+err.Error())))
+			middleware.RespondError(w, r, apperrors.NewInternal(fmt.Errorf("AI rewriting failed: %w", err)))
 			return
 		}
 

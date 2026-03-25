@@ -18,6 +18,8 @@ func (s *Server) routes() {
 	// Middleware stack.
 	s.router.Use(chimw.RequestID)
 	s.router.Use(chimw.RealIP)
+	s.router.Use(middleware.SecurityHeaders)
+	s.router.Use(middleware.MaxBodySize(1 << 20)) // 1MB default body limit
 	s.router.Use(middleware.RequestLogger(s.logger))
 	s.router.Use(chimw.Recoverer)
 	s.router.Use(chimw.Timeout(120 * time.Second))

@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"html"
 	"html/template"
 	"log/slog"
@@ -434,7 +435,7 @@ func (s *Server) handleExtractPDF() http.HandlerFunc {
 		result, totalTokens, genInfo, err := aisuites.ExtractBiodata(r.Context(), req.Text, s.aiConfig)
 		if err != nil {
 			middleware.AddEventData(r.Context(), "pdf_extraction_error", "extraction failed: "+err.Error())
-			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("AI extraction failed: "+err.Error())))
+			middleware.RespondError(w, r, apperrors.NewInternal(fmt.Errorf("AI extraction failed: %w", err)))
 			return
 		}
 
@@ -950,7 +951,7 @@ func (s *Server) handleCreateCVReview() http.HandlerFunc {
 		critiqueResult, tokensUsed, err := aisuites.CritiqueCVProfile(r.Context(), string(profile.Biodata), lang, s.aiConfig)
 		if err != nil {
 			s.reqLog(r).Error("AI critique error", "err", err)
-			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("AI critique failed: "+err.Error())))
+			middleware.RespondError(w, r, apperrors.NewInternal(fmt.Errorf("AI critique failed: %w", err)))
 			return
 		}
 
@@ -1079,7 +1080,7 @@ func (s *Server) handleGenerateCoverLetter() http.HandlerFunc {
 		)
 		if err != nil {
 			s.reqLog(r).Error("AI cover letter generator error", "err", err)
-			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("AI generation failed: "+err.Error())))
+			middleware.RespondError(w, r, apperrors.NewInternal(fmt.Errorf("AI generation failed: %w", err)))
 			return
 		}
 
@@ -1299,7 +1300,7 @@ func (s *Server) handleEnhanceBullet() http.HandlerFunc {
 		enhanced, tokensUsed, err := aisuites.EnhanceBulletPoint(r.Context(), req.Bullet, lang, s.aiConfig)
 		if err != nil {
 			s.reqLog(r).Error("bullet enhancement error", "err", err)
-			middleware.RespondError(w, r, apperrors.NewInternal(errors.New("AI enhancement failed: "+err.Error())))
+			middleware.RespondError(w, r, apperrors.NewInternal(fmt.Errorf("AI enhancement failed: %w", err)))
 			return
 		}
 

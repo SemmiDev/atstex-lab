@@ -64,7 +64,7 @@ func (s *Server) handleGoogleCallback() http.HandlerFunc {
 		}
 		defer resp.Body.Close()
 
-		body, err := io.ReadAll(resp.Body)
+		body, err := io.ReadAll(io.LimitReader(resp.Body, 1<<20)) // cap at 1MB
 		if err != nil {
 			s.reqLog(r).Error("failed to read body", "err", err)
 			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
@@ -119,6 +119,7 @@ func (s *Server) handleGoogleCallback() http.HandlerFunc {
 			Value:    sessionToken,
 			Expires:  expiresAt,
 			HttpOnly: true,
+			Secure:   true,
 			Path:     "/",
 			SameSite: http.SameSiteLaxMode,
 		})
@@ -154,6 +155,7 @@ func (s *Server) handleLogout() http.HandlerFunc {
 			Value:    "",
 			Expires:  time.Unix(0, 0),
 			HttpOnly: true,
+			Secure:   true,
 			Path:     "/",
 			SameSite: http.SameSiteLaxMode,
 		})
@@ -188,6 +190,7 @@ func (s *Server) handleDeleteAccount() http.HandlerFunc {
 			Value:    "",
 			Expires:  time.Unix(0, 0),
 			HttpOnly: true,
+			Secure:   true,
 			Path:     "/",
 			SameSite: http.SameSiteLaxMode,
 		})
