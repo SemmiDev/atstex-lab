@@ -7,6 +7,7 @@
 # ║    ./scripts/deploy.sh --setup            # Initial setup    ║
 # ║    ./scripts/deploy.sh --app-only         # App only         ║
 # ║    ./scripts/deploy.sh --staging          # Staging env      ║
+# ║    ./scripts/deploy.sh --env NAME         # Custom env       ║
 # ║    ./scripts/deploy.sh --branch dev       # Custom branch    ║
 # ╚══════════════════════════════════════════════════════════════╝
 
@@ -25,8 +26,8 @@ DEPLOY_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 # ── Defaults ─────────────────────────────────────────────────
 INVENTORY="inventory/production.ini"
 PLAYBOOK="playbooks/site.yml"
-EXTRA_VARS=""
-TAGS=""
+EXTRA_VARS=()
+TAGS=()
 
 # ── Parse Arguments ──────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
@@ -39,19 +40,22 @@ while [[ $# -gt 0 ]]; do
             shift ;;
         --staging)
             INVENTORY="inventory/staging.ini"
-            EXTRA_VARS="${EXTRA_VARS} -e @group_vars/staging.yml"
+            EXTRA_VARS+=("-e" "@group_vars/staging.yml")
             shift ;;
+        --env)
+            EXTRA_VARS+=("-e" "env=$2")
+            shift 2 ;;
         --branch)
-            EXTRA_VARS="${EXTRA_VARS} -e app_branch=$2"
+            EXTRA_VARS+=("-e" "app_branch=$2")
             shift 2 ;;
         --tags)
-            TAGS="--tags $2"
+            TAGS+=("--tags" "$2")
             shift 2 ;;
         --dry-run)
-            EXTRA_VARS="${EXTRA_VARS} --check --diff"
+            EXTRA_VARS+=("--check" "--diff")
             shift ;;
         --verbose)
-            EXTRA_VARS="${EXTRA_VARS} -vvv"
+            EXTRA_VARS+=("-vvv")
             shift ;;
         --help)
             echo "Usage: $0 [OPTIONS]"
@@ -60,6 +64,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --setup       Run initial server setup only"
             echo "  --app-only    Deploy/update application only"
             echo "  --staging     Use staging environment"
+            echo "  --env NAME    Use specified environment variables"
             echo "  --branch NAME Deploy specific branch (default: main)"
             echo "  --tags TAGS   Run only specific Ansible tags"
             echo "  --dry-run     Preview changes without applying"
@@ -102,7 +107,7 @@ fi
 echo -e "${YELLOW}📋 Configuration:${NC}"
 echo -e "   Inventory: ${INVENTORY}"
 echo -e "   Playbook:  ${PLAYBOOK}"
-echo -e "   Extra:     ${EXTRA_VARS:-none}"
+echo -e "   Extra:     ${EXTRA_VARS[*]:-none}"
 echo ""
 
 # ── Confirmation ─────────────────────────────────────────────
@@ -119,11 +124,15 @@ echo ""
 
 cd "${DEPLOY_DIR}"
 
-ansible-playbook \
-    -i "${INVENTORY}" \
-    "${PLAYBOOK}" \
-    ${TAGS} \
-    ${EXTRA_VARS}
+ansible_cmd=(ansible-playbook -i "${INVENTORY}" "${PLAYBOOK}")
+if [ ${#TAGS[@]} -gt 0 ]; then
+    ansible_cmd+=("${TAGS[@]}")
+fi
+if [ ${#EXTRA_VARS[@]} -gt 0 ]; then
+    ansible_cmd+=("${EXTRA_VARS[@]}")
+fi
+
+"${ansible_cmd[@]}"
 
 echo ""
 echo -e "${GREEN}╔══════════════════════════════════════════════╗${NC}"

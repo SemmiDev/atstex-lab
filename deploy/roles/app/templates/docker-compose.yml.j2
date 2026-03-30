@@ -18,13 +18,10 @@ services:
       - atstex_network
     tmpfs:
       - /tmp:size={{ docker_tmpfs_size }},mode=1777
-    deploy:
-      resources:
-        limits:
-          cpus: "{{ docker_cpu_limit }}"
-          memory: {{ docker_memory_limit }}
+    mem_limit: {{ docker_memory_limit }}
+    cpus: {{ docker_cpu_limit }}
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:{{ app_port }}/"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8080/"]
       interval: 30s
       timeout: 10s
       retries: 3

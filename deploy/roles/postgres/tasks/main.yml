@@ -35,16 +35,25 @@
     group: "{{ deploy_user }}"
     mode: "0644"
 
+- name: Check if atstex_network exists
+  command: docker network inspect atstex_network
+  register: network_check
+  changed_when: false
+  ignore_errors: true
+  become_user: "{{ deploy_user }}"
+
 - name: Create external Docker network for database isolation
   command: docker network create atstex_network
-  ignore_errors: true
-  changed_when: false
+  when: network_check.rc != 0
+  become_user: "{{ deploy_user }}"
 
 - name: Start PostgreSQL container
   command: docker compose -f docker-compose-db.yml up -d
   args:
     chdir: "{{ app_dir }}"
   become_user: "{{ deploy_user }}"
+  register: compose_up
+  changed_when: "'Created' in compose_up.stderr or 'Started' in compose_up.stderr or 'Recreated' in compose_up.stderr"
 
 - name: Wait for PostgreSQL to be ready
   command: >
@@ -57,8 +66,10 @@
   changed_when: false
 
 - name: Allow external PostgreSQL access through UFW
-  command: "ufw allow {{ postgres_port }}/tcp"
-  ignore_errors: true
+  community.general.ufw:
+    rule: allow
+    port: "{{ postgres_port | string }}"
+    proto: tcp
   when: postgres_expose_public | default(false) | bool
 
 # ── Backup Cron ──────────────────────────────────────────────

@@ -92,12 +92,22 @@
     name: nginx
     state: reloaded
 
+# ── Log Rotation ────────────────────────────────────────────
+- name: Deploy Nginx log rotation config
+  template:
+    src: logrotate-atstex.j2
+    dest: /etc/logrotate.d/atstex-lab-nginx
+    owner: root
+    group: root
+    mode: "0644"
+
+# ── Certbot auto-renewal cron ───────────────────────────────
 - name: Setup Certbot auto-renewal cron
   cron:
     name: "Certbot renewal"
-    minute: "0"
+    minute: "30"
     hour: "2"
-    day: "*/1"
-    job: "certbot renew --quiet --post-hook 'systemctl reload nginx'"
+    weekday: "1,4"
+    job: "certbot renew --quiet --post-hook 'systemctl reload nginx' 2>&1 | logger -t certbot"
     user: root
   when: ssl_enabled | default(true)

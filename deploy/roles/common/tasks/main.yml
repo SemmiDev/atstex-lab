@@ -4,7 +4,8 @@
 # ╚══════════════════════════════════════════════════════════════╝
 
 - name: Set timezone
-  command: timedatectl set-timezone {{ timezone }}
+  community.general.timezone:
+    name: "{{ timezone }}"
 
 - name: Update apt cache
   apt:
@@ -59,19 +60,22 @@
     mode: "0700"
 
 - name: Set authorized key for deploy user
-  copy:
-    content: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}\n"
-    dest: "/home/{{ deploy_user }}/.ssh/authorized_keys"
-    owner: "{{ deploy_user }}"
-    group: "{{ deploy_user }}"
-    mode: "0600"
-  ignore_errors: true
+  authorized_key:
+    user: "{{ deploy_user }}"
+    state: present
+    key: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}"
+  register: ssh_key_result
+  failed_when:
+    - ssh_key_result is failed
+    - "'could not find' not in (ssh_key_result.msg | default(''))"
 
 - name: Create SSH keypair for deploy user (for GitHub Deploy Keys)
-  command: ssh-keygen -t ed25519 -N '' -f /home/{{ deploy_user }}/.ssh/id_ed25519 -C "deploy@atstex-lab"
-  args:
-    creates: "/home/{{ deploy_user }}/.ssh/id_ed25519"
-  become_user: "{{ deploy_user }}"
+  community.crypto.openssh_keypair:
+    path: "/home/{{ deploy_user }}/.ssh/id_ed25519"
+    type: ed25519
+    comment: "deploy@atstex-lab"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
 
 # ── Application User ────────────────────────────────────────
 - name: Create application user
@@ -95,21 +99,25 @@
 
 # ── Firewall (UFW) ──────────────────────────────────────────
 - name: Set UFW default deny incoming
-  command: ufw default deny incoming
-  ignore_errors: true
+  community.general.ufw:
+    direction: incoming
+    default: deny
 
 - name: Set UFW default allow outgoing
-  command: ufw default allow outgoing
-  ignore_errors: true
+  community.general.ufw:
+    direction: outgoing
+    default: allow
 
 - name: Allow required ports through UFW
-  command: "ufw allow {{ item.port }}/{{ item.proto }}"
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.port | string }}"
+    proto: "{{ item.proto }}"
   loop: "{{ ufw_allowed_ports }}"
-  ignore_errors: true
 
 - name: Enable UFW
-  command: ufw --force enable
-  ignore_errors: true
+  community.general.ufw:
+    state: enabled
 
 # ── Fail2Ban ─────────────────────────────────────────────────
 - name: Enable fail2ban service

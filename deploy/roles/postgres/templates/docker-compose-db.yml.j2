@@ -27,10 +27,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    deploy:
-      resources:
-        limits:
-          memory: 512m
+    mem_limit: 512m
 
 networks:
   atstex_network:
