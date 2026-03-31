@@ -32,17 +32,33 @@ func (s *Server) handleInterviewPrepPage() http.HandlerFunc {
 	}
 }
 
+// CreateInterviewPrepRequest defines the payload for creating an interview prep.
+type CreateInterviewPrepRequest struct {
+	ProfileID      string `json:"profileId"`
+	JobDescription string `json:"jobDescription"`
+	Language       string `json:"language"`
+	Count          int    `json:"count"`
+}
+
 // handleCreateInterviewPrep processes a job description against a CV profile to generate questions.
+// @Summary      Create Interview Prep
+// @Description  Generate AI-driven interview questions based on CV profile and job description
+// @Tags         Interview Prep
+// @Accept       json
+// @Produce      json
+// @Param        request body CreateInterviewPrepRequest true "Interview prep parameters"
+// @Success      201  {object}  domain.InterviewPrep
+// @Failure      400  {object}  problem.Problem
+// @Failure      401  {object}  problem.Problem
+// @Failure      403  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/interview-prep [post]
 func (s *Server) handleCreateInterviewPrep() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
-		var req struct {
-			ProfileID      string `json:"profileId"`
-			JobDescription string `json:"jobDescription"`
-			Language       string `json:"language"`
-			Count          int    `json:"count"`
-		}
+		var req CreateInterviewPrepRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
@@ -119,6 +135,15 @@ func (s *Server) handleCreateInterviewPrep() http.HandlerFunc {
 }
 
 // handleListMyInterviewPreps returns the current user's interview prep history.
+// @Summary      List Interview Preps
+// @Description  Get a history of interview preps run by the user
+// @Tags         Interview Prep
+// @Produce      json
+// @Success      200  {array}   domain.InterviewPrep
+// @Failure      401  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/interview-preps [get]
 func (s *Server) handleListMyInterviewPreps() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -134,17 +159,33 @@ func (s *Server) handleListMyInterviewPreps() http.HandlerFunc {
 	}
 }
 
+// CritiqueInterviewAnswerRequest defines the payload for getting an AI critique of an answer.
+type CritiqueInterviewAnswerRequest struct {
+	Question string `json:"question"`
+	Answer   string `json:"answer"`
+	Language string `json:"language"`
+}
+
 // handleCritiqueInterviewAnswer receives a single interview question + the candidate's spoken
 // (transcribed) answer and returns structured AI feedback in real time.
+// @Summary      Critique Interview Answer
+// @Description  Provides real-time AI critique of a candidate's answer to a specific interview question
+// @Tags         Interview Prep
+// @Accept       json
+// @Produce      json
+// @Param        request body CritiqueInterviewAnswerRequest true "Candidate answer"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  problem.Problem
+// @Failure      401  {object}  problem.Problem
+// @Failure      403  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/interview-prep/critique [post]
 func (s *Server) handleCritiqueInterviewAnswer() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
-		var req struct {
-			Question string `json:"question"`
-			Answer   string `json:"answer"`
-			Language string `json:"language"`
-		}
+		var req CritiqueInterviewAnswerRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return

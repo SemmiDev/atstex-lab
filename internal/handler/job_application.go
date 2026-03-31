@@ -15,7 +15,29 @@ import (
 	"github.com/semmidev/atstex-lab/internal/validate"
 )
 
+// CreateJobApplicationRequest defines the payload for creating a job application.
+type CreateJobApplicationRequest struct {
+	Company     string    `json:"company" validate:"required,max=200"`
+	JobTitle    string    `json:"job_title" validate:"required,max=200"`
+	Status      string    `json:"status" validate:"omitempty,max=100"`
+	Notes       string    `json:"notes" validate:"omitempty,max=5000"`
+	CVProfileID uuid.UUID `json:"cv_profile_id" validate:"omitempty"`
+	Deadline    *string   `json:"deadline" validate:"omitempty"`
+}
+
 // CreateJobApplication handles the creation of a new job application.
+// @Summary      Create Job Application
+// @Description  Create a new job application in the Kanban board
+// @Tags         Job Applications
+// @Accept       json
+// @Produce      json
+// @Param        request body CreateJobApplicationRequest true "Job Application details"
+// @Success      201  {object}  domain.JobApplication
+// @Failure      400  {object}  problem.Problem
+// @Failure      401  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/applications [post]
 func (s *Server) CreateJobApplication() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -24,14 +46,7 @@ func (s *Server) CreateJobApplication() http.HandlerFunc {
 			return
 		}
 
-		type CreateJobApplicationRequest struct {
-			Company     string    `json:"company" validate:"required,max=200"`
-			JobTitle    string    `json:"job_title" validate:"required,max=200"`
-			Status      string    `json:"status" validate:"omitempty,max=100"`
-			Notes       string    `json:"notes" validate:"omitempty,max=5000"`
-			CVProfileID uuid.UUID `json:"cv_profile_id" validate:"omitempty"`
-			Deadline    *string   `json:"deadline" validate:"omitempty"`
-		}
+
 
 		var req CreateJobApplicationRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -77,6 +92,15 @@ func (s *Server) CreateJobApplication() http.HandlerFunc {
 }
 
 // GetJobApplications handles fetching all job applications for the logged-in user.
+// @Summary      List Job Applications
+// @Description  Fetch all job applications (for the Kanban board)
+// @Tags         Job Applications
+// @Produce      json
+// @Success      200  {array}   domain.JobApplication
+// @Failure      401  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/applications [get]
 func (s *Server) GetJobApplications() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -95,7 +119,25 @@ func (s *Server) GetJobApplications() http.HandlerFunc {
 	}
 }
 
+// UpdateJobApplicationStatusRequest defines the payload to update application status.
+type UpdateJobApplicationStatusRequest struct {
+	Status string `json:"status" validate:"required,max=100"`
+}
+
 // UpdateJobApplicationStatus handles updating the status of a job application.
+// @Summary      Update Job Application Status
+// @Description  Change the status of a job application (e.g. for drag-and-drop in Kanban)
+// @Tags         Job Applications
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Job Application ID" format(uuid)
+// @Param        request body UpdateJobApplicationStatusRequest true "New Status"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  problem.Problem
+// @Failure      401  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/applications/{id}/status [put]
 func (s *Server) UpdateJobApplicationStatus() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -111,9 +153,7 @@ func (s *Server) UpdateJobApplicationStatus() http.HandlerFunc {
 			return
 		}
 
-		var payload struct {
-			Status string `json:"status" validate:"required,max=100"`
-		}
+		var payload UpdateJobApplicationStatusRequest
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
@@ -136,7 +176,29 @@ func (s *Server) UpdateJobApplicationStatus() http.HandlerFunc {
 	}
 }
 
+// UpdateJobApplicationRequest defines the payload for updating a job application.
+type UpdateJobApplicationRequest struct {
+	Company     string    `json:"company" validate:"required,max=200"`
+	JobTitle    string    `json:"job_title" validate:"required,max=200"`
+	Notes       string    `json:"notes" validate:"omitempty,max=5000"`
+	CVProfileID uuid.UUID `json:"cv_profile_id" validate:"omitempty"`
+	Deadline    *string   `json:"deadline" validate:"omitempty"`
+}
+
 // UpdateJobApplication handles updating an existing job application.
+// @Summary      Update Job Application
+// @Description  Update details of an existing job application
+// @Tags         Job Applications
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Job Application ID" format(uuid)
+// @Param        request body UpdateJobApplicationRequest true "Job Application updates"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  problem.Problem
+// @Failure      401  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/applications/{id} [put]
 func (s *Server) UpdateJobApplication() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -152,13 +214,7 @@ func (s *Server) UpdateJobApplication() http.HandlerFunc {
 			return
 		}
 
-		type UpdateJobApplicationRequest struct {
-			Company     string    `json:"company" validate:"required,max=200"`
-			JobTitle    string    `json:"job_title" validate:"required,max=200"`
-			Notes       string    `json:"notes" validate:"omitempty,max=5000"`
-			CVProfileID uuid.UUID `json:"cv_profile_id" validate:"omitempty"`
-			Deadline    *string   `json:"deadline" validate:"omitempty"`
-		}
+
 
 		var req UpdateJobApplicationRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -199,6 +255,16 @@ func (s *Server) UpdateJobApplication() http.HandlerFunc {
 }
 
 // DeleteJobApplication handles deleting a job application.
+// @Summary      Delete Job Application
+// @Description  Delete a job application from the Kanban board
+// @Tags         Job Applications
+// @Param        id   path      string  true  "Job Application ID" format(uuid)
+// @Success      204  "No Content"
+// @Failure      400  {object}  problem.Problem
+// @Failure      401  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/applications/{id} [delete]
 func (s *Server) DeleteJobApplication() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)

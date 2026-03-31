@@ -14,6 +14,14 @@ import (
 )
 
 // AdminListSubscriptionPlans handles GET /api/admin/subscription-plans.
+// @Summary      List Subscription Plans
+// @Description  Get a list of all subscription plans (Admin only)
+// @Tags         Admin Subscriptions
+// @Produce      json
+// @Success      200  {array}   domain.SubscriptionPlan
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/subscription-plans [get]
 func (s *Server) handleAdminListSubscriptionPlans() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		plans, err := s.repo.AdminListSubscriptionPlans(r.Context())
@@ -27,6 +35,17 @@ func (s *Server) handleAdminListSubscriptionPlans() http.HandlerFunc {
 }
 
 // AdminCreateSubscriptionPlan handles POST /api/admin/subscription-plans.
+// @Summary      Create Subscription Plan
+// @Description  Create a new subscription plan (Admin only)
+// @Tags         Admin Subscriptions
+// @Accept       json
+// @Produce      json
+// @Param        request body domain.SubscriptionPlan true "Plan data"
+// @Success      201  {object}  domain.SubscriptionPlan
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/subscription-plans [post]
 func (s *Server) handleAdminCreateSubscriptionPlan() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req domain.SubscriptionPlan
@@ -51,6 +70,18 @@ func (s *Server) handleAdminCreateSubscriptionPlan() http.HandlerFunc {
 }
 
 // AdminUpdateSubscriptionPlan handles PUT /api/admin/subscription-plans/{id}.
+// @Summary      Update Subscription Plan
+// @Description  Update an existing subscription plan (Admin only)
+// @Tags         Admin Subscriptions
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Plan ID" format(uuid)
+// @Param        request body domain.SubscriptionPlan true "Plan data"
+// @Success      200  {object}  domain.SubscriptionPlan
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/subscription-plans/{id} [put]
 func (s *Server) handleAdminUpdateSubscriptionPlan() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		planID, err := uuid.Parse(chi.URLParam(r, "id"))
@@ -81,7 +112,24 @@ func (s *Server) handleAdminUpdateSubscriptionPlan() http.HandlerFunc {
 	}
 }
 
+// AdminToggleSubscriptionPlanRequest defines the payload for toggling a plan.
+type AdminToggleSubscriptionPlanRequest struct {
+	IsActive bool `json:"isActive"`
+}
+
 // AdminToggleSubscriptionPlan handles POST /api/admin/subscription-plans/{id}/toggle.
+// @Summary      Toggle Subscription Plan Active State
+// @Description  Activate or deactivate a subscription plan
+// @Tags         Admin Subscriptions
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Plan ID" format(uuid)
+// @Param        request body AdminToggleSubscriptionPlanRequest true "Toggle status"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/subscription-plans/{id}/toggle [post]
 func (s *Server) handleAdminToggleSubscriptionPlan() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		planID, err := uuid.Parse(chi.URLParam(r, "id"))
@@ -90,9 +138,7 @@ func (s *Server) handleAdminToggleSubscriptionPlan() http.HandlerFunc {
 			return
 		}
 
-		var req struct {
-			IsActive bool `json:"isActive"`
-		}
+		var req AdminToggleSubscriptionPlanRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
@@ -109,6 +155,16 @@ func (s *Server) handleAdminToggleSubscriptionPlan() http.HandlerFunc {
 }
 
 // AdminDeleteSubscriptionPlan handles DELETE /api/admin/subscription-plans/{id}.
+// @Summary      Delete Subscription Plan
+// @Description  Permanently delete a subscription plan
+// @Tags         Admin Subscriptions
+// @Produce      json
+// @Param        id   path      string  true  "Plan ID" format(uuid)
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/subscription-plans/{id} [delete]
 func (s *Server) handleAdminDeleteSubscriptionPlan() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		planID, err := uuid.Parse(chi.URLParam(r, "id"))
@@ -127,7 +183,25 @@ func (s *Server) handleAdminDeleteSubscriptionPlan() http.HandlerFunc {
 	}
 }
 
+// AdminAssignSubscriptionRequest defines the API payload to assign a plan.
+type AdminAssignSubscriptionRequest struct {
+	PlanID string `json:"planId"`
+	Months string `json:"months"` // Can be passed as string by HTML forms
+}
+
 // AdminAssignSubscription handles POST /api/admin/users/{id}/subscribe.
+// @Summary      Assign Subscription to User
+// @Description  Grant a specific subscription plan to a user
+// @Tags         Admin Subscriptions
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "User ID" format(uuid)
+// @Param        request body AdminAssignSubscriptionRequest true "Subscription Details"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/users/{id}/subscribe [post]
 func (s *Server) handleAdminAssignSubscription() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID, err := uuid.Parse(chi.URLParam(r, "id"))
@@ -136,10 +210,7 @@ func (s *Server) handleAdminAssignSubscription() http.HandlerFunc {
 			return
 		}
 
-		var req struct {
-			PlanID string `json:"planId"`
-			Months string `json:"months"` // Can be passed as string by HTML forms
-		}
+		var req AdminAssignSubscriptionRequest
 		if decodeErr := json.NewDecoder(r.Body).Decode(&req); decodeErr != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
@@ -167,6 +238,15 @@ func (s *Server) handleAdminAssignSubscription() http.HandlerFunc {
 }
 
 // AdminGetUserSubscription handles GET /api/admin/users/{id}/subscription.
+// @Summary      Get User's Subscription
+// @Description  Get details of a user's active subscription
+// @Tags         Admin Subscriptions
+// @Produce      json
+// @Param        id   path      string  true  "User ID" format(uuid)
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/users/{id}/subscription [get]
 func (s *Server) handleAdminGetUserSubscription() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID, err := uuid.Parse(chi.URLParam(r, "id"))

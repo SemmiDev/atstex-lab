@@ -28,16 +28,31 @@ func (s *Server) handleBuilderPage() http.HandlerFunc {
 	}
 }
 
-// handleSaveCustomTemplate API 
+// SaveCustomTemplateRequest defines the payload for saving a custom layout.
+type SaveCustomTemplateRequest struct {
+	ID     string          `json:"id,omitempty"`
+	Name   string          `json:"name"`
+	Config json.RawMessage `json:"config"`
+}
+
+// handleSaveCustomTemplate API
+// @Summary      Save Custom Template
+// @Description  Create or update a custom LaTeX layout template
+// @Tags         Custom Builder
+// @Accept       json
+// @Produce      json
+// @Param        request body SaveCustomTemplateRequest true "Template details"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  problem.Problem
+// @Failure      404  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/custom-templates [post] 
 func (s *Server) handleSaveCustomTemplate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
-		var req struct {
-			ID     string          `json:"id,omitempty"`
-			Name   string          `json:"name"`
-			Config json.RawMessage `json:"config"`
-		}
+		var req SaveCustomTemplateRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid json body"))
 			return
@@ -90,6 +105,14 @@ func (s *Server) handleSaveCustomTemplate() http.HandlerFunc {
 }
 
 // handleLoadCustomTemplates API
+// @Summary      List Custom Templates
+// @Description  Get all custom layout templates saved by the user
+// @Tags         Custom Builder
+// @Produce      json
+// @Success      200  {array}   domain.CustomTemplate
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/custom-templates [get]
 func (s *Server) handleLoadCustomTemplates() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -106,6 +129,17 @@ func (s *Server) handleLoadCustomTemplates() http.HandlerFunc {
 }
 
 // handlePreviewCustomTemplate API
+// @Summary      Preview Custom Template
+// @Description  Compiles a custom layout configuration with user data into a PDF response
+// @Tags         Custom Builder
+// @Accept       json
+// @Produce      application/pdf
+// @Param        request body map[string]interface{} true "Custom Builder Configuration JSON"
+// @Success      200  {file}    string "PDF Document"
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/custom-templates/preview [post]
 func (s *Server) handlePreviewCustomTemplate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)

@@ -250,14 +250,28 @@ func (s *Server) handlePublishSettings() http.HandlerFunc {
 	}
 }
 
+// SetUsernameRequest defines the payload for setting a username.
+type SetUsernameRequest struct {
+	Username string `json:"username"`
+}
+
 // SetUsername handles PUT /api/username — validates and saves a username.
+// @Summary      Set Username
+// @Description  Validates and assigns a public username to the user
+// @Tags         Public Profiles
+// @Accept       json
+// @Produce      json
+// @Param        request body SetUsernameRequest true "Username Payload"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/username [put]
 func (s *Server) handleSetUsername() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
-		var body struct {
-			Username string `json:"username"`
-		}
+		var body SetUsernameRequest
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
@@ -299,6 +313,15 @@ func (s *Server) handleSetUsername() http.HandlerFunc {
 }
 
 // CheckUsername handles GET /api/username/check?q=... — returns availability.
+// @Summary      Check Username Availability
+// @Description  Check if a specific username is available for claiming
+// @Tags         Public Profiles
+// @Produce      json
+// @Param        q    query    string  true  "Username to check"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/username/check [get]
 func (s *Server) handleCheckUsername() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -336,7 +359,27 @@ func (s *Server) handleCheckUsername() http.HandlerFunc {
 	}
 }
 
+// ToggleProfileVisibilityRequest defines the payload for toggling CV visibility.
+type ToggleProfileVisibilityRequest struct {
+	IsPublic bool `json:"is_public"`
+}
+
 // ToggleProfileVisibility handles PUT /api/cv-profiles/{id}/visibility.
+// @Summary      Toggle Profile Visibility
+// @Description  Change a CV profile's public accessibility
+// @Tags         CV Profiles
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "CV Profile ID" format(uuid)
+// @Param        request body ToggleProfileVisibilityRequest true "Visibility setting"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  problem.Problem
+// @Failure      401  {object}  problem.Problem
+// @Failure      403  {object}  problem.Problem
+// @Failure      404  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/cv-profiles/{id}/visibility [put]
 func (s *Server) handleToggleProfileVisibility() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -357,9 +400,7 @@ func (s *Server) handleToggleProfileVisibility() http.HandlerFunc {
 			return
 		}
 
-		var body struct {
-			IsPublic bool `json:"is_public"`
-		}
+		var body ToggleProfileVisibilityRequest
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return

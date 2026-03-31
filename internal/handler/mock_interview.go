@@ -38,6 +38,14 @@ func (s *Server) handleMockInterviewPage() http.HandlerFunc {
 }
 
 // handleListMockInterviewSessions returns the current user's past sessions (JSON).
+// @Summary      List Mock Interview Sessions
+// @Description  Get a history of mock interview sessions
+// @Tags         Mock Interview
+// @Produce      json
+// @Success      200  {array}   domain.MockInterviewSession
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/mock-interview/sessions [get]
 func (s *Server) handleListMockInterviewSessions() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -66,6 +74,20 @@ func (s *Server) handleListMockInterviewSessions() http.HandlerFunc {
 //	language       – interview language code (en / id / ja / zh / ko)
 //	jobDescription – base64-encoded job description (to avoid URL length limits)
 //	interviewerStyle – interviewer profile/style (e.g. balanced, friendly, strict, technical, behavioral)
+//
+// @Summary      Start Mock Interview WebSocket
+// @Description  Initiates a WebSocket connection for an AI mock interview. Requires specific query parameters.
+// @Tags         Mock Interview
+// @Param        profileId        query  string  true  "CV Profile ID" format(uuid)
+// @Param        language         query  string  false "Language code (en/id/ja/zh/ko)"
+// @Param        jobDescription   query  string  true  "Job Description"
+// @Param        interviewerStyle query  string  false "Style (balanced, friendly, strict, technical, behavioral)"
+// @Success      101  "Switching Protocols to WebSocket"
+// @Failure      400  {string}  string "Bad Request"
+// @Failure      403  {string}  string "Forbidden"
+// @Failure      404  {string}  string "Not Found"
+// @Security     BearerAuth
+// @Router       /ws/mock-interview [get]
 func (s *Server) handleMockInterviewWS() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)

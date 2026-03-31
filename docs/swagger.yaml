@@ -1,0 +1,2673 @@
+basePath: /
+definitions:
+  github_com_semmidev_atstex-lab_internal_cvtemplate.Award:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+      issuer:
+        type: string
+      title:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_cvtemplate.CVData:
+    properties:
+      awards:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Award'
+        type: array
+      certifications:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Certification'
+        type: array
+      education:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Education'
+        type: array
+      experience:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Experience'
+        type: array
+      personal:
+        $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Personal'
+      projects:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Project'
+        type: array
+      skills:
+        $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Skills'
+      summary:
+        type: string
+      talks:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Talk'
+        type: array
+      volunteer:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Volunteer'
+        type: array
+    type: object
+  github_com_semmidev_atstex-lab_internal_cvtemplate.Certification:
+    properties:
+      issuer:
+        type: string
+      name:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_cvtemplate.Education:
+    properties:
+      activities:
+        type: string
+      dates:
+        type: string
+      degree:
+        type: string
+      gpa:
+        type: string
+      institution:
+        type: string
+      location:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_cvtemplate.Experience:
+    properties:
+      bullets:
+        type: string
+      company:
+        type: string
+      dates:
+        type: string
+      location:
+        type: string
+      title:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_cvtemplate.Link:
+    properties:
+      display:
+        type: string
+      url:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_cvtemplate.PageSettings:
+    properties:
+      alignment:
+        description: left, center, justify
+        type: string
+      documentClass:
+        description: article, report, letter, book
+        type: string
+      fontFamily:
+        description: default, helvet, times, palatino, courier
+        type: string
+      fontSize:
+        description: 10pt, 11pt, 12pt
+        type: string
+      footerText:
+        type: string
+      headerText:
+        type: string
+      lineSpacing:
+        description: 1.0, 1.15, 1.5, 2.0
+        type: number
+      marginBottom:
+        type: string
+      marginLeft:
+        type: string
+      marginRight:
+        type: string
+      marginTop:
+        description: e.g. "0.5in"
+        type: string
+      paperSize:
+        description: a4paper, letterpaper, legalpaper
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_cvtemplate.Personal:
+    properties:
+      email:
+        type: string
+      github:
+        $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Link'
+      linkedin:
+        $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Link'
+      location:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      photo:
+        type: string
+      title:
+        type: string
+      website:
+        $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Link'
+    type: object
+  github_com_semmidev_atstex-lab_internal_cvtemplate.Project:
+    properties:
+      bullets:
+        type: string
+      link:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_cvtemplate.Skills:
+    properties:
+      frameworks:
+        type: string
+      languages:
+        type: string
+      other:
+        type: string
+      tools:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_cvtemplate.Talk:
+    properties:
+      date:
+        type: string
+      description:
+        type: string
+      event:
+        type: string
+      location:
+        type: string
+      title:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_cvtemplate.Volunteer:
+    properties:
+      bullets:
+        type: string
+      dates:
+        type: string
+      location:
+        type: string
+      organization:
+        type: string
+      role:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_domain.AtsSimulation:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      jobDescription:
+        type: string
+      missingKeywords:
+        items:
+          type: integer
+        type: array
+      profileId:
+        type: string
+      recommendations:
+        type: string
+      score:
+        type: integer
+      userId:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_domain.CVProfile:
+    properties:
+      biodata:
+        items:
+          type: integer
+        type: array
+      created_at:
+        type: string
+      id:
+        type: string
+      is_public:
+        type: boolean
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_domain.CVReview:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      improvements:
+        type: string
+      language:
+        type: string
+      profileId:
+        type: string
+      profileTitle:
+        type: string
+      recommendations:
+        type: string
+      score:
+        type: integer
+      strengths:
+        type: string
+      tokensUsed:
+        type: integer
+      userId:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_domain.CoverLetter:
+    properties:
+      coverLetterText:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      jobDescription:
+        type: string
+      language:
+        type: string
+      profileId:
+        type: string
+      profileTitle:
+        type: string
+      tokensUsed:
+        type: integer
+      userId:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_domain.CustomTemplate:
+    properties:
+      config:
+        items:
+          type: integer
+        type: array
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_domain.Feedback:
+    properties:
+      adminReply:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      message:
+        type: string
+      repliedAt:
+        type: string
+      subject:
+        type: string
+      userEmail:
+        type: string
+      userId:
+        type: string
+      userName:
+        description: Joined fields (only populated in admin listing)
+        type: string
+      userPicture:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_domain.InterviewPrep:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      jobDescription:
+        type: string
+      language:
+        type: string
+      profileId:
+        type: string
+      questions:
+        items:
+          type: integer
+        type: array
+      tokensUsed:
+        type: integer
+      userId:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_domain.JobApplication:
+    properties:
+      company:
+        type: string
+      created_at:
+        type: string
+      cv_profile_id:
+        type: string
+      deadline:
+        type: string
+      id:
+        type: string
+      job_title:
+        type: string
+      notes:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_domain.MockInterviewSession:
+    properties:
+      createdAt:
+        type: string
+      endedAt:
+        type: string
+      id:
+        type: string
+      interviewerStyle:
+        type: string
+      jobDescription:
+        type: string
+      language:
+        type: string
+      messages:
+        items:
+          type: integer
+        type: array
+      profileId:
+        type: string
+      tokensUsed:
+        type: integer
+      turnCount:
+        type: integer
+      userId:
+        type: string
+    type: object
+  github_com_semmidev_atstex-lab_internal_domain.SubscriptionPlan:
+    properties:
+      activeUsersCount:
+        description: Joined/Computed fields
+        type: integer
+      createdAt:
+        type: string
+      durationMonths:
+        type: integer
+      id:
+        type: string
+      isActive:
+        type: boolean
+      maxAtsSimulations:
+        type: integer
+      maxCoverLetters:
+        type: integer
+      maxCvProfiles:
+        type: integer
+      maxCvReviews:
+        type: integer
+      name:
+        type: string
+      priceIdr:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  internal_handler.AdminAssignSubscriptionRequest:
+    properties:
+      months:
+        description: Can be passed as string by HTML forms
+        type: string
+      planId:
+        type: string
+    type: object
+  internal_handler.AdminReplyFeedbackRequest:
+    properties:
+      reply:
+        type: string
+    required:
+    - reply
+    type: object
+  internal_handler.AdminToggleSubscriptionPlanRequest:
+    properties:
+      isActive:
+        type: boolean
+    type: object
+  internal_handler.AutoTailorCVProfileRequest:
+    properties:
+      jobDescription:
+        maxLength: 5000
+        minLength: 10
+        type: string
+      language:
+        enum:
+        - en
+        - id
+        type: string
+    required:
+    - jobDescription
+    type: object
+  internal_handler.CreateAtsSimulationRequest:
+    properties:
+      jobDescription:
+        type: string
+      language:
+        type: string
+      profileId:
+        type: string
+    type: object
+  internal_handler.CreateCVProfileRequest:
+    properties:
+      title:
+        maxLength: 100
+        type: string
+    required:
+    - title
+    type: object
+  internal_handler.CreateCVReviewRequest:
+    properties:
+      language:
+        type: string
+      profileId:
+        type: string
+    type: object
+  internal_handler.CreateFeedbackRequest:
+    properties:
+      message:
+        maxLength: 2000
+        type: string
+      subject:
+        maxLength: 200
+        type: string
+    required:
+    - message
+    - subject
+    type: object
+  internal_handler.CreateInterviewPrepRequest:
+    properties:
+      count:
+        type: integer
+      jobDescription:
+        type: string
+      language:
+        type: string
+      profileId:
+        type: string
+    type: object
+  internal_handler.CreateJobApplicationRequest:
+    properties:
+      company:
+        maxLength: 200
+        type: string
+      cv_profile_id:
+        type: string
+      deadline:
+        type: string
+      job_title:
+        maxLength: 200
+        type: string
+      notes:
+        maxLength: 5000
+        type: string
+      status:
+        maxLength: 100
+        type: string
+    required:
+    - company
+    - job_title
+    type: object
+  internal_handler.CritiqueInterviewAnswerRequest:
+    properties:
+      answer:
+        type: string
+      language:
+        type: string
+      question:
+        type: string
+    type: object
+  internal_handler.EnhanceBulletRequest:
+    properties:
+      bullet:
+        type: string
+      language:
+        type: string
+    type: object
+  internal_handler.ExtractPDFRequest:
+    properties:
+      text:
+        type: string
+    type: object
+  internal_handler.GenerateCoverLetterRequest:
+    properties:
+      jobDesc:
+        type: string
+      language:
+        type: string
+      maxParagraphs:
+        type: integer
+      profileId:
+        type: string
+      tone:
+        type: string
+    type: object
+  internal_handler.SaveCVProfileRequest:
+    properties:
+      biodata:
+        items:
+          type: integer
+        type: array
+    type: object
+  internal_handler.SaveCustomTemplateRequest:
+    properties:
+      config:
+        items:
+          type: integer
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  internal_handler.SetUsernameRequest:
+    properties:
+      username:
+        type: string
+    type: object
+  internal_handler.ToggleProfileVisibilityRequest:
+    properties:
+      is_public:
+        type: boolean
+    type: object
+  internal_handler.UpdateCVProfileTitleRequest:
+    properties:
+      title:
+        maxLength: 100
+        type: string
+    required:
+    - title
+    type: object
+  internal_handler.UpdateJobApplicationRequest:
+    properties:
+      company:
+        maxLength: 200
+        type: string
+      cv_profile_id:
+        type: string
+      deadline:
+        type: string
+      job_title:
+        maxLength: 200
+        type: string
+      notes:
+        maxLength: 5000
+        type: string
+    required:
+    - company
+    - job_title
+    type: object
+  internal_handler.UpdateJobApplicationStatusRequest:
+    properties:
+      status:
+        maxLength: 100
+        type: string
+    required:
+    - status
+    type: object
+  internal_handler.compileRequest:
+    properties:
+      engine:
+        type: string
+      photo_base64:
+        type: string
+      source:
+        type: string
+    type: object
+  internal_handler.galleryCompileRequest:
+    properties:
+      awards:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Award'
+        type: array
+      certifications:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Certification'
+        type: array
+      education:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Education'
+        type: array
+      experience:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Experience'
+        type: array
+      personal:
+        $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Personal'
+      projects:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Project'
+        type: array
+      settings:
+        $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.PageSettings'
+      skills:
+        $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Skills'
+      summary:
+        type: string
+      talks:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Talk'
+        type: array
+      volunteer:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Volunteer'
+        type: array
+    type: object
+  internal_handler.galleryCompileResult:
+    properties:
+      error:
+        type: string
+      name:
+        type: string
+      pdf_base64:
+        type: string
+    type: object
+  internal_handler.pageSettingsRequest:
+    properties:
+      cvData:
+        $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.CVData'
+      settings:
+        $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.PageSettings'
+      template:
+        type: string
+    type: object
+  internal_handler.renderTemplateRequest:
+    properties:
+      awards:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Award'
+        type: array
+      certifications:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Certification'
+        type: array
+      education:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Education'
+        type: array
+      experience:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Experience'
+        type: array
+      personal:
+        $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Personal'
+      projects:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Project'
+        type: array
+      settings:
+        $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.PageSettings'
+      skills:
+        $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Skills'
+      summary:
+        type: string
+      talks:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Talk'
+        type: array
+      volunteer:
+        items:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_cvtemplate.Volunteer'
+        type: array
+    type: object
+  problem.Problem:
+    properties:
+      detail:
+        description: Detail is a human-readable explanation specific to this occurrence
+          of the problem.
+        type: string
+      instance:
+        description: Instance is a URI reference that identifies the specific occurrence
+          of the problem.
+        type: string
+      status:
+        description: Status is the HTTP status code for this occurrence of the problem.
+        type: integer
+      title:
+        description: Title is a short, human-readable summary of the problem type.
+        type: string
+      type:
+        description: Type is a URI reference that identifies the problem type.
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the API server for ATS-Tex Lab, a custom CV builder and ATS
+    simulator.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: ATS-Tex Lab API
+  version: "1.0"
+paths:
+  /api/admin/feedbacks:
+    get:
+      description: Get a paginated list of all user feedbacks
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      - description: Search keyword
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: List Feedbacks (Admin)
+      tags:
+      - Admin
+  /api/admin/feedbacks/{id}:
+    delete:
+      description: Permanently delete a feedback item
+      parameters:
+      - description: Feedback ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Delete Feedback
+      tags:
+      - Admin
+  /api/admin/feedbacks/{id}/reply:
+    post:
+      consumes:
+      - application/json
+      description: Admin provides an official reply to a user's feedback
+      parameters:
+      - description: Feedback ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Reply content
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.AdminReplyFeedbackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Reply to Feedback (Admin)
+      tags:
+      - Admin
+  /api/admin/stats:
+    get:
+      description: Get aggregate platform statistics for the admin dashboard
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Admin Stats
+      tags:
+      - Admin
+  /api/admin/subscription-plans:
+    get:
+      description: Get a list of all subscription plans (Admin only)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.SubscriptionPlan'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: List Subscription Plans
+      tags:
+      - Admin Subscriptions
+    post:
+      consumes:
+      - application/json
+      description: Create a new subscription plan (Admin only)
+      parameters:
+      - description: Plan data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.SubscriptionPlan'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.SubscriptionPlan'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Create Subscription Plan
+      tags:
+      - Admin Subscriptions
+  /api/admin/subscription-plans/{id}:
+    delete:
+      description: Permanently delete a subscription plan
+      parameters:
+      - description: Plan ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Delete Subscription Plan
+      tags:
+      - Admin Subscriptions
+    put:
+      consumes:
+      - application/json
+      description: Update an existing subscription plan (Admin only)
+      parameters:
+      - description: Plan ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Plan data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.SubscriptionPlan'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.SubscriptionPlan'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Update Subscription Plan
+      tags:
+      - Admin Subscriptions
+  /api/admin/subscription-plans/{id}/toggle:
+    post:
+      consumes:
+      - application/json
+      description: Activate or deactivate a subscription plan
+      parameters:
+      - description: Plan ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Toggle status
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.AdminToggleSubscriptionPlanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Toggle Subscription Plan Active State
+      tags:
+      - Admin Subscriptions
+  /api/admin/users:
+    get:
+      description: Get a paginated list of all users
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      - description: Search keyword
+        in: query
+        name: search
+        type: string
+      - description: Sort field
+        in: query
+        name: sort
+        type: string
+      - description: Sort order (asc/desc)
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: List Users (Admin)
+      tags:
+      - Admin
+  /api/admin/users/{id}:
+    delete:
+      description: Permanently delete a user account and all associated data
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Delete User
+      tags:
+      - Admin
+  /api/admin/users/{id}/block:
+    post:
+      description: Block a user from accessing the platform
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Block User
+      tags:
+      - Admin
+  /api/admin/users/{id}/make-admin:
+    post:
+      description: Promote a normal user to administrator role
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Make User Admin
+      tags:
+      - Admin
+  /api/admin/users/{id}/revoke-admin:
+    post:
+      description: Demote an administrator to a normal user
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Revoke User Admin
+      tags:
+      - Admin
+  /api/admin/users/{id}/subscribe:
+    post:
+      consumes:
+      - application/json
+      description: Grant a specific subscription plan to a user
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Subscription Details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.AdminAssignSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Assign Subscription to User
+      tags:
+      - Admin Subscriptions
+  /api/admin/users/{id}/subscription:
+    get:
+      description: Get details of a user's active subscription
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Get User's Subscription
+      tags:
+      - Admin Subscriptions
+  /api/admin/users/{id}/unblock:
+    post:
+      description: Restore access for a blocked user
+      parameters:
+      - description: User ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Unblock User
+      tags:
+      - Admin
+  /api/ai/enhance-bullet:
+    post:
+      consumes:
+      - application/json
+      description: Rewrites a CV bullet point using AI to sound more professional
+      parameters:
+      - description: Bullet point details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.EnhanceBulletRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Enhance Bullet Point
+      tags:
+      - AI Integrations
+  /api/applications:
+    get:
+      description: Fetch all job applications (for the Kanban board)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.JobApplication'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: List Job Applications
+      tags:
+      - Job Applications
+    post:
+      consumes:
+      - application/json
+      description: Create a new job application in the Kanban board
+      parameters:
+      - description: Job Application details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.CreateJobApplicationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.JobApplication'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Create Job Application
+      tags:
+      - Job Applications
+  /api/applications/{id}:
+    delete:
+      description: Delete a job application from the Kanban board
+      parameters:
+      - description: Job Application ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Delete Job Application
+      tags:
+      - Job Applications
+    put:
+      consumes:
+      - application/json
+      description: Update details of an existing job application
+      parameters:
+      - description: Job Application ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Job Application updates
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.UpdateJobApplicationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Update Job Application
+      tags:
+      - Job Applications
+  /api/applications/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: Change the status of a job application (e.g. for drag-and-drop
+        in Kanban)
+      parameters:
+      - description: Job Application ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: New Status
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.UpdateJobApplicationStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Update Job Application Status
+      tags:
+      - Job Applications
+  /api/ats-simulations:
+    get:
+      description: Get a history of ATS simulations run by the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.AtsSimulation'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: List ATS Simulations
+      tags:
+      - ATS Simulator
+  /api/ats-simulator:
+    post:
+      consumes:
+      - application/json
+      description: Scores a given CV profile against a job description using AI
+      parameters:
+      - description: Simulation parameters
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.CreateAtsSimulationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.AtsSimulation'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "402":
+          description: Payment Required
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Create ATS Simulation
+      tags:
+      - ATS Simulator
+  /api/cover-letter/generate:
+    post:
+      consumes:
+      - application/json
+      description: Generate a customized AI cover letter based on CV and job description
+      parameters:
+      - description: Cover Letter params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.GenerateCoverLetterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Generate Cover Letter
+      tags:
+      - Cover Letter
+  /api/cover-letters:
+    get:
+      description: Get a history of cover letters generated by the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.CoverLetter'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: List Cover Letters
+      tags:
+      - Cover Letter
+  /api/custom-templates:
+    get:
+      description: Get all custom layout templates saved by the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.CustomTemplate'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: List Custom Templates
+      tags:
+      - Custom Builder
+    post:
+      consumes:
+      - application/json
+      description: Create or update a custom LaTeX layout template
+      parameters:
+      - description: Template details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.SaveCustomTemplateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Save Custom Template
+      tags:
+      - Custom Builder
+  /api/custom-templates/preview:
+    post:
+      consumes:
+      - application/json
+      description: Compiles a custom layout configuration with user data into a PDF
+        response
+      parameters:
+      - description: Custom Builder Configuration JSON
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: PDF Document
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Preview Custom Template
+      tags:
+      - Custom Builder
+  /api/cv-profiles:
+    get:
+      consumes:
+      - application/json
+      description: Get all CV profiles for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.CVProfile'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: List CV Profiles
+      tags:
+      - CV Profiles
+    post:
+      consumes:
+      - application/json
+      description: Create a new CV profile with the given title
+      parameters:
+      - description: CV Profile title
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.CreateCVProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.CVProfile'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Create CV Profile
+      tags:
+      - CV Profiles
+  /api/cv-profiles/{id}:
+    delete:
+      description: Delete a CV profile completely
+      parameters:
+      - description: CV Profile ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Delete CV Profile
+      tags:
+      - CV Profiles
+    get:
+      description: Get a single CV profile by ID
+      parameters:
+      - description: CV Profile ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.CVProfile'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Get CV Profile
+      tags:
+      - CV Profiles
+    put:
+      consumes:
+      - application/json
+      description: Update the biodata JSON for a CV profile
+      parameters:
+      - description: CV Profile ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: CV Profile biodata
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.SaveCVProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Save CV Profile
+      tags:
+      - CV Profiles
+  /api/cv-profiles/{id}/auto-tailor:
+    post:
+      consumes:
+      - application/json
+      description: Duplicate profile and tailor using AI based on job description
+      parameters:
+      - description: CV Profile ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Job Description & Settings
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.AutoTailorCVProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.CVProfile'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "402":
+          description: Payment Required
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Auto Tailor CV Profile
+      tags:
+      - CV Profiles
+  /api/cv-profiles/{id}/title:
+    put:
+      consumes:
+      - application/json
+      description: Rename an existing CV profile
+      parameters:
+      - description: CV Profile ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: CV Profile title
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.UpdateCVProfileTitleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Update CV Profile Title
+      tags:
+      - CV Profiles
+  /api/cv-profiles/{id}/visibility:
+    put:
+      consumes:
+      - application/json
+      description: Change a CV profile's public accessibility
+      parameters:
+      - description: CV Profile ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Visibility setting
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.ToggleProfileVisibilityRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Toggle Profile Visibility
+      tags:
+      - CV Profiles
+  /api/cv-review:
+    post:
+      consumes:
+      - application/json
+      description: Generate an AI critique for a specific CV profile
+      parameters:
+      - description: CV Review settings
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.CreateCVReviewRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.CVReview'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Create CV Review
+      tags:
+      - CV Review
+  /api/cv-reviews:
+    get:
+      description: Get a history of CV reviews run by the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.CVReview'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: List CV Reviews
+      tags:
+      - CV Review
+  /api/extract-pdf:
+    post:
+      consumes:
+      - application/json
+      description: Uses AI to extract structured CV data from raw PDF text
+      parameters:
+      - description: Raw PDF text
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.ExtractPDFRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Extract Biodata from PDF
+      tags:
+      - AI Integrations
+  /api/feedback:
+    get:
+      description: Get a list of feedbacks submitted by the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.Feedback'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: List My Feedbacks
+      tags:
+      - Feedback
+    post:
+      consumes:
+      - application/json
+      description: Submit a feature request, bug report, or general feedback
+      parameters:
+      - description: Feedback details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.CreateFeedbackRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.Feedback'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Submit Feedback
+      tags:
+      - Feedback
+  /api/gallery/compile:
+    post:
+      consumes:
+      - application/json
+      description: Batch compiles user biodata against all available LaTeX templates
+      parameters:
+      - description: Gallery query data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.galleryCompileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_handler.galleryCompileResult'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Compile Gallery
+      tags:
+      - Gallery
+  /api/interview-prep:
+    post:
+      consumes:
+      - application/json
+      description: Generate AI-driven interview questions based on CV profile and
+        job description
+      parameters:
+      - description: Interview prep parameters
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.CreateInterviewPrepRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.InterviewPrep'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Create Interview Prep
+      tags:
+      - Interview Prep
+  /api/interview-prep/critique:
+    post:
+      consumes:
+      - application/json
+      description: Provides real-time AI critique of a candidate's answer to a specific
+        interview question
+      parameters:
+      - description: Candidate answer
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.CritiqueInterviewAnswerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Critique Interview Answer
+      tags:
+      - Interview Prep
+  /api/interview-preps:
+    get:
+      description: Get a history of interview preps run by the user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.InterviewPrep'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: List Interview Preps
+      tags:
+      - Interview Prep
+  /api/mock-interview/sessions:
+    get:
+      description: Get a history of mock interview sessions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_semmidev_atstex-lab_internal_domain.MockInterviewSession'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: List Mock Interview Sessions
+      tags:
+      - Mock Interview
+  /api/page-settings/apply:
+    post:
+      consumes:
+      - application/json
+      description: Apply custom margin/font settings and re-render template
+      parameters:
+      - description: Page settings and data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.pageSettingsRequest'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Rendered LaTeX
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Apply Page Settings
+      tags:
+      - Templates
+  /api/templates:
+    get:
+      description: Get a list of all available LaTeX CV templates
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: List Templates
+      tags:
+      - Templates
+  /api/templates/{name}:
+    get:
+      description: Get raw LaTeX source for a specific template
+      parameters:
+      - description: Template Name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: LaTeX source
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Get Template Source
+      tags:
+      - Templates
+  /api/templates/{name}/render:
+    post:
+      consumes:
+      - application/json
+      description: Inject biodata into a template and return compiled LaTeX source
+      parameters:
+      - description: Template Name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: CV Data and Settings
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.renderTemplateRequest'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Rendered LaTeX
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Render Template
+      tags:
+      - Templates
+  /api/username:
+    put:
+      consumes:
+      - application/json
+      description: Validates and assigns a public username to the user
+      parameters:
+      - description: Username Payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.SetUsernameRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Set Username
+      tags:
+      - Public Profiles
+  /api/username/check:
+    get:
+      description: Check if a specific username is available for claiming
+      parameters:
+      - description: Username to check
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Check Username Availability
+      tags:
+      - Public Profiles
+  /compile:
+    post:
+      consumes:
+      - application/json
+      description: Compile raw LaTeX source to a PDF document using chosen engine
+      parameters:
+      - description: Source and engine config
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.compileRequest'
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: PDF Document
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/problem.Problem'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/problem.Problem'
+      security:
+      - BearerAuth: []
+      summary: Compile LaTeX
+      tags:
+      - Compiler
+  /ws/mock-interview:
+    get:
+      description: Initiates a WebSocket connection for an AI mock interview. Requires
+        specific query parameters.
+      parameters:
+      - description: CV Profile ID
+        format: uuid
+        in: query
+        name: profileId
+        required: true
+        type: string
+      - description: Language code (en/id/ja/zh/ko)
+        in: query
+        name: language
+        type: string
+      - description: Job Description
+        in: query
+        name: jobDescription
+        required: true
+        type: string
+      - description: Style (balanced, friendly, strict, technical, behavioral)
+        in: query
+        name: interviewerStyle
+        type: string
+      responses:
+        "101":
+          description: Switching Protocols to WebSocket
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "403":
+          description: Forbidden
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Start Mock Interview WebSocket
+      tags:
+      - Mock Interview
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

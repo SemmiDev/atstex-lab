@@ -19,6 +19,16 @@ import (
 )
 
 // ListCVProfiles returns all CV profiles for the authenticated user.
+// @Summary      List CV Profiles
+// @Description  Get all CV profiles for the authenticated user
+// @Tags         CV Profiles
+// @Accept       json
+// @Produce      json
+// @Success      200  {array}   domain.CVProfile
+// @Failure      401  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/cv-profiles [get]
 func (s *Server) handleListCVProfiles() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -34,14 +44,30 @@ func (s *Server) handleListCVProfiles() http.HandlerFunc {
 	}
 }
 
+// CreateCVProfileRequest defines the payload for creating a CV profile.
+type CreateCVProfileRequest struct {
+	Title string `json:"title" validate:"required,safe_text,max=100"`
+}
+
 // CreateCVProfile creates a new CV profile with a title.
+// @Summary      Create CV Profile
+// @Description  Create a new CV profile with the given title
+// @Tags         CV Profiles
+// @Accept       json
+// @Produce      json
+// @Param        request body CreateCVProfileRequest true "CV Profile title"
+// @Success      201  {object}  domain.CVProfile
+// @Failure      400  {object}  problem.Problem
+// @Failure      401  {object}  problem.Problem
+// @Failure      403  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/cv-profiles [post]
 func (s *Server) handleCreateCVProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
-		var body struct {
-			Title string `json:"title" validate:"required,safe_text,max=100"`
-		}
+		var body CreateCVProfileRequest
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid JSON body"))
 			return
@@ -68,6 +94,19 @@ func (s *Server) handleCreateCVProfile() http.HandlerFunc {
 }
 
 // GetCVProfile returns a single CV profile by ID.
+// @Summary      Get CV Profile
+// @Description  Get a single CV profile by ID
+// @Tags         CV Profiles
+// @Produce      json
+// @Param        id   path      string  true  "CV Profile ID" format(uuid)
+// @Success      200  {object}  domain.CVProfile
+// @Failure      400  {object}  problem.Problem
+// @Failure      401  {object}  problem.Problem
+// @Failure      403  {object}  problem.Problem
+// @Failure      404  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/cv-profiles/{id} [get]
 func (s *Server) handleGetCVProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -94,7 +133,27 @@ func (s *Server) handleGetCVProfile() http.HandlerFunc {
 	}
 }
 
+// SaveCVProfileRequest defines the payload for saving a CV profile.
+type SaveCVProfileRequest struct {
+	Biodata json.RawMessage `json:"biodata"`
+}
+
 // SaveCVProfile updates the biodata JSON for a CV profile.
+// @Summary      Save CV Profile
+// @Description  Update the biodata JSON for a CV profile
+// @Tags         CV Profiles
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "CV Profile ID" format(uuid)
+// @Param        request body SaveCVProfileRequest true "CV Profile biodata"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  problem.Problem
+// @Failure      401  {object}  problem.Problem
+// @Failure      403  {object}  problem.Problem
+// @Failure      404  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/cv-profiles/{id} [put]
 func (s *Server) handleSaveCVProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -116,9 +175,7 @@ func (s *Server) handleSaveCVProfile() http.HandlerFunc {
 			return
 		}
 
-		var body struct {
-			Biodata json.RawMessage `json:"biodata"`
-		}
+		var body SaveCVProfileRequest
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid JSON body"))
 			return
@@ -133,7 +190,27 @@ func (s *Server) handleSaveCVProfile() http.HandlerFunc {
 	}
 }
 
+// UpdateCVProfileTitleRequest defines the payload for updating a CV profile title.
+type UpdateCVProfileTitleRequest struct {
+	Title string `json:"title" validate:"required,safe_text,max=100"`
+}
+
 // UpdateCVProfileTitle renames a CV profile.
+// @Summary      Update CV Profile Title
+// @Description  Rename an existing CV profile
+// @Tags         CV Profiles
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "CV Profile ID" format(uuid)
+// @Param        request body UpdateCVProfileTitleRequest true "CV Profile title"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  problem.Problem
+// @Failure      401  {object}  problem.Problem
+// @Failure      403  {object}  problem.Problem
+// @Failure      404  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/cv-profiles/{id}/title [put]
 func (s *Server) handleUpdateCVProfileTitle() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -155,9 +232,7 @@ func (s *Server) handleUpdateCVProfileTitle() http.HandlerFunc {
 			return
 		}
 
-		var body struct {
-			Title string `json:"title" validate:"required,safe_text,max=100"`
-		}
+		var body UpdateCVProfileTitleRequest
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid JSON body"))
 			return
@@ -177,6 +252,19 @@ func (s *Server) handleUpdateCVProfileTitle() http.HandlerFunc {
 }
 
 // DeleteCVProfile removes a CV profile.
+// @Summary      Delete CV Profile
+// @Description  Delete a CV profile completely
+// @Tags         CV Profiles
+// @Produce      json
+// @Param        id   path      string  true  "CV Profile ID" format(uuid)
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  problem.Problem
+// @Failure      401  {object}  problem.Problem
+// @Failure      403  {object}  problem.Problem
+// @Failure      404  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/cv-profiles/{id} [delete]
 func (s *Server) handleDeleteCVProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -207,7 +295,29 @@ func (s *Server) handleDeleteCVProfile() http.HandlerFunc {
 	}
 }
 
+// AutoTailorCVProfileRequest defines the payload for auto-tailoring a CV profile.
+type AutoTailorCVProfileRequest struct {
+	JobDescription string `json:"jobDescription" validate:"required,min=10,max=5000"`
+	Language       string `json:"language" validate:"omitempty,oneof=en id"`
+}
+
 // AutoTailorCVProfile duplicates an existing profile and uses AI to rewrite parts of it based on a job description.
+// @Summary      Auto Tailor CV Profile
+// @Description  Duplicate profile and tailor using AI based on job description
+// @Tags         CV Profiles
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "CV Profile ID" format(uuid)
+// @Param        request body AutoTailorCVProfileRequest true "Job Description & Settings"
+// @Success      201  {object}  domain.CVProfile
+// @Failure      400  {object}  problem.Problem
+// @Failure      401  {object}  problem.Problem
+// @Failure      402  {object}  problem.Problem
+// @Failure      403  {object}  problem.Problem
+// @Failure      404  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/cv-profiles/{id}/auto-tailor [post]
 func (s *Server) handleAutoTailorCVProfile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -218,10 +328,7 @@ func (s *Server) handleAutoTailorCVProfile() http.HandlerFunc {
 			return
 		}
 
-		var req struct {
-			JobDescription string `json:"jobDescription" validate:"required,min=10,max=5000"`
-			Language       string `json:"language" validate:"omitempty,oneof=en id"`
-		}
+		var req AutoTailorCVProfileRequest
 		if errDecode := json.NewDecoder(r.Body).Decode(&req); errDecode != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return

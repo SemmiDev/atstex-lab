@@ -6,7 +6,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 
+	_ "github.com/semmidev/atstex-lab/docs"
 	"github.com/semmidev/atstex-lab/internal/auth"
 	"github.com/semmidev/atstex-lab/internal/middleware"
 	"github.com/semmidev/atstex-lab/web"
@@ -25,6 +27,11 @@ func (s *Server) routes() {
 	s.router.Use(chimw.Timeout(120 * time.Second))
 	s.router.Use(chimw.CleanPath)
 	s.router.Use(chimw.StripSlashes)
+
+	// Swagger UI
+	s.router.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("/swagger/doc.json"),
+	))
 
 	// Public routes
 	s.router.Group(func(r chi.Router) {

@@ -31,16 +31,33 @@ func (s *Server) handleAtsSimulatorPage() http.HandlerFunc {
 	}
 }
 
+// CreateAtsSimulationRequest defines the payload for creating an ATS simulation.
+type CreateAtsSimulationRequest struct {
+	ProfileID      string `json:"profileId"`
+	JobDescription string `json:"jobDescription"`
+	Language       string `json:"language"`
+}
+
 // handleCreateAtsSimulation processes a job description against a CV profile using the ATS AI.
+// @Summary      Create ATS Simulation
+// @Description  Scores a given CV profile against a job description using AI
+// @Tags         ATS Simulator
+// @Accept       json
+// @Produce      json
+// @Param        request body CreateAtsSimulationRequest true "Simulation parameters"
+// @Success      201  {object}  domain.AtsSimulation
+// @Failure      400  {object}  problem.Problem
+// @Failure      401  {object}  problem.Problem
+// @Failure      402  {object}  problem.Problem
+// @Failure      403  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/ats-simulator [post]
 func (s *Server) handleCreateAtsSimulation() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
-		var req struct {
-			ProfileID      string `json:"profileId"`
-			JobDescription string `json:"jobDescription"`
-			Language       string `json:"language"`
-		}
+		var req CreateAtsSimulationRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
@@ -119,6 +136,15 @@ func (s *Server) handleCreateAtsSimulation() http.HandlerFunc {
 }
 
 // handleListMyAtsSimulations returns the current user's ATS simulation history.
+// @Summary      List ATS Simulations
+// @Description  Get a history of ATS simulations run by the user
+// @Tags         ATS Simulator
+// @Produce      json
+// @Success      200  {array}   domain.AtsSimulation
+// @Failure      401  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/ats-simulations [get]
 func (s *Server) handleListMyAtsSimulations() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)

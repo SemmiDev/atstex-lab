@@ -1,4 +1,4 @@
-.PHONY: run build tidy clean css docker-build docker-up docker-down docker-logs docker-run docker-remove-rebuild install-latex migrateup migratedown migrateup1 migratedown1 new_migration
+.PHONY: run build tidy clean css docs docker-build docker-up docker-down docker-logs docker-run docker-remove-rebuild install-latex migrateup migratedown migrateup1 migratedown1 new_migration
 
 BINARY := atstex-lab
 CMD    := ./cmd/server
@@ -26,6 +26,10 @@ build: css
 
 tidy:
 	go mod tidy
+
+# Generate Swagger / OpenAPI documentation
+docs:
+	swag init -g $(CMD)/main.go -o docs --parseDependency --parseInternal
 
 clean:
 	rm -f $(BINARY)

@@ -206,6 +206,14 @@ func (s *Server) handleDeleteSession() http.HandlerFunc {
 }
 
 // ListTemplates returns a JSON list of available CV templates.
+// @Summary      List Templates
+// @Description  Get a list of all available LaTeX CV templates
+// @Tags         Templates
+// @Produce      json
+// @Success      200  {array}   map[string]interface{}
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/templates [get]
 func (s *Server) handleListTemplates() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tpls, err := cvtemplate.List()
@@ -219,6 +227,16 @@ func (s *Server) handleListTemplates() http.HandlerFunc {
 }
 
 // GetTemplate returns the raw LaTeX source for a template.
+// @Summary      Get Template Source
+// @Description  Get raw LaTeX source for a specific template
+// @Tags         Templates
+// @Produce      text/plain
+// @Param        name path      string  true  "Template Name"
+// @Success      200  {string}  string "LaTeX source"
+// @Failure      400  {object}  problem.Problem
+// @Failure      404  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/templates/{name} [get]
 func (s *Server) handleGetTemplate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		name := chi.URLParam(r, "name")
@@ -243,6 +261,18 @@ type renderTemplateRequest struct {
 }
 
 // RenderTemplate handles POST /api/templates/{name}/render.
+// @Summary      Render Template
+// @Description  Inject biodata into a template and return compiled LaTeX source
+// @Tags         Templates
+// @Accept       json
+// @Produce      text/plain
+// @Param        name path      string  true  "Template Name"
+// @Param        request body renderTemplateRequest true "CV Data and Settings"
+// @Success      200  {string}  string "Rendered LaTeX"
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/templates/{name}/render [post]
 func (s *Server) handleRenderTemplate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		name := chi.URLParam(r, "name")
@@ -279,6 +309,17 @@ func (s *Server) handleRenderTemplate() http.HandlerFunc {
 }
 
 // Compile handles POST /compile — accepts JSON, returns JSON + PDF via separate endpoint.
+// @Summary      Compile LaTeX
+// @Description  Compile raw LaTeX source to a PDF document using chosen engine
+// @Tags         Compiler
+// @Accept       json
+// @Produce      application/pdf
+// @Param        request body compileRequest true "Source and engine config"
+// @Success      200  {file}    string "PDF Document"
+// @Failure      400  {object}  problem.Problem
+// @Failure      422  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /compile [post]
 func (s *Server) handleCompile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req compileRequest
@@ -364,6 +405,17 @@ type pageSettingsRequest struct {
 }
 
 // ApplyPageSettings handles POST /api/page-settings/apply.
+// @Summary      Apply Page Settings
+// @Description  Apply custom margin/font settings and re-render template
+// @Tags         Templates
+// @Accept       json
+// @Produce      text/plain
+// @Param        request body pageSettingsRequest true "Page settings and data"
+// @Success      200  {string}  string "Rendered LaTeX"
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/page-settings/apply [post]
 func (s *Server) handleApplyPageSettings() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req pageSettingsRequest
@@ -393,7 +445,23 @@ func (s *Server) handleApplyPageSettings() http.HandlerFunc {
 	}
 }
 
+// ExtractPDFRequest defines the payload for PDF extraction.
+type ExtractPDFRequest struct {
+	Text string `json:"text"`
+}
+
 // ExtractPDF handles POST /api/extract-pdf — receives PDF text and returns structured biodata JSON.
+// @Summary      Extract Biodata from PDF
+// @Description  Uses AI to extract structured CV data from raw PDF text
+// @Tags         AI Integrations
+// @Accept       json
+// @Produce      json
+// @Param        request body ExtractPDFRequest true "Raw PDF text"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/extract-pdf [post]
 func (s *Server) handleExtractPDF() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if s.aiConfig.APIKey == "" && s.aiConfig.Provider != "ollama" {
@@ -405,9 +473,7 @@ func (s *Server) handleExtractPDF() http.HandlerFunc {
 		// Enforce 5MB limit on request body entirely to prevent memory exhaustion
 		r.Body = http.MaxBytesReader(w, r.Body, 5<<20)
 
-		var req struct {
-			Text string `json:"text"`
-		}
+		var req ExtractPDFRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			middleware.AddEventData(r.Context(), "pdf_extraction_error", "invalid request body: "+err.Error())
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
@@ -486,6 +552,14 @@ func (s *Server) handleAdminDashboard() http.HandlerFunc {
 }
 
 // AdminGetStats returns JSON aggregate stats for the admin dashboard.
+// @Summary      Admin Stats
+// @Description  Get aggregate platform statistics for the admin dashboard
+// @Tags         Admin
+// @Produce      json
+// @Success      200  {object}  map[string]interface{}
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/stats [get]
 func (s *Server) handleAdminGetStats() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		stats, err := s.repo.AdminGetStats(r.Context())
@@ -499,6 +573,19 @@ func (s *Server) handleAdminGetStats() http.HandlerFunc {
 }
 
 // AdminListUsers returns paginated, searchable user list JSON.
+// @Summary      List Users (Admin)
+// @Description  Get a paginated list of all users
+// @Tags         Admin
+// @Produce      json
+// @Param        page    query  int     false "Page number" default(1)
+// @Param        per_page query int     false "Items per page" default(20)
+// @Param        search   query string  false "Search keyword"
+// @Param        sort     query string  false "Sort field"
+// @Param        order    query string  false "Sort order (asc/desc)"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/users [get]
 func (s *Server) handleAdminListUsers() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
@@ -549,7 +636,25 @@ func (s *Server) handleFeedbackPage() http.HandlerFunc {
 	}
 }
 
+// CreateFeedbackRequest defines the payload for submitting feedback.
+type CreateFeedbackRequest struct {
+	Subject string `json:"subject" validate:"required,max=200"`
+	Message string `json:"message" validate:"required,max=2000"`
+}
+
 // CreateFeedback handles POST /api/feedback — user submits new feedback.
+// @Summary      Submit Feedback
+// @Description  Submit a feature request, bug report, or general feedback
+// @Tags         Feedback
+// @Accept       json
+// @Produce      json
+// @Param        request body CreateFeedbackRequest true "Feedback details"
+// @Success      201  {object}  domain.Feedback
+// @Failure      400  {object}  problem.Problem
+// @Failure      422  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/feedback [post]
 func (s *Server) handleCreateFeedback() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -557,10 +662,7 @@ func (s *Server) handleCreateFeedback() http.HandlerFunc {
 		// Limit the payload to 10KB to prevent DoS via massive JSON payloads
 		r.Body = http.MaxBytesReader(w, r.Body, 10<<10)
 
-		var req struct {
-			Subject string `json:"subject" validate:"required,max=200"`
-			Message string `json:"message" validate:"required,max=2000"`
-		}
+		var req CreateFeedbackRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body or payload too large"))
 			return
@@ -587,6 +689,14 @@ func (s *Server) handleCreateFeedback() http.HandlerFunc {
 }
 
 // ListMyFeedbacks handles GET /api/feedback — returns the current user's feedbacks.
+// @Summary      List My Feedbacks
+// @Description  Get a list of feedbacks submitted by the current user
+// @Tags         Feedback
+// @Produce      json
+// @Success      200  {array}   domain.Feedback
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/feedback [get]
 func (s *Server) handleListMyFeedbacks() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -603,6 +713,17 @@ func (s *Server) handleListMyFeedbacks() http.HandlerFunc {
 }
 
 // AdminListFeedbacks handles GET /api/admin/feedbacks — paginated feedback list.
+// @Summary      List Feedbacks (Admin)
+// @Description  Get a paginated list of all user feedbacks
+// @Tags         Admin
+// @Produce      json
+// @Param        page    query  int     false "Page number" default(1)
+// @Param        per_page query int     false "Items per page" default(20)
+// @Param        search   query string  false "Search keyword"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/feedbacks [get]
 func (s *Server) handleAdminListFeedbacks() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
@@ -637,7 +758,25 @@ func (s *Server) handleAdminListFeedbacks() http.HandlerFunc {
 	}
 }
 
+// AdminReplyFeedbackRequest defines the payload for an admin reply.
+type AdminReplyFeedbackRequest struct {
+	Reply string `json:"reply" validate:"required"`
+}
+
 // AdminReplyFeedback handles POST /api/admin/feedbacks/{id}/reply — admin answers feedback.
+// @Summary      Reply to Feedback (Admin)
+// @Description  Admin provides an official reply to a user's feedback
+// @Tags         Admin
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Feedback ID" format(uuid)
+// @Param        request body AdminReplyFeedbackRequest true "Reply content"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  problem.Problem
+// @Failure      422  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/feedbacks/{id}/reply [post]
 func (s *Server) handleAdminReplyFeedback() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idStr := chi.URLParam(r, "id")
@@ -647,9 +786,7 @@ func (s *Server) handleAdminReplyFeedback() http.HandlerFunc {
 			return
 		}
 
-		var req struct {
-			Reply string `json:"reply" validate:"required"`
-		}
+		var req AdminReplyFeedbackRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
@@ -670,6 +807,16 @@ func (s *Server) handleAdminReplyFeedback() http.HandlerFunc {
 }
 
 // AdminMakeUserAdmin handles POST /api/admin/users/{id}/make-admin.
+// @Summary      Make User Admin
+// @Description  Promote a normal user to administrator role
+// @Tags         Admin
+// @Produce      json
+// @Param        id   path      string  true  "User ID" format(uuid)
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/users/{id}/make-admin [post]
 func (s *Server) handleAdminMakeUserAdmin() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idStr := chi.URLParam(r, "id")
@@ -690,6 +837,16 @@ func (s *Server) handleAdminMakeUserAdmin() http.HandlerFunc {
 }
 
 // AdminRevokeUserAdmin handles POST /api/admin/users/{id}/revoke-admin.
+// @Summary      Revoke User Admin
+// @Description  Demote an administrator to a normal user
+// @Tags         Admin
+// @Produce      json
+// @Param        id   path      string  true  "User ID" format(uuid)
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/users/{id}/revoke-admin [post]
 func (s *Server) handleAdminRevokeUserAdmin() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idStr := chi.URLParam(r, "id")
@@ -728,6 +885,16 @@ func (s *Server) handleForbiddenPage() http.HandlerFunc {
 }
 
 // AdminBlockUser blocks a user.
+// @Summary      Block User
+// @Description  Block a user from accessing the platform
+// @Tags         Admin
+// @Produce      json
+// @Param        id   path      string  true  "User ID" format(uuid)
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/users/{id}/block [post]
 func (s *Server) handleAdminBlockUser() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID, err := uuid.Parse(chi.URLParam(r, "id"))
@@ -745,6 +912,16 @@ func (s *Server) handleAdminBlockUser() http.HandlerFunc {
 }
 
 // AdminUnblockUser unblocks a user.
+// @Summary      Unblock User
+// @Description  Restore access for a blocked user
+// @Tags         Admin
+// @Produce      json
+// @Param        id   path      string  true  "User ID" format(uuid)
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/users/{id}/unblock [post]
 func (s *Server) handleAdminUnblockUser() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID, err := uuid.Parse(chi.URLParam(r, "id"))
@@ -762,6 +939,16 @@ func (s *Server) handleAdminUnblockUser() http.HandlerFunc {
 }
 
 // AdminDeleteUser deletes a user and all their data.
+// @Summary      Delete User
+// @Description  Permanently delete a user account and all associated data
+// @Tags         Admin
+// @Produce      json
+// @Param        id   path      string  true  "User ID" format(uuid)
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/users/{id} [delete]
 func (s *Server) handleAdminDeleteUser() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID, err := uuid.Parse(chi.URLParam(r, "id"))
@@ -779,6 +966,16 @@ func (s *Server) handleAdminDeleteUser() http.HandlerFunc {
 }
 
 // AdminDeleteFeedback deletes a feedback entry.
+// @Summary      Delete Feedback
+// @Description  Permanently delete a feedback item
+// @Tags         Admin
+// @Produce      json
+// @Param        id   path      string  true  "Feedback ID" format(uuid)
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/admin/feedbacks/{id} [delete]
 func (s *Server) handleAdminDeleteFeedback() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		feedbackID, err := uuid.Parse(chi.URLParam(r, "id"))
@@ -894,15 +1091,30 @@ func (s *Server) handleCVReviewPage() http.HandlerFunc {
 	}
 }
 
+// CreateCVReviewRequest defines the payload for creating a CV review.
+type CreateCVReviewRequest struct {
+	ProfileID string `json:"profileId"`
+	Language  string `json:"language"`
+}
+
 // CreateCVReview generates an AI critique for a selected CV profile.
+// @Summary      Create CV Review
+// @Description  Generate an AI critique for a specific CV profile
+// @Tags         CV Review
+// @Accept       json
+// @Produce      json
+// @Param        request body CreateCVReviewRequest true "CV Review settings"
+// @Success      201  {object}  domain.CVReview
+// @Failure      400  {object}  problem.Problem
+// @Failure      403  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/cv-review [post]
 func (s *Server) handleCreateCVReview() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
-		var req struct {
-			ProfileID string `json:"profileId"`
-			Language  string `json:"language"`
-		}
+		var req CreateCVReviewRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
@@ -972,6 +1184,14 @@ func (s *Server) handleCreateCVReview() http.HandlerFunc {
 }
 
 // ListMyCVReviews returns the current user's CV review history.
+// @Summary      List CV Reviews
+// @Description  Get a history of CV reviews run by the user
+// @Tags         CV Review
+// @Produce      json
+// @Success      200  {array}   domain.CVReview
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/cv-reviews [get]
 func (s *Server) handleListMyCVReviews() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -1007,18 +1227,33 @@ func (s *Server) handleCoverLetterPage() http.HandlerFunc {
 	}
 }
 
+// GenerateCoverLetterRequest defines the payload for generating a cover letter.
+type GenerateCoverLetterRequest struct {
+	ProfileID     string `json:"profileId"`
+	JobDesc       string `json:"jobDesc"`
+	Tone          string `json:"tone"`
+	MaxParagraphs int    `json:"maxParagraphs"`
+	Language      string `json:"language"`
+}
+
 // GenerateCoverLetter handles the API request to generate a custom cover letter.
+// @Summary      Generate Cover Letter
+// @Description  Generate a customized AI cover letter based on CV and job description
+// @Tags         Cover Letter
+// @Accept       json
+// @Produce      json
+// @Param        request body GenerateCoverLetterRequest true "Cover Letter params"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  problem.Problem
+// @Failure      403  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/cover-letter/generate [post]
 func (s *Server) handleGenerateCoverLetter() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
-		var req struct {
-			ProfileID     string `json:"profileId"`
-			JobDesc       string `json:"jobDesc"`
-			Tone          string `json:"tone"`
-			MaxParagraphs int    `json:"maxParagraphs"`
-			Language      string `json:"language"`
-		}
+		var req GenerateCoverLetterRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
@@ -1104,6 +1339,14 @@ func (s *Server) handleGenerateCoverLetter() http.HandlerFunc {
 }
 
 // ListMyCoverLetters returns the current user's cover letter history.
+// @Summary      List Cover Letters
+// @Description  Get a history of cover letters generated by the user
+// @Tags         Cover Letter
+// @Produce      json
+// @Success      200  {array}   domain.CoverLetter
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/cover-letters [get]
 func (s *Server) handleListMyCoverLetters() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
@@ -1174,6 +1417,17 @@ type galleryCompileResult struct {
 }
 
 // handleGalleryCompile compiles the user's biodata against all templates in parallel.
+// @Summary      Compile Gallery
+// @Description  Batch compiles user biodata against all available LaTeX templates
+// @Tags         Gallery
+// @Accept       json
+// @Produce      json
+// @Param        request body galleryCompileRequest true "Gallery query data"
+// @Success      200  {array}   galleryCompileResult
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/gallery/compile [post]
 func (s *Server) handleGalleryCompile() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req galleryCompileRequest
@@ -1256,18 +1510,29 @@ func base64Encode(data []byte) string {
 	return base64.StdEncoding.EncodeToString(data)
 }
 
+// EnhanceBulletRequest defines the payload for bullet enhancement.
+type EnhanceBulletRequest struct {
+	Bullet   string `json:"bullet"`
+	Language string `json:"language"`
+}
+
 // handleEnhanceBullet rewrites a single set of CV bullet points using AI.
-// POST /api/ai/enhance-bullet.
-// Body: { "bullet": "raw text", "language": "en" }.
-// Response: { "enhanced": "rewritten text", "tokensUsed": 123 }.
+// @Summary      Enhance Bullet Point
+// @Description  Rewrites a CV bullet point using AI to sound more professional
+// @Tags         AI Integrations
+// @Accept       json
+// @Produce      json
+// @Param        request body EnhanceBulletRequest true "Bullet point details"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  problem.Problem
+// @Failure      500  {object}  problem.Problem
+// @Security     BearerAuth
+// @Router       /api/ai/enhance-bullet [post]
 func (s *Server) handleEnhanceBullet() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, _ := r.Context().Value(auth.UserContextKey).(*domain.User)
 
-		var req struct {
-			Bullet   string `json:"bullet"`
-			Language string `json:"language"`
-		}
+		var req EnhanceBulletRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			middleware.RespondError(w, r, apperrors.NewInvalidInput("invalid request body"))
 			return
