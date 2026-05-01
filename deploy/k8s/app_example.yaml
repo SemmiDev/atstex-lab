@@ -1,0 +1,321 @@
+---
+# ==========================================
+# NAMESPACE
+# ==========================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: atstex-lab
+  labels:
+    app.kubernetes.io/name: atstex-lab
+
+---
+# ==========================================
+# SECRET (SAFE FOR GIT - PLACEHOLDER ONLY)
+# ==========================================
+apiVersion: v1
+kind: Secret
+metadata:
+  name: atstex-secrets
+  namespace: atstex-lab
+type: Opaque
+stringData:
+  POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+
+  DB_HOST: "postgres-svc"
+  DB_PORT: "5432"
+  DB_USER: "atstex"
+  DB_NAME: "atstex"
+
+  DATABASE_URL: "${DATABASE_URL}"
+
+  GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}"
+  GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET}"
+
+  AI_API_KEY: "${AI_API_KEY}"
+
+---
+# ==========================================
+# CONFIGMAP
+# ==========================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: atstex-config
+  namespace: atstex-lab
+data:
+  GOOGLE_CALLBACK_URL: "https://atstex.lab/auth/google/callback"
+  AI_PROVIDER: "mistral"
+  AI_MODEL: "mistral-small-latest"
+
+---
+# ==========================================
+# POSTGRES PVC
+# ==========================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: atstex-lab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard
+
+---
+# ==========================================
+# POSTGRES STATEFULSET
+# ==========================================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: atstex-lab
+spec:
+  serviceName: "postgres-svc"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:16-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          value: "atstex"
+        - name: POSTGRES_DB
+          value: "atstex"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: atstex-secrets
+              key: POSTGRES_PASSWORD
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 999
+      volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: postgres-pvc
+
+---
+# ==========================================
+# POSTGRES SERVICE (HEADLESS)
+# ==========================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-svc
+  namespace: atstex-lab
+spec:
+  clusterIP: None
+  selector:
+    app: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+
+---
+# ==========================================
+# TECTONIC CACHE PVC
+# ==========================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tectonic-cache-pvc
+  namespace: atstex-lab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: standard
+
+---
+# ==========================================
+# BACKEND DEPLOYMENT
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atstex-backend
+  namespace: atstex-lab
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: atstex-backend
+  template:
+    metadata:
+      labels:
+        app: atstex-backend
+    spec:
+      containers:
+      - name: backend
+        image: sammidev/atstex-backend:1.0.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: atstex-secrets
+              key: DATABASE_URL
+
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: atstex-secrets
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            secretKeyRef:
+              name: atstex-secrets
+              key: DB_PORT
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: atstex-secrets
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: atstex-secrets
+              key: POSTGRES_PASSWORD
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: atstex-secrets
+              key: DB_NAME
+
+        - name: GOOGLE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: atstex-secrets
+              key: GOOGLE_CLIENT_ID
+        - name: GOOGLE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: atstex-secrets
+              key: GOOGLE_CLIENT_SECRET
+
+        - name: AI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: atstex-secrets
+              key: AI_API_KEY
+
+        envFrom:
+        - configMapRef:
+            name: atstex-config
+
+        volumeMounts:
+        - name: tectonic-cache
+          mountPath: /var/cache/tectonic
+        - name: tmp-dir
+          mountPath: /tmp
+
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+
+      volumes:
+      - name: tectonic-cache
+        persistentVolumeClaim:
+          claimName: tectonic-cache-pvc
+      - name: tmp-dir
+        emptyDir:
+          sizeLimit: 512Mi
+
+---
+# ==========================================
+# BACKEND SERVICE
+# ==========================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: atstex-backend-svc
+  namespace: atstex-lab
+spec:
+  selector:
+    app: atstex-backend
+  ports:
+  - port: 80
+    targetPort: 8080
+
+---
+# ==========================================
+# INGRESS (TLS READY)
+# ==========================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: atstex-ingress
+  namespace: atstex-lab
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - atstex.lab
+    secretName: atstex-tls
+  rules:
+  - host: atstex.lab
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: atstex-backend-svc
+            port:
+              number: 80
