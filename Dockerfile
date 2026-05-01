@@ -1,5 +1,8 @@
 # ── Stage 1: Build Go binary (FAST + CACHED) ────────────────────────────────
-FROM golang:1.26-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS builder
+
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /build
 
@@ -21,7 +24,7 @@ COPY . .
 # Build binary (also cached)
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
-    GOOS=linux GOARCH=amd64 \
+    GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
     go build -ldflags="-s -w" -o atstex-lab ./cmd/server/main.go
 
 

@@ -60,20 +60,6 @@ docker-down:
 docker-logs:
 	docker compose logs -f atstex-lab
 
-# ── Install TeX Live locally (Ubuntu/Debian) ─────────────────
-install-latex:
-	sudo apt-get update
-	sudo apt-get install -y \
-		texlive-latex-base \
-		texlive-latex-recommended \
-		texlive-latex-extra \
-		texlive-fonts-recommended \
-		texlive-fonts-extra \
-		texlive-science \
-		texlive-xetex \
-		texlive-luatex \
-		latexmk
-
 # ── Database Migrations ───────────────────────────────────────
 migrateup:
 	migrate -path db/migration -database "$(DB_URL)" -verbose up
