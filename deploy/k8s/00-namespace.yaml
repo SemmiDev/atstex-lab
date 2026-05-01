@@ -1,0 +1,10 @@
+---
+# ==========================================
+# NAMESPACE
+# ==========================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: atstex-lab
+  labels:
+    app.kubernetes.io/name: atstex-lab

@@ -1,0 +1,18 @@
+---
+# ==========================================
+# CONFIGMAP (non-sensitive config)
+# ==========================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: atstex-config
+  namespace: atstex-lab
+data:
+  # Postgres (used by the postgres container itself)
+  POSTGRES_USER: "atstex"
+  POSTGRES_DB: "atstex"
+  # Google OAuth
+  GOOGLE_CALLBACK_URL: "https://atstex-lab.com/auth/google/callback"
+  # AI Extraction
+  AI_PROVIDER: "mistral"
+  AI_MODEL: "mistral-small-latest"

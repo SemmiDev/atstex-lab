@@ -1,0 +1,36 @@
+---
+# ==========================================
+# PERSISTENT VOLUMES (manual / hostPath)
+# ==========================================
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv
+  labels:
+    type: local
+    app: postgres
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /data/postgres
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: tectonic-cache-pv
+  labels:
+    type: local
+    app: tectonic-cache
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /data/tectonic-cache

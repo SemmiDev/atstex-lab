@@ -57,3 +57,4 @@ packages/react-devtools-timeline/dist
 deploy/group_vars/production.yml
 deploy/inventory/production.ini
 deploy/k8s/app.yaml
+deploy/k8s/notes.txt

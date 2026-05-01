@@ -1,0 +1,75 @@
+---
+# ==========================================
+# BACKEND API & LATEX ENGINE
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atstex-backend
+  namespace: atstex-lab
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: atstex-backend
+  template:
+    metadata:
+      labels:
+        app: atstex-backend
+    spec:
+      containers:
+      - name: backend
+        image: sammidev/atstex-backend:1.0.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: atstex-config
+        - secretRef:
+            name: atstex-secrets
+        volumeMounts:
+        # Persistent Tectonic package cache (matches compose.yml)
+        - name: tectonic-cache
+          mountPath: /var/cache/tectonic
+        # Temp dir for LaTeX compilation (matches compose.yml tmpfs)
+        - name: tmp-dir
+          mountPath: /tmp
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 10
+      volumes:
+      - name: tectonic-cache
+        persistentVolumeClaim:
+          claimName: tectonic-cache-pvc
+      - name: tmp-dir
+        emptyDir:
+          sizeLimit: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: atstex-backend-svc
+  namespace: atstex-lab
+spec:
+  selector:
+    app: atstex-backend
+  ports:
+  - port: 8080
+    targetPort: 8080
