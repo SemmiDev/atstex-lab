@@ -2,7 +2,38 @@
 
 A modern LaTeX CV builder designed to help you generate beautiful, ATS-friendly resumes. Write your biodata, choose a template, and instantly compile it into a professional PDF.
 
----
+## Table of Contents
+- [Preview](#preview)
+- [Key Technologies](#key-technologies)
+- [Architecture & Flow](#architecture--flow)
+- [How it Works](#how-it-works)
+- [Quickstart using Docker](#quickstart-using-docker)
+- [Dev Commands](#dev-commands)
+
+## Preview
+
+![Landing Page — Hero section with CTA](docs/assets/Screenshot%202026-05-01%20at%2017.52.26.png)
+![Landing Page — Feature highlights carousel](docs/assets/Screenshot%202026-05-01%20at%2017.52.40.png)
+![Biodata — CV profile input form](docs/assets/Screenshot%202026-05-01%20at%2017.52.59.png)
+![Auto Builder — Live PDF preview with template compilation](docs/assets/Screenshot%202026-05-01%20at%2017.53.09.png)
+![Manual Designer — Drag-and-drop CV layout builder](docs/assets/Screenshot%202026-05-01%20at%2017.53.32.png)
+![Template Gallery — Browse and apply LaTeX templates](docs/assets/Screenshot%202026-05-01%20at%2017.53.43.png)
+![AI CV Review — Score, strengths, and improvement areas](docs/assets/Screenshot%202026-05-01%20at%2017.54.00.png)
+![Mock Interview — AI-powered live voice interview simulation](docs/assets/Screenshot%202026-05-01%20at%2017.55.23.png)
+![Job Application Kanban — Track applications across stages](docs/assets/Screenshot%202026-05-01%20at%2017.55.52.png)
+![Profile — Account info, active sessions, and danger zone](docs/assets/Screenshot%202026-05-01%20at%2017.55.58.png)
+![Public Profile — Shareable portfolio page with published CVs](docs/assets/Screenshot%202026-05-01%20at%2017.56.17.png)
+![Publication Settings — Claim username and set CV visibility](docs/assets/Screenshot%202026-05-01%20at%2017.56.32.png)
+![Analytics Dashboard — Profile visits and PDF download stats](docs/assets/Screenshot%202026-05-01%20at%2017.56.49.png)
+
+## Key Technologies
+- **Core**: Go, strict layered architecture with Chi router.
+- **Frontend**: Go HTML Templates, Tailwind CSS, Vanilla JS.
+- **LaTeX Engine**: Tectonic (compiled in an isolated temporal sandbox).
+- **Data**: PostgreSQL (pgx).
+- **Auth & Security**: Google OAuth2 via session cookies.
+- **AI Suite**: OpenAI / Gemini integration for CV review, ATS simulation, cover letter generation, mock interview, and PDF extraction.
+- **Infrastructure**: Docker, Docker Compose, optimized multi-stage containers.
 
 ## Architecture & Flow
 
@@ -70,7 +101,7 @@ flowchart TB
     class User,Viewer user;
 ```
 
-### How it Works
+## How it Works
 
 1. **Input**: You fill out your professional profile data using the Web UI, which saves securely to your persistent PostgreSQL database profile.
 2. **AI Extraction**: Optionally, upload an existing PDF resume. The Go backend sends the text to an AI provider (like OpenAI or Gemini) to intelligently parse and auto-fill your profile.
@@ -125,11 +156,17 @@ This project uses [golang-migrate](https://github.com/golang-migrate/migrate) to
 
 Visit [http://localhost:8080](http://localhost:8080) in your browser!
 
-### Common Commands
+## Dev Commands
 
-- `make docker-logs` - Tail the active output logs.
-- `make docker-down` - Stop the containers safely.
-- `make docker-remove-rebuild` - Nuke the database and container volumes to start fresh.
-- `make migratedown` - Revert all migrations.
-- `make migrateup1` / `make migratedown1` - Run/revert exactly one migration.
-- `make new_migration name=your_migration_name` - Generate new empty up/down migration files.
+Common commands for development and operations:
+
+| Command | Description |
+|---|---|
+| `make docker-run` | Build and start the full Docker stack |
+| `make docker-logs` | Tail the active output logs |
+| `make docker-down` | Stop the containers safely |
+| `make docker-remove-rebuild` | Nuke the database and container volumes to start fresh |
+| `make migrateup` | Run all database migrations |
+| `make migratedown` | Revert all migrations |
+| `make migrateup1` / `make migratedown1` | Run/revert exactly one migration |
+| `make new_migration name=<name>` | Generate new empty up/down migration files |
