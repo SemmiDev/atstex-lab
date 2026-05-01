@@ -2,12 +2,13 @@
 # atstex-lab  —  Kubernetes helpers
 # ==========================================
 # Usage:
+
+# kubectl apply -f 00-namespace.yaml
 #   make create-secrets \
 #     POSTGRES_PASSWORD=supersecret \
 #     GOOGLE_CLIENT_ID=xxx \
 #     GOOGLE_CLIENT_SECRET=xxx \
 #     AI_API_KEY=xxx
-#
 #   make apply
 #   make delete
 # ==========================================
