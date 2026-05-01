@@ -884,6 +884,15 @@ func (s *Server) handleForbiddenPage() http.HandlerFunc {
 	}
 }
 
+// handleHealth returns a simple 200 OK for health checks.
+func (s *Server) handleHealth() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_ = json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+	}
+}
+
 // AdminBlockUser blocks a user.
 // @Summary      Block User
 // @Description  Block a user from accessing the platform

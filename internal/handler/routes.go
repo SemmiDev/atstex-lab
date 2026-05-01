@@ -28,6 +28,9 @@ func (s *Server) routes() {
 	s.router.Use(chimw.CleanPath)
 	s.router.Use(chimw.StripSlashes)
 
+	// Health check
+	s.router.Get("/health", s.handleHealth())
+
 	// Swagger UI
 	s.router.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL("/swagger/doc.json"),
